@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+
 :root{
   --bg:#0b0d14;
   --panel-bg:#0e111a;
@@ -54,15 +55,592 @@ header{padding:14px 24px 12px;display:flex;align-items:center;justify-content:sp
   color: #94a3b8;
   box-shadow: none !important;
 }
-.map3d-actor-marker.selected {
-  transform: scale(1.35) translateY(-5px);
-  z-index: 1000 !important;
-  border-color: #ffffff;
-  box-shadow: 0 0 0 3px #5B8BF5, 0 0 22px #5B8BF5, 0 0 10px #ffffff;
+h1{margin:0;font-size:21px;font-weight:600;letter-spacing:-.025em;line-height:1.15;color:#F4F0E8}
+.lede{margin:2px 0 0;font-size:12.5px;line-height:1.35;color:var(--soft);max-width:58ch}
+.header-actions{display:flex;align-items:center;gap:14px}
+.btn-how-to{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(--faint);font-size:12px;font-weight:500;color:var(--ink);cursor:pointer;transition:all .15s}
+.btn-how-to:hover{background:rgba(255,255,255,0.12);border-color:#5a6385}
+.nums{display:flex;gap:16px;flex:none}
+.nums div{text-align:right}
+.nums b{display:block;font-size:20px;font-weight:600;letter-spacing:-.02em;line-height:1;color:#F4F0E8}
+.nums span{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.03em}
+
+/* Barra superior didáctica interactiva (Rutas guiadas sin emojis) */
+.tour-bar{background:#0e121c;border-bottom:1px solid var(--line);padding:8px 24px;display:flex;align-items:center;gap:10px;overflow-x:auto;white-space:nowrap;z-index:12}
+.tour-label{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);display:inline-flex;align-items:center;gap:5px;flex:none}
+.tour-pill{padding:5px 12px;border-radius:999px;background:var(--card-bg);border:1px solid var(--faint);font-size:12px;color:var(--soft);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;flex:none}
+.tour-pill:hover{color:var(--ink);border-color:#5a6385;background:var(--card-hover)}
+.tour-pill.active{background:linear-gradient(135deg,rgba(56,189,248,0.2) 0%,rgba(129,140,248,0.2) 100%);border-color:var(--accent);color:#fff;font-weight:600}
+.tour-pill .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+
+/* Escenario interactivo */
+.stage{position:relative;min-height:0;background:radial-gradient(circle at 1px 1px,#161b27 1px,transparent 1.3px) 0 0/26px 26px,#0b0d14;overflow:hidden}
+#net{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+#net:active{cursor:grabbing}
+
+/* Barra flotante de ayuda */
+.stage-hint{position:absolute;bottom:18px;left:18px;background:rgba(14,17,26,0.92);backdrop-filter:blur(10px);border:1px solid var(--faint);padding:7px 14px;border-radius:999px;font-size:12px;color:var(--soft);display:flex;align-items:center;gap:8px;pointer-events:none;z-index:8;box-shadow:0 6px 18px rgba(0,0,0,0.45)}
+.stage-hint b{color:var(--ink);font-weight:600}
+
+/* Controles de Zoom */
+.zoom{position:absolute;right:18px;bottom:18px;display:flex;border:1px solid var(--faint);border-radius:999px;overflow:hidden;background:#10131d;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,0.55)}
+.zoom button{background:none;border:0;height:34px;padding:0 14px;cursor:pointer;font-size:13px;color:var(--soft);transition:background .15s,color .15s}
+.zoom button+button{border-left:1px solid var(--faint)}
+.zoom button:hover{color:var(--ink);background:#181c2a}
+
+.neb{pointer-events:none;transition:opacity .35s ease}
+.orbit{fill:none;stroke-opacity:.2;stroke-width:1;stroke-dasharray:1 5;pointer-events:none}
+.crown{fill:none;stroke:#E5C06E;stroke-width:1.6;stroke-opacity:.48;pointer-events:none}
+.hlabel{font-weight:600;pointer-events:none;letter-spacing:.02em;paint-order:stroke;stroke:#0b0d14;stroke-width:3px;stroke-linejoin:round;font-size:13px;opacity:.9}
+
+/* Enlaces limpios e interactivos con flechas elegantes */
+.link{fill:none;stroke-linecap:round;opacity:.32;transition:opacity .2s, stroke-width .2s, stroke .2s}
+.link-hit{fill:none;stroke:transparent;pointer-events:stroke;cursor:pointer}
+.link-hit:hover + .link, .link.hov-link{opacity:1 !important;stroke-width:3.2px !important;filter:drop-shadow(0 0 5px currentColor)}
+.link.sel-link{opacity:1 !important;stroke-width:3.6px !important;filter:drop-shadow(0 0 8px currentColor)}
+
+/* Nodos elegantes con relieve y acabado visual */
+.node{cursor:pointer;transition:transform .15s ease}
+.node .ring{stroke-opacity:.90;transition:stroke .2s,stroke-width .2s,fill .2s}
+.node .icon,.node .logo-img{pointer-events:none}
+.node .halo{fill:none;stroke:#fff;stroke-opacity:0;pointer-events:none}
+.node.new .ring{stroke-dasharray:4 3}
+.node text{fill:#F0ECE4;font-weight:600;pointer-events:none;paint-order:stroke;stroke:#0b0d14;stroke-linejoin:round;stroke-width:3.2px;font-size:12px}
+.node,.hull,.hlabel{transition:opacity .25s ease}
+
+/* Modos de enfoque al seleccionar o pasar cursor */
+.focus .node{opacity:.12}.focus .link{opacity:.025}.focus .neb{opacity:.12}
+.focus .node.on{opacity:1;filter:drop-shadow(0 4px 14px rgba(0,0,0,0.85))}
+.focus .link.on{opacity:.95;stroke-width:2.4px}
+.node.sel .halo{stroke-opacity:.5}
+.node.sel .ring{stroke:#fff;stroke-opacity:1}
+.off{display:none}
+.particle{pointer-events:none}
+
+/* Popover interactivo flotante en hover */
+.node-pop{position:absolute;pointer-events:none;z-index:50;display:none;background:rgba(14,17,24,0.96);border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(14px);padding:14px 16px;border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,0.75);max-width:320px;transform:translate(-50%,-100%);margin-top:-14px}
+.node-pop.visible{display:block;animation:popFade .15s cubic-bezier(0.16, 1, 0.3, 1)}
+@keyframes popFade{from{opacity:0;transform:translate(-50%,-92%) scale(0.97)}to{opacity:1;transform:translate(-50%,-100%) scale(1)}}
+
+/* Estructura del popover para nodos */
+.node-pop .pop-head{display:flex;align-items:center;gap:12px}
+.node-pop .pop-av{width:42px;height:42px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);display:grid;place-items:center;flex:none;background:#fff;overflow:hidden}
+.node-pop .pop-av.dark-av{background:#141722}
+.node-pop .pop-title{font-size:14px;font-weight:600;color:#F6F3EB;line-height:1.25}
+.node-pop .pop-sub{font-size:11.5px;color:var(--soft);margin-top:2px}
+.node-pop .pop-meta{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--soft)}
+.node-pop .pop-hint{margin-top:8px;font-size:10.5px;color:#828ecc;text-align:center;background:rgba(130,142,204,0.12);padding:4px 8px;border-radius:6px}
+
+/* Estructura del popover para enlaces / líneas */
+.pop-link-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.pop-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;border:1px solid transparent;line-height:1}
+.pop-badge i{width:6px;height:6px;border-radius:50%;display:inline-block}
+.pop-intens{font-size:11px;color:var(--soft);display:flex;align-items:center;gap:6px}
+.pop-link-title{font-size:13.5px;font-weight:600;color:#F5F2EB;line-height:1.3;margin-bottom:4px}
+.pop-link-desc{font-size:12px;color:var(--soft);line-height:1.45;margin-bottom:10px}
+.pop-flow{display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.35);padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:8px}
+.flow-actor{display:flex;align-items:center;gap:8px;max-width:42%}
+.flow-actor .av{border-radius:50%;border:1.5px solid;overflow:hidden;display:grid;place-items:center;background:#fff;flex:none}
+.flow-actor .av.dark-av{background:#141722}
+.flow-name{min-width:0}
+.flow-name b{display:block;font-size:11.5px;font-weight:600;color:#F3F0E8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flow-name small{display:block;font-size:9.5px;color:var(--mute)}
+.flow-arrow{font-size:14px;font-weight:700}
+
+/* Panel lateral moderno, organizado y claro */
+.panel{border-left:1px solid var(--line);overflow-y:auto;background:var(--panel-bg)}
+.sec{padding:20px 22px;border-bottom:1px solid var(--line)}
+h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#EDEAE3;display:flex;align-items:center;gap:8px}
+h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;background:rgba(255,255,255,0.08);padding:2px 7px;border-radius:999px;color:var(--soft)}
+.hint{margin:0 0 12px;font-size:12px;line-height:1.45;color:var(--soft)}
+
+/* Tarjeta didáctica explicativa */
+.didactic-banner{background:linear-gradient(135deg,#131929 0%,#192135 100%);border:1px solid #2d3b5b;border-radius:12px;padding:14px;margin-bottom:14px}
+.didactic-banner h3{margin:0 0 6px;font-size:13.5px;font-weight:600;color:#7dd3fc;display:flex;align-items:center;gap:6px}
+.didactic-banner p{margin:0;font-size:12px;line-height:1.45;color:#cbd5e1}
+
+/* Controles de filtro de convenciones */
+.conv{display:flex;flex-direction:column;gap:5px}
+.cv{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;background:none;border:1px solid transparent;cursor:pointer;font-size:12.5px;color:var(--soft);transition:background .15s,color .15s;text-align:left;width:100%}
+.cv:hover{background:var(--card-hover);color:var(--ink)}
+.cv[aria-pressed="false"]{opacity:.35}
+.cv .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cv .n{font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+
+/* Botones de clústeres / ámbitos */
+.spheres{display:flex;flex-wrap:wrap;gap:6px}
+.sp{padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:#131620;font-size:12px;color:var(--soft);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s,color .15s,background .15s}
+.sp:hover{border-color:var(--c);color:var(--ink);background:#191d2c}
+.sp::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+
+/* Tipos de actor con íconos estándar */
+.types{display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;font-size:12px;color:var(--soft)}
+.types div{display:flex;align-items:center;gap:8px}
+.types .av{width:22px;height:22px;border-radius:50%;background:#181c26;border:1px solid var(--faint);display:inline-grid;place-items:center;color:#D8D4CA;flex:none}
+.types .dash{display:inline-block;width:18px;height:0;border-top:1.8px dashed #D8D4CA;vertical-align:middle;margin-right:2px}
+
+/* Buscador de actores */
+.search{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--faint);border-radius:10px;background:#10131d;transition:border-color .15s,background .15s;margin-bottom:10px}
+.search:focus-within{border-color:var(--accent);background:#141824}
+.search input{background:none;border:0;outline:none;font:inherit;color:var(--ink);font-size:13px;width:100%}
+.search input::placeholder{color:var(--mute)}
+
+/* Lista de actores */
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;max-height:360px;overflow-y:auto}
+.row{display:flex;align-items:center;gap:10px;width:100%;padding:7px 9px;border-radius:9px;background:none;border:0;cursor:pointer;text-align:left;color:inherit;transition:background .15s}
+.row:hover{background:var(--card-hover)}
+.row .av{width:32px;height:32px;border-radius:50%;border:1.5px solid;overflow:hidden;display:grid;place-items:center;flex:none}
+.row .nm{font-size:13px;font-weight:600;color:#F0EDE6;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sub{font-size:11.5px;color:var(--soft);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .deg{font-size:11.5px;color:var(--mute);margin-left:auto;font-variant-numeric:tabular-nums;flex:none;background:rgba(255,255,255,0.05);padding:2px 7px;border-radius:999px}
+
+/* Detalle de actor seleccionado */
+.back{background:none;border:0;padding:0;color:var(--accent);font-size:12.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
+.back:hover{color:#7dd3fc}
+.who h3{margin:10px 0 2px;font-size:17px;font-weight:600;letter-spacing:-.015em;line-height:1.2;color:#F4F0E8}
+.who .kind{font-size:12px;color:var(--soft)}
+.who p{margin:12px 0 16px;font-size:13px;line-height:1.5;color:var(--soft)}
+.who .av{border-radius:50%;border:2px solid;display:grid;place-items:center;overflow:hidden}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;border-radius:10px;background:#121622;border:1px solid var(--line)}
+.io div{text-align:center}.io b{display:block;font-size:20px;font-weight:600;color:#F4F0E8;line-height:1}.io span{font-size:11.5px;color:var(--mute)}
+
+.group{margin-top:18px}
+.group:first-child{margin-top:0}
+.ghead{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--soft);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.it{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 0;cursor:pointer;transition:background .15s}
+.it:hover{background:rgba(255,255,255,0.02)}
+.it .dir{font-size:11px;color:var(--mute);margin-bottom:2px;font-weight:600;text-transform:uppercase}
+.it .who2{font-size:13.5px;font-weight:600;color:#F2EFE8}
+.it .ty{font-size:12.5px;color:var(--ink);margin:4px 0 2px;display:flex;align-items:center;gap:8px}
+.it .ds{font-size:12px;color:var(--soft);line-height:1.4}
+.dots{display:inline-flex;gap:3px;align-items:center}
+.dots i{width:5px;height:5px;border-radius:50%;background:#313745}.dots i.f{background:var(--c)}
+
+/* Niveles de jerarquía */
+.lvls{display:flex;flex-direction:column;gap:8px}
+.lvls div{display:grid;grid-template-columns:68px 1fr;gap:12px;align-items:center;font-size:12.5px;line-height:1.4;color:var(--soft)}
+.lvls b{color:var(--ink);font-weight:600}
+
+/* Instituciones con logo oficial */
+.inst-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px;margin-top:10px}
+.inst-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:9px 5px;border:1px solid var(--faint);border-radius:10px;background:#10131d;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.inst-card:hover{border-color:#5a6385;background:#171c2a;transform:translateY(-2px)}
+.inst-card span{font-size:11px;color:var(--soft);margin-top:5px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.link-actor-card{transition:border-color .15s,background .15s;text-align:left}
+.link-actor-card:hover{border-color:#616c96 !important;background:#161a27 !important}
+
+/* Modal didáctico "Cómo entender la red" */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:none;place-items:center;z-index:999;padding:16px}
+.modal-overlay.open{display:grid;animation:modalFade .2s cubic-bezier(0.16, 1, 0.3, 1)}
+@keyframes modalFade{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+.modal-box{background:#111520;border:1px solid #2d3b5b;border-radius:18px;max-width:580px;width:100%;padding:26px 28px;box-shadow:0 24px 50px rgba(0,0,0,0.85);max-height:88vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-header h2{font-size:19px;font-weight:600;color:#F4F0E8;margin:0}
+.btn-close-modal{background:none;border:0;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--soft);transition:all .15s}
+.btn-close-modal:hover{background:#1c2336;color:#fff}
+.guide-step{display:flex;gap:14px;margin-bottom:16px;padding:12px;background:#141926;border-radius:12px;border:1px solid var(--faint)}
+.guide-step-icon{width:36px;height:36px;border-radius:10px;background:rgba(56,189,248,0.15);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:16px;flex:none}
+.guide-step-body h4{margin:0 0 4px;font-size:14px;font-weight:600;color:#F3F0EA}
+.guide-step-body p{margin:0;font-size:12.5px;color:var(--soft);line-height:1.45}
+
+@media (max-width:900px){
+  .app{display:block;height:auto}
+  .left{display:block}
+  header{display:block;padding:16px 18px 12px}
+  .header-actions{margin-top:12px;justify-content:space-between}
+  .nums{gap:16px}
+  .nums div{text-align:left}
+  .stage{height:auto;border-bottom:1px solid var(--line);display:block}
+  #net{height:auto}
+  .zoom,.stage-hint{display:none}
+  .panel{border-left:0;overflow:visible}
+  .sec{padding:18px 16px}
 }
-.map3d-actor-marker.dimmed {
-  opacity: 0.2;
-  filter: grayscale(80%);
+@media (prefers-reduced-motion:reduce){.particle{display:none}}
+
+
+/* Barra de control unificada: Modo de Vista y Rutas (SIN EMOJIS, 1 sola barra) */
+.control-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 20px;
+  background: #090c12;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-wrap: wrap;
+}
+.strip-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+.strip-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+  flex-shrink: 0;
+}
+.strip-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.strip-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--soft);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 13px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.strip-tab:hover {
+  background: rgba(255,255,255,0.07);
+  color: #FFFFFF;
+  border-color: rgba(255,255,255,0.18);
+}
+.strip-tab.active {
+  background: #192233;
+  color: #FFFFFF;
+  border-color: #5B8BF5;
+  box-shadow: 0 0 10px rgba(91,139,245,0.25);
+  font-weight: 600;
+}
+
+.strip-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,0.1);
+}
+
+.tour-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.tour-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #121622;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 32px 5px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  outline: none !important;
+  transition: border-color 0.2s ease;
+}
+.tour-select:hover, .tour-select:focus {
+  border-color: #5B8BF5;
+  background: #161c2b;
+}
+.tour-select-arrow {
+  position: absolute;
+  right: 11px;
+  pointer-events: none;
+  color: var(--mute);
+}
+
+/* Lineas estilo Constelacion / Behind the Beats (vector-effect non-scaling) */
+.link {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke !important;
+  opacity: 0.32;
+  transition: opacity 0.2s, stroke 0.2s;
+}
+.link-hit {
+  fill: none;
+  stroke: transparent;
+  pointer-events: stroke;
+  cursor: pointer;
+  vector-effect: non-scaling-stroke !important;
+}
+.link.hov-link, .link.on {
+  opacity: 0.95 !important;
+  stroke-width: 2px !important;
+  vector-effect: non-scaling-stroke !important;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+.link.dim {
+  opacity: 0.05 !important;
+}
+
+/* Capa de Anillos Concentricos (simplificada y limpia) */
+.layer-concentric {
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.concentric-ring {
+  fill: none;
+  stroke-dasharray: 4 6;
+  opacity: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+.concentric-axis {
+  fill: none;
+  stroke: rgba(255,255,255,0.04);
+  stroke-dasharray: 3 6;
+}
+.concentric-badge-text {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-anchor: middle;
+}
+
+/* Capa de Cartografia Urbana e Ilustraciones */
+.layer-urban {
+  transition: opacity 0.4s ease;
+}
+.urban-ray {
+  stroke-dasharray: 3 4;
+  opacity: 0.22;
+  vector-effect: non-scaling-stroke;
+  transition: opacity 0.2s, stroke-width 0.2s;
+}
+.urban-ray.highlight {
+  opacity: 0.85;
+  stroke-width: 1.8px;
+}
+.urban-vignette {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.urban-vignette:hover {
+  filter: drop-shadow(0 0 12px rgba(91,139,245,0.4));
+}
+.vignette-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  fill: #EAE6DF;
+  text-anchor: middle;
+}
+
+/* Contorno sutil de clusters (sin luz de fondo ni nebulosas) */
+.cluster-boundary {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-dasharray: 4 5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Cartografia 3D Territorial e Hitos Reales de Kennedy */
+.iso-boundary {
+  fill: rgba(4, 14, 26, 0.65);
+  stroke: #00f2fe;
+  stroke-width: 2.2px;
+  stroke-dasharray: 8 4;
+  filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.45));
+  vector-effect: non-scaling-stroke;
+}
+.iso-grid {
+  fill: none;
+  stroke: rgba(0, 229, 255, 0.05);
+  stroke-dasharray: 3 6;
+  vector-effect: non-scaling-stroke;
+}
+.iso-road {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+}
+.iso-water {
+  fill: rgba(0, 242, 254, 0.16);
+  stroke: #00f2fe;
+  stroke-width: 1.4px;
+  filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.3));
+  vector-effect: non-scaling-stroke;
+}
+.iso-wireframe {
+  fill: rgba(255, 255, 255, 0.03);
+  stroke-width: 1.2px;
+  vector-effect: non-scaling-stroke;
+}
+.iso-beacon {
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.7;
+}
+.iso-ground-ring {
+  fill: none;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Tarjeta 3D Flotante con Foto Real */
+.landmark-card-3d {
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.25s ease;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.landmark-card-3d:hover {
+  transform: translate(0, -6px) scale(1.04);
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 16px currentColor);
+}
+.card-frame {
+  fill: #0a0e17;
+  stroke-width: 2px;
+  rx: 8px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.85));
+}
+.card-photo {
+  border-radius: 6px;
+  pointer-events: none;
+}
+.card-title-bar {
+  fill: #0f1522;
+  rx: 4px;
+}
+.card-title-text {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  fill: #FFFFFF;
+  text-anchor: middle;
+}
+.card-upz-text {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-anchor: middle;
+}
+
+/* Rayos de telemetria laser 3D (estilo Drone Telemetry Map) */
+.telemetry-ray {
+  stroke-dasharray: 4 4;
+  opacity: 0.28;
+  vector-effect: non-scaling-stroke;
+  transition: opacity 0.2s, stroke-width 0.2s;
+}
+.telemetry-ray.highlight {
+  opacity: 0.95;
+  stroke-width: 2.0px;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+
+/* Panel lateral simplificado y limpio */
+.panel-header-compact {
+  display: flex;
+  flex-direction: column;
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--soft);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 9px;
+  border-radius: 12px;
+  cursor: pointer;
+  outline: none !important;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+}
+.filter-chip.active {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: var(--c, #5B8BF5);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+.chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.badge-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 7px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.rel-row {
+  transition: background 0.15s ease, border-color 0.15s ease;
+  outline: none !important;
+}
+.rel-row:hover {
+  background: #151b2c !important;
+  border-color: rgba(91, 139, 245, 0.4) !important;
+}
+
+
+/* Contenedor del Mapa 3D Real (REN3D / MapLibre) */
+.map-3d-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.4s ease;
+  background: #090c12;
+}
+.map-3d-stage.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 10;
+}
+.maplibregl-canvas-container {
+  cursor: grab;
+}
+.maplibregl-canvas-container:active {
+  cursor: grabbing;
+}
+
+/* Marcadores de actores en el mapa 3D */
+.map3d-actor-marker {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--c, #5B8BF5);
+  background: #10141f;
+  box-shadow: 0 0 10px rgba(0,0,0,0.8), 0 0 6px var(--c, #5B8BF5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.2s ease;
+}
+.map3d-actor-marker:hover {
+  transform: scale(1.35) translateY(-4px);
+  z-index: 999 !important;
+  box-shadow: 0 0 18px rgba(91,139,245,0.8), 0 0 8px #fff;
 }
 .map3d-actor-marker.has-logo {
   background: #FFFFFF;
@@ -70,67 +648,58 @@ header{padding:14px 24px 12px;display:flex;align-items:center;justify-content:sp
 .map3d-actor-marker img {
   width: 24px;
   height: 24px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 50%;
-  display: block;
 }
 .map3d-actor-marker svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   color: #FFFFFF;
 }
 
-/* Etiqueta flotante del actor en 3D */
-.map3d-actor-marker .marker-pill {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(5px);
-  background: rgba(12, 17, 28, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #f1f5f9;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 4px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+/* Tarjetas 3D flotantes con fotos reales sobre el mapa de Kennedy */
+.map3d-hub-card {
+  background: #0c121e;
+  border: 1.5px solid var(--c, #00f2fe);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.85), 0 0 12px var(--c, #00f2fe);
+  cursor: pointer;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  width: 130px;
 }
-.map3d-actor-marker:hover .marker-pill,
-.map3d-actor-marker.selected .marker-pill {
-  opacity: 1;
-  transform: translateX(-50%) translateY(3px);
+.map3d-hub-card:hover {
+  transform: scale(1.1) translateY(-6px);
+  z-index: 9999 !important;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.95), 0 0 20px var(--c, #00f2fe);
 }
-
-/* Etiquetas discretas de hitos de orientación territorial */
-.map3d-hub-tag {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(9, 13, 21, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-left: 2.5px solid var(--c, #00f2fe);
-  border-radius: 4px;
-  padding: 3px 7px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.7);
-  pointer-events: none;
-  user-select: none;
+.map3d-hub-card img {
+  width: 100%;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 5px;
+  display: block;
 }
-.map3d-hub-tag .hub-bullet {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--c, #00f2fe);
-}
-.map3d-hub-tag .hub-text {
+.map3d-hub-card .hub-name {
   font-size: 9.5px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #FFFFFF;
+  text-align: center;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   letter-spacing: 0.02em;
 }
+.map3d-hub-card .hub-upz {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--c, #00f2fe);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 
 /* Panel lateral compacto (295px) con convenciones restauradas */
 .conv-compact-list {
@@ -160,35 +729,84 @@ header{padding:14px 24px 12px;display:flex;align-items:center;justify-content:sp
   border-color: #5B8BF5;
 }
 
-
-/* Fotos reales circulares dentro de cada nodo de la red */
-.node-photo-img {
+/* Visor 3D Real integrado desde REN3D */
+.map-3d-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #090c12;
+  opacity: 0;
   pointer-events: none;
-  border-radius: 50%;
-  transition: transform 0.22s ease, filter 0.22s ease;
+  z-index: 1;
+  transition: opacity 0.4s ease;
 }
-.node:hover .node-photo-img {
-  filter: brightness(1.18) contrast(1.08);
+.map-3d-iframe.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 10;
 }
-.node.dimmed .node-photo-img {
-  opacity: 0.16;
-  filter: grayscale(100%);
+.ren3d-hud-overlay {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: rgba(9, 12, 18, 0.85);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  border-radius: 20px;
+  padding: 6px 14px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
 }
-.node.dimmed .ring {
-  opacity: 0.25;
+.ren3d-hud-overlay.active {
+  display: flex;
 }
-.node.dimmed text {
-  opacity: 0.12;
+.ren3d-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #00f2fe;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
-.photo-bg {
-  transition: opacity 0.2s ease;
+.btn-open-ren3d {
+  font-size: 11px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #1a2538;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  padding: 3px 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
-.node.dimmed .photo-bg {
-  opacity: 0.25;
+.btn-open-ren3d:hover {
+  background: #283a58;
+  border-color: #00f2fe;
 }
 
 
-/* Canvas y controles del Territorio 3D de Kennedy (modelamiento2 / Three.js) */
+
+/* Visor 3D territorial Three.js */
+.map-3d-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.4s ease;
+  background: #070a12;
+}
+.map-3d-stage.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 10;
+}
 #threeCanvas {
   position: absolute;
   inset: 0;
@@ -220,6 +838,40 @@ header{padding:14px 24px 12px;display:flex;align-items:center;justify-content:sp
 .status-3d-badge.hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Fotos reales circulares dentro de cada nodo de la red */
+.node-photo-img {
+  pointer-events: none;
+  border-radius: 50%;
+  transition: transform 0.22s ease, filter 0.22s ease;
+}
+.node:hover .node-photo-img {
+  filter: brightness(1.18) contrast(1.08);
+}
+.node.dimmed .node-photo-img {
+  opacity: 0.16;
+  filter: grayscale(100%);
+}
+.node .ring {
+  fill: none !important;
+  stroke-linecap: round;
+  transition: stroke 0.2s, stroke-width 0.2s;
+}
+.node.dimmed .ring {
+  opacity: 0.25;
+}
+.node.dimmed text {
+  opacity: 0.12;
+}
+.photo-bg {
+  transition: opacity 0.2s ease;
+}
+.node.has-real-logo .photo-bg {
+  fill: #FFFFFF !important;
+}
+.node.dimmed .photo-bg {
+  opacity: 0.25;
 }
 
 </style>
@@ -1268,7 +1920,7 @@ function geometry(){
   nodeSel.select('.ring').attr('r',n=>n.r)
     .attr('stroke-width',n=>REAL_LOGOS[n.id] ? (n.lv===1?2.4:1.8) : (n.lv===1?2.2:n.lv===2?1.6:1.2))
     .attr('stroke',n=>REAL_LOGOS[n.id]?'#E0DCDB':SPC[n.sph])
-    .attr('fill',n=>REAL_LOGOS[n.id] ? '#FFFFFF' : (n.lv===4 ? d3.interpolateRgb('#161a24',SPC[n.sph])(0.40) : d3.interpolateRgb('#11141c',SPC[n.sph])(n.lv===1?0.28:0.16)));
+    .attr('fill', 'none');
   nodeSel.select('.halo').attr('r',n=>n.r+7).attr('stroke-width',MODE==='d'?6:7);
 
   nodeSel.select('.logo-img')
@@ -1849,7 +2501,10 @@ function switchView(viewName){
       n.y = s.y + (target.y - s.y) * k;
     });
 
-    ticked();
+    nodeSel.attr('transform', n => `translate(${n.x},${n.y})`);
+    linkSel.attr('d', path);
+    linkHitSel.attr('d', path);
+    placeLabels();
 
     if (progress >= 1) {
       timer.stop();
@@ -1858,11 +2513,21 @@ function switchView(viewName){
         n.x = target.x;
         n.y = target.y;
       });
-      ticked();
+      nodeSel.attr('transform', n => `translate(${n.x},${n.y})`);
+      linkSel.attr('d', path);
+      linkHitSel.attr('d', path);
+      placeLabels();
     }
   });
 }
 
+
+// Conectar botones de cambio de vista
+document.querySelectorAll('.strip-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    switchView(btn.dataset.view);
+  });
+});
 
 // Conectar selector desplegable de rutas guiadas
 const tourSelect = document.getElementById('tourSelect');
