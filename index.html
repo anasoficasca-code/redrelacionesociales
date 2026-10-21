@@ -2180,8 +2180,10 @@ function toThreeScene(x, y) {
 
 function geoToThree(geo) {
   if (!geo || !geo.length) return { x: 0, z: 0 };
-  const net_x = 149600.93 * geo[0] - 8558.52 * geo[1] + 11139327.21;
-  const net_y = 754.06 * geo[0] + 118039.11 * geo[1] - 486382.63;
+  const lng = geo[0], lat = geo[1];
+  // Calibracion exacta oficial de Kennedy (modelamiento2 SUMO net)
+  const net_x = 158502.5342667897 * lng + 11760483.425451731;
+  const net_y = 75875.89881636726 * lat - 349119.0227795534;
   return toThreeScene(net_x, net_y);
 }
 
@@ -2198,26 +2200,26 @@ function initMap3D() {
 
   threeInitialized = true;
 
-  // 1. Escena optimizada, niebla sutil y fondo oscuro
+  // 1. Escena 3D elegante con atmósfera oscura y niebla sutil
   threeScene = new THREE.Scene();
-  threeScene.background = new THREE.Color(0x0b0f19);
-  threeScene.fog = new THREE.Fog(0x0b0f19, 300, 2600);
+  threeScene.background = new THREE.Color(0x060911);
+  threeScene.fog = new THREE.FogExp2(0x060911, 0.0016);
 
   threeTerritoryGroup = new THREE.Group();
+  threeCommunityGroup = new THREE.Group();
   threeLinksGroup = new THREE.Group();
   threeActorsGroup = new THREE.Group();
-  threeCommunityGroup = new THREE.Group();
 
   threeScene.add(threeTerritoryGroup);
   threeScene.add(threeCommunityGroup);
   threeScene.add(threeLinksGroup);
   threeScene.add(threeActorsGroup);
 
-  // Cámara axonométrica / perspectiva de Kennedy
+  // Cámara con perspectiva isométrica cinematográfica
   const w = container.clientWidth || window.innerWidth;
   const h = container.clientHeight || window.innerHeight;
-  threeCamera = new THREE.PerspectiveCamera(45, w / h, 5, 4500);
-  threeCamera.position.set(160, 480, 420);
+  threeCamera = new THREE.PerspectiveCamera(40, w / h, 5, 5000);
+  threeCamera.position.set(220, 290, 310);
 
   // Renderizador WebGL de alto rendimiento
   threeRenderer = new THREE.WebGLRenderer({
@@ -2228,73 +2230,80 @@ function initMap3D() {
   });
   threeRenderer.setSize(w, h);
   threeRenderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1));
+  threeRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+  threeRenderer.toneMappingExposure = 1.15;
 
-  // Controles de órbita centrados en Corabastos / Kennedy
+  // Controles de órbita centrados suavemente en Kennedy
   threeControls = new THREE.OrbitControls(threeCamera, canvas);
-  threeControls.target.set(105, 15, -70);
+  threeControls.target.set(90, 8, 80);
   threeControls.enableDamping = true;
-  threeControls.dampingFactor = 0.08;
-  threeControls.maxPolarAngle = Math.PI / 2.05;
+  threeControls.dampingFactor = 0.07;
+  threeControls.maxPolarAngle = Math.PI / 2.08;
   threeControls.minDistance = 30;
-  threeControls.maxDistance = 1800;
+  threeControls.maxDistance = 1600;
   threeControls.update();
 
-  // Luces balanceadas
-  const ambientLight = new THREE.AmbientLight(0xe2e8f0, 1.4);
+  // Sistema de iluminación estética
+  const ambientLight = new THREE.AmbientLight(0xdbeafe, 1.35);
   threeScene.add(ambientLight);
 
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-  dirLight.position.set(250, 500, 200);
-  threeScene.add(dirLight);
+  const sunLight = new THREE.DirectionalLight(0xffffff, 1.25);
+  sunLight.position.set(320, 500, 220);
+  threeScene.add(sunLight);
 
-  const blueLight = new THREE.DirectionalLight(0x38bdf8, 0.5);
-  blueLight.position.set(-250, 350, -200);
-  threeScene.add(blueLight);
+  const fillCyan = new THREE.DirectionalLight(0x38bdf8, 0.65);
+  fillCyan.position.set(-280, 260, -180);
+  threeScene.add(fillCyan);
 
-  // 2. Cargar activos territoriales REALES desde ./assets/ (Sin descargas remotas pesadas)
+  // 2. Activos territoriales reales de Kennedy (Carga rápida local)
   const NET_URL = './assets/kennedy_net.json';
   const WATER_URL = './assets/kennedy_water_bodies.json';
   const PARQUES_URL = './assets/kennedy_parques.json';
 
-  // Red vial y plano territorial base
+  // Base territorial y red vial
   fetch(NET_URL)
     .then(r => r.json())
     .then(data => {
-      // Plano base de Kennedy
-      const minP = toThreeScene(data.bbox[0] - 1000, data.bbox[1] - 1000);
-      const maxP = toThreeScene(data.bbox[2] + 1000, data.bbox[3] + 1000);
+      // Plano base de suelo tecnológico
+      const minP = toThreeScene(data.bbox[0] - 800, data.bbox[1] - 800);
+      const maxP = toThreeScene(data.bbox[2] + 800, data.bbox[3] + 800);
       const gW = Math.abs(maxP.x - minP.x);
       const gD = Math.abs(maxP.z - minP.z);
-      const groundGeo = new THREE.PlaneGeometry(gW, gD);
-      const groundMat = new THREE.MeshBasicMaterial({ color: 0x090d16 });
+      const groundGeo = new THREE.PlaneGeometry(gW, gD, 24, 24);
+      const groundMat = new THREE.MeshBasicMaterial({ color: 0x05080e });
       const groundMesh = new THREE.Mesh(groundGeo, groundMat);
       groundMesh.rotation.x = -Math.PI / 2;
-      groundMesh.position.y = -0.1;
+      groundMesh.position.y = -0.2;
       threeTerritoryGroup.add(groundMesh);
 
-      // Red de vías: BufferGeometry única fusionada (19 mil tramos, 1 solo draw call)
+      // Rejilla sutil de referencia espacial
+      const gridHelper = new THREE.GridHelper(Math.max(gW, gD), 36, 0x1e293b, 0x0f172a);
+      gridHelper.position.y = -0.15;
+      threeTerritoryGroup.add(gridHelper);
+
+      // Vías de Kennedy: Una sola BufferGeometry fusionada
       const positions = [];
       data.edges.forEach(([kind, pts]) => {
         for (let i = 0; i < pts.length - 1; i++) {
           const a = toThreeScene(pts[i][0], pts[i][1]);
           const b = toThreeScene(pts[i + 1][0], pts[i + 1][1]);
-          positions.push(a.x, 0.15, a.z, b.x, 0.15, b.z);
+          positions.push(a.x, 0.1, a.z, b.x, 0.1, b.z);
         }
       });
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-      const mat = new THREE.LineBasicMaterial({ color: 0x243247, transparent: true, opacity: 0.8 });
+      const mat = new THREE.LineBasicMaterial({ color: 0x1f2c3f, transparent: true, opacity: 0.85 });
       const lines = new THREE.LineSegments(geo, mat);
       threeTerritoryGroup.add(lines);
 
       if (statusEl) {
-        statusEl.textContent = 'Territorio 3D activo: Vías, humedales y redes comunitarias';
-        setTimeout(() => statusEl.classList.add('hidden'), 2200);
+        statusEl.textContent = 'Territorio 3D modelado: Vías, humedales y redes';
+        setTimeout(() => statusEl.classList.add('hidden'), 2400);
       }
     })
-    .catch(err => console.warn('Error cargando red vial:', err));
+    .catch(err => console.warn('Error cargando vías:', err));
 
-  // Cuerpos de agua reales (Humedal La Vaca, Humedal El Burro, Lago Timiza)
+  // Cuerpos de agua reales (Humedal La Vaca, Humedal El Burro y Lago Timiza)
   fetch(WATER_URL)
     .then(r => r.json())
     .then(waterBodies => {
@@ -2303,21 +2312,38 @@ function initMap3D() {
         const shape = new THREE.Shape();
         const first = toThreeScene(wb.pts[0][0], wb.pts[0][1]);
         shape.moveTo(first.x, -first.z);
+        const perimeterPts = [new THREE.Vector3(first.x, 0.22, first.z)];
+
         for (let i = 1; i < wb.pts.length; i++) {
           const p = toThreeScene(wb.pts[i][0], wb.pts[i][1]);
           shape.lineTo(p.x, -p.z);
+          perimeterPts.push(new THREE.Vector3(p.x, 0.22, p.z));
         }
+        perimeterPts.push(new THREE.Vector3(first.x, 0.22, first.z));
+
+        // Espejo de agua translúcido
         const geo = new THREE.ShapeGeometry(shape);
-        const mat = new THREE.MeshBasicMaterial({ color: 0x1e4976, transparent: true, opacity: 0.88 });
+        const mat = new THREE.MeshBasicMaterial({
+          color: 0x0284c7,
+          transparent: true,
+          opacity: 0.82,
+          side: THREE.DoubleSide
+        });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.rotation.x = -Math.PI / 2;
-        mesh.position.y = 0.1;
+        mesh.position.y = 0.15;
         threeTerritoryGroup.add(mesh);
+
+        // Borde hídrico luminoso
+        const edgeGeo = new THREE.BufferGeometry().setFromPoints(perimeterPts);
+        const edgeMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.9 });
+        const edgeLine = new THREE.Line(edgeGeo, edgeMat);
+        threeTerritoryGroup.add(edgeLine);
       });
     })
     .catch(err => console.warn('Error cargando agua:', err));
 
-  // Parques y zonas verdes de Kennedy
+  // Parques y zonas verdes reales de Kennedy
   fetch(PARQUES_URL)
     .then(r => r.json())
     .then(parques => {
@@ -2331,16 +2357,21 @@ function initMap3D() {
           shape.lineTo(p.x, -p.z);
         }
         const geo = new THREE.ShapeGeometry(shape);
-        const mat = new THREE.MeshBasicMaterial({ color: 0x142b20, transparent: true, opacity: 0.75 });
+        const mat = new THREE.MeshBasicMaterial({
+          color: 0x064e3b,
+          transparent: true,
+          opacity: 0.65,
+          side: THREE.DoubleSide
+        });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.rotation.x = -Math.PI / 2;
-        mesh.position.y = 0.05;
+        mesh.position.y = 0.08;
         threeTerritoryGroup.add(mesh);
       });
     })
     .catch(err => console.warn('Error cargando parques:', err));
 
-  // 3. Crear los 93 ACTORES con Balizas 3D y badges limpios
+  // 3. Posicionamiento calibrado y separación suave de los 93 ACTORES
   actor3dMeshes = [];
   const sphereColors = {
     cor: '#F5A642', log: '#4CB6E8', con: '#F48FB1',
@@ -2348,14 +2379,46 @@ function initMap3D() {
     mov: '#FF8A65', sal: '#80CBC4'
   };
 
+  // Coordenadas base de los actores en Three.js
+  const actorPositions = {};
   nodes.forEach(n => {
-    const p = getActorScenePos(n.id);
+    const rawPos = geoToThree(ACTOR_GEO[n.id] || [-74.1528, 4.6269]);
+    actorPositions[n.id] = { x: rawPos.x, z: rawPos.z };
+  });
+
+  // Pasada de relajación espacial (evita que actores del mismo nodo se amontonen)
+  const aKeys = Object.keys(actorPositions);
+  const MIN_DIST = 13.5;
+  for (let step = 0; step < 16; step++) {
+    for (let i = 0; i < aKeys.length; i++) {
+      for (let j = i + 1; j < aKeys.length; j++) {
+        const p1 = actorPositions[aKeys[i]];
+        const p2 = actorPositions[aKeys[j]];
+        const dx = p2.x - p1.x;
+        const dz = p2.z - p1.z;
+        const dist = Math.hypot(dx, dz);
+        if (dist < MIN_DIST && dist > 0.0001) {
+          const push = (MIN_DIST - dist) * 0.5;
+          const nx = dx / dist;
+          const nz = dz / dist;
+          p1.x -= nx * push;
+          p1.z -= nz * push;
+          p2.x += nx * push;
+          p2.z += nz * push;
+        }
+      }
+    }
+  }
+
+  // Creación de actores con balizas, halos y badges limpios
+  nodes.forEach(n => {
+    const p = actorPositions[n.id];
     const logoUrl = REAL_LOGOS[n.id];
     const sphColor = sphereColors[n.sph] || '#38bdf8';
     const colorHex = parseInt(sphColor.replace('#', '0x'), 16);
-    const elevation = 16 + (n.lv === 1 ? 8 : n.lv === 2 ? 5 : 2);
+    const elevation = 16 + (n.lv === 1 ? 9 : n.lv === 2 ? 5 : 2);
 
-    // Baliza vertical de anclaje territorial
+    // Baliza vertical de rayo de luz
     const beaconGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(p.x, 0, p.z),
       new THREE.Vector3(p.x, elevation, p.z)
@@ -2363,35 +2426,35 @@ function initMap3D() {
     const beaconMat = new THREE.LineBasicMaterial({
       color: colorHex,
       transparent: true,
-      opacity: 0.7
+      opacity: 0.65
     });
     const beaconLine = new THREE.Line(beaconGeo, beaconMat);
     threeActorsGroup.add(beaconLine);
 
-    // Anillo en el suelo
-    const ringGeo = new THREE.RingGeometry(1.2, 2.2, 16);
+    // Halo circular elegante en el suelo
+    const ringGeo = new THREE.RingGeometry(1.2, 2.4, 20);
     const ringMat = new THREE.MeshBasicMaterial({
       color: colorHex,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.75
+      opacity: 0.7
     });
     const groundRing = new THREE.Mesh(ringGeo, ringMat);
     groundRing.rotation.x = -Math.PI / 2;
     groundRing.position.set(p.x, 0.2, p.z);
     threeActorsGroup.add(groundRing);
 
-    // Sprite circular: con logo oficial si existe, o con sigla limpia
-    const spriteSize = n.lv === 1 ? 16 : n.lv === 2 ? 13 : 10;
+    // Badge circular 3D
+    const spriteSize = n.lv === 1 ? 15 : n.lv === 2 ? 12 : 9.5;
     const c2d = document.createElement('canvas');
     c2d.width = 128;
     c2d.height = 128;
     const ctx = c2d.getContext('2d');
 
-    // Círculo base con color del sector
+    // Fondo y borde del badge
     ctx.beginPath();
     ctx.arc(64, 64, 58, 0, Math.PI * 2);
-    ctx.fillStyle = n.id === 'A01' ? '#0e3820' : (logoUrl ? '#FFFFFF' : '#111726');
+    ctx.fillStyle = n.id === 'A01' ? '#0e3820' : (logoUrl ? '#FFFFFF' : '#0f172a');
     ctx.fill();
     ctx.lineWidth = n.lv === 1 ? 8 : 6;
     ctx.strokeStyle = logoUrl ? '#5B8BF5' : sphColor;
@@ -2418,7 +2481,7 @@ function initMap3D() {
     sprite.userData = { node: n, p: p, elevation: elevation, beacon: beaconLine, groundRing: groundRing };
     threeActorsGroup.add(sprite);
 
-    // Cargar imagen de logo oficial si existe
+    // Logo oficial si corresponde (solo 8 entidades confirmadas)
     if (logoUrl) {
       const img = new Image();
       img.crossOrigin = 'anonymous';
@@ -2449,25 +2512,35 @@ function initMap3D() {
     });
   });
 
-  // 4. Crear las 250 INTERACCIONES SOCIALES como rayos 3D
+  // 4. Crear las INTERACCIONES SOCIALES como ARCOS CURVOS 3D elegantes
   link3dLines = [];
   links.forEach(l => {
-    const sPos = getActorScenePos(l.s);
-    const tPos = getActorScenePos(l.t);
+    const sPos = actorPositions[l.s];
+    const tPos = actorPositions[l.t];
+    if (!sPos || !tPos) return;
+
     const sNode = byId.get(l.s);
     const tNode = byId.get(l.t);
-    const sElev = 16 + (sNode ? (sNode.lv === 1 ? 8 : sNode.lv === 2 ? 5 : 2) : 2);
-    const tElev = 16 + (tNode ? (tNode.lv === 1 ? 8 : tNode.lv === 2 ? 5 : 2) : 2);
-    const colorHex = parseInt((CONV[l.c] ? CONV[l.c].c : '#38bdf8').replace('#', '0x'), 16);
+    const sElev = 16 + (sNode ? (sNode.lv === 1 ? 9 : sNode.lv === 2 ? 5 : 2) : 2);
+    const tElev = 16 + (tNode ? (tNode.lv === 1 ? 9 : tNode.lv === 2 ? 5 : 2) : 2);
 
-    const geo = new THREE.BufferGeometry().setFromPoints([
+    const dist = Math.hypot(tPos.x - sPos.x, tPos.z - sPos.z);
+    const arcHeight = Math.min(42, Math.max(7, dist * 0.18));
+    const midY = Math.max(sElev, tElev) + arcHeight;
+
+    const curve = new THREE.QuadraticBezierCurve3(
       new THREE.Vector3(sPos.x, sElev, sPos.z),
+      new THREE.Vector3((sPos.x + tPos.x) / 2, midY, (sPos.z + tPos.z) / 2),
       new THREE.Vector3(tPos.x, tElev, tPos.z)
-    ]);
+    );
+    const curvePts = curve.getPoints(20);
+    const geo = new THREE.BufferGeometry().setFromPoints(curvePts);
+
+    const colorHex = parseInt((CONV[l.c] ? CONV[l.c].c : '#38bdf8').replace('#', '0x'), 16);
     const mat = new THREE.LineBasicMaterial({
       color: colorHex,
       transparent: true,
-      opacity: 0.65
+      opacity: 0.55
     });
     const line = new THREE.Line(geo, mat);
     line.userData = { link: l, s: l.s, t: l.t, color: colorHex };
@@ -2475,7 +2548,7 @@ function initMap3D() {
     link3dLines.push(line);
   });
 
-  // 5. Interacción por clic con Raycaster
+  // 5. Interacción interactiva por clic con Raycaster
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
 
@@ -2496,22 +2569,31 @@ function initMap3D() {
     }
   });
 
-  // 6. Loop de animación continuo a 60 FPS
+  // 6. Loop de animación continuo con pulso suave
+  let pulseTimer = 0;
   function animate() {
     animFrameId = requestAnimationFrame(animate);
     threeControls.update();
+
+    pulseTimer += 0.02;
+    const pulseFactor = 0.5 + 0.25 * Math.sin(pulseTimer);
+    link3dLines.forEach(l => {
+      if (l.material && !l.userData.highlighted) {
+        l.material.opacity = pulseFactor;
+      }
+    });
+
     threeRenderer.render(threeScene, threeCamera);
   }
   animate();
 
-  // 7. Cargar e inicializar capa de Redes Comunitarias de Kennedy (IDECA GPKG)
+  // 7. Cargar e inicializar Redes Comunitarias reales desde IDECA
   initCommunity3DLayer();
 
-  // Redimensionar automáticamente
   window.addEventListener('resize', onThreeResize);
 }
 
-// Inicialización de Capas Comunitarias 3D con InstancedMesh ultra-rápido (60 FPS)
+// Redes Comunitarias reales con marcadores esbeltos y luminosos
 let communityMeshes = {
   jacs: null,
   bibliotecas: null,
@@ -2524,15 +2606,20 @@ function initCommunity3DLayer() {
   if (!threeCommunityGroup || typeof COMMUNITY_NETWORKS === 'undefined') return;
 
   const dummy = new THREE.Object3D();
-  const cylinderGeo = new THREE.CylinderGeometry(1.6, 1.6, 2.2, 12);
+  // Marcadores estilizados tipo gema / prisma luminoso (no cilindros toscos)
+  const markerGeo = new THREE.CylinderGeometry(0.8, 1.4, 2.0, 8);
 
-  // Definición de las 5 categorías comunitarias con sus datos y colores
+  // Filtrar JACs a Kennedy estricto (evita anomalías de otros municipios)
+  const validJacs = (COMMUNITY_NETWORKS.jacs || []).filter(j => {
+    return j.coord && j.coord[0] >= -74.195 && j.coord[0] <= -74.120 && j.coord[1] >= 4.580 && j.coord[1] <= 4.665;
+  });
+
   const layersConfig = [
-    { key: 'jacs', items: COMMUNITY_NETWORKS.jacs || [], color: 0xf59e0b, btnId: 'toggleJacs', yOffset: 1.1 },
-    { key: 'bibliotecas', items: COMMUNITY_NETWORKS.bibliotecas || [], color: 0xa855f7, btnId: 'toggleBiblios', yOffset: 1.8 },
-    { key: 'acueductos', items: COMMUNITY_NETWORKS.acueductos || [], color: 0x06b6d4, btnId: 'toggleAcueductos', yOffset: 1.8 },
-    { key: 'huertas', items: COMMUNITY_NETWORKS.huertas || [], color: 0x10b981, btnId: 'toggleHuertas', yOffset: 1.8 },
-    { key: 'comedores', items: COMMUNITY_NETWORKS.comedores || [], color: 0xf43f5e, btnId: 'toggleComedores', yOffset: 1.8 }
+    { key: 'jacs', items: validJacs, color: 0xf59e0b, btnId: 'toggleJacs', yOffset: 1.0 },
+    { key: 'bibliotecas', items: COMMUNITY_NETWORKS.bibliotecas || [], color: 0xc084fc, btnId: 'toggleBiblios', yOffset: 1.5 },
+    { key: 'acueductos', items: COMMUNITY_NETWORKS.acueductos || [], color: 0x06b6d4, btnId: 'toggleAcueductos', yOffset: 1.5 },
+    { key: 'huertas', items: COMMUNITY_NETWORKS.huertas || [], color: 0x10b981, btnId: 'toggleHuertas', yOffset: 1.5 },
+    { key: 'comedores', items: COMMUNITY_NETWORKS.comedores || [], color: 0xf43f5e, btnId: 'toggleComedores', yOffset: 1.5 }
   ];
 
   layersConfig.forEach(cfg => {
@@ -2540,9 +2627,9 @@ function initCommunity3DLayer() {
     const mat = new THREE.MeshLambertMaterial({
       color: cfg.color,
       transparent: true,
-      opacity: 0.95
+      opacity: 0.92
     });
-    const instMesh = new THREE.InstancedMesh(cylinderGeo, mat, cfg.items.length);
+    const instMesh = new THREE.InstancedMesh(markerGeo, mat, cfg.items.length);
 
     cfg.items.forEach((item, idx) => {
       const p = geoToThree(item.coord);
@@ -2558,7 +2645,6 @@ function initCommunity3DLayer() {
     threeCommunityGroup.add(instMesh);
     communityMeshes[cfg.key] = instMesh;
 
-    // Vincular botón HUD
     const btn = document.getElementById(cfg.btnId);
     if (btn) {
       btn.onclick = () => {
@@ -2587,7 +2673,7 @@ function selectActorInThree(n, skipFly) {
   select(n, 'from3d');
 
   const p = getActorScenePos(n.id);
-  const elevation = 16 + (n.lv === 1 ? 8 : n.lv === 2 ? 5 : 2);
+  const elevation = 16 + (n.lv === 1 ? 9 : n.lv === 2 ? 5 : 2);
 
   if (threeControls && !skipFly) {
     threeControls.target.set(p.x, elevation, p.z);
@@ -2607,21 +2693,23 @@ function selectActorInThree(n, skipFly) {
       m.sprite.material.opacity = 1.0;
       m.beacon.material.opacity = 1.0;
     } else if (connectedIds.has(m.node.id)) {
-      m.sprite.scale.set(15, 15, 1);
+      m.sprite.scale.set(14, 14, 1);
       m.sprite.material.opacity = 0.95;
       m.beacon.material.opacity = 0.7;
     } else {
-      m.sprite.scale.set(8, 8, 1);
-      m.sprite.material.opacity = 0.2;
-      m.beacon.material.opacity = 0.15;
+      m.sprite.scale.set(7, 7, 1);
+      m.sprite.material.opacity = 0.15;
+      m.beacon.material.opacity = 0.1;
     }
   });
 
   link3dLines.forEach(line => {
     if (line.userData.s === n.id || line.userData.t === n.id) {
+      line.userData.highlighted = true;
       line.material.opacity = 1.0;
       line.material.color.setHex(0xffffff);
     } else {
+      line.userData.highlighted = false;
       line.material.opacity = 0.08;
       line.material.color.setHex(line.userData.color);
     }
@@ -2631,14 +2719,15 @@ function selectActorInThree(n, skipFly) {
 function clearActorInThree() {
   select(null);
   actor3dMeshes.forEach(m => {
-    const origSize = m.node.lv === 1 ? 16 : m.node.lv === 2 ? 13 : 10;
+    const origSize = m.node.lv === 1 ? 15 : m.node.lv === 2 ? 12 : 9.5;
     m.sprite.scale.set(origSize, origSize, 1);
     m.sprite.material.opacity = 1.0;
     m.beacon.material.opacity = 0.65;
   });
 
   link3dLines.forEach(line => {
-    line.material.opacity = 0.65;
+    line.userData.highlighted = false;
+    line.material.opacity = 0.55;
     line.material.color.setHex(line.userData.color);
   });
 }
