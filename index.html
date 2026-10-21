@@ -36,7 +36,7 @@ svg *:focus, svg *:focus-visible, .node:focus, .node:focus-visible, .link-hit:fo
   -webkit-tap-highlight-color: transparent !important;
 }
 
-.app{display:grid;grid-template-columns:1fr 410px;height:100%}
+.app{display:grid;grid-template-columns:1fr 295px;height:100%}
 .left{display:grid;grid-template-rows:auto auto 1fr;min-height:0}
 
 /* Header */
@@ -688,6 +688,94 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   letter-spacing: 0.06em;
 }
 
+
+/* Panel lateral compacto (295px) con convenciones restauradas */
+.conv-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.cv-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  outline: none !important;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.cv-pill:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.cv-pill.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #5B8BF5;
+}
+
+/* Visor 3D Real integrado desde REN3D */
+.map-3d-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #090c12;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.4s ease;
+}
+.map-3d-iframe.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 10;
+}
+.ren3d-hud-overlay {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: rgba(9, 12, 18, 0.85);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  border-radius: 20px;
+  padding: 6px 14px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+}
+.ren3d-hud-overlay.active {
+  display: flex;
+}
+.ren3d-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #00f2fe;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.btn-open-ren3d {
+  font-size: 11px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #1a2538;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  padding: 3px 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btn-open-ren3d:hover {
+  background: #283a58;
+  border-color: #00f2fe;
+}
+
 </style>
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
@@ -754,7 +842,7 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
     <div class="header-badge" title="Kennedy">K</div>
     <div>
      <h1>Red de actores de Kennedy</h1>
-     <p class="lede">Organización social de actores, instancias y herramientas que deciden, coordinan y ejecutan las políticas públicas locales.</p>
+     
     </div>
    </div>
    <div class="header-actions">
@@ -780,7 +868,7 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
        <button class="strip-tab active" data-view="free">Red libre</button>
        <button class="strip-tab" data-view="clusters">Clústeres</button>
        <button class="strip-tab" data-view="concentric">Anillos de poder</button>
-       <button class="strip-tab" data-view="map3d">Territorio 3D (Real)</button>
+       <button class="strip-tab" data-view="map3d">Territorio 3D (REN3D)</button>
      </div>
    </div>
 
@@ -808,7 +896,12 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   </div>
 
 <div class="stage" id="stage">
-   <div id="map3d" class="map-3d-stage"></div>
+      <!-- Visor 3D Real de Kennedy (REN3D de anasoficasca-code) -->
+   <iframe id="map3dIframe" class="map-3d-iframe" src="about:blank" data-src="https://anasoficasca-code.github.io/REN3D/" allow="accelerometer; autoplay; camera; gyroscope; vr"></iframe>
+   <div id="ren3dHud" class="ren3d-hud-overlay">
+     <span class="ren3d-badge">Kennedy 3D · REN3D</span>
+     <a href="https://anasoficasca-code.github.io/REN3D/" target="_blank" rel="noopener" class="btn-open-ren3d">Abrir en pantalla completa &nearr;</a>
+   </div>
    <svg id="net" role="img" aria-label="Red interactiva de relaciones entre actores de Kennedy"></svg>
    <div id="node-pop" class="node-pop"></div>
    
@@ -1738,7 +1831,7 @@ function geometry(){
   gH.style('opacity', currentView === 'clusters' ? 1 : 0);
   gT.style('opacity', currentView === 'clusters' ? 1 : 0);
   gConcentric.style('opacity', currentView === 'concentric' ? 1 : 0);
-  gUrban.style('opacity', currentView === 'urban' ? 1 : 0);
+  gUrban.style('display', 'none');
 }
 geometry();
 
@@ -1929,28 +2022,33 @@ function switchView(viewName){
     btn.classList.toggle('active', btn.dataset.view === viewName);
   });
 
-  const mapContainer = document.getElementById('map3d');
+  const iframe = document.getElementById('map3dIframe');
+  const hud = document.getElementById('ren3dHud');
   const netSvg = document.getElementById('net');
 
   if (viewName === 'map3d') {
-    // Activar vista 3D Real (REN3D MapLibre con edificios extruidos)
-    mapContainer.classList.add('active');
-    netSvg.style.opacity = '0';
-    netSvg.style.pointerEvents = 'none';
-    initMap3D();
-    if (map3dInstance) {
-      setTimeout(() => {
-        map3dInstance.resize();
-        map3dInstance.flyTo({ center: [-74.1560, 4.6260], zoom: 14.5, pitch: 60, bearing: -18, duration: 1200 });
-      }, 50);
+    // Activar visor 3D real de REN3D (anasoficasca-code.github.io/REN3D/)
+    if (iframe) {
+      if (!iframe.src || iframe.src === 'about:blank') {
+        iframe.src = iframe.dataset.src || 'https://anasoficasca-code.github.io/REN3D/';
+      }
+      iframe.classList.add('active');
+    }
+    if (hud) hud.classList.add('active');
+    if (netSvg) {
+      netSvg.style.opacity = '0';
+      netSvg.style.pointerEvents = 'none';
     }
     return;
   }
 
-  // Desactivar vista 3D y volver a D3 SVG
-  mapContainer.classList.remove('active');
-  netSvg.style.opacity = '1';
-  netSvg.style.pointerEvents = 'auto';
+  // Desactivar visor 3D y volver a D3 SVG
+  if (iframe) iframe.classList.remove('active');
+  if (hud) hud.classList.remove('active');
+  if (netSvg) {
+    netSvg.style.opacity = '1';
+    netSvg.style.pointerEvents = 'auto';
+  }
 
   const posMap = VIEW_POS[viewName] || VIEW_POS.free;
 
@@ -2397,33 +2495,55 @@ function linkDetail(l){
 }
 
 function overview(){
-  return `
-  <section class="sec" style="padding:16px 18px 12px">
-    <div class="panel-header-compact">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--mute)">Directorio de Actores</span>
-        <span style="font-size:11px;color:var(--soft);background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:10px">90 actores · 239 enlaces</span>
-      </div>
-      
-      <!-- Buscador -->
-      <label class="search" style="margin:0 0 10px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="search" id="q" placeholder="Buscar actor, institución o gremio..." autocomplete="off">
-      </label>
+  const counts = d3.rollup(links, v => v.length, l => l.c);
 
-      <!-- Filtros rápidos por sector -->
-      <div style="font-size:10.5px;color:var(--mute);margin-bottom:6px;font-weight:600">Filtrar por sector:</div>
-      <div class="quick-filters" style="display:flex;flex-wrap:wrap;gap:5px">
-        ${Object.keys(SPH).map(k => `
-          <button class="filter-chip ${state.conv.has(k) ? 'active' : ''}" data-s="${k}" style="--c:${SPC[k]}">
-            <span class="chip-dot" style="background:${SPC[k]}"></span> ${esc(SPH[k])}
+  return `
+  <section class="sec" style="padding:14px 16px 10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--mute)">Explorador</span>
+      <span style="font-size:10px;color:var(--soft);background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:10px">90 actores · 239 enlaces</span>
+    </div>
+
+    <!-- Buscador compacto -->
+    <label class="search" style="margin:0 0 10px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="q" placeholder="Buscar actor o entidad..." autocomplete="off">
+    </label>
+
+    <!-- Convenciones de relación restauradas y compactas (Toca para filtrar) -->
+    <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute)">Convenciones</span>
+        <span style="font-size:9.5px;color:var(--mute)">Toca para filtrar</span>
+      </div>
+      <div class="conv-compact-list">
+        ${Object.entries(CONV).map(([k, v]) => `
+          <button class="cv-pill ${state.conv.has(k) ? 'active' : ''}" data-c="${k}">
+            <span style="display:flex;align-items:center;gap:7px;font-size:10.5px;color:${state.conv.has(k) ? '#fff' : 'var(--soft)'}">
+              <span style="width:14px;height:2px;background:${v.c};border-radius:1px;${v.d ? 'border-bottom:1px dashed '+v.c+';height:0;' : ''}"></span>
+              ${esc(v.n)}
+            </span>
+            <span style="font-size:10px;font-weight:600;color:var(--mute)">${counts.get(k) || 0}</span>
           </button>
         `).join('')}
       </div>
     </div>
+
+    <!-- Niveles de decisión resumidos -->
+    <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.07);padding-top:8px">
+      <span style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);margin-bottom:5px">Niveles de decisión</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <div style="padding:4px 6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;font-size:10px;color:var(--soft)"><b style="color:#929CE8">Nivel 1</b>: Deciden</div>
+        <div style="padding:4px 6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;font-size:10px;color:var(--soft)"><b style="color:#4CB6E8">Nivel 2</b>: Coordinan</div>
+        <div style="padding:4px 6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;font-size:10px;color:var(--soft)"><b style="color:#52CE92">Nivel 3</b>: Ejecutan</div>
+        <div style="padding:4px 6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;font-size:10px;color:var(--soft)"><b style="color:#F5A642">Nivel 4</b>: Comunidad</div>
+      </div>
+    </div>
   </section>
 
-  <section class="sec" style="padding:10px 14px 20px;flex:1;overflow-y:auto">
+  <!-- Lista de actores scannable -->
+  <section class="sec" style="padding:8px 10px 18px;flex:1;overflow-y:auto">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);margin-bottom:6px;padding:0 6px">Directorio de Actores</div>
     <div class="list" id="list"></div>
   </section>`;
 }
