@@ -10,11 +10,16 @@
 <style>
 :root{
   --bg:#0b0d14;
-  --ink:#EAE6DE;
-  --soft:#A8A398;
-  --mute:#747068;
-  --line:#1c202c;
-  --faint:#262b3a;
+  --panel-bg:#0e111a;
+  --card-bg:#131722;
+  --card-hover:#191e2d;
+  --ink:#F3F0EA;
+  --soft:#A39E92;
+  --mute:#6E6A62;
+  --line:#1c2130;
+  --faint:#272d40;
+  --accent:#38bdf8;
+  --accent-glow:rgba(56,189,248,0.18);
   --ui:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
   color-scheme:dark;
 }
@@ -22,29 +27,61 @@
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 button{font:inherit;color:inherit}
-.app{display:grid;grid-template-columns:1fr 390px;height:100%}
-.left{display:grid;grid-template-rows:auto 1fr;min-height:0}
-header{padding:18px 26px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-bottom:1px solid var(--line);background:#090b10}
-h1{margin:0;font-size:25px;font-weight:600;letter-spacing:-.025em;line-height:1.05;color:#F4F0E8}
-.lede{margin:6px 0 0;font-size:13px;line-height:1.45;color:var(--soft);max-width:62ch}
-.nums{display:flex;gap:24px;flex:none}
-.nums div{text-align:right}.nums b{display:block;font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1;color:#F4F0E8}
-.nums span{font-size:12px;color:var(--mute)}
-.stage{position:relative;min-height:0;background:radial-gradient(circle at 1px 1px,#181e2b 1px,transparent 1.3px) 0 0/26px 26px,#0b0d14;overflow:hidden}
+
+/* ELIMINAR EL RECUADRO BLANCO FEO DE ENFOQUE AL DAR CLIC EN NODOS */
+svg *:focus, svg *:focus-visible, .node:focus, .node:focus-visible, .link-hit:focus, #net:focus {
+  outline: none !important;
+  outline-width: 0 !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.app{display:grid;grid-template-columns:1fr 410px;height:100%}
+.left{display:grid;grid-template-rows:auto auto 1fr;min-height:0}
+
+/* Header enriquecido y didáctico */
+header{padding:14px 24px 12px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);background:#090b10;z-index:15}
+.header-main{display:flex;align-items:center;gap:14px}
+.header-badge{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#38bdf8 0%,#818cf8 100%);display:grid;place-items:center;color:#0b0d14;font-weight:700;font-size:18px;flex:none;box-shadow:0 4px 14px rgba(56,189,248,0.35)}
+h1{margin:0;font-size:21px;font-weight:600;letter-spacing:-.025em;line-height:1.15;color:#F4F0E8}
+.lede{margin:2px 0 0;font-size:12.5px;line-height:1.35;color:var(--soft);max-width:58ch}
+.header-actions{display:flex;align-items:center;gap:14px}
+.btn-how-to{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid var(--faint);font-size:12px;font-weight:500;color:var(--ink);cursor:pointer;transition:all .15s}
+.btn-how-to:hover{background:rgba(255,255,255,0.12);border-color:#5a6385}
+.nums{display:flex;gap:16px;flex:none}
+.nums div{text-align:right}
+.nums b{display:block;font-size:20px;font-weight:600;letter-spacing:-.02em;line-height:1;color:#F4F0E8}
+.nums span{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.03em}
+
+/* Barra superior didáctica interactiva (Rutas guiadas) */
+.tour-bar{background:#0e121c;border-bottom:1px solid var(--line);padding:8px 24px;display:flex;align-items:center;gap:10px;overflow-x:auto;white-space:nowrap;z-index:12}
+.tour-label{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);display:inline-flex;align-items:center;gap:5px;flex:none}
+.tour-pill{padding:5px 12px;border-radius:999px;background:var(--card-bg);border:1px solid var(--faint);font-size:12px;color:var(--soft);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;flex:none}
+.tour-pill:hover{color:var(--ink);border-color:#5a6385;background:var(--card-hover)}
+.tour-pill.active{background:linear-gradient(135deg,rgba(56,189,248,0.2) 0%,rgba(129,140,248,0.2) 100%);border-color:var(--accent);color:#fff;font-weight:600}
+.tour-pill .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+
+/* Escenario interactivo */
+.stage{position:relative;min-height:0;background:radial-gradient(circle at 1px 1px,#161b27 1px,transparent 1.3px) 0 0/26px 26px,#0b0d14;overflow:hidden}
 #net{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
 #net:active{cursor:grabbing}
+
+/* Barra flotante de ayuda / sugerencia rápida */
+.stage-hint{position:absolute;bottom:18px;left:18px;background:rgba(14,17,26,0.92);backdrop-filter:blur(10px);border:1px solid var(--faint);padding:7px 14px;border-radius:999px;font-size:12px;color:var(--soft);display:flex;align-items:center;gap:8px;pointer-events:none;z-index:8;box-shadow:0 6px 18px rgba(0,0,0,0.45)}
+.stage-hint b{color:var(--ink);font-weight:600}
+
+/* Controles de Zoom */
 .zoom{position:absolute;right:18px;bottom:18px;display:flex;border:1px solid var(--faint);border-radius:999px;overflow:hidden;background:#10131d;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,0.55)}
 .zoom button{background:none;border:0;height:34px;padding:0 14px;cursor:pointer;font-size:13px;color:var(--soft);transition:background .15s,color .15s}
 .zoom button+button{border-left:1px solid var(--faint)}
 .zoom button:hover{color:var(--ink);background:#181c2a}
-button:focus-visible{outline:2px solid #828ecc;outline-offset:2px}
 
 .neb{pointer-events:none;transition:opacity .35s ease}
 .orbit{fill:none;stroke-opacity:.2;stroke-width:1;stroke-dasharray:1 5;pointer-events:none}
 .crown{fill:none;stroke:#E5C06E;stroke-width:1.6;stroke-opacity:.48;pointer-events:none}
 .hlabel{font-weight:600;pointer-events:none;letter-spacing:.02em;paint-order:stroke;stroke:#0b0d14;stroke-width:3px;stroke-linejoin:round;font-size:13px;opacity:.9}
 
-/* Enlaces limpios e interactivos */
+/* Enlaces limpios e interactivos con flechas elegantes */
 .link{fill:none;stroke-linecap:round;opacity:.32;transition:opacity .2s, stroke-width .2s, stroke .2s}
 .link-hit{fill:none;stroke:transparent;pointer-events:stroke;cursor:pointer}
 .link-hit:hover + .link, .link.hov-link{opacity:1 !important;stroke-width:3.2px !important;filter:drop-shadow(0 0 5px currentColor)}
@@ -56,7 +93,7 @@ button:focus-visible{outline:2px solid #828ecc;outline-offset:2px}
 .node .icon,.node .logo-img{pointer-events:none}
 .node .halo{fill:none;stroke:#fff;stroke-opacity:0;pointer-events:none}
 .node.new .ring{stroke-dasharray:4 3}
-.node text{fill:#F0ECE4;font-weight:600;pointer-events:none;paint-order:stroke;stroke:#0b0d14;stroke-linejoin:round;stroke-width:3px;font-size:12px}
+.node text{fill:#F0ECE4;font-weight:600;pointer-events:none;paint-order:stroke;stroke:#0b0d14;stroke-linejoin:round;stroke-width:3.2px;font-size:12px}
 .node,.hull,.hlabel{transition:opacity .25s ease}
 
 /* Modos de enfoque (focus) al seleccionar o pasar cursor */
@@ -68,142 +105,171 @@ button:focus-visible{outline:2px solid #828ecc;outline-offset:2px}
 .off{display:none}
 .particle{pointer-events:none}
 
-/* Popover interactivo flotante en hover ("pop") sobrio y elegante */
-.node-pop{position:absolute;pointer-events:none;z-index:50;display:none;background:rgba(14,17,24,0.96);border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(12px);padding:13px 15px;border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,0.75);max-width:310px;transform:translate(-50%,-100%);margin-top:-14px}
+/* Popover interactivo flotante en hover ("pop") sobrio y didáctico */
+.node-pop{position:absolute;pointer-events:none;z-index:50;display:none;background:rgba(14,17,24,0.96);border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(14px);padding:14px 16px;border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,0.75);max-width:320px;transform:translate(-50%,-100%);margin-top:-14px}
 .node-pop.visible{display:block;animation:popFade .15s cubic-bezier(0.16, 1, 0.3, 1)}
 @keyframes popFade{from{opacity:0;transform:translate(-50%,-92%) scale(0.97)}to{opacity:1;transform:translate(-50%,-100%) scale(1)}}
 
 /* Estructura del popover para nodos */
-.node-pop .pop-head{display:flex;align-items:center;gap:11px}
-.node-pop .pop-av{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);display:grid;place-items:center;flex:none;background:#fff;overflow:hidden}
+.node-pop .pop-head{display:flex;align-items:center;gap:12px}
+.node-pop .pop-av{width:42px;height:42px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);display:grid;place-items:center;flex:none;background:#fff;overflow:hidden}
 .node-pop .pop-av.dark-av{background:#141722}
 .node-pop .pop-title{font-size:14px;font-weight:600;color:#F6F3EB;line-height:1.25}
 .node-pop .pop-sub{font-size:11.5px;color:var(--soft);margin-top:2px}
-.node-pop .pop-meta{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;font-size:11.5px;color:var(--mute)}
-.node-pop .pop-hint{margin-top:7px;font-size:10.5px;color:var(--soft);opacity:.8;font-style:italic}
+.node-pop .pop-meta{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--soft)}
+.node-pop .pop-hint{margin-top:8px;font-size:10.5px;color:#828ecc;text-align:center;background:rgba(130,142,204,0.12);padding:4px 8px;border-radius:6px}
 
-/* Estructura del popover para líneas (relaciones) */
-.pop-link-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-.pop-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid}
-.pop-badge i{width:6px;height:6px;border-radius:50%}
-.pop-intens{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--soft)}
-.pop-link-title{font-size:14px;font-weight:600;color:#F6F3EB;line-height:1.25;margin-bottom:5px}
-.pop-link-desc{font-size:12px;color:var(--soft);line-height:1.45;margin-bottom:12px}
-.pop-flow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:9px;border:1px solid rgba(255,255,255,0.06)}
-.flow-actor{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
-.flow-name{display:flex;flex-direction:column;min-width:0}
-.flow-name b{font-size:11.5px;color:#F6F3EB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:92px}
-.flow-name small{font-size:10px;color:var(--mute)}
-.flow-arrow{font-size:14px;font-weight:700;flex:none;opacity:.9}
+/* Estructura del popover para enlaces / líneas */
+.pop-link-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.pop-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;border:1px solid transparent;line-height:1}
+.pop-badge i{width:6px;height:6px;border-radius:50%;display:inline-block}
+.pop-intens{font-size:11px;color:var(--soft);display:flex;align-items:center;gap:6px}
+.pop-link-title{font-size:13.5px;font-weight:600;color:#F5F2EB;line-height:1.3;margin-bottom:4px}
+.pop-link-desc{font-size:12px;color:var(--soft);line-height:1.45;margin-bottom:10px}
+.pop-flow{display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.35);padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);margin-bottom:8px}
+.flow-actor{display:flex;align-items:center;gap:8px;max-width:42%}
+.flow-actor .av{border-radius:50%;border:1.5px solid;overflow:hidden;display:grid;place-items:center;background:#fff;flex:none}
+.flow-actor .av.dark-av{background:#141722}
+.flow-name{min-width:0}
+.flow-name b{display:block;font-size:11.5px;font-weight:600;color:#F3F0E8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flow-name small{display:block;font-size:9.5px;color:var(--mute)}
+.flow-arrow{font-size:14px;font-weight:700}
 
-/* Panel lateral sobrio y moderno */
-.panel{border-left:1px solid var(--line);overflow-y:auto;background:#0d1017}
-.sec{padding:22px 24px;border-bottom:1px solid var(--line)}
-h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#EDEAE3}
-.hint{margin:0 0 14px;font-size:12.5px;line-height:1.4;color:var(--soft)}
+/* Panel lateral moderno, organizado y claro */
+.panel{border-left:1px solid var(--line);overflow-y:auto;background:var(--panel-bg)}
+.sec{padding:20px 22px;border-bottom:1px solid var(--line)}
+h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#EDEAE3;display:flex;align-items:center;gap:8px}
+h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;background:rgba(255,255,255,0.08);padding:2px 7px;border-radius:999px;color:var(--soft)}
+.hint{margin:0 0 12px;font-size:12px;line-height:1.45;color:var(--soft)}
+
+/* Tarjeta didáctica explicativa */
+.didactic-banner{background:linear-gradient(135deg,#131929 0%,#192135 100%);border:1px solid #2d3b5b;border-radius:12px;padding:14px;margin-bottom:14px}
+.didactic-banner h3{margin:0 0 6px;font-size:13.5px;font-weight:600;color:#7dd3fc;display:flex;align-items:center;gap:6px}
+.didactic-banner p{margin:0;font-size:12px;line-height:1.45;color:#cbd5e1}
+
+/* Controles de filtro de convenciones */
 .conv{display:flex;flex-direction:column;gap:5px}
-.cv{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:7px;background:none;border:1px solid transparent;cursor:pointer;font-size:13px;color:var(--soft);transition:background .15s,color .15s;text-align:left;width:100%}
-.cv:hover{background:#151923;color:var(--ink)}
+.cv{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;background:none;border:1px solid transparent;cursor:pointer;font-size:12.5px;color:var(--soft);transition:background .15s,color .15s;text-align:left;width:100%}
+.cv:hover{background:var(--card-hover);color:var(--ink)}
 .cv[aria-pressed="false"]{opacity:.35}
 .cv .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cv .n{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.cv .n{font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+
+/* Botones de clústeres / ámbitos */
 .spheres{display:flex;flex-wrap:wrap;gap:6px}
-.sp{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:#131620;font-size:12px;color:var(--soft);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s,color .15s}
-.sp:hover{border-color:var(--c);color:var(--ink)}
-.sp::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--c)}
-.types{display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;font-size:12.5px;color:var(--soft)}
+.sp{padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:#131620;font-size:12px;color:var(--soft);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s,color .15s,background .15s}
+.sp:hover{border-color:var(--c);color:var(--ink);background:#191d2c}
+.sp::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+
+/* Tipos de actor con íconos estándar */
+.types{display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;font-size:12px;color:var(--soft)}
 .types div{display:flex;align-items:center;gap:8px}
-.types .av{width:26px;height:26px;border-radius:50%;background:#161924;border:1px solid var(--line);display:grid;place-items:center;flex:none;color:var(--soft)}
-.dash{width:24px;height:0;border-top:1.5px dashed var(--soft);display:inline-block}
-.search{position:relative;display:block;margin-bottom:12px}
-.search input{width:100%;background:#121622;border:1px solid var(--line);border-radius:8px;padding:9px 12px 9px 34px;font-size:13px;color:var(--ink);outline:0;transition:border-color .15s}
-.search input:focus{border-color:#5c6899}
-.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none}
-.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
-.row{width:100%;display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:7px;background:none;border:0;cursor:pointer;text-align:left;color:inherit;transition:background .15s}
-.row:hover{background:#161a25}
-.row .av{width:32px;height:32px;border-radius:50%;border:1px solid;display:grid;place-items:center;flex:none;overflow:hidden}
-.row .nm{font-size:13px;font-weight:500;display:block;line-height:1.2}
-.row .sub{font-size:11.5px;color:var(--mute);display:block;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
-.row .deg{margin-left:auto;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
-.back{background:none;border:0;padding:0;color:var(--soft);font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
-.back:hover{color:var(--ink)}
+.types .av{width:22px;height:22px;border-radius:50%;background:#181c26;border:1px solid var(--faint);display:inline-grid;place-items:center;color:#D8D4CA;flex:none}
+.types .dash{display:inline-block;width:18px;height:0;border-top:1.8px dashed #D8D4CA;vertical-align:middle;margin-right:2px}
+
+/* Buscador de actores */
+.search{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--faint);border-radius:10px;background:#10131d;transition:border-color .15s,background .15s;margin-bottom:10px}
+.search:focus-within{border-color:var(--accent);background:#141824}
+.search input{background:none;border:0;outline:none;font:inherit;color:var(--ink);font-size:13px;width:100%}
+.search input::placeholder{color:var(--mute)}
+
+/* Lista de actores */
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;max-height:360px;overflow-y:auto}
+.row{display:flex;align-items:center;gap:10px;width:100%;padding:7px 9px;border-radius:9px;background:none;border:0;cursor:pointer;text-align:left;color:inherit;transition:background .15s}
+.row:hover{background:var(--card-hover)}
+.row .av{width:32px;height:32px;border-radius:50%;border:1.5px solid;overflow:hidden;display:grid;place-items:center;flex:none}
+.row .nm{font-size:13px;font-weight:600;color:#F0EDE6;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sub{font-size:11.5px;color:var(--soft);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .deg{font-size:11.5px;color:var(--mute);margin-left:auto;font-variant-numeric:tabular-nums;flex:none;background:rgba(255,255,255,0.05);padding:2px 7px;border-radius:999px}
+
+/* Detalle de actor seleccionado */
+.back{background:none;border:0;padding:0;color:var(--accent);font-size:12.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
+.back:hover{color:#7dd3fc}
 .who h3{margin:10px 0 2px;font-size:17px;font-weight:600;letter-spacing:-.015em;line-height:1.2;color:#F4F0E8}
 .who .kind{font-size:12px;color:var(--soft)}
 .who p{margin:12px 0 16px;font-size:13px;line-height:1.5;color:var(--soft)}
 .who .av{border-radius:50%;border:2px solid;display:grid;place-items:center;overflow:hidden}
-.io{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;border-radius:8px;background:#121622;border:1px solid var(--line)}
-.io div{text-align:center}.io b{display:block;font-size:20px;font-weight:600;color:#F4F0E8;line-height:1}.io span{font-size:12px;color:var(--mute)}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;border-radius:10px;background:#121622;border:1px solid var(--line)}
+.io div{text-align:center}.io b{display:block;font-size:20px;font-weight:600;color:#F4F0E8;line-height:1}.io span{font-size:11.5px;color:var(--mute)}
+
 .group{margin-top:18px}
 .group:first-child{margin-top:0}
-.ghead{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--soft);margin-bottom:4px}
-.it{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 0;cursor:pointer}
-.it .dir{font-size:12px;color:var(--mute)}
-.it .who2{font-size:14px;font-weight:500;color:var(--ink);margin-top:1px}
-.it .ty{font-size:12.5px;color:var(--soft);margin-top:3px}
-.it .ds{font-size:12.5px;color:var(--mute);margin-top:3px;line-height:1.4}
-.dots{display:inline-flex;gap:3px;margin-left:8px;vertical-align:1px}
+.ghead{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--soft);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.it{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 0;cursor:pointer;transition:background .15s}
+.it:hover{background:rgba(255,255,255,0.02)}
+.it .dir{font-size:11px;color:var(--mute);margin-bottom:2px;font-weight:600;text-transform:uppercase}
+.it .who2{font-size:13.5px;font-weight:600;color:#F2EFE8}
+.it .ty{font-size:12.5px;color:var(--ink);margin:4px 0 2px;display:flex;align-items:center;gap:8px}
+.it .ds{font-size:12px;color:var(--soft);line-height:1.4}
+.dots{display:inline-flex;gap:3px;align-items:center}
 .dots i{width:5px;height:5px;border-radius:50%;background:#313745}.dots i.f{background:var(--c)}
-.mob{display:none}
-.lvls{display:flex;flex-direction:column;gap:8px}.lvls div{display:grid;grid-template-columns:74px 1fr;gap:12px;align-items:center;font-size:13px;line-height:1.4;color:var(--soft)}.lvls b{color:var(--ink);font-weight:600}
 
-.inst-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:10px}
-.inst-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:9px 5px;border:1px solid var(--faint);border-radius:10px;background:#10131d;cursor:pointer;transition:border-color .15s,background .15s}
-.inst-card:hover{border-color:#5a6385;background:#171c2a}
+/* Niveles de jerarquía */
+.lvls{display:flex;flex-direction:column;gap:8px}
+.lvls div{display:grid;grid-template-columns:68px 1fr;gap:12px;align-items:center;font-size:12.5px;line-height:1.4;color:var(--soft)}
+.lvls b{color:var(--ink);font-weight:600}
+
+/* Instituciones con logo oficial */
+.inst-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px;margin-top:10px}
+.inst-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:9px 5px;border:1px solid var(--faint);border-radius:10px;background:#10131d;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.inst-card:hover{border-color:#5a6385;background:#171c2a;transform:translateY(-2px)}
 .inst-card span{font-size:11px;color:var(--soft);margin-top:5px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 .link-actor-card{transition:border-color .15s,background .15s;text-align:left}
 .link-actor-card:hover{border-color:#616c96 !important;background:#161a27 !important}
 
+/* Modal didáctico "Cómo entender la red" */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:none;place-items:center;z-index:999;padding:16px}
+.modal-overlay.open{display:grid;animation:modalFade .2s cubic-bezier(0.16, 1, 0.3, 1)}
+@keyframes modalFade{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+.modal-box{background:#111520;border:1px solid #2d3b5b;border-radius:18px;max-width:580px;width:100%;padding:26px 28px;box-shadow:0 24px 50px rgba(0,0,0,0.85);max-height:88vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-header h2{font-size:19px;font-weight:600;color:#F4F0E8;margin:0}
+.btn-close-modal{background:none;border:0;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--soft);transition:all .15s}
+.btn-close-modal:hover{background:#1c2336;color:#fff}
+.guide-step{display:flex;gap:14px;margin-bottom:16px;padding:12px;background:#141926;border-radius:12px;border:1px solid var(--faint)}
+.guide-step-icon{width:36px;height:36px;border-radius:10px;background:rgba(56,189,248,0.15);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:16px;flex:none}
+.guide-step-body h4{margin:0 0 4px;font-size:14px;font-weight:600;color:#F3F0EA}
+.guide-step-body p{margin:0;font-size:12.5px;color:var(--soft);line-height:1.45}
+
 @media (max-width:900px){
   .app{display:block;height:auto}
   .left{display:block}
-  header{display:block;padding:20px 18px 14px}
-  h1{font-size:24px}
-  .nums{margin-top:14px;gap:20px}.nums div{text-align:left}
+  header{display:block;padding:16px 18px 12px}
+  .header-actions{margin-top:12px;justify-content:space-between}
+  .nums{gap:16px}
+  .nums div{text-align:left}
   .stage{height:auto;border-bottom:1px solid var(--line);display:block}
   #net{height:auto}
-  .zoom{display:none}
+  .zoom,.stage-hint{display:none}
   .panel{border-left:0;overflow:visible}
-  .sec{padding:20px 18px}
-  .mob{display:block}
+  .sec{padding:18px 16px}
 }
 @media (prefers-reduced-motion:reduce){.particle{display:none}}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
- <!-- ÍCONOS NORMALES Y FAMILIARES (SIN FIGURAS EXTRAÑAS) -->
- 
- <!-- Persona: Avatar clásico de usuario (cabeza y hombros) -->
  <symbol id="i-per" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
    <circle cx="12" cy="7" r="4"/>
  </symbol>
- 
- <!-- Hogar: Casa clásica con tejado y puerta -->
  <symbol id="i-hog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
    <polyline points="9 22 9 12 15 12 15 22"/>
  </symbol>
- 
- <!-- Organización / Comunidad / JAC: Dos personas (comunidad / equipo) -->
  <symbol id="i-org" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
    <circle cx="9" cy="7" r="4"/>
    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
  </symbol>
- 
- <!-- Comercio / Negocio: Tienda comercial con vitrina y puerta -->
  <symbol id="i-emp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
    <path d="m2 7 3-4h14l3 4"/>
    <path d="M4 11v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9"/>
    <path d="M9 21v-5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5"/>
    <path d="M2 7h20"/>
  </symbol>
- 
- <!-- Entidad pública / Institución: Edificio normal de oficina con ventanas -->
  <symbol id="i-pub" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
    <rect width="16" height="20" x="4" y="2" rx="2"/>
    <path d="M9 22v-4h6v4"/>
@@ -218,22 +284,16 @@ h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#ED
    <path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M12 10h.01"/>
    <path d="M8 14h.01"/><path d="M16 14h.01"/><path d="M12 14h.01"/>
  </symbol>
- 
- <!-- Salud: Cruz médica en círculo (Hospital de Kennedy y Centro de Salud) -->
  <symbol id="i-sal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
    <circle cx="12" cy="12" r="9"/>
    <path d="M12 8v8"/>
    <path d="M8 12h8"/>
  </symbol>
- 
- <!-- Educación: Birrete clásico de graduación (Colegios, educación superior) -->
  <symbol id="i-edu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
    <path d="M22 10v6"/>
    <path d="M2 10l10-5 10 5-10 5z"/>
    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
  </symbol>
- 
- <!-- Objeto / Vehículo / Carga: Camión -->
  <symbol id="i-obj" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
    <path d="M15 18H9"/>
@@ -242,23 +302,106 @@ h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#ED
    <circle cx="7" cy="18" r="2"/>
  </symbol>
 </defs></svg>
-
 <div class="app">
  <div class="left">
   <header>
-   <div>
-    <h1>Red de actores de Kennedy</h1>
-    <p class="lede">La organización social de Kennedy: quién toma las decisiones, quién las coordina, quién las ejecuta y quién las recibe.</p>
+   <div class="header-main">
+    <div class="header-badge" title="Kennedy">K</div>
+    <div>
+     <h1>Red de actores de Kennedy</h1>
+     <p class="lede">Explora cómo conviven, deciden y se relacionan los 72 actores comunitarios, comerciales e institucionales de la localidad.</p>
+    </div>
    </div>
-   <div class="nums"><div><b id="nA"></b><span>actores</span></div><div><b id="nL"></b><span>interacciones</span></div></div>
+   <div class="header-actions">
+    <button class="btn-how-to" id="btnHowTo">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      ¿Cómo entender la red?
+    </button>
+    <div class="nums">
+      <div><b id="nA">72</b><span>actores</span></div>
+      <div><b id="nL">171</b><span>vínculos</span></div>
+    </div>
+   </div>
   </header>
+
+  <!-- Barra didáctica superior con rutas interactivas -->
+  <div class="tour-bar" id="tourBar">
+   <span class="tour-label">
+     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+     Rutas guiadas:
+   </span>
+   <button class="tour-pill" data-tour="alim"><span class="pill-dot"></span> 🌽 Ruta de Alimentos (Corabastos a familias)</button>
+   <button class="tour-pill" data-tour="rec"><span class="pill-dot"></span> ♻️ Cadena de Reciclaje y UAESP</button>
+   <button class="tour-pill" data-tour="gob"><span class="pill-dot"></span> 🏛️ Participación, JAC y Alcaldía</button>
+   <button class="tour-pill" data-tour="edu"><span class="pill-dot"></span> 🎓 Educación, Colegios y Movilidad</button>
+   <button class="tour-pill" data-tour="sal"><span class="pill-dot"></span> 🏥 Red de Salud y Hospital de Kennedy</button>
+   <button class="tour-pill" data-tour="all" style="margin-left:auto">🔄 Ver red completa</button>
+  </div>
+
   <div class="stage" id="stage">
    <svg id="net" role="img" aria-label="Red interactiva de relaciones entre actores de Kennedy"></svg>
    <div id="node-pop" class="node-pop"></div>
-   <div class="zoom"><button id="zin" aria-label="Acercar">+</button><button id="zout" aria-label="Alejar">−</button><button id="zfit">Ver red</button></div>
+   
+   <div class="stage-hint">
+     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+     <span>Haz clic en cualquier <b>bolita</b> o <b>línea</b> para ver qué hacen y cómo se relacionan</span>
+   </div>
+
+   <div class="zoom">
+     <button id="zin" aria-label="Acercar">+</button>
+     <button id="zout" aria-label="Alejar">−</button>
+     <button id="zfit">Centrar</button>
+   </div>
   </div>
  </div>
+
  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<!-- Modal didáctico "Cómo entender la red" -->
+<div class="modal-overlay" id="modalHowTo" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <div class="modal-box">
+  <div class="modal-header">
+   <h2 id="modalTitle">¿Cómo entender y explorar esta red?</h2>
+   <button class="btn-close-modal" id="btnCloseModal" aria-label="Cerrar">✕</button>
+  </div>
+  
+  <div class="guide-step">
+   <div class="guide-step-icon">1</div>
+   <div class="guide-step-body">
+    <h4>El tamaño de la bolita indica jerarquía</h4>
+    <p>Las bolitas más grandes (Nivel 1) son las instituciones que <b>toman las decisiones</b> presupuestales y normativas (Alcaldía, Ministerios, Gerencias). Las medianas <b>coordinan</b> y las más pequeñas <b>ejecutan o reciben</b> el servicio en el territorio.</p>
+   </div>
+  </div>
+
+  <div class="guide-step">
+   <div class="guide-step-icon">2</div>
+   <div class="guide-step-body">
+    <h4>Los colores agrupan los 8 sectores de Kennedy</h4>
+    <p>Cada sector tiene su propio color: <b>Naranja</b> para Corabastos y comercio, <b>Verde lima</b> para Reciclaje y aseo, <b>Púrpura</b> para Gobierno y JAC, <b>Turquesa</b> para Salud, <b>Magenta</b> para Educación y <b>Azul</b> para Logística y Transporte.</p>
+   </div>
+  </div>
+
+  <div class="guide-step">
+   <div class="guide-step-icon">3</div>
+   <div class="guide-step-body">
+    <h4>Toca cualquier línea o flecha para ver la relación</h4>
+    <p>Cada flecha representa una interacción real: compra de alimentos, prestación médica, clases escolares o solicitudes de seguridad. Al tocarla, verás quién la inicia, quién la recibe y por qué ocurre.</p>
+   </div>
+  </div>
+
+  <div class="guide-step">
+   <div class="guide-step-icon">4</div>
+   <div class="guide-step-body">
+    <h4>Usa las "Rutas guiadas" arriba</h4>
+    <p>Si quieres entender historias concretas (cómo viaja la comida del campo a la mesa, cómo opera el reciclaje o cómo se atiende la salud), usa los botones de la barra superior.</p>
+   </div>
+  </div>
+
+  <button class="btn-how-to" id="btnGotIt" style="width:100%;justify-content:center;padding:10px;margin-top:8px;background:var(--accent);color:#0b0d14;font-weight:600">
+    ¡Entendido! Explorar la red
+  </button>
+ </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
@@ -278,6 +421,7 @@ const LOGO_DATA = {
 
 
 // 1 logo real único por institución oficial verificada
+
 const REAL_LOGOS = {
   'A01': LOGO_DATA.corabastos,       // Corabastos S.A.
   'A34': LOGO_DATA.alcaldia_bogota,  // Alcaldía Local de Kennedy
@@ -308,10 +452,10 @@ const LVD = {
   4:'Usan, demandan y presionan desde abajo.'
 };
 
-/* Tamaños de bolitas con jerarquía */
+/* Tamaños de bolitas armónicos y proporcionales */
 const LVR = {
-  d: {1: 36, 2: 25, 3: 18, 4: 13},
-  m: {1: 30, 2: 21, 3: 15, 4: 11}
+  d: {1: 34, 2: 24, 3: 17, 4: 12},
+  m: {1: 28, 2: 20, 3: 14, 4: 10}
 };
 
 const SPH = {
@@ -344,28 +488,13 @@ function getNodeIconId(n) {
   const cat = n.cat;
   const name = (n.name || '').toLowerCase();
   
-  // 1. Personas: SIEMPRE ícono universal de persona (avatar)
   if (cat === 'per') return 'i-per';
-  
-  // 2. Hogares / Familias: SIEMPRE ícono de hogar (casa)
   if (cat === 'hog') return 'i-hog';
-  
-  // 3. Organizaciones comunitarias / Juntas: Dos personas (comunidad)
   if (cat === 'org') return 'i-org';
-  
-  // 4. Objetos / Vehículos
   if (cat === 'obj') return 'i-obj';
-  
-  // 5. Colegios / Educación: Birrete
   if (/colegio|educaci|escuela|formaci|universidad|inem/.test(name)) return 'i-edu';
-  
-  // 6. Salud (Hospital de Kennedy, Centro de salud, médicos): Cruz médica
   if (/salud|hospital|médic|clínic|abastos/.test(name) && !/corabastos/.test(name)) return 'i-sal';
-  
-  // 7. Empresas y comercios: Tienda comercial
   if (cat === 'emp') return 'i-emp';
-  
-  // 8. Instituciones públicas / Órganos de gobierno: Edificio de oficina normal
   return 'i-pub';
 }
 
@@ -375,26 +504,80 @@ nodes.forEach(n=>{n.out=[];n.in=[]});links.forEach(l=>{l.source.out.push(l);l.ta
 nodes.forEach(n=>{n.deg=n.in.length+n.out.length;n.nb=new Set([...n.out.map(l=>l.t),...n.in.map(l=>l.s)])});
 document.getElementById('nA').textContent=nodes.length;document.getElementById('nL').textContent=links.length;
 
-/* ---------- layout con separación amplia para ver flechitas ---------- */
+/* ---------- Rutas didácticas interactivas ---------- */
+const TOURS = {
+  alim: {
+    title: 'Ruta de los Alimentos',
+    desc: 'Cómo viajan los productos desde el campo hasta la mesa de las familias en Kennedy.',
+    nodes: ['A08', 'A06', 'A15', 'A20'],
+    links: [
+      {s: 'A08', t: 'A06'},
+      {s: 'A06', t: 'A15'},
+      {s: 'A15', t: 'A20'}
+    ]
+  },
+  rec: {
+    title: 'Cadena de Reciclaje y Aseo',
+    desc: 'El ciclo del material aprovechable desde las familias hasta la regulación distrital.',
+    nodes: ['A24', 'A26', 'A25', 'A32'],
+    links: [
+      {s: 'A24', t: 'A26'},
+      {s: 'A26', t: 'A25'},
+      {s: 'A32', t: 'A25'}
+    ]
+  },
+  gob: {
+    title: 'Participación, JAC y Convivencia',
+    desc: 'Canalización de necesidades barriales hacia las JAC, la Policía y la Alcaldía.',
+    nodes: ['A37', 'A36', 'A35', 'A34'],
+    links: [
+      {s: 'A36', t: 'A37'},
+      {s: 'A35', t: 'A36'},
+      {s: 'A34', t: 'A35'}
+    ]
+  },
+  edu: {
+    title: 'Educación y Red Escolar',
+    desc: 'La red institucional que acompaña la formación de niñas, niños y jóvenes de Kennedy.',
+    nodes: ['A65', 'DLE', 'C01', 'A53'],
+    links: [
+      {s: 'A65', t: 'DLE'},
+      {s: 'DLE', t: 'C01'},
+      {s: 'C01', t: 'A53'}
+    ]
+  },
+  sal: {
+    title: 'Red de Cuidado y Salud',
+    desc: 'La atención médica pública desde la Secretaría y Hospital hasta el Centro de Salud barrial.',
+    nodes: ['N05', 'N08', 'CSA', 'A20'],
+    links: [
+      {s: 'N05', t: 'N08'},
+      {s: 'N08', t: 'CSA'},
+      {s: 'A20', t: 'CSA'}
+    ]
+  }
+};
+
+/* ---------- Layout con amplia separación y anti-solapamiento de flechas ---------- */
 let W,H,MODE;const center={};
 function layout(){
   MODE = mobile() ? 'm' : 'd';
   const D = MODE === 'd';
   if(D){
-    W = 2200; H = 1550;
+    W = 2400; H = 1650;
     const cx = W / 2, cy = H / 2 + 10;
     center.cor = [cx, cy];
     RING.forEach((k, i) => {
       const a = -Math.PI / 2 + (i + 0.5) * 2 * Math.PI / RING.length;
-      center[k] = [cx + Math.cos(a) * 620, cy + Math.sin(a) * 460];
+      center[k] = [cx + Math.cos(a) * 690, cy + Math.sin(a) * 510];
     });
   } else {
-    W = 1000; H = 1800;
+    W = 1000; H = 1900;
     const cx = W / 2, cy = H / 2;
     center.cor = [cx, cy];
     RING.forEach((k, i) => {
       const a = -Math.PI / 2 + (i + 0.5) * 2 * Math.PI / RING.length;
-      center[k] = [cx + Math.cos(a) * 360, cy + Math.sin(a) * 620];
+      center[k] = [cx + Math.cos(a) * 380, cy + Math.sin(a) * 670];
     });
   }
 
@@ -403,31 +586,31 @@ function layout(){
     n.r = LVR[MODE][n.lv];
     const c = center[n.sph];
     const a = rnd() * 6.283;
-    const d = n.lv === 1 ? 30 : n.lv === 2 ? 100 : n.lv === 3 ? 170 : 220;
+    const d = n.lv === 1 ? 40 : n.lv === 2 ? 120 : n.lv === 3 ? 190 : 250;
     n.x = c[0] + Math.cos(a) * d;
     n.y = c[1] + Math.sin(a) * d;
     n.vx = n.vy = 0;
   });
 
   const sim = d3.forceSimulation(nodes)
-    .force('link', d3.forceLink(links).distance(l => l.source.sph === l.target.sph ? (D ? 120 : 95) : (D ? 185 : 145)).strength(l => l.source.sph === l.target.sph ? 0.14 : 0.08))
-    .force('charge', d3.forceManyBody().strength(n => (D ? -180 : -120) - n.r * (D ? 8 : 6)).distanceMax(D ? 500 : 350))
+    .force('link', d3.forceLink(links).distance(l => l.source.sph === l.target.sph ? (D ? 145 : 110) : (D ? 220 : 170)).strength(l => l.source.sph === l.target.sph ? 0.12 : 0.07))
+    .force('charge', d3.forceManyBody().strength(n => (D ? -240 : -160) - n.r * (D ? 10 : 8)).distanceMax(D ? 600 : 420))
     .force('cluster', () => {
       nodes.forEach(n => {
         const c = center[n.sph];
-        const k = n.lv === 1 ? 0.05 : n.lv === 2 ? 0.035 : 0.025;
+        const k = n.lv === 1 ? 0.045 : n.lv === 2 ? 0.03 : 0.022;
         n.vx += (c[0] - n.x) * k;
         n.vy += (c[1] - n.y) * k;
       });
     })
-    .force('collide', d3.forceCollide(n => n.r + (D ? 28 : 20)).iterations(6))
+    .force('collide', d3.forceCollide(n => n.r + (D ? 34 : 24)).iterations(8))
     .stop();
 
-  for (let i = 0; i < 500; i++) sim.tick();
+  for (let i = 0; i < 550; i++) sim.tick();
 }
 layout();
 
-/* ---------- svg ---------- */
+/* ---------- SVG & Marcadores ---------- */
 const svg = d3.select('#net').attr('preserveAspectRatio','xMidYMid meet');
 const defs = svg.append('defs');
 
@@ -473,13 +656,14 @@ const gH = root.append('g'),      // nebulosas
       gN = root.append('g'),      // nodos
       gT = root.append('g');      // etiquetas
 
+/* Curva geométrica que inicia y termina fuera de la superficie del nodo (sin ser tapada por las bolas) */
 function path(l){
   const s = l.source, t = l.target, dx = t.x - s.x, dy = t.y - s.y, d = Math.hypot(dx,dy) || 1;
   const back = links.some(o => o.s === l.t && o.t === l.s);
-  const k = back ? .28 : .16, mx = (s.x + t.x) / 2 - dy * k, my = (s.y + t.y) / 2 + dx * k;
+  const k = back ? .30 : .18, mx = (s.x + t.x) / 2 - dy * k, my = (s.y + t.y) / 2 + dx * k;
   const ex = t.x - mx, ey = t.y - my, ed = Math.hypot(ex,ey) || 1, sx0 = mx - s.x, sy0 = my - s.y, sd = Math.hypot(sx0,sy0) || 1;
-  const pad = 6;
-  return `M${s.x + sx0 / sd * (s.r + 2)},${s.y + sy0 / sd * (s.r + 2)}Q${mx},${my} ${t.x - ex / ed * (t.r + pad)},${t.y - ey / ed * (t.r + pad)}`;
+  const padEnd = 8, padStart = 3;
+  return `M${s.x + sx0 / sd * (s.r + padStart)},${s.y + sy0 / sd * (s.r + padStart)}Q${mx},${my} ${t.x - ex / ed * (t.r + padEnd)},${t.y - ey / ed * (t.r + padEnd)}`;
 }
 const wid = w => MODE === 'd' ? [0, 1.3, 2.0, 3.2][w] : [0, 1.5, 2.4, 3.5][w];
 
@@ -493,7 +677,7 @@ const linkHitSel = gLHit.selectAll('path').data(links).join('path').attr('class'
   .attr('stroke-width', MODE === 'd' ? 16 : 22);
 
 const nodeSel = gN.selectAll('g').data(nodes).join('g').attr('class',n=>'node'+(n.new?' new':'')+(REAL_LOGOS[n.id]?' has-real-logo':''))
-  .attr('tabindex',0).attr('role','button').attr('aria-label',n=>n.name);
+  .attr('role','button').attr('aria-label',n=>n.name);
 
 nodeSel.filter(n=>n.lv===1).append('circle').attr('class','crown');
 nodeSel.append('circle').attr('class','halo');
@@ -544,12 +728,10 @@ function geometry(){
     .attr('x', n => -n.r * .625)
     .attr('y', n => -n.r * .625);
 
-  // Nebulosas de ámbito suaves
   const cls = Object.keys(SPH).map(k => {
-    const cNodes = nodes.filter(n => n.sph === k);
-    const avgX = d3.mean(cNodes, n => n.x) || center[k][0];
-    const avgY = d3.mean(cNodes, n => n.y) || center[k][1];
-    const R = (d3.max(cNodes, n => Math.hypot(n.x - avgX, n.y - avgY) + n.r) || 120) + 42;
+    const ns = nodes.filter(n => n.sph === k);
+    const avgX = d3.mean(ns, n => n.x) || center[k][0], avgY = d3.mean(ns, n => n.y) || center[k][1];
+    const R = (d3.max(ns, n => Math.hypot(n.x - avgX, n.y - avgY) + n.r) || 120) + 42;
     return {k, cx: avgX, cy: avgY, R, top: avgY - R + 6};
   });
   gH.selectAll('*').remove();
@@ -561,11 +743,17 @@ function geometry(){
 }
 geometry();
 
-/* ---------- etiquetas legibles ---------- */
+/* ---------- Etiquetas legibles ---------- */
 const meas = document.createElement('canvas').getContext('2d');
 let T = d3.zoomIdentity;
-function unitPx(){const r = svg.node().getBoundingClientRect(); return Math.min(r.width/W, r.height/H)}
-function offs(){const r = svg.node().getBoundingClientRect(), u = unitPx(); return [(r.width - W*u)/2, (r.height - H*u)/2]}
+function unitPx(){
+  const r = svg.node().getBoundingClientRect();
+  return Math.min(r.width / W, r.height / H);
+}
+function offs(){
+  const r = svg.node().getBoundingClientRect(), u = unitPx();
+  return [(r.width - W * u) / 2, (r.height - H * u) / 2];
+}
 
 function placeLabels(){
   const u = unitPx() * T.k, fs = mobile() ? 11 : 12, fu = fs / u;
@@ -606,7 +794,7 @@ function placeLabels(){
 
   order.forEach(n => {
     const isPrio = n === sel || n === state.hov || (sel && sel.nb.has(n.id)) || (state.hov && state.hov.nb.has(n.id)) || (activeLink && (n === activeLink.source || n === activeLink.target));
-    const base = !sel && !state.hov && !activeLink && (n.lv <= 1 || (REAL_LOGOS[n.id] && T.k > 1.05) || T.k > 1.5);
+    const base = !sel && !state.hov && !activeLink && (n.lv <= 2 || REAL_LOGOS[n.id] || T.k > 1.1);
     if (!isPrio && !base) return;
 
     const w = meas.measureText(n.short).width, r = n.r * u, x = sx(n), y = sy(n), g = 7;
@@ -636,12 +824,12 @@ function placeLabels(){
 }
 let raf; const queue = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(placeLabels); };
 
-/* ---------- zoom ---------- */
+/* ---------- Zoom & Centrado ---------- */
 const zoom = d3.zoom().scaleExtent([.5, 5]).on('zoom', e => { T = e.transform; root.attr('transform', T); queue(); });
 svg.call(zoom).on('dblclick.zoom', null);
 
 function fitTo(ns, dur = 700, maxK = 2.4){
-  const pad = MODE === 'd' ? 60 : 30, px = MODE === 'd' ? 80 : 40;
+  const pad = MODE === 'd' ? 70 : 35, px = MODE === 'd' ? 90 : 45;
   const x0 = d3.min(ns, n => n.x - n.r) - px, x1 = d3.max(ns, n => n.x + n.r) + px,
         y0 = d3.min(ns, n => n.y - n.r) - pad - 24, y1 = d3.max(ns, n => n.y + n.r) + pad + 24;
   const k = Math.min(maxK, W / (x1 - x0), H / (y1 - y0));
@@ -669,9 +857,8 @@ document.getElementById('zin').onclick = () => svg.transition().call(zoom.scaleB
 document.getElementById('zout').onclick = () => svg.transition().call(zoom.scaleBy, 1/1.35);
 document.getElementById('zfit').onclick = () => { select(null); selectLink(null); fitAll(); };
 
-/* ---------- popover flotante ("pop") para nodos y para líneas ---------- */
-const pop = document.getElementById('node-pop');
-const stage = document.getElementById('stage');
+/* ---------- Popovers interactivos flotantes ---------- */
+const pop = document.getElementById('node-pop'), stage = document.getElementById('stage');
 
 function showNodePop(n, e){
   const O = offs(), u = unitPx();
@@ -741,8 +928,8 @@ function hidePop(){
   pop.classList.remove('visible');
 }
 
-/* ---------- estado, filtros, selección ---------- */
-const state = {sel:null, hov:null, selLink:null, hovLink:null, conv:new Set(Object.keys(CONV)), q:''};
+/* ---------- Estado y Selecciones ---------- */
+const state = {sel:null, hov:null, selLink:null, hovLink:null, conv:new Set(Object.keys(CONV)), q:'', activeTour:null};
 
 function applyConv(){
   linkSel.classed('off', l => !state.conv.has(l.c));
@@ -788,6 +975,8 @@ function focusLink(l){
 function select(n, how){
   state.sel = n;
   state.selLink = null;
+  state.activeTour = null;
+  updateTourPills();
   focusNode(n);
   renderPanel();
   queue();
@@ -801,6 +990,8 @@ function select(n, how){
 function selectLink(l){
   state.selLink = l;
   state.sel = null;
+  state.activeTour = null;
+  updateTourPills();
   focusLink(l);
   renderPanel();
   queue();
@@ -812,14 +1003,14 @@ function selectLink(l){
 
 /* Eventos sobre Nodos */
 nodeSel.on('mouseenter', (e, n) => {
-  if (state.selLink) return;
+  if (state.selLink || state.activeTour) return;
   state.hov = n;
   if (!state.sel){ focusNode(n); }
   showNodePop(n, e);
   queue();
 })
 .on('mouseleave', () => {
-  if (state.selLink) return;
+  if (state.selLink || state.activeTour) return;
   state.hov = null;
   if (!state.sel) focusNode(null);
   hidePop();
@@ -828,17 +1019,11 @@ nodeSel.on('mouseenter', (e, n) => {
 .on('click', (e, n) => {
   e.stopPropagation();
   select(n, 'node');
-})
-.on('keydown', (e, n) => {
-  if (e.key === 'Enter' || e.key === ' '){
-    e.preventDefault();
-    select(n, 'node');
-  }
 });
 
 /* Eventos sobre Líneas de interacción (Hit-area) */
 linkHitSel.on('mouseenter', (e, l) => {
-  if (state.sel || state.selLink) return;
+  if (state.sel || state.selLink || state.activeTour) return;
   state.hovLink = l;
   linkSel.filter(o => o === l).classed('hov-link', true);
   nodeSel.classed('on', d => d === l.source || d === l.target);
@@ -846,7 +1031,7 @@ linkHitSel.on('mouseenter', (e, l) => {
   queue();
 })
 .on('mouseleave', (e, l) => {
-  if (state.sel || state.selLink) return;
+  if (state.sel || state.selLink || state.activeTour) return;
   state.hovLink = null;
   linkSel.classed('hov-link', false);
   nodeSel.classed('on', false);
@@ -859,15 +1044,17 @@ linkHitSel.on('mouseenter', (e, l) => {
 });
 
 svg.on('click', () => {
-  if (state.sel || state.selLink){
+  if (state.sel || state.selLink || state.activeTour){
     select(null, 'keep');
     selectLink(null);
+    state.activeTour = null;
+    updateTourPills();
     fitAll();
   }
   hidePop();
 });
 
-/* ---------- panel y avatares ---------- */
+/* ---------- Panel lateral y avatares ---------- */
 const P = document.getElementById('panel');
 
 const avatar = (n, s = 24) => {
@@ -945,15 +1132,19 @@ function linkDetail(l){
 
 function overview(){
   const counts = d3.rollup(links, v => v.length, l => l.c);
-  // Las 8 instituciones con su logo oficial único:
   const featuredInst = [
     byId.get('A01'), byId.get('A34'), byId.get('A38'), byId.get('A48'),
     byId.get('A49'), byId.get('N06'), byId.get('N07'), byId.get('A32')
   ].filter(Boolean);
 
   return `
-  <section class="sec"><h2>Quién decide y quién ejecuta</h2>
-   <p class="hint">Red social interconectada: en cada ámbito, los decisores al centro con mayor tamaño; en su órbita, quienes coordinan, ejecutan y reciben en Kennedy.</p>
+  <section class="sec">
+   <div class="didactic-banner">
+    <h3>💡 Guía rápida interactiva</h3>
+    <p>Usa la barra superior de <b>Rutas guiadas</b> para recorrer cadenas reales o haz clic en cualquier bolita o línea del gráfico para investigar sus relaciones.</p>
+   </div>
+   <h2>Quién decide y quién ejecuta</h2>
+   <p class="hint">Red social interconectada: al centro los decisores con mayor tamaño; en su órbita, quienes coordinan, ejecutan y reciben en Kennedy.</p>
    <div class="lvls">${[1,2,3,4].map(l=>{const r=LVR.d[l];return `<div><svg width="68" height="68" viewBox="0 0 68 68">${l===1?`<circle cx="34" cy="34" r="${r*.75+5}" fill="none" stroke="#E5C06E" stroke-width="1.5" stroke-opacity=".5"/>`:''}<circle cx="34" cy="34" r="${r*.75}" fill="${l===4?'#E5E1D8':'#181c26'}" stroke="#E5E1D8" stroke-width="${l===1?2.2:l===2?1.6:1.2}"/></svg><span><b>${LV[l]}</b><br>${LVD[l]}</span></div>`}).join('')}</div>
   </section>
 
@@ -985,7 +1176,7 @@ function overview(){
     <div><span class="av"><svg width="15" height="15"><use href="#i-pub"/></svg></span>Entidad pública</div>
     <div><span class="av"><svg width="15" height="15"><use href="#i-sal"/></svg></span>Salud / Hospital</div>
     <div><span class="av"><svg width="15" height="15"><use href="#i-edu"/></svg></span>Educación / Colegio</div>
-    <div><span class="dash"></span>Añadido a tu Excel</div>
+    <div><span class="dash"></span>Añadido a tu red</div>
    </div>
   </section>
 
@@ -1053,8 +1244,111 @@ function detail(n){
   </section>`;
 }
 
+/* Panel para ruta guiada didáctica */
+function tourDetail(tKey){
+  const t = TOURS[tKey];
+  if (!t) return overview();
+
+  const tourNodes = t.nodes.map(id => byId.get(id)).filter(Boolean);
+  return `
+  <section class="sec">
+    <button class="back" id="back">← Salir de la ruta guiada</button>
+    <div style="margin-top:16px">
+      <span class="pop-badge" style="background:rgba(56,189,248,0.18);color:var(--accent);border-color:rgba(56,189,248,0.4);font-size:11.5px;padding:4px 10px">
+        Ruta explicativa paso a paso
+      </span>
+      <h3 style="margin:12px 0 6px;font-size:18px;font-weight:600;color:#F4F0E8">${esc(t.title)}</h3>
+      <p style="margin:0 0 16px;font-size:13px;line-height:1.5;color:var(--soft)">${esc(t.desc)}</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Eslabones de la ruta</h2>
+    <p class="hint">Toca cualquier eslabón para ver en detalle al actor o su conexión:</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${tourNodes.map((n, idx) => {
+        const hasLogo = !!REAL_LOGOS[n.id];
+        return `
+        <button class="it link-actor-card" data-id="${n.id}" style="padding:12px;border:1px solid var(--faint);border-radius:12px;background:#10131d">
+          <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);margin-bottom:4px">
+            Paso ${idx + 1} de ${tourNodes.length}
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="av ${hasLogo?'':'dark-av'}" style="width:38px;height:38px;border-color:${SPC[n.sph]};border-width:2px;flex:none;background:${hasLogo?'#fff':'#141722'}">${avatar(n, 32)}</span>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13.5px;font-weight:600;color:#F4F0E8;line-height:1.2">${esc(n.name)}</div>
+              <div style="font-size:11.5px;color:var(--soft);margin-top:2px">${esc(SPH[n.sph])} • <b style="color:${SPC[n.sph]}">${esc(LV[n.lv])}</b></div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--soft);margin-top:8px;line-height:1.4">${esc(n.fun)}</div>
+        </button>`;
+      }).join('')}
+    </div>
+  </section>`;
+}
+
+function updateTourPills(){
+  document.querySelectorAll('.tour-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tour === state.activeTour);
+  });
+}
+
+function runTour(tKey){
+  if (tKey === 'all' || !tKey){
+    state.activeTour = null;
+    select(null, 'keep');
+    selectLink(null);
+    updateTourPills();
+    fitAll();
+    renderPanel();
+    return;
+  }
+
+  const t = TOURS[tKey];
+  if (!t) return;
+
+  state.activeTour = tKey;
+  state.sel = null;
+  state.selLink = null;
+  updateTourPills();
+
+  const tourNodeSet = new Set(t.nodes);
+  const tourNodes = t.nodes.map(id => byId.get(id)).filter(Boolean);
+
+  svg.classed('focus', true);
+  nodeSel.classed('on', d => tourNodeSet.has(d.id)).classed('sel', false);
+  
+  // Encontrar enlaces activos del tour
+  const tourLinks = links.filter(l => 
+    t.links.some(req => (req.s === l.s && req.t === l.t) || (req.s === l.t && req.t === l.s))
+  );
+
+  linkSel.classed('on', l => tourLinks.includes(l)).classed('sel-link', l => tourLinks.includes(l));
+
+  // Animación de partículas sobre la ruta
+  gP.selectAll('*').remove();
+  if(!window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    tourLinks.forEach((l, j) => {
+      for(let q = 0; q < 2; q++){
+        const c = gP.append('circle').attr('class','particle').attr('r', MODE === 'd' ? 3.2 : 3.6).attr('fill', CONV[l.c].c);
+        c.append('animateMotion').attr('dur', '1.9s').attr('repeatCount', 'indefinite').attr('begin', (q * 0.8 + j * 0.2) + 's')
+         .append('mpath').attr('href', '#p' + l.i);
+      }
+    });
+  }
+
+  fitTo(tourNodes, 700, 1.8);
+  renderPanel();
+  queue();
+}
+
 function renderPanel(){
-  if(state.selLink){
+  if(state.activeTour){
+    P.innerHTML = tourDetail(state.activeTour);
+    document.getElementById('back').onclick = () => runTour('all');
+    P.querySelectorAll('[data-id]').forEach(b => b.onclick = () => select(byId.get(b.dataset.id), 'list'));
+    P.scrollTop = 0;
+  } else if(state.selLink){
     P.innerHTML = linkDetail(state.selLink);
     document.getElementById('back').onclick = () => { selectLink(null); fitAll(); };
     P.querySelectorAll('[data-id]').forEach(b => b.onclick = () => select(byId.get(b.dataset.id), 'list'));
@@ -1089,7 +1383,19 @@ function renderPanel(){
   }
 }
 
-/* ---------- inicio ---------- */
+/* Eventos barra de rutas guiadas */
+document.querySelectorAll('.tour-pill').forEach(btn => {
+  btn.onclick = () => runTour(btn.dataset.tour);
+});
+
+/* Modal didáctico */
+const modal = document.getElementById('modalHowTo');
+document.getElementById('btnHowTo').onclick = () => modal.classList.add('open');
+document.getElementById('btnCloseModal').onclick = () => modal.classList.remove('open');
+document.getElementById('btnGotIt').onclick = () => modal.classList.remove('open');
+modal.onclick = e => { if(e.target === modal) modal.classList.remove('open'); };
+
+/* ---------- Inicio ---------- */
 renderPanel();
 const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 if(!reduce){
