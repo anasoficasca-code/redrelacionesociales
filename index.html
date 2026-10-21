@@ -1087,18 +1087,18 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
      <div class="tour-select-wrapper">
        <select id="tourSelect" class="tour-select" aria-label="Seleccionar problemática territorial">
          <option value="all">Todas las relaciones (Vista general)</option>
-         <optgroup label="🚗 Problemática Vial y Movilidad">
-           <option value="via_colapso">🚗 Colapso vial, camiones pesados y Corabastos</option>
-           <option value="via_transporte">🚗 Transporte masivo, SITP zonal y bicitaxismo</option>
+         <optgroup label="Problemática Vial y Movilidad">
+           <option value="via_colapso">Colapso vial, camiones pesados y Corabastos</option>
+           <option value="via_transporte">Transporte masivo, SITP zonal y bicitaxismo</option>
          </optgroup>
-         <optgroup label="🌿 Problemática Ecológica e Hídrica">
-           <option value="eco_humedales">🌿 Humedales La Vaca y El Burro (Fauna y Agua)</option>
-           <option value="eco_residuos">🌿 Gestión de residuos, lixiviados y recicladores</option>
+         <optgroup label="Problemática Ecológica e Hídrica">
+           <option value="eco_humedales">Humedales La Vaca y El Burro (Fauna y Agua)</option>
+           <option value="eco_residuos">Gestión de residuos, lixiviados y recicladores</option>
          </optgroup>
-         <optgroup label="👥 Problemática Social y Gobernanza">
-           <option value="soc_densidad">👥 Densificación residencial y sobrecarga de servicios</option>
-           <option value="soc_popular">👥 Economía popular, vendedores y crédito informal</option>
-           <option value="soc_gobierno">👥 Gobernanza comunitaria (JAC) vs. ordenamiento oficial</option>
+         <optgroup label="Problemática Social y Gobernanza">
+           <option value="soc_densidad">Densificación residencial y sobrecarga de servicios</option>
+           <option value="soc_popular">Economía popular, vendedores y crédito informal</option>
+           <option value="soc_gobierno">Gobernanza comunitaria (JAC) vs. ordenamiento oficial</option>
          </optgroup>
        </select>
        <svg class="tour-select-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
@@ -1112,11 +1112,11 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
     <canvas id="threeCanvas"></canvas>
     <!-- Floating 3D HUD para Redes Comunitarias de Kennedy (IDECA) -->
     <div class="hud-3d-community">
-      <button class="hud-btn active" data-layer="jacs" id="toggleJacs">🏛️ 181 Salones JAC</button>
-      <button class="hud-btn active" data-layer="bibliotecas" id="toggleBiblios">📚 Bibliotecas Populares</button>
-      <button class="hud-btn active" data-layer="acueductos" id="toggleAcueductos">💧 Acueductos Comunitarios</button>
-      <button class="hud-btn active" data-layer="huertas" id="toggleHuertas">🌿 Huertas</button>
-      <button class="hud-btn active" data-layer="comedores" id="toggleComedores">🍲 Comedores</button>
+      <button class="hud-btn active" data-layer="jacs" id="toggleJacs">181 Salones JAC</button>
+      <button class="hud-btn active" data-layer="bibliotecas" id="toggleBiblios">Bibliotecas Populares</button>
+      <button class="hud-btn active" data-layer="acueductos" id="toggleAcueductos">Acueductos Comunitarios</button>
+      <button class="hud-btn active" data-layer="huertas" id="toggleHuertas">Huertas</button>
+      <button class="hud-btn active" data-layer="comedores" id="toggleComedores">Comedores</button>
     </div>
     <div id="status3d" class="status-3d-badge">Cargando territorio 3D de Kennedy...</div>
   </div>
@@ -1212,24 +1212,14 @@ const PHOTO_DATA = {"corabastos": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ
 const ACTOR_PHOTOS = {"A01":"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Corabastos_Logo.png/320px-Corabastos_Logo.png","A02":"https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=140&q=80","A03":"https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=140&q=80","A04":"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=140&q=80","A06":"https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=140&q=80","A07":"https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=140&q=80","A08":"https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=140&q=80","A09":"https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=140&q=80","A59":"https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=140&q=80","A60":"https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=140&q=80","A61":"https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=140&q=80","A70":"https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=140&q=80","N07":"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Ministerio_de_Agricultura_y_Desarrollo_Rural_%28Colombia%29.svg/320px-Ministerio_de_Agricultura_y_Desarrollo_Rural_%28Colombia%29.svg.png","A10":"https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=140&q=80","A11":"https://images.unsplash.com/photo-1508974239320-0a029497e820?auto=format&fit=crop&w=140&q=80","A13":"https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=140&q=80","A14":"https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=140&q=80","A21":"https://images.unsplash.com/photo-1617347454431-f49d7ff5c3b1?auto=format&fit=crop&w=140&q=80","A67":"https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=140&q=80","A68":"https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=140&q=80","LOG01":"https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=140&q=80","A15":"https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=140&q=80","A16":"https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=140&q=80","A17":"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=140&q=80","A18":"https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=140&q=80","A19":"https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=140&q=80","A20":"https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=140&q=80","A55":"https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=140&q=80","N03":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","PJ01":"https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=140&q=80","PJ04":"https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=140&q=80","INF02":"https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=140&q=80","INF03":"https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=140&q=80","A23":"https://images.unsplash.com/photo-1604187351574-c75ca79f5807?auto=format&fit=crop&w=140&q=80","A24":"https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=140&q=80","A25":"https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=140&q=80","A26":"https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=140&q=80","A27":"https://images.unsplash.com/photo-1526951521990-620dc14c214b?auto=format&fit=crop&w=140&q=80","A28":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","A29":"https://images.unsplash.com/photo-1508974239320-0a029497e820?auto=format&fit=crop&w=140&q=80","A31":"https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=140&q=80","A32":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","A33":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","A56":"https://images.unsplash.com/photo-1526951521990-620dc14c214b?auto=format&fit=crop&w=140&q=80","A57":"https://images.unsplash.com/photo-1516992654410-9309d4587e94?auto=format&fit=crop&w=140&q=80","A58":"https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=140&q=80","A69":"https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=140&q=80","N04":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","N06":"https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Logo_EAAB.png/320px-Logo_EAAB.png","AMB01":"https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=140&q=80","AMB02":"https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?auto=format&fit=crop&w=140&q=80","AMB03":"https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?auto=format&fit=crop&w=140&q=80","AMB04":"https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=140&q=80","RES01":"https://images.unsplash.com/photo-1612965607446-25e1332775ae?auto=format&fit=crop&w=140&q=80","A34":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","A35":"https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=140&q=80","A36":"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=140&q=80","A37":"https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=140&q=80","A38":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Insignia_Polic%C3%ADa_Nacional_de_Colombia.svg/320px-Insignia_Polic%C3%ADa_Nacional_de_Colombia.svg.png","A39":"https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=140&q=80","N01":"https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=140&q=80","N02":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","GOB01":"https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&w=140&q=80","EDU02":"https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=140&q=80","PJ02":"https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=140&q=80","A41":"https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=140&q=80","A42":"https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=140&q=80","A43":"https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=140&q=80","A53":"https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=140&q=80","A54":"https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=140&q=80","A63":"https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=140&q=80","A65":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","C01":"https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=140&q=80","C02":"https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=140&q=80","C03":"https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=140&q=80","DLE":"https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=140&q=80","EDU01":"https://images.unsplash.com/photo-1573497491765-dccce02b29df?auto=format&fit=crop&w=140&q=80","INF04":"https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=140&q=80","A46":"https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=140&q=80","N05":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","N08":"https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=140&q=80","CSA":"https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=140&q=80","SAL01":"https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=140&q=80","A48":"https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/TransMilenio_Logo.svg/320px-TransMilenio_Logo.svg.png","A49":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Logo_SITP.svg/320px-Logo_SITP.svg.png","A50":"https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=140&q=80","A52":"https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=140&q=80","A66":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg/320px-Logo_Alcald%C3%ADa_Mayor_de_Bogot%C3%A1.svg.png","PJ03":"https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=140&q=80","INF01":"https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=140&q=80"};
 
 const REAL_LOGOS = {
-  'A01': LOGO_DATA.corabastos,       // Corabastos S.A.
-  'A34': LOGO_DATA.alcaldia_bogota,  // Alcaldia Local de Kennedy
-  'A33': LOGO_DATA.alcaldia_bogota,  // Secretaría Distrital de Ambiente
-  'A38': LOGO_DATA.policia_nacional, // Estación de Policía Kennedy
+  'A01': LOGO_DATA.corabastos,       // Corabastos S.A. (Fondo verde oscuro institucional)
   'A48': LOGO_DATA.transmilenio,     // TransMilenio S. A.
   'A49': LOGO_DATA.sitp,             // Operadores zonales del SITP
-  'A65': LOGO_DATA.alcaldia_bogota,  // Secretaría de Educación
-  'A66': LOGO_DATA.alcaldia_bogota,  // Secretaría de Movilidad
-  'N01': LOGO_DATA.alcaldia_bogota,  // JAL Kennedy
-  'N02': LOGO_DATA.alcaldia_bogota,  // IDPAC
-  'N03': LOGO_DATA.alcaldia_bogota,  // IPES
-  'N04': LOGO_DATA.alcaldia_bogota,  // Secretaría de Integración Social
-  'N05': LOGO_DATA.alcaldia_bogota,  // Secretaría de Salud
   'N06': LOGO_DATA.acueducto,        // Empresa de Acueducto y Alcantarillado de Bogotá (EAAB)
-  'N07': LOGO_DATA.minagricultura,   // Ministerio de Agricultura y Desarrollo Rural
+  'A38': LOGO_DATA.policia_nacional, // Estación de Policía Kennedy
+  'A34': LOGO_DATA.alcaldia_bogota,  // Alcaldía Local de Kennedy
   'A32': LOGO_DATA.uaesp,            // UAESP
-  'A28': 'https://www.ciudadlimpia.com.co/servicios/pqrs/logo_nuevo.png', // Ciudad Limpia (Aseo)
-  'N08': 'https://subredsuroccidente.gov.co/wp-content/uploads/2021/04/Logo-Subred-Sur-Occidente-01.png' // Hospital Occidente de Kennedy
+  'N07': LOGO_DATA.minagricultura    // Ministerio de Agricultura y Desarrollo Rural
 };
 
 const CONV = {
@@ -2188,204 +2178,17 @@ function toThreeScene(x, y) {
   };
 }
 
-function getActorScenePos(id) {
-  const geo = ACTOR_GEO[id];
-  if (!geo) return { x: 0, z: 0 };
+function geoToThree(geo) {
+  if (!geo || !geo.length) return { x: 0, z: 0 };
   const net_x = 149600.93 * geo[0] - 8558.52 * geo[1] + 11139327.21;
   const net_y = 754.06 * geo[0] + 118039.11 * geo[1] - 486382.63;
   return toThreeScene(net_x, net_y);
 }
 
-
-/* ==========================================================================
-   REDES COMUNITARIAS DE KENNEDY (IDECA / GPKG / IDPAC)
-   ========================================================================== */
-
-let currentCommTab = 'all';
-let currentCommQuery = '';
-
-function renderCommunityList(){
-  const listEl = document.getElementById('commList');
-  if (!listEl || typeof COMMUNITY_NETWORKS === 'undefined') return;
-
-  const q = currentCommQuery.trim().toLowerCase();
-  
-  let items = [];
-  if (currentCommTab === 'all' || currentCommTab === 'jac') {
-    items = items.concat(COMMUNITY_NETWORKS.jacs.map(i => ({...i, icon: '🏛️', color: '#f59e0b'})));
-  }
-  if (currentCommTab === 'all' || currentCommTab === 'agua') {
-    items = items.concat(COMMUNITY_NETWORKS.acueductos.map(i => ({...i, icon: '💧', color: '#06b6d4'})));
-  }
-  if (currentCommTab === 'all' || currentCommTab === 'biblio') {
-    items = items.concat(COMMUNITY_NETWORKS.bibliotecas.map(i => ({...i, icon: '📚', color: '#a855f7'})));
-  }
-  if (currentCommTab === 'all' || currentCommTab === 'huerta') {
-    items = items.concat(COMMUNITY_NETWORKS.huertas.map(i => ({...i, icon: '🌿', color: '#10b981'})));
-  }
-  if (currentCommTab === 'all' || currentCommTab === 'comedor') {
-    items = items.concat(COMMUNITY_NETWORKS.comedores.map(i => ({...i, icon: '🍲', color: '#f97316'})));
-  }
-
-  if (q) {
-    items = items.filter(it => (it.name + ' ' + (it.addr || '') + ' ' + (it.type || '')).toLowerCase().includes(q));
-  }
-
-  if (items.length === 0) {
-    listEl.innerHTML = '<div style="padding:10px;text-align:center;font-size:11px;color:var(--mute)">No se encontraron organizaciones con esa búsqueda.</div>';
-    return;
-  }
-
-  const displayItems = items.slice(0, 45);
-
-  listEl.innerHTML = displayItems.map(it => `
-    <div class="comm-card" data-cid="${it.id}" style="border-left:3px solid ${it.color}">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-        <span style="font-size:11px;font-weight:700;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-          ${it.icon} ${esc(it.name)}
-        </span>
-        <button class="btn-fly-3d" data-coord="${it.coord.join(',')}" data-name="${esc(it.name)}" style="flex-shrink:0;padding:2px 7px;font-size:9.5px;font-weight:700;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:#38bdf8;cursor:pointer">
-          Ver 3D
-        </button>
-      </div>
-      <div style="font-size:10px;color:var(--soft);margin-top:2px;line-height:1.25">
-        <b>${esc(it.type)}</b> • ${esc(it.addr)}
-      </div>
-      ${it.desc ? `<div style="font-size:9.5px;color:#94a3b8;margin-top:3px;line-height:1.2">${esc(it.desc)}</div>` : ''}
-    </div>
-  `).join('');
-
-  listEl.querySelectorAll('.btn-fly-3d').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      const coords = btn.dataset.coord.split(',').map(Number);
-      flyToCommunity(coords, btn.dataset.name);
-    };
-  });
-
-  listEl.querySelectorAll('.comm-card').forEach(card => {
-    card.onclick = () => {
-      const btn = card.querySelector('.btn-fly-3d');
-      if (btn) btn.click();
-    };
-  });
+function getActorScenePos(id) {
+  const geo = ACTOR_GEO[id];
+  return geoToThree(geo);
 }
-
-function flyToCommunity(coord, name) {
-  const tab3d = document.querySelector('[data-view="map3d"]');
-  if (tab3d) tab3d.click();
-
-  setTimeout(() => {
-    if (!threeCamera || !threeControls) return;
-    const p = geoToThree(coord);
-    const targetPos = new THREE.Vector3(p.x, 0, p.z);
-    threeControls.target.copy(targetPos);
-    threeCamera.position.set(p.x + 35, 55, p.z + 55);
-    threeControls.update();
-
-    const statusEl = document.getElementById('status3d');
-    if (statusEl) {
-      statusEl.textContent = '📍 ' + (name || 'Organización Comunitaria');
-      statusEl.classList.remove('hidden');
-      setTimeout(() => statusEl.classList.add('hidden'), 3500);
-    }
-  }, 250);
-}
-
-let threeCommunityGroup;
-const communityLayers = {
-  jacs: null,
-  bibliotecas: null,
-  acueductos: null,
-  huertas: null,
-  comedores: null
-};
-
-function initCommunity3DLayer() {
-  if (!threeScene || typeof COMMUNITY_NETWORKS === 'undefined') return;
-
-  threeCommunityGroup = new THREE.Group();
-  threeScene.add(threeCommunityGroup);
-
-  communityLayers.jacs = new THREE.Group();
-  communityLayers.bibliotecas = new THREE.Group();
-  communityLayers.acueductos = new THREE.Group();
-  communityLayers.huertas = new THREE.Group();
-  communityLayers.comedores = new THREE.Group();
-
-  Object.values(communityLayers).forEach(g => threeCommunityGroup.add(g));
-
-  // 1. Salones Comunales JAC (181)
-  COMMUNITY_NETWORKS.jacs.forEach(jac => {
-    const p = geoToThree(jac.coord);
-    const cylGeo = new THREE.CylinderGeometry(0.8, 0.8, 3.5, 8);
-    const cylMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.85 });
-    const cyl = new THREE.Mesh(cylGeo, cylMat);
-    cyl.position.set(p.x, 1.75, p.z);
-
-    const ringGeo = new THREE.RingGeometry(0.8, 1.8, 12);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.set(p.x, 0.25, p.z);
-
-    communityLayers.jacs.add(cyl);
-    communityLayers.jacs.add(ring);
-  });
-
-  // 2. Bibliotecas Populares (4)
-  COMMUNITY_NETWORKS.bibliotecas.forEach(b => {
-    const p = geoToThree(b.coord);
-    const cylGeo = new THREE.CylinderGeometry(1.4, 1.4, 10, 8);
-    const cylMat = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
-    const cyl = new THREE.Mesh(cylGeo, cylMat);
-    cyl.position.set(p.x, 5, p.z);
-    communityLayers.bibliotecas.add(cyl);
-  });
-
-  // 3. Acueductos Comunitarios y Gestión Popular del Agua (4)
-  COMMUNITY_NETWORKS.acueductos.forEach(a => {
-    const p = geoToThree(a.coord);
-    const cylGeo = new THREE.CylinderGeometry(1.6, 1.6, 12, 8);
-    const cylMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
-    const cyl = new THREE.Mesh(cylGeo, cylMat);
-    cyl.position.set(p.x, 6, p.z);
-    communityLayers.acueductos.add(cyl);
-  });
-
-  // 4. Huertas Agroecológicas (3)
-  COMMUNITY_NETWORKS.huertas.forEach(h => {
-    const p = geoToThree(h.coord);
-    const cylGeo = new THREE.CylinderGeometry(1.5, 1.5, 8, 8);
-    const cylMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
-    const cyl = new THREE.Mesh(cylGeo, cylMat);
-    cyl.position.set(p.x, 4, p.z);
-    communityLayers.huertas.add(cyl);
-  });
-
-  // 5. Comedores Comunitarios (3)
-  COMMUNITY_NETWORKS.comedores.forEach(c => {
-    const p = geoToThree(c.coord);
-    const cylGeo = new THREE.CylinderGeometry(1.4, 1.4, 9, 8);
-    const cylMat = new THREE.MeshBasicMaterial({ color: 0xf97316 });
-    const cyl = new THREE.Mesh(cylGeo, cylMat);
-    cyl.position.set(p.x, 4.5, p.z);
-    communityLayers.comedores.add(cyl);
-  });
-
-  // Wire HUD toggle buttons
-  document.querySelectorAll('.hud-btn').forEach(btn => {
-    btn.onclick = () => {
-      const layerKey = btn.dataset.layer;
-      const group = communityLayers[layerKey];
-      if (group) {
-        group.visible = !group.visible;
-        btn.classList.toggle('active', group.visible);
-      }
-    };
-  });
-}
-
 
 function initMap3D() {
   const container = document.getElementById('map3d');
@@ -2407,7 +2210,6 @@ function initMap3D() {
   threeScene.add(threeLinksGroup);
   
   threeScene.add(threeActorsGroup);
-  initCommunity3DLayer();
 
   // Cámara en perspectiva axonométrica
   const w = container.clientWidth || window.innerWidth;
@@ -2754,6 +2556,7 @@ function initMap3D() {
     threeRenderer.render(threeScene, threeCamera);
   }
   animate();
+  initCommunity3DLayer();
 
   // Redimensionar automáticamente
   window.addEventListener('resize', onThreeResize);
@@ -2854,7 +2657,8 @@ function switchView(viewName){
       netSvg.style.pointerEvents = 'none';
     }
     initMap3D();
-    onThreeResize();
+    setTimeout(onThreeResize, 60);
+    setTimeout(onThreeResize, 200);
     return;
   }
 
@@ -3081,7 +2885,7 @@ const PROBLEMS = {
     name: 'Problemática Vial y Movilidad',
     short: 'Vial y Movilidad',
     color: '#38bdf8',
-    tag: '🚗 Eje Vial y Movilidad',
+    tag: 'Eje Vial y Movilidad',
     badgeClass: 'prob-vial',
     desc: 'Colapso de corredores viales (Av. Ciudad de Cali, Av. Primero de Mayo, Américas), concentración del mercado mayorista (12.000 vehículos/día, 1.500 camiones pesados), cargue en vía pública y bicitaxis.',
     count: 18
@@ -3091,7 +2895,7 @@ const PROBLEMS = {
     name: 'Problemática Ecológica e Hídrica',
     short: 'Ecológica e Hídrica',
     color: '#34d399',
-    tag: '🌿 Eje Ecológico e Hídrico',
+    tag: 'Eje Ecológico e Hídrico',
     badgeClass: 'prob-eco',
     desc: 'Deterioro de la red hídrica y humedales La Vaca y El Burro, bioacústica y ruido vehicular sobre la Tingua Bogotana, 1.200 ton/día de residuos, lixiviados y EAAB.',
     count: 21
@@ -3101,7 +2905,7 @@ const PROBLEMS = {
     name: 'Problemática Social y Gobernanza',
     short: 'Social y Gobernanza',
     color: '#f59e0b',
-    tag: '👥 Eje Social y Gobernanza',
+    tag: 'Eje Social y Gobernanza',
     badgeClass: 'prob-soc',
     desc: 'Sobrecarga de servicios por densificación en altura (Patio Bonito, Tintal), economía popular y ventas ambulantes, crédito usurero (Gota a gota), autogestión de JAC y comedores comunitarios.',
     count: 51
@@ -3434,16 +3238,7 @@ function overview(){
     byId.get('A38'), // Estación de Policía Kennedy
     byId.get('A34'), // Alcaldía Local de Kennedy
     byId.get('A32'), // UAESP
-    byId.get('N07'), // Ministerio de Agricultura
-    byId.get('A28'), // Ciudad Limpia (Aseo)
-    byId.get('N08'), // Hospital de Kennedy
-    byId.get('N02'), // IDPAC
-    byId.get('N03'), // IPES
-    byId.get('N04'), // Secretaría de Integración Social
-    byId.get('N05'), // Secretaría de Salud
-    byId.get('A65'), // Secretaría de Educación
-    byId.get('A66'), // Secretaría de Movilidad
-    byId.get('A33')  // Secretaría de Ambiente
+    byId.get('N07')  // Ministerio de Agricultura
   ].filter(Boolean);
 
   return `
@@ -3471,7 +3266,7 @@ function overview(){
         <!-- 1. VIAL -->
         <button class="prob-pill ${state.probFilter === 'vial' ? 'active' : ''}" data-prob="vial" style="border-left:3.5px solid #38bdf8">
           <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
-            <span style="font-size:11px;font-weight:700;color:${state.probFilter === 'vial' ? '#FFFFFF' : '#f1f5f9'}">🚗 Problemática Vial y Movilidad</span>
+            <span style="font-size:11px;font-weight:700;color:${state.probFilter === 'vial' ? '#FFFFFF' : '#f1f5f9'}">Problemática Vial y Movilidad</span>
             <span style="font-size:9.5px;color:var(--soft);line-height:1.25">Colapso vial, 12.000 veh./día, 1.500 camiones, SITP y bicitaxis</span>
           </div>
           <span style="font-size:10px;font-weight:700;color:#38bdf8;background:rgba(56,189,248,0.12);padding:2px 7px;border-radius:10px;flex-shrink:0">18</span>
@@ -3480,7 +3275,7 @@ function overview(){
         <!-- 2. ECOLÓGICO -->
         <button class="prob-pill ${state.probFilter === 'eco' ? 'active prob-eco' : ''}" data-prob="eco" style="border-left:3.5px solid #34d399">
           <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
-            <span style="font-size:11px;font-weight:700;color:${state.probFilter === 'eco' ? '#FFFFFF' : '#f1f5f9'}">🌿 Problemática Ecológica e Hídrica</span>
+            <span style="font-size:11px;font-weight:700;color:${state.probFilter === 'eco' ? '#FFFFFF' : '#f1f5f9'}">Problemática Ecológica e Hídrica</span>
             <span style="font-size:9.5px;color:var(--soft);line-height:1.25">Humedales La Vaca y El Burro, 1.200 ton/día residuos, lixiviados y EAAB</span>
           </div>
           <span style="font-size:10px;font-weight:700;color:#34d399;background:rgba(52,211,153,0.12);padding:2px 7px;border-radius:10px;flex-shrink:0">21</span>
@@ -3489,7 +3284,7 @@ function overview(){
         <!-- 3. SOCIAL -->
         <button class="prob-pill ${state.probFilter === 'soc' ? 'active prob-soc' : ''}" data-prob="soc" style="border-left:3.5px solid #f59e0b">
           <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
-            <span style="font-size:11px;font-weight:700;color:${state.probFilter === 'soc' ? '#FFFFFF' : '#f1f5f9'}">👥 Problemática Social y Gobernanza</span>
+            <span style="font-size:11px;font-weight:700;color:${state.probFilter === 'soc' ? '#FFFFFF' : '#f1f5f9'}">Problemática Social y Gobernanza</span>
             <span style="font-size:9.5px;color:var(--soft);line-height:1.25">Densificación en torre, economía popular, ventas informales, agio y JAC</span>
           </div>
           <span style="font-size:10px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.12);padding:2px 7px;border-radius:10px;flex-shrink:0">51</span>
@@ -3609,11 +3404,11 @@ function overview(){
       <!-- Pestañas de categorías comunitarias -->
       <div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px" id="commTabs">
         <button class="comm-tab active" data-cat="all" style="padding:4px 8px;font-size:10px;font-weight:700;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid #f59e0b;border-radius:6px;cursor:pointer;white-space:nowrap">Todas (195)</button>
-        <button class="comm-tab" data-cat="jac" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">🏛️ JAC (181)</button>
-        <button class="comm-tab" data-cat="agua" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">💧 Acueductos (4)</button>
-        <button class="comm-tab" data-cat="biblio" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">📚 Bibliotecas (4)</button>
-        <button class="comm-tab" data-cat="huerta" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">🌿 Huertas (3)</button>
-        <button class="comm-tab" data-cat="comedor" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">🍲 Comedores (3)</button>
+        <button class="comm-tab" data-cat="jac" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">JAC (181)</button>
+        <button class="comm-tab" data-cat="agua" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">Acueductos (4)</button>
+        <button class="comm-tab" data-cat="biblio" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">Bibliotecas (4)</button>
+        <button class="comm-tab" data-cat="huerta" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">Huertas (3)</button>
+        <button class="comm-tab" data-cat="comedor" style="padding:4px 8px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.04);color:var(--soft);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap">Comedores (3)</button>
       </div>
 
       <!-- Buscador de organizaciones barriales -->
