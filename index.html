@@ -587,7 +587,7 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
 }
 
 
-/* Contenedor del Mapa 3D Real (REN3D / MapLibre) */
+/* Contenedor del Mapa 3D Real (Territorio 3D de Kennedy) */
 .map-3d-stage {
   position: absolute;
   inset: 0;
@@ -597,7 +597,7 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   pointer-events: none;
   z-index: 1;
   transition: opacity 0.4s ease;
-  background: #090c12;
+  background: #080c14;
 }
 .map-3d-stage.active {
   opacity: 1;
@@ -613,81 +613,100 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
 
 /* Marcadores de actores en el mapa 3D */
 .map3d-actor-marker {
-  width: 32px;
-  height: 32px;
+  position: relative;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 2px solid var(--c, #5B8BF5);
-  background: #10141f;
-  box-shadow: 0 0 10px rgba(0,0,0,0.8), 0 0 6px var(--c, #5B8BF5);
+  background: #0d121f;
+  box-shadow: 0 0 10px rgba(0,0,0,0.85), 0 0 6px var(--c, #5B8BF5);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.2s ease;
+  transition: transform 0.22s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.22s ease, opacity 0.22s ease;
 }
 .map3d-actor-marker:hover {
-  transform: scale(1.35) translateY(-4px);
+  transform: scale(1.3) translateY(-4px);
   z-index: 999 !important;
-  box-shadow: 0 0 18px rgba(91,139,245,0.8), 0 0 8px #fff;
+  box-shadow: 0 0 18px rgba(91,139,245,0.85), 0 0 8px #ffffff;
+}
+.map3d-actor-marker.selected {
+  transform: scale(1.35) translateY(-5px);
+  z-index: 1000 !important;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px #5B8BF5, 0 0 22px #5B8BF5, 0 0 10px #ffffff;
+}
+.map3d-actor-marker.dimmed {
+  opacity: 0.2;
+  filter: grayscale(80%);
 }
 .map3d-actor-marker.has-logo {
   background: #FFFFFF;
 }
 .map3d-actor-marker img {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
   border-radius: 50%;
 }
 .map3d-actor-marker svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   color: #FFFFFF;
 }
 
-/* Tarjetas 3D flotantes con fotos reales sobre el mapa de Kennedy */
-.map3d-hub-card {
-  background: #0c121e;
-  border: 1.5px solid var(--c, #00f2fe);
-  border-radius: 8px;
-  padding: 4px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.85), 0 0 12px var(--c, #00f2fe);
-  cursor: pointer;
-  transition: transform 0.25s ease, filter 0.25s ease;
-  width: 130px;
+/* Etiqueta flotante del actor en 3D */
+.map3d-actor-marker .marker-pill {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background: rgba(12, 17, 28, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #f1f5f9;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.8);
 }
-.map3d-hub-card:hover {
-  transform: scale(1.1) translateY(-6px);
-  z-index: 9999 !important;
-  box-shadow: 0 14px 30px rgba(0,0,0,0.95), 0 0 20px var(--c, #00f2fe);
+.map3d-actor-marker:hover .marker-pill,
+.map3d-actor-marker.selected .marker-pill {
+  opacity: 1;
+  transform: translateX(-50%) translateY(3px);
 }
-.map3d-hub-card img {
-  width: 100%;
-  height: 62px;
-  object-fit: cover;
-  border-radius: 5px;
-  display: block;
+
+/* Etiquetas discretas de hitos de orientación territorial */
+.map3d-hub-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(9, 13, 21, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 2.5px solid var(--c, #00f2fe);
+  border-radius: 4px;
+  padding: 3px 7px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.7);
+  pointer-events: none;
+  user-select: none;
 }
-.map3d-hub-card .hub-name {
+.map3d-hub-tag .hub-bullet {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--c, #00f2fe);
+}
+.map3d-hub-tag .hub-text {
   font-size: 9.5px;
   font-weight: 700;
-  color: #FFFFFF;
-  text-align: center;
-  margin-top: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: #e2e8f0;
   letter-spacing: 0.02em;
 }
-.map3d-hub-card .hub-upz {
-  font-size: 8px;
-  font-weight: 700;
-  color: var(--c, #00f2fe);
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
 
 /* Panel lateral compacto (295px) con convenciones restauradas */
 .conv-compact-list {
@@ -715,65 +734,6 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
 .cv-pill.active {
   background: rgba(255, 255, 255, 0.12);
   border-color: #5B8BF5;
-}
-
-/* Visor 3D Real integrado desde REN3D */
-.map-3d-iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: #090c12;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 1;
-  transition: opacity 0.4s ease;
-}
-.map-3d-iframe.active {
-  opacity: 1;
-  pointer-events: auto;
-  z-index: 10;
-}
-.ren3d-hud-overlay {
-  position: absolute;
-  top: 14px;
-  left: 16px;
-  z-index: 20;
-  display: none;
-  align-items: center;
-  gap: 10px;
-  background: rgba(9, 12, 18, 0.85);
-  border: 1px solid rgba(0, 242, 254, 0.4);
-  border-radius: 20px;
-  padding: 6px 14px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
-}
-.ren3d-hud-overlay.active {
-  display: flex;
-}
-.ren3d-badge {
-  font-size: 11px;
-  font-weight: 700;
-  color: #00f2fe;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.btn-open-ren3d {
-  font-size: 11px;
-  font-weight: 600;
-  color: #FFFFFF;
-  background: #1a2538;
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 12px;
-  padding: 3px 10px;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-.btn-open-ren3d:hover {
-  background: #283a58;
-  border-color: #00f2fe;
 }
 
 </style>
@@ -868,7 +828,7 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
        <button class="strip-tab active" data-view="free">Red libre</button>
        <button class="strip-tab" data-view="clusters">Clústeres</button>
        <button class="strip-tab" data-view="concentric">Anillos de poder</button>
-       <button class="strip-tab" data-view="map3d">Territorio 3D (REN3D)</button>
+       <button class="strip-tab" data-view="map3d">Territorio 3D</button>
      </div>
    </div>
 
@@ -896,26 +856,9 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   </div>
 
 <div class="stage" id="stage">
-      <!-- Visor 3D Real de Kennedy (REN3D de anasoficasca-code) -->
-   <iframe id="map3dIframe" class="map-3d-iframe" src="about:blank" data-src="https://anasoficasca-code.github.io/REN3D/" allow="accelerometer; autoplay; camera; gyroscope; vr"></iframe>
-   <div id="ren3dHud" class="ren3d-hud-overlay">
-     <span class="ren3d-badge">Kennedy 3D · REN3D</span>
-     <a href="https://anasoficasca-code.github.io/REN3D/" target="_blank" rel="noopener" class="btn-open-ren3d">Abrir en pantalla completa &nearr;</a>
+            <!-- Territorio 3D de Kennedy (Edificios 3D reales, actores y relaciones en 3D) -->
+   <div id="map3d" class="map-3d-stage"></div>
    </div>
-   <svg id="net" role="img" aria-label="Red interactiva de relaciones entre actores de Kennedy"></svg>
-   <div id="node-pop" class="node-pop"></div>
-   
-   <div class="stage-hint">
-     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-     <span>Toca cualquier actor o linea para ver su funcion y el tipo de relacion social</span>
-   </div>
-
-   <div class="zoom">
-     <button id="zin" aria-label="Acercar">+</button>
-     <button id="zout" aria-label="Alejar">-</button>
-     <button id="zfit">Centrar</button>
-   </div>
-  </div>
  </div>
 
  <aside class="panel" id="panel" aria-live="polite"></aside>
@@ -1838,73 +1781,40 @@ geometry();
 /* Transicion fluida entre modos de visualizacion */
 
 /* ============================================================
-   MOTOR 3D REAL (REN3D / MapLibre GL - Extrusión de edificios)
-   - OpenFreeMap Edificios 3D (OpenStreetMap real de Kennedy)
-   - Satélite Esri World Imagery + Base oscura CartoDB
-   - Nodos de la red y líneas de interacción en 3D
+   MOTOR 3D TERRITORIAL DE KENNEDY (MapLibre GL / OpenFreeMap)
+   - Extrusión 3D volumétrica de edificios reales de Kennedy
+   - Red de 90 actores ubicados geográficamente
+   - 239 líneas de interacción social trazadas en 3D
+   - Selección interactiva bidireccional con panel lateral
    ============================================================ */
 let map3dInstance = null;
 let map3dMarkers = [];
+let map3dLoaded = false;
 
-const KENNEDY_3D_HUBS = [
-  { id: 'cor', name: 'Corabastos (Central)', upz: 'UPZ 80 Corabastos', lng: -74.1528, lat: 4.6275, color: '#F5A642', photoKey: 'corabastos' },
-  { id: 'mov', name: 'Portal Américas y Patio Bonito', upz: 'UPZ 82 Patio Bonito', lng: -74.1705, lat: 4.6300, color: '#4CB6E8', photoKey: 'patio_bonito' },
-  { id: 'gob', name: 'Alcaldía Local de Kennedy', upz: 'UPZ 47 Kennedy Central', lng: -74.1485, lat: 4.6190, color: '#929CE8', photoKey: 'alcaldia' },
-  { id: 'amb', name: 'Aula Ambiental Humedal La Vaca', upz: 'UPZ 83 Tintal Norte', lng: -74.1685, lat: 4.6405, color: '#52CE92', photoKey: 'humedal' },
-  { id: 'sal', name: 'Hospital Occidente de Kennedy', upz: 'UPZ 47 Kennedy Central', lng: -74.1440, lat: 4.6150, color: '#DF78DA', photoKey: 'transmilenio' },
-  { id: 'edu', name: 'Campus INEM y Colegios', upz: 'UPZ 46 Castilla/Timiza', lng: -74.1550, lat: 4.6380, color: '#5B8BF5', photoKey: 'inem' },
-  { id: 'res', name: 'Sector Carvajal (Aseo/ECA)', upz: 'UPZ 45 Carvajal', lng: -74.1380, lat: 4.6120, color: '#B8D94B', photoKey: 'carvajal' }
+const TERRITORIAL_HUBS = [
+  { name: 'Central Corabastos', upz: 'UPZ 80 Corabastos', lng: -74.1528, lat: 4.6275, color: '#F5A642' },
+  { name: 'Portal Américas / Patio Bonito', upz: 'UPZ 82 Patio Bonito', lng: -74.1705, lat: 4.6300, color: '#4CB6E8' },
+  { name: 'Alcaldía Local de Kennedy', upz: 'UPZ 47 Kennedy Central', lng: -74.1485, lat: 4.6190, color: '#929CE8' },
+  { name: 'Aula Ambiental Humedal La Vaca', upz: 'UPZ 83 Tintal Norte', lng: -74.1685, lat: 4.6405, color: '#52CE92' },
+  { name: 'Hospital Occidente de Kennedy', upz: 'UPZ 47 Kennedy Central', lng: -74.1440, lat: 4.6150, color: '#DF78DA' },
+  { name: 'Campus INEM y Colegios', upz: 'UPZ 46 Castilla/Timiza', lng: -74.1550, lat: 4.6380, color: '#5B8BF5' },
+  { name: 'Sector Carvajal (ECA Reciclaje)', upz: 'UPZ 45 Carvajal', lng: -74.1380, lat: 4.6120, color: '#B8D94B' }
 ];
 
 function initMap3D() {
-  if (map3dInstance) return;
+  const container = document.getElementById('map3d');
+  if (!container) return;
 
-  const SAT = {
-    type: 'raster',
-    tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-    tileSize: 256, maxzoom: 19
-  };
-  const OSM = { type: 'vector', url: 'https://tiles.openfreemap.org/planet' };
-  const BASE = {
-    type: 'raster',
-    tiles: ['https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png'],
-    tileSize: 256, maxzoom: 19
-  };
-
-  const style = {
-    version: 8,
-    glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
-    sources: { base: BASE, sat: SAT, osm: OSM },
-    layers: [
-      { id: 'bg', type: 'background', paint: { 'background-color': '#080c14' } },
-      { id: 'base', type: 'raster', source: 'base', paint: { 'raster-opacity': 1 } },
-      { id: 'sat', type: 'raster', source: 'sat', paint: { 'raster-opacity': 0.65, 'raster-saturation': -0.15 } },
-      {
-        id: 'edif-3d-real',
-        type: 'fill-extrusion',
-        source: 'osm',
-        'source-layer': 'building',
-        paint: {
-          'fill-extrusion-height': ['to-number', ['coalesce', ['get', 'render_height'], ['*', 3.2, ['coalesce', ['get', 'levels'], 1]]]],
-          'fill-extrusion-base': ['to-number', ['coalesce', ['get', 'render_min_height'], 0]],
-          'fill-extrusion-opacity': 0.88,
-          'fill-extrusion-color': [
-            'interpolate', ['linear'], ['coalesce', ['get', 'render_height'], 6],
-            0, '#151c2b',
-            12, '#212d45',
-            25, '#2f4164',
-            60, '#4b6cb7'
-          ]
-        }
-      }
-    ]
-  };
+  if (map3dInstance) {
+    map3dInstance.resize();
+    return;
+  }
 
   map3dInstance = new maplibregl.Map({
     container: 'map3d',
-    style: style,
+    style: 'https://tiles.openfreemap.org/styles/dark',
     center: [-74.1560, 4.6260],
-    zoom: 14.5,
+    zoom: 14.6,
     pitch: 60,
     bearing: -18,
     antialias: true
@@ -1913,29 +1823,62 @@ function initMap3D() {
   map3dInstance.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-left');
 
   map3dInstance.on('load', () => {
-    // 1. Añadir capas de líneas de interacción en 3D (GeoJSON)
+    map3dLoaded = true;
+
+    // 1. Extrusión 3D de los edificios reales de Kennedy
+    if (map3dInstance.getSource('openmaptiles')) {
+      map3dInstance.addLayer({
+        id: 'edificios-3d-kennedy',
+        source: 'openmaptiles',
+        'source-layer': 'building',
+        type: 'fill-extrusion',
+        minzoom: 13,
+        paint: {
+          'fill-extrusion-height': [
+            'interpolate', ['linear'], ['zoom'],
+            13, 0,
+            14.2, ['coalesce', ['get', 'render_height'], ['*', 3.2, ['coalesce', ['get', 'levels'], 1]], 6]
+          ],
+          'fill-extrusion-base': ['to-number', ['coalesce', ['get', 'render_min_height'], 0]],
+          'fill-extrusion-opacity': 0.88,
+          'fill-extrusion-color': [
+            'interpolate', ['linear'], ['coalesce', ['get', 'render_height'], 6],
+            0, '#151c2b',
+            10, '#1e293d',
+            22, '#2d3e5e',
+            45, '#405986',
+            75, '#5b8bf5'
+          ]
+        }
+      });
+    }
+
+    // 2. Líneas 3D de interacciones sociales (GeoJSON)
     const lineFeatures = [];
-    links.forEach(l => {
+    links.forEach((l, idx) => {
       const sCoord = ACTOR_GEO[l.s];
       const tCoord = ACTOR_GEO[l.t];
       if (sCoord && tCoord) {
         lineFeatures.push({
           type: 'Feature',
+          id: idx,
           geometry: {
             type: 'LineString',
             coordinates: [sCoord, tCoord]
           },
           properties: {
+            idx: idx,
             color: CONV[l.c] ? CONV[l.c].c : '#5B8BF5',
             type: l.type,
             s: l.s,
-            t: l.t
+            t: l.t,
+            w: l.w || 1
           }
         });
       }
     });
 
-    map3dInstance.addSource('relations-3d', {
+    map3dInstance.addSource('red-relaciones-3d', {
       type: 'geojson',
       data: {
         type: 'FeatureCollection',
@@ -1943,26 +1886,51 @@ function initMap3D() {
       }
     });
 
+    // Líneas con resplandor glow
     map3dInstance.addLayer({
-      id: 'relations-3d-lines',
+      id: 'red-lineas-3d-glow',
       type: 'line',
-      source: 'relations-3d',
+      source: 'red-relaciones-3d',
       paint: {
         'line-color': ['get', 'color'],
-        'line-width': 1.4,
-        'line-opacity': 0.65
+        'line-width': ['interpolate', ['linear'], ['zoom'], 13, 2, 16, 4],
+        'line-opacity': 0.35,
+        'line-blur': 2
       }
     });
 
-    // 2. Añadir Marcadores HTML de los 90 Actores
+    // Línea central nítida
+    map3dInstance.addLayer({
+      id: 'red-lineas-3d-core',
+      type: 'line',
+      source: 'red-relaciones-3d',
+      paint: {
+        'line-color': ['get', 'color'],
+        'line-width': ['interpolate', ['linear'], ['zoom'], 13, 1.2, 16, 2],
+        'line-opacity': 0.8
+      }
+    });
+
+    // 3. Etiquetas de orientación territorial discretas
+    TERRITORIAL_HUBS.forEach(hub => {
+      const el = document.createElement('div');
+      el.className = 'map3d-hub-tag';
+      el.style.setProperty('--c', hub.color);
+      el.innerHTML = '<span class="hub-bullet"></span><span class="hub-text">' + hub.name + '</span>';
+      new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([hub.lng, hub.lat])
+        .addTo(map3dInstance);
+    });
+
+    // 4. Marcadores 3D para los 90 Actores
     nodes.forEach(n => {
       const coord = ACTOR_GEO[n.id];
       if (!coord) return;
 
       const el = document.createElement('div');
       el.className = 'map3d-actor-marker' + (REAL_LOGOS[n.id] ? ' has-logo' : '');
+      el.dataset.id = n.id;
       el.style.setProperty('--c', SPC[n.sph]);
-      el.setAttribute('title', n.name);
 
       if (REAL_LOGOS[n.id]) {
         const img = document.createElement('img');
@@ -1971,49 +1939,104 @@ function initMap3D() {
         el.appendChild(img);
       } else {
         const iconId = getNodeIconId(n);
-        el.innerHTML = `<svg viewBox="0 0 24 24"><use href="#${iconId}"></use></svg>`;
+        el.innerHTML = '<svg viewBox="0 0 24 24"><use href="#' + iconId + '"></use></svg>';
       }
+
+      const pill = document.createElement('div');
+      pill.className = 'marker-pill';
+      pill.textContent = n.short || n.name;
+      el.appendChild(pill);
 
       el.addEventListener('click', (e) => {
         e.stopPropagation();
-        select(n, 'node');
-        map3dInstance.flyTo({ center: coord, zoom: 16.5, pitch: 65, duration: 900 });
+        selectActorIn3D(n);
       });
 
       const m = new maplibregl.Marker({ element: el })
         .setLngLat(coord)
         .addTo(map3dInstance);
 
-      map3dMarkers.push(m);
+      map3dMarkers.push({ marker: m, el: el, node: n, coord: coord });
     });
 
-    // 3. Añadir Tarjetas 3D Flotantes con FOTOGRAFÍAS REALES
-    KENNEDY_3D_HUBS.forEach(hub => {
-      const cardEl = document.createElement('div');
-      cardEl.className = 'map3d-hub-card';
-      cardEl.style.setProperty('--c', hub.color);
-
-      const photoSrc = PHOTO_DATA[hub.photoKey] || '';
-      cardEl.innerHTML = `
-        <div class="hub-upz">${hub.upz}</div>
-        ${photoSrc ? `<img src="${photoSrc}" alt="${hub.name}" />` : ''}
-        <div class="hub-name">${hub.name}</div>
-      `;
-
-      cardEl.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const sphereNodes = nodes.filter(n => n.sph === hub.id);
-        if (sphereNodes.length > 0) {
-          map3dInstance.flyTo({ center: [hub.lng, hub.lat], zoom: 16.0, pitch: 62, duration: 1100 });
-        }
-      });
-
-      new maplibregl.Marker({ element: cardEl, anchor: 'bottom' })
-        .setLngLat([hub.lng, hub.lat])
-        .addTo(map3dInstance);
+    map3dInstance.on('click', () => {
+      clearActorIn3D();
     });
   });
 }
+
+function selectActorIn3D(n, skipFly) {
+  if (!n) {
+    clearActorIn3D();
+    return;
+  }
+  select(n, 'from3d');
+  const coord = ACTOR_GEO[n.id];
+  if (coord && map3dInstance && !skipFly) {
+    map3dInstance.flyTo({
+      center: coord,
+      zoom: 16.3,
+      pitch: 62,
+      bearing: -15,
+      duration: 850
+    });
+  }
+
+  const connectedIds = new Set();
+  connectedIds.add(n.id);
+  links.forEach(l => {
+    if (l.s === n.id) connectedIds.add(l.t);
+    if (l.t === n.id) connectedIds.add(l.s);
+  });
+
+  map3dMarkers.forEach(m => {
+    if (m.node.id === n.id) {
+      m.el.classList.add('selected');
+      m.el.classList.remove('dimmed');
+    } else if (connectedIds.has(m.node.id)) {
+      m.el.classList.remove('selected', 'dimmed');
+    } else {
+      m.el.classList.remove('selected');
+      m.el.classList.add('dimmed');
+    }
+  });
+
+  if (map3dInstance && map3dInstance.getLayer('red-lineas-3d-core')) {
+    map3dInstance.setPaintProperty('red-lineas-3d-core', 'line-opacity', [
+      'case',
+      ['any', ['==', ['get', 's'], n.id], ['==', ['get', 't'], n.id]],
+      1.0,
+      0.1
+    ]);
+    map3dInstance.setPaintProperty('red-lineas-3d-core', 'line-width', [
+      'case',
+      ['any', ['==', ['get', 's'], n.id], ['==', ['get', 't'], n.id]],
+      2.8,
+      1.0
+    ]);
+    map3dInstance.setPaintProperty('red-lineas-3d-glow', 'line-opacity', [
+      'case',
+      ['any', ['==', ['get', 's'], n.id], ['==', ['get', 't'], n.id]],
+      0.65,
+      0.03
+    ]);
+  }
+}
+
+function clearActorIn3D() {
+  select(null);
+  map3dMarkers.forEach(m => {
+    m.el.classList.remove('selected', 'dimmed');
+  });
+  if (map3dInstance && map3dInstance.getLayer('red-lineas-3d-core')) {
+    map3dInstance.setPaintProperty('red-lineas-3d-core', 'line-opacity', 0.8);
+    map3dInstance.setPaintProperty('red-lineas-3d-core', 'line-width', [
+      'interpolate', ['linear'], ['zoom'], 13, 1.2, 16, 2
+    ]);
+    map3dInstance.setPaintProperty('red-lineas-3d-glow', 'line-opacity', 0.35);
+  }
+}
+
 function switchView(viewName){
   if (currentView === viewName) return;
   currentView = viewName;
@@ -2022,29 +2045,21 @@ function switchView(viewName){
     btn.classList.toggle('active', btn.dataset.view === viewName);
   });
 
-  const iframe = document.getElementById('map3dIframe');
-  const hud = document.getElementById('ren3dHud');
+  const map3dEl = document.getElementById('map3d');
   const netSvg = document.getElementById('net');
 
   if (viewName === 'map3d') {
-    // Activar visor 3D real de REN3D (anasoficasca-code.github.io/REN3D/)
-    if (iframe) {
-      if (!iframe.src || iframe.src === 'about:blank') {
-        iframe.src = iframe.dataset.src || 'https://anasoficasca-code.github.io/REN3D/';
-      }
-      iframe.classList.add('active');
-    }
-    if (hud) hud.classList.add('active');
+    if (map3dEl) map3dEl.classList.add('active');
     if (netSvg) {
       netSvg.style.opacity = '0';
       netSvg.style.pointerEvents = 'none';
     }
+    initMap3D();
     return;
   }
 
   // Desactivar visor 3D y volver a D3 SVG
-  if (iframe) iframe.classList.remove('active');
-  if (hud) hud.classList.remove('active');
+  if (map3dEl) map3dEl.classList.remove('active');
   if (netSvg) {
     netSvg.style.opacity = '1';
     netSvg.style.pointerEvents = 'auto';
@@ -2057,7 +2072,6 @@ function switchView(viewName){
   gT.transition().duration(500).style('opacity', viewName === 'clusters' ? 1 : 0);
   gConcentric.transition().duration(500).style('opacity', viewName === 'concentric' ? 1 : 0);
 
-  // Animacion interpolada de nodos y flechas bezier
   const startPos = {};
   nodes.forEach(n => {
     startPos[n.id] = { x: n.x, y: n.y };
@@ -2073,38 +2087,28 @@ function switchView(viewName){
     const k = ease(progress);
 
     nodes.forEach(n => {
-      const sp = startPos[n.id];
-      const ep = posMap[n.id] || sp;
-      n.x = sp.x + (ep.x - sp.x) * k;
-      n.y = sp.y + (ep.y - sp.y) * k;
+      const target = posMap[n.id] || { x: n.x, y: n.y };
+      const s = startPos[n.id];
+      n.x = s.x + (target.x - s.x) * k;
+      n.y = s.y + (target.y - s.y) * k;
     });
 
-    nodeSel.attr('transform', n => `translate(${n.x},${n.y})`);
-    linkSel.attr('d', path);
-    linkHitSel.attr('d', path);
+    ticked();
 
     if (progress >= 1) {
       timer.stop();
       nodes.forEach(n => {
-        const ep = posMap[n.id] || startPos[n.id];
-        n.x = ep.x;
-        n.y = ep.y;
+        const target = posMap[n.id] || { x: n.x, y: n.y };
+        n.x = target.x;
+        n.y = target.y;
       });
-      nodeSel.attr('transform', n => `translate(${n.x},${n.y})`);
-      linkSel.attr('d', path);
-      linkHitSel.attr('d', path);
+      ticked();
     }
   });
-
-  if (MODE === 'd') fitAll(850);
 }
 
-// Conectar botones del selector de vistas
-// Conectar selector de vistas (pestanas limpias)
 document.querySelectorAll('.strip-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    switchView(btn.dataset.view);
-  });
+  btn.onclick = () => switchView(btn.dataset.view);
 });
 
 // Conectar selector desplegable de rutas guiadas
@@ -2222,9 +2226,30 @@ function scrollToNode(n){
   const r = svg.node().getBoundingClientRect();
   window.scrollTo({top: window.scrollY + r.top + n.y * unitPx() - window.innerHeight * .4, behavior: 'smooth'});
 }
-document.getElementById('zin').onclick = () => svg.transition().call(zoom.scaleBy, 1.35);
-document.getElementById('zout').onclick = () => svg.transition().call(zoom.scaleBy, 1/1.35);
-document.getElementById('zfit').onclick = () => { select(null); selectLink(null); fitAll(); };
+document.getElementById('zin').onclick = () => {
+  if (currentView === 'map3d' && map3dInstance) {
+    map3dInstance.zoomIn();
+  } else {
+    svg.transition().call(zoom.scaleBy, 1.35);
+  }
+};
+document.getElementById('zout').onclick = () => {
+  if (currentView === 'map3d' && map3dInstance) {
+    map3dInstance.zoomOut();
+  } else {
+    svg.transition().call(zoom.scaleBy, 1/1.35);
+  }
+};
+document.getElementById('zfit').onclick = () => {
+  if (currentView === 'map3d' && map3dInstance) {
+    clearActorIn3D();
+    map3dInstance.flyTo({ center: [-74.1560, 4.6260], zoom: 14.6, pitch: 60, bearing: -18, duration: 800 });
+  } else {
+    select(null);
+    selectLink(null);
+    fitAll();
+  }
+};
 
 const pop = document.getElementById('node-pop'), stage = document.getElementById('stage');
 
@@ -2352,6 +2377,14 @@ function select(n, how){
     fitTo([n, ...[...n.nb].map(i => byId.get(i))], 650, 2.0);
   }
   if (n && MODE === 'm' && how === 'list') scrollToNode(n);
+
+  if (currentView === 'map3d' && map3dInstance) {
+    if (n && how !== 'from3d') {
+      selectActorIn3D(n);
+    } else if (!n) {
+      clearActorIn3D();
+    }
+  }
 }
 
 function selectLink(l){
