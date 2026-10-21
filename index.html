@@ -40,8 +40,8 @@ svg *:focus, svg *:focus-visible, .node:focus, .node:focus-visible, .link-hit:fo
   -webkit-tap-highlight-color: transparent !important;
 }
 
-.app{display:grid;grid-template-columns:1fr 295px;height:100%}
-.left{display:grid;grid-template-rows:auto auto 1fr;min-height:0}
+.app{display:grid;grid-template-columns:1fr 295px;height:100vh;width:100%;overflow:hidden}
+.left{display:grid;grid-template-rows:auto auto 1fr;height:100%;min-height:0;min-width:0;overflow:hidden}
 
 /* Header */
 header{padding:14px 24px 12px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);background:#090b10;z-index:15}
@@ -77,7 +77,7 @@ h1{margin:0;font-size:21px;font-weight:600;letter-spacing:-.025em;line-height:1.
 .tour-pill .pill-dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
 
 /* Escenario interactivo */
-.stage{position:relative;min-height:0;background:radial-gradient(circle at 1px 1px,#161b27 1px,transparent 1.3px) 0 0/26px 26px,#0b0d14;overflow:hidden}
+.stage{position:relative;width:100%;height:100%;min-height:0;min-width:0;background:radial-gradient(circle at 1px 1px,#161b27 1px,transparent 1.3px) 0 0/26px 26px,#0b0d14;overflow:hidden}
 #net{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
 #net:active{cursor:grabbing}
 
@@ -1022,9 +1022,10 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
     <button id="zfit">Centrar</button>
   </div>
 </div>
+</div><!-- Cerrar .left -->
 
- <aside class="panel" id="panel" aria-live="polite"></aside>
-</div>
+<aside class="panel" id="panel" aria-live="polite"></aside>
+</div><!-- Cerrar .app -->
 
 <!-- Modal didactico -->
 <div class="modal-overlay" id="modalHowTo" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -2623,11 +2624,19 @@ const zoom = d3.zoom().scaleExtent([.5, 5]).on('zoom', e => { T = e.transform; r
 svg.call(zoom).on('dblclick.zoom', null);
 
 function fitTo(ns, dur = 700, maxK = 2.4){
+  if (!ns || !ns.length) return;
   const pad = MODE === 'd' ? 70 : 35, px = MODE === 'd' ? 90 : 45;
   const x0 = d3.min(ns, n => n.x - n.r) - px, x1 = d3.max(ns, n => n.x + n.r) + px,
         y0 = d3.min(ns, n => n.y - n.r) - pad - 24, y1 = d3.max(ns, n => n.y + n.r) + pad + 24;
-  const k = Math.min(maxK, W / (x1 - x0), H / (y1 - y0));
-  svg.transition().duration(dur).call(zoom.transform, d3.zoomIdentity.translate(W/2 - k*(x0 + x1)/2, H/2 - k*(y0 + y1)/2).scale(k));
+  const k = Math.min(maxK, Math.max(0.4, Math.min(W / (x1 - x0), H / (y1 - y0))));
+  const tx = W/2 - k*(x0 + x1)/2;
+  const ty = H/2 - k*(y0 + y1)/2;
+  const t = d3.zoomIdentity.translate(tx, ty).scale(k);
+  if (dur > 0) {
+    svg.transition().duration(dur).call(zoom.transform, t);
+  } else {
+    svg.call(zoom.transform, t);
+  }
 }
 const fitAll = (d = 700) => { if (MODE === 'm') return; fitTo(nodes, d, 1.15); };
 function sizeMobile(){
@@ -3362,12 +3371,10 @@ document.getElementById('btnGotIt').onclick = () => modal.classList.remove('open
 modal.onclick = e => { if(e.target === modal) modal.classList.remove('open'); };
 
 renderPanel();
-const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-if(!reduce){
-  gH.attr('opacity', 0).transition().duration(1000).attr('opacity', 1);
-  nodeSel.attr('opacity', 0).transition().delay(n => 100 + Math.hypot(n.x - W/2, n.y - H/2) * .6).duration(450).attr('opacity', 1);
-  linkSel.style('opacity', 0).transition().delay(600).duration(800).style('opacity', null);
-}
+// Red visible de inmediato al 100% sin retrasos
+nodeSel.attr('opacity', 1);
+linkSel.style('opacity', null);
+gH.attr('opacity', currentView === 'clusters' ? 1 : 0);
 requestAnimationFrame(() => { sizeMobile(); fitAll(0); document.fonts && document.fonts.ready.then(queue); });
 
 let rt;
