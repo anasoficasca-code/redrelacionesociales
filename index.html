@@ -187,9 +187,46 @@ header{padding:14px 24px 12px;display:flex;align-items:center;justify-content:sp
   opacity: 0.25;
 }
 
+
+/* Canvas y controles del Territorio 3D de Kennedy (modelamiento2 / Three.js) */
+#threeCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+#threeCanvas:active {
+  cursor: grabbing;
+}
+.status-3d-badge {
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  z-index: 25;
+  background: rgba(11, 15, 23, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #38bdf8;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  transition: opacity 0.5s ease;
+}
+.status-3d-badge.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 </style>
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -312,7 +349,10 @@ header{padding:14px 24px 12px;display:flex;align-items:center;justify-content:sp
 
 <div class="stage" id="stage">
   <!-- Territorio 3D de Kennedy (Edificios 3D reales, actores y relaciones en 3D) -->
-  <div id="map3d" class="map-3d-stage"></div>
+  <div id="map3d" class="map-3d-stage">
+    <canvas id="threeCanvas"></canvas>
+    <div id="status3d" class="status-3d-badge">Cargando territorio 3D de Kennedy...</div>
+  </div>
   <svg id="net" role="img" aria-label="Red interactiva de relaciones entre actores de Kennedy"></svg>
   <div id="node-pop" class="node-pop"></div>
   
@@ -1280,209 +1320,428 @@ geometry();
 /* Transicion fluida entre modos de visualizacion */
 
 /* ============================================================
-   MOTOR 3D TERRITORIAL DE KENNEDY (MapLibre GL / OpenFreeMap)
-   - Extrusión 3D volumétrica de edificios reales de Kennedy
-   - Red de 90 actores ubicados geográficamente
-   - 239 líneas de interacción social trazadas en 3D
-   - Selección interactiva bidireccional con panel lateral
+   MOTOR 3D TERRITORIAL DE KENNEDY (Directo de modelamiento2 / Three.js)
+   - Red vial real (kennedy_net.json)
+   - Cuerpos de agua reales: Humedal La Vaca y El Burro (kennedy_water_bodies.json)
+   - Parques y zonas verdes (kennedy_parques.json)
+   - Edificios 3D extruidos reales (kennedy_buildings.json)
+   - 90 Actores como nodos 3D con FOTOS REALES, balizas y anillos de anclaje
+   - 239 Interacciones sociales trazadas como rayos láser de telemetría 3D
+   - OrbitControls y selección bidireccional con el panel lateral
    ============================================================ */
-let map3dInstance = null;
-let map3dMarkers = [];
-let map3dLoaded = false;
+let threeInitialized = false;
+let threeScene, threeCamera, threeRenderer, threeControls;
+let threeTerritoryGroup, threeActorsGroup, threeLinksGroup;
+let actor3dMeshes = [];
+let link3dLines = [];
+let animFrameId = null;
 
-const TERRITORIAL_HUBS = [
-  { name: 'Central Corabastos', upz: 'UPZ 80 Corabastos', lng: -74.1528, lat: 4.6275, color: '#F5A642' },
-  { name: 'Portal Américas / Patio Bonito', upz: 'UPZ 82 Patio Bonito', lng: -74.1705, lat: 4.6300, color: '#4CB6E8' },
-  { name: 'Alcaldía Local de Kennedy', upz: 'UPZ 47 Kennedy Central', lng: -74.1485, lat: 4.6190, color: '#929CE8' },
-  { name: 'Aula Ambiental Humedal La Vaca', upz: 'UPZ 83 Tintal Norte', lng: -74.1685, lat: 4.6405, color: '#52CE92' },
-  { name: 'Hospital Occidente de Kennedy', upz: 'UPZ 47 Kennedy Central', lng: -74.1440, lat: 4.6150, color: '#DF78DA' },
-  { name: 'Campus INEM y Colegios', upz: 'UPZ 46 Castilla/Timiza', lng: -74.1550, lat: 4.6380, color: '#5B8BF5' },
-  { name: 'Sector Carvajal (ECA Reciclaje)', upz: 'UPZ 45 Carvajal', lng: -74.1380, lat: 4.6120, color: '#B8D94B' }
-];
+const SCALE_3D = 0.1;
+const NET_CENTER = { x: 5341.33, y: 3161.9 };
+
+function toThreeScene(x, y) {
+  return {
+    x: (x - NET_CENTER.x) * SCALE_3D,
+    z: -(y - NET_CENTER.y) * SCALE_3D
+  };
+}
+
+function getActorScenePos(id) {
+  const geo = ACTOR_GEO[id];
+  if (!geo) return { x: 0, z: 0 };
+  const net_x = 149600.93 * geo[0] - 8558.52 * geo[1] + 11139327.21;
+  const net_y = 754.06 * geo[0] + 118039.11 * geo[1] - 486382.63;
+  return toThreeScene(net_x, net_y);
+}
 
 function initMap3D() {
   const container = document.getElementById('map3d');
-  if (!container) return;
+  const canvas = document.getElementById('threeCanvas');
+  const statusEl = document.getElementById('status3d');
+  if (!container || !canvas || threeInitialized) return;
 
-  if (map3dInstance) {
-    map3dInstance.resize();
-    return;
-  }
+  threeInitialized = true;
 
-  map3dInstance = new maplibregl.Map({
-    container: 'map3d',
-    style: 'https://tiles.openfreemap.org/styles/dark',
-    center: [-74.1560, 4.6260],
-    zoom: 14.6,
-    pitch: 60,
-    bearing: -18,
-    antialias: true
-  });
+  // 1. Escena, niebla y luces
+  threeScene = new THREE.Scene();
+  threeScene.background = new THREE.Color(0x0a0e17);
+  threeScene.fog = new THREE.Fog(0x0a0e17, 400, 2400);
 
-  map3dInstance.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-left');
+  threeTerritoryGroup = new THREE.Group();
+  threeLinksGroup = new THREE.Group();
+  threeActorsGroup = new THREE.Group();
+  threeScene.add(threeTerritoryGroup);
+  threeScene.add(threeLinksGroup);
+  threeScene.add(threeActorsGroup);
 
-  map3dInstance.on('load', () => {
-    map3dLoaded = true;
+  // Cámara en perspectiva axonométrica
+  const w = container.clientWidth || window.innerWidth;
+  const h = container.clientHeight || window.innerHeight;
+  threeCamera = new THREE.PerspectiveCamera(45, w / h, 5, 4500);
+  threeCamera.position.set(160, 480, 420);
 
-    // 1. Extrusión 3D de los edificios reales de Kennedy
-    if (map3dInstance.getSource('openmaptiles')) {
-      map3dInstance.addLayer({
-        id: 'edificios-3d-kennedy',
-        source: 'openmaptiles',
-        'source-layer': 'building',
-        type: 'fill-extrusion',
-        minzoom: 13,
-        paint: {
-          'fill-extrusion-height': [
-            'interpolate', ['linear'], ['zoom'],
-            13, 0,
-            14.2, ['coalesce', ['get', 'render_height'], ['*', 3.2, ['coalesce', ['get', 'levels'], 1]], 6]
-          ],
-          'fill-extrusion-base': ['to-number', ['coalesce', ['get', 'render_min_height'], 0]],
-          'fill-extrusion-opacity': 0.88,
-          'fill-extrusion-color': [
-            'interpolate', ['linear'], ['coalesce', ['get', 'render_height'], 6],
-            0, '#151c2b',
-            10, '#1e293d',
-            22, '#2d3e5e',
-            45, '#405986',
-            75, '#5b8bf5'
-          ]
+  // Renderizador WebGL
+  threeRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+  threeRenderer.setSize(w, h);
+  threeRenderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+
+  // Controles de órbita suaves
+  threeControls = new THREE.OrbitControls(threeCamera, canvas);
+  threeControls.target.set(105, 15, -76);
+  threeControls.enableDamping = true;
+  threeControls.dampingFactor = 0.06;
+  threeControls.maxPolarAngle = Math.PI / 2.05;
+  threeControls.minDistance = 20;
+  threeControls.maxDistance = 1600;
+  threeControls.update();
+
+  // Luces
+  const ambientLight = new THREE.AmbientLight(0xdce7f5, 1.2);
+  threeScene.add(ambientLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
+  dirLight.position.set(300, 600, 200);
+  threeScene.add(dirLight);
+
+  const blueLight = new THREE.DirectionalLight(0x38bdf8, 0.6);
+  blueLight.position.set(-300, 400, -200);
+  threeScene.add(blueLight);
+
+  // 2. Cargar activos territoriales de Kennedy desde modelamiento2
+  const NET_URL = './assets/kennedy_net.json';
+  const WATER_URL = './assets/kennedy_water_bodies.json';
+  const PARQUES_URL = './assets/kennedy_parques.json';
+  const BUILDINGS_URL = 'https://anasoficasca-code.github.io/modelamiento2/assets/kennedy_buildings.json';
+
+  // Red vial y suelo
+  fetch(NET_URL)
+    .then(r => r.json())
+    .then(data => {
+      // Suelo
+      const minP = toThreeScene(data.bbox[0] - 1200, data.bbox[1] - 1200);
+      const maxP = toThreeScene(data.bbox[2] + 1200, data.bbox[3] + 1200);
+      const gW = Math.abs(maxP.x - minP.x);
+      const gD = Math.abs(maxP.z - minP.z);
+      const groundGeo = new THREE.PlaneGeometry(gW, gD);
+      const groundMat = new THREE.MeshBasicMaterial({ color: 0x070a12 });
+      const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+      groundMesh.rotation.x = -Math.PI / 2;
+      groundMesh.position.y = -0.1;
+      threeTerritoryGroup.add(groundMesh);
+
+      // Líneas viales
+      const positions = [];
+      data.edges.forEach(([kind, pts]) => {
+        for (let i = 0; i < pts.length - 1; i++) {
+          const a = toThreeScene(pts[i][0], pts[i][1]);
+          const b = toThreeScene(pts[i + 1][0], pts[i + 1][1]);
+          positions.push(a.x, 0.15, a.z, b.x, 0.15, b.z);
         }
       });
-    }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      const mat = new THREE.LineBasicMaterial({ color: 0x2e3b4d, transparent: true, opacity: 0.75 });
+      const lines = new THREE.LineSegments(geo, mat);
+      threeTerritoryGroup.add(lines);
 
-    // 2. Líneas 3D de interacciones sociales (GeoJSON)
-    const lineFeatures = [];
-    links.forEach((l, idx) => {
-      const sCoord = ACTOR_GEO[l.s];
-      const tCoord = ACTOR_GEO[l.t];
-      if (sCoord && tCoord) {
-        lineFeatures.push({
-          type: 'Feature',
-          id: idx,
-          geometry: {
-            type: 'LineString',
-            coordinates: [sCoord, tCoord]
-          },
-          properties: {
-            idx: idx,
-            color: CONV[l.c] ? CONV[l.c].c : '#5B8BF5',
-            type: l.type,
-            s: l.s,
-            t: l.t,
-            w: l.w || 1
-          }
-        });
-      }
-    });
+      if (statusEl) statusEl.textContent = 'Territorio base cargado (Humedales y vías)';
+    })
+    .catch(err => console.warn('Error cargando kennedy_net:', err));
 
-    map3dInstance.addSource('red-relaciones-3d', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: lineFeatures
-      }
-    });
+  // Cuerpos de agua (Humedal La Vaca y El Burro)
+  fetch(WATER_URL)
+    .then(r => r.json())
+    .then(waterBodies => {
+      waterBodies.forEach(wb => {
+        if (!wb.pts || wb.pts.length < 3) return;
+        const shape = new THREE.Shape();
+        const first = toThreeScene(wb.pts[0][0], wb.pts[0][1]);
+        shape.moveTo(first.x, -first.z);
+        for (let i = 1; i < wb.pts.length; i++) {
+          const p = toThreeScene(wb.pts[i][0], wb.pts[i][1]);
+          shape.lineTo(p.x, -p.z);
+        }
+        const geo = new THREE.ShapeGeometry(shape);
+        const mat = new THREE.MeshBasicMaterial({ color: 0x1d4e7a, transparent: true, opacity: 0.9 });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = -Math.PI / 2;
+        mesh.position.y = 0.1;
+        threeTerritoryGroup.add(mesh);
+      });
+    })
+    .catch(err => console.warn('Error cargando agua:', err));
 
-    // Líneas con resplandor glow
-    map3dInstance.addLayer({
-      id: 'red-lineas-3d-glow',
-      type: 'line',
-      source: 'red-relaciones-3d',
-      paint: {
-        'line-color': ['get', 'color'],
-        'line-width': ['interpolate', ['linear'], ['zoom'], 13, 2, 16, 4],
-        'line-opacity': 0.35,
-        'line-blur': 2
-      }
-    });
+  // Parques y zonas verdes
+  fetch(PARQUES_URL)
+    .then(r => r.json())
+    .then(parques => {
+      parques.forEach(pq => {
+        if (!pq.pts || pq.pts.length < 3) return;
+        const shape = new THREE.Shape();
+        const first = toThreeScene(pq.pts[0][0], pq.pts[0][1]);
+        shape.moveTo(first.x, -first.z);
+        for (let i = 1; i < pq.pts.length; i++) {
+          const p = toThreeScene(pq.pts[i][0], pq.pts[i][1]);
+          shape.lineTo(p.x, -p.z);
+        }
+        const geo = new THREE.ShapeGeometry(shape);
+        const mat = new THREE.MeshBasicMaterial({ color: 0x142b22, transparent: true, opacity: 0.75 });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = -Math.PI / 2;
+        mesh.position.y = 0.05;
+        threeTerritoryGroup.add(mesh);
+      });
+    })
+    .catch(err => console.warn('Error cargando parques:', err));
 
-    // Línea central nítida
-    map3dInstance.addLayer({
-      id: 'red-lineas-3d-core',
-      type: 'line',
-      source: 'red-relaciones-3d',
-      paint: {
-        'line-color': ['get', 'color'],
-        'line-width': ['interpolate', ['linear'], ['zoom'], 13, 1.2, 16, 2],
-        'line-opacity': 0.8
-      }
-    });
+  // Edificios 3D reales de Kennedy (Carga progresiva desde modelamiento2)
+  fetch(BUILDINGS_URL)
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(buildings => {
+      const positions = [];
+      const normals = [];
+      const edgePositions = [];
+      buildings.forEach(b => {
+        const pts = b.pts.map(p => toThreeScene(p[0], p[1]));
+        const h = Math.max(1.5, (b.h || 8) * SCALE_3D);
+        if (pts.length < 4) return;
 
-    // 3. Etiquetas de orientación territorial discretas
-    TERRITORIAL_HUBS.forEach(hub => {
-      const el = document.createElement('div');
-      el.className = 'map3d-hub-tag';
-      el.style.setProperty('--c', hub.color);
-      el.innerHTML = '<span class="hub-bullet"></span><span class="hub-text">' + hub.name + '</span>';
-      new maplibregl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([hub.lng, hub.lat])
-        .addTo(map3dInstance);
-    });
+        for (let i = 0; i < pts.length - 1; i++) {
+          const a = pts[i], c = pts[i + 1];
+          const dx = c.x - a.x, dz = c.z - a.z;
+          const len = Math.hypot(dx, dz) || 0.001;
+          const nx = dz / len, nz = -dx / len;
 
-    // 4. Marcadores 3D para los 90 Actores
-    nodes.forEach(n => {
-      const coord = ACTOR_GEO[n.id];
-      if (!coord) return;
+          positions.push(
+            a.x, 0, a.z,  c.x, 0, c.z,  c.x, h, c.z,
+            a.x, 0, a.z,  c.x, h, c.z,  a.x, h, a.z
+          );
+          normals.push(
+            nx, 0, nz,  nx, 0, nz,  nx, 0, nz,
+            nx, 0, nz,  nx, 0, nz,  nx, 0, nz
+          );
 
-      const el = document.createElement('div');
-      el.className = 'map3d-actor-marker' + (REAL_LOGOS[n.id] ? ' has-logo' : '');
-      el.dataset.id = n.id;
-      el.style.setProperty('--c', SPC[n.sph]);
-
-      const photoUrl = REAL_LOGOS[n.id] || ACTOR_PHOTOS[n.id];
-      if (photoUrl) {
-        const img = document.createElement('img');
-        img.src = photoUrl;
-        img.alt = n.name;
-        img.style.objectFit = REAL_LOGOS[n.id] ? 'contain' : 'cover';
-        el.appendChild(img);
-      } else {
-        const iconId = getNodeIconId(n);
-        el.innerHTML = '<svg viewBox="0 0 24 24"><use href="#' + iconId + '"></use></svg>';
-      }
-
-      const pill = document.createElement('div');
-      pill.className = 'marker-pill';
-      pill.textContent = n.short || n.name;
-      el.appendChild(pill);
-
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectActorIn3D(n);
+          edgePositions.push(a.x, h, a.z, c.x, h, c.z);
+          edgePositions.push(a.x, 0, a.z, a.x, h, a.z);
+        }
       });
 
-      const m = new maplibregl.Marker({ element: el })
-        .setLngLat(coord)
-        .addTo(map3dInstance);
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+      const mat = new THREE.MeshLambertMaterial({ color: 0x161e2d });
+      const mesh = new THREE.Mesh(geo, mat);
+      threeTerritoryGroup.add(mesh);
 
-      map3dMarkers.push({ marker: m, el: el, node: n, coord: coord });
+      const edgeGeo = new THREE.BufferGeometry();
+      edgeGeo.setAttribute('position', new THREE.Float32BufferAttribute(edgePositions, 3));
+      const edgeMat = new THREE.LineBasicMaterial({ color: 0x2b384e, transparent: true, opacity: 0.5 });
+      const edgeLines = new THREE.LineSegments(edgeGeo, edgeMat);
+      threeTerritoryGroup.add(edgeLines);
+
+      if (statusEl) {
+        statusEl.textContent = 'Territorio 3D modelado listo';
+        setTimeout(() => statusEl.classList.add('hidden'), 2200);
+      }
+    })
+    .catch(err => {
+      console.warn('Carga de edificios 3D diferida o no disponible:', err);
+      if (statusEl) {
+        statusEl.textContent = 'Territorio 3D activo (Vías y red de actores)';
+        setTimeout(() => statusEl.classList.add('hidden'), 2200);
+      }
     });
 
-    map3dInstance.on('click', () => {
-      clearActorIn3D();
+  // 3. Crear los 90 ACTORES con FOTOS REALES, balizas de telemetría y anillos en el suelo
+  actor3dMeshes = [];
+  const textureLoader = new THREE.TextureLoader();
+
+  nodes.forEach(n => {
+    const p = getActorScenePos(n.id);
+    const photoUrl = REAL_LOGOS[n.id] || ACTOR_PHOTOS[n.id];
+    const colorHex = parseInt((SPC[n.sph] || '#38bdf8').replace('#', '0x'), 16);
+    const elevation = 16 + (n.lv === 1 ? 8 : n.lv === 2 ? 5 : 2);
+
+    // Baliza vertical de anclaje territorial
+    const beaconGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(p.x, 0, p.z),
+      new THREE.Vector3(p.x, elevation, p.z)
+    ]);
+    const beaconMat = new THREE.LineBasicMaterial({
+      color: colorHex,
+      transparent: true,
+      opacity: 0.65
+    });
+    const beaconLine = new THREE.Line(beaconGeo, beaconMat);
+    threeActorsGroup.add(beaconLine);
+
+    // Anillo en el suelo
+    const ringGeo = new THREE.RingGeometry(1.2, 2.2, 16);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: colorHex,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.8
+    });
+    const groundRing = new THREE.Mesh(ringGeo, ringMat);
+    groundRing.rotation.x = -Math.PI / 2;
+    groundRing.position.set(p.x, 0.2, p.z);
+    threeActorsGroup.add(groundRing);
+
+    // Sprite circular con foto real y borde del color de la esfera
+    const spriteSize = n.lv === 1 ? 16 : n.lv === 2 ? 13 : 10;
+    
+    // Crear canvas para el sprite con foto
+    const c2d = document.createElement('canvas');
+    c2d.width = 128;
+    c2d.height = 128;
+    const ctx = c2d.getContext('2d');
+
+    // Círculo base con color del sector
+    ctx.beginPath();
+    ctx.arc(64, 64, 60, 0, Math.PI * 2);
+    ctx.fillStyle = '#0f1422';
+    ctx.fill();
+    ctx.lineWidth = n.lv === 1 ? 8 : 6;
+    ctx.strokeStyle = SPC[n.sph] || '#38bdf8';
+    ctx.stroke();
+
+    const spriteTex = new THREE.CanvasTexture(c2d);
+    const spriteMat = new THREE.SpriteMaterial({
+      map: spriteTex,
+      transparent: true,
+      depthTest: true
+    });
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.position.set(p.x, elevation, p.z);
+    sprite.scale.set(spriteSize, spriteSize, 1);
+    sprite.userData = { node: n, p: p, elevation: elevation, beacon: beaconLine, groundRing: groundRing };
+    threeActorsGroup.add(sprite);
+
+    // Cargar la imagen real sobre el canvas del sprite
+    if (photoUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(64, 64, 56, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, 8, 8, 112, 112);
+        ctx.restore();
+        ctx.beginPath();
+        ctx.arc(64, 64, 58, 0, Math.PI * 2);
+        ctx.lineWidth = n.lv === 1 ? 8 : 6;
+        ctx.strokeStyle = SPC[n.sph] || '#38bdf8';
+        ctx.stroke();
+        spriteTex.needsUpdate = true;
+      };
+      img.src = photoUrl;
+    }
+
+    actor3dMeshes.push({
+      node: n,
+      sprite: sprite,
+      beacon: beaconLine,
+      groundRing: groundRing,
+      p: p,
+      elevation: elevation
     });
   });
+
+  // 4. Crear las 239 INTERACCIONES SOCIALES como rayos de telemetría 3D
+  link3dLines = [];
+  links.forEach((l, idx) => {
+    const sPos = getActorScenePos(l.s);
+    const tPos = getActorScenePos(l.t);
+    const sNode = byId.get(l.s);
+    const tNode = byId.get(l.t);
+    const sElev = 16 + (sNode ? (sNode.lv === 1 ? 8 : sNode.lv === 2 ? 5 : 2) : 2);
+    const tElev = 16 + (tNode ? (tNode.lv === 1 ? 8 : tNode.lv === 2 ? 5 : 2) : 2);
+
+    const colorHex = parseInt((CONV[l.c] ? CONV[l.c].c : '#38bdf8').replace('#', '0x'), 16);
+
+    const geo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(sPos.x, sElev, sPos.z),
+      new THREE.Vector3(tPos.x, tElev, tPos.z)
+    ]);
+
+    const mat = new THREE.LineBasicMaterial({
+      color: colorHex,
+      transparent: true,
+      opacity: 0.65
+    });
+
+    const line = new THREE.Line(geo, mat);
+    line.userData = { link: l, s: l.s, t: l.t, color: colorHex };
+    threeLinksGroup.add(line);
+
+    link3dLines.push(line);
+  });
+
+  // 5. Interacción por clic y hover con Raycaster
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, threeCamera);
+    const sprites = actor3dMeshes.map(m => m.sprite);
+    const intersects = raycaster.intersectObjects(sprites);
+
+    if (intersects.length > 0) {
+      const selectedNode = intersects[0].object.userData.node;
+      selectActorInThree(selectedNode);
+    } else {
+      clearActorInThree();
+    }
+  });
+
+  // 6. Loop de animación continuo
+  function animate() {
+    animFrameId = requestAnimationFrame(animate);
+    threeControls.update();
+    threeRenderer.render(threeScene, threeCamera);
+  }
+  animate();
+
+  // Redimensionar automáticamente
+  window.addEventListener('resize', onThreeResize);
 }
 
-function selectActorIn3D(n, skipFly) {
+function onThreeResize() {
+  const container = document.getElementById('map3d');
+  if (!container || !threeCamera || !threeRenderer) return;
+  const w = container.clientWidth || window.innerWidth;
+  const h = container.clientHeight || window.innerHeight;
+  threeCamera.aspect = w / h;
+  threeCamera.updateProjectionMatrix();
+  threeRenderer.setSize(w, h);
+}
+
+function selectActorInThree(n, skipFly) {
   if (!n) {
-    clearActorIn3D();
+    clearActorInThree();
     return;
   }
   select(n, 'from3d');
-  const coord = ACTOR_GEO[n.id];
-  if (coord && map3dInstance && !skipFly) {
-    map3dInstance.flyTo({
-      center: coord,
-      zoom: 16.3,
-      pitch: 62,
-      bearing: -15,
-      duration: 850
-    });
+
+  const p = getActorScenePos(n.id);
+  const elevation = 16 + (n.lv === 1 ? 8 : n.lv === 2 ? 5 : 2);
+
+  // Mover suavemente el objetivo de la cámara hacia el actor
+  if (threeControls && !skipFly) {
+    threeControls.target.set(p.x, elevation, p.z);
+    threeControls.update();
   }
 
+  // Resaltar el actor seleccionado y atenuar los demás
   const connectedIds = new Set();
   connectedIds.add(n.id);
   links.forEach(l => {
@@ -1490,52 +1749,47 @@ function selectActorIn3D(n, skipFly) {
     if (l.t === n.id) connectedIds.add(l.s);
   });
 
-  map3dMarkers.forEach(m => {
+  actor3dMeshes.forEach(m => {
     if (m.node.id === n.id) {
-      m.el.classList.add('selected');
-      m.el.classList.remove('dimmed');
+      m.sprite.scale.set(22, 22, 1);
+      m.sprite.material.opacity = 1.0;
+      m.beacon.material.opacity = 1.0;
     } else if (connectedIds.has(m.node.id)) {
-      m.el.classList.remove('selected', 'dimmed');
+      m.sprite.scale.set(15, 15, 1);
+      m.sprite.material.opacity = 0.95;
+      m.beacon.material.opacity = 0.7;
     } else {
-      m.el.classList.remove('selected');
-      m.el.classList.add('dimmed');
+      m.sprite.scale.set(8, 8, 1);
+      m.sprite.material.opacity = 0.2;
+      m.beacon.material.opacity = 0.15;
     }
   });
 
-  if (map3dInstance && map3dInstance.getLayer('red-lineas-3d-core')) {
-    map3dInstance.setPaintProperty('red-lineas-3d-core', 'line-opacity', [
-      'case',
-      ['any', ['==', ['get', 's'], n.id], ['==', ['get', 't'], n.id]],
-      1.0,
-      0.1
-    ]);
-    map3dInstance.setPaintProperty('red-lineas-3d-core', 'line-width', [
-      'case',
-      ['any', ['==', ['get', 's'], n.id], ['==', ['get', 't'], n.id]],
-      2.8,
-      1.0
-    ]);
-    map3dInstance.setPaintProperty('red-lineas-3d-glow', 'line-opacity', [
-      'case',
-      ['any', ['==', ['get', 's'], n.id], ['==', ['get', 't'], n.id]],
-      0.65,
-      0.03
-    ]);
-  }
+  // Resaltar líneas de relación conectadas
+  link3dLines.forEach(line => {
+    if (line.userData.s === n.id || line.userData.t === n.id) {
+      line.material.opacity = 1.0;
+      line.material.color.setHex(0xffffff);
+    } else {
+      line.material.opacity = 0.08;
+      line.material.color.setHex(line.userData.color);
+    }
+  });
 }
 
-function clearActorIn3D() {
+function clearActorInThree() {
   select(null);
-  map3dMarkers.forEach(m => {
-    m.el.classList.remove('selected', 'dimmed');
+  actor3dMeshes.forEach(m => {
+    const origSize = m.node.lv === 1 ? 16 : m.node.lv === 2 ? 13 : 10;
+    m.sprite.scale.set(origSize, origSize, 1);
+    m.sprite.material.opacity = 1.0;
+    m.beacon.material.opacity = 0.65;
   });
-  if (map3dInstance && map3dInstance.getLayer('red-lineas-3d-core')) {
-    map3dInstance.setPaintProperty('red-lineas-3d-core', 'line-opacity', 0.8);
-    map3dInstance.setPaintProperty('red-lineas-3d-core', 'line-width', [
-      'interpolate', ['linear'], ['zoom'], 13, 1.2, 16, 2
-    ]);
-    map3dInstance.setPaintProperty('red-lineas-3d-glow', 'line-opacity', 0.35);
-  }
+
+  link3dLines.forEach(line => {
+    line.material.opacity = 0.65;
+    line.material.color.setHex(line.userData.color);
+  });
 }
 
 function switchView(viewName){
@@ -1556,6 +1810,7 @@ function switchView(viewName){
       netSvg.style.pointerEvents = 'none';
     }
     initMap3D();
+    onThreeResize();
     return;
   }
 
@@ -1608,9 +1863,6 @@ function switchView(viewName){
   });
 }
 
-document.querySelectorAll('.strip-tab').forEach(btn => {
-  btn.onclick = () => switchView(btn.dataset.view);
-});
 
 // Conectar selector desplegable de rutas guiadas
 const tourSelect = document.getElementById('tourSelect');
@@ -1728,23 +1980,27 @@ function scrollToNode(n){
   window.scrollTo({top: window.scrollY + r.top + n.y * unitPx() - window.innerHeight * .4, behavior: 'smooth'});
 }
 document.getElementById('zin').onclick = () => {
-  if (currentView === 'map3d' && map3dInstance) {
-    map3dInstance.zoomIn();
+  if (currentView === 'map3d' && threeCamera) {
+    threeCamera.position.multiplyScalar(0.85);
+    threeControls.update();
   } else {
     svg.transition().call(zoom.scaleBy, 1.35);
   }
 };
 document.getElementById('zout').onclick = () => {
-  if (currentView === 'map3d' && map3dInstance) {
-    map3dInstance.zoomOut();
+  if (currentView === 'map3d' && threeCamera) {
+    threeCamera.position.multiplyScalar(1.18);
+    threeControls.update();
   } else {
     svg.transition().call(zoom.scaleBy, 1/1.35);
   }
 };
 document.getElementById('zfit').onclick = () => {
-  if (currentView === 'map3d' && map3dInstance) {
-    clearActorIn3D();
-    map3dInstance.flyTo({ center: [-74.1560, 4.6260], zoom: 14.6, pitch: 60, bearing: -18, duration: 800 });
+  if (currentView === 'map3d' && threeCamera && threeControls) {
+    clearActorInThree();
+    threeCamera.position.set(160, 480, 420);
+    threeControls.target.set(105, 15, -76);
+    threeControls.update();
   } else {
     select(null);
     selectLink(null);
@@ -1879,11 +2135,11 @@ function select(n, how){
   }
   if (n && MODE === 'm' && how === 'list') scrollToNode(n);
 
-  if (currentView === 'map3d' && map3dInstance) {
+  if (currentView === 'map3d' && threeInitialized) {
     if (n && how !== 'from3d') {
-      selectActorIn3D(n);
+      selectActorInThree(n);
     } else if (!n) {
-      clearActorIn3D();
+      clearActorInThree();
     }
   }
 }
