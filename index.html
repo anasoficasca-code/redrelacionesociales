@@ -246,6 +246,157 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   .sec{padding:18px 16px}
 }
 @media (prefers-reduced-motion:reduce){.particle{display:none}}
+
+/* Barra selectora de modos de visualizacion */
+.view-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px;
+  background: #0d1017;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+.view-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+  flex-shrink: 0;
+}
+.view-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+.view-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: var(--soft);
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.view-pill svg {
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+.view-pill:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--ink);
+  border-color: rgba(255,255,255,0.2);
+}
+.view-pill.active {
+  background: #1c2638;
+  color: #FFFFFF;
+  border-color: #5B8BF5;
+  box-shadow: 0 0 12px rgba(91,139,245,0.3);
+  font-weight: 600;
+}
+.view-pill.active svg {
+  stroke: #5B8BF5;
+}
+
+/* Capa de Anillos Concentricos (Radar) */
+.layer-concentric {
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.concentric-ring {
+  fill: none;
+  stroke-dasharray: 6 6;
+  opacity: 0.45;
+}
+.concentric-axis {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-dasharray: 4 6;
+}
+.concentric-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  fill: var(--mute);
+  text-anchor: middle;
+}
+.concentric-badge {
+  pointer-events: auto;
+  cursor: default;
+}
+.concentric-badge-bg {
+  fill: #141824;
+  stroke: var(--line);
+  stroke-width: 1.2px;
+  rx: 10px;
+}
+.concentric-badge-text {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--soft);
+  text-anchor: middle;
+}
+
+/* Capa de Cartografia Urbana e Ilustraciones */
+.layer-urban {
+  transition: opacity 0.5s ease;
+}
+.urban-ray {
+  stroke-dasharray: 4 4;
+  opacity: 0.35;
+  transition: opacity 0.2s, stroke-width 0.2s;
+}
+.urban-ray.highlight {
+  opacity: 0.85;
+  stroke-width: 2.2px;
+}
+.urban-vignette {
+  cursor: pointer;
+  transition: transform 0.25s ease, filter 0.25s ease;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.urban-vignette:hover {
+  filter: drop-shadow(0 0 16px rgba(91,139,245,0.5));
+}
+.vignette-outer-ring {
+  fill: none;
+  stroke-dasharray: 5 4;
+  opacity: 0.5;
+}
+.vignette-pill {
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+}
+.vignette-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-anchor: middle;
+}
+.vignette-title {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #FFFFFF;
+  text-anchor: middle;
+}
+
 </style>
 </head>
 <body>
@@ -324,6 +475,32 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
     </div>
    </div>
   </header>
+
+  <!-- Selector de Vistas / Modos de visualizacion (SIN EMOJIS) -->
+  <div class="view-bar" id="viewBar">
+   <span class="view-label">
+     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+     Modos de visualización:
+   </span>
+   <div class="view-group">
+     <button class="view-pill active" data-view="free">
+       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><path d="m10 14-3 3M14 10l3-3M17 12a5 5 0 0 0-5-5"/></svg>
+       Sin clústeres (Red libre)
+     </button>
+     <button class="view-pill" data-view="clusters">
+       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="8" r="4"/><circle cx="17" cy="7" r="3"/><circle cx="12" cy="17" r="4"/></svg>
+       Clústeres territoriales
+     </button>
+     <button class="view-pill" data-view="concentric">
+       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+       Anillos de decisión (Radar)
+     </button>
+     <button class="view-pill" data-view="urban">
+       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+       Cartografía con imágenes (Hitos de Kennedy)
+     </button>
+   </div>
+  </div>
 
   <!-- Barra didáctica superior con rutas guiadas (SIN EMOJIS) -->
   <div class="tour-bar" id="tourBar">
@@ -613,6 +790,14 @@ const TOURS = {
 
 /* Layout con holgura para no tapar flechas */
 let W,H,MODE;const center={};
+let currentView = 'free'; // 'free' (Sin clústeres por defecto), 'clusters', 'concentric', 'urban'
+const VIEW_POS = {
+  free: {},
+  clusters: {},
+  concentric: {},
+  urban: {}
+};
+
 function layout(){
   MODE = mobile() ? 'm' : 'd';
   const D = MODE === 'd';
@@ -634,6 +819,7 @@ function layout(){
     });
   }
 
+  // 1. Calcular VISTA CLÚSTERES (Agrupación sectorial y territorial)
   let seed = 17; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
   nodes.forEach(n => {
     n.r = LVR[MODE][n.lv];
@@ -645,7 +831,7 @@ function layout(){
     n.vx = n.vy = 0;
   });
 
-  const sim = d3.forceSimulation(nodes)
+  const simClusters = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).distance(l => l.source.sph === l.target.sph ? (D ? 150 : 115) : (D ? 230 : 180)).strength(l => l.source.sph === l.target.sph ? 0.12 : 0.07))
     .force('charge', d3.forceManyBody().strength(n => (D ? -260 : -180) - n.r * (D ? 10 : 8)).distanceMax(D ? 650 : 450))
     .force('cluster', () => {
@@ -659,7 +845,122 @@ function layout(){
     .force('collide', d3.forceCollide(n => n.r + (D ? 36 : 26)).iterations(8))
     .stop();
 
-  for (let i = 0; i < 550; i++) sim.tick();
+  for (let i = 0; i < 550; i++) simClusters.tick();
+  nodes.forEach(n => {
+    VIEW_POS.clusters[n.id] = { x: n.x, y: n.y };
+  });
+
+  // 2. Calcular VISTA LIBRE (Sin clústeres: fuerza orgánica de red pura)
+  const cx = W / 2, cy = H / 2;
+  nodes.forEach((n, idx) => {
+    const a = idx * 2.399963;
+    const rad = (D ? 320 : 180) + (idx % 6) * (D ? 105 : 60);
+    n.x = cx + Math.cos(a) * rad;
+    n.y = cy + Math.sin(a) * rad;
+    n.vx = n.vy = 0;
+  });
+
+  const simFree = d3.forceSimulation(nodes)
+    .force('center', d3.forceCenter(cx, cy))
+    .force('link', d3.forceLink(links).distance(D ? 135 : 95).strength(0.12))
+    .force('charge', d3.forceManyBody().strength(n => (D ? -280 : -170) - n.r * 8).distanceMax(D ? 750 : 480))
+    .force('collide', d3.forceCollide(n => n.r + (D ? 36 : 26)).iterations(8))
+    .stop();
+
+  for (let i = 0; i < 480; i++) simFree.tick();
+  nodes.forEach(n => {
+    VIEW_POS.free[n.id] = { x: n.x, y: n.y };
+  });
+
+  // 3. Calcular VISTA CONCÉNTRICA (Anillos de decisión y poder de política pública)
+  const RINGS_R = D
+    ? { 1: 220, 2: 520, 3: 840, 4: 1160 }
+    : { 1: 140, 2: 320, 3: 560, 4: 800 };
+
+  const SPH_ORDER = ['cor', 'log', 'mov', 'con', 'res', 'gob', 'edu', 'sal'];
+  for (let lv = 1; lv <= 4; lv++) {
+    const lvNodes = nodes.filter(n => n.lv === lv);
+    lvNodes.sort((a, b) => {
+      const diff = SPH_ORDER.indexOf(a.sph) - SPH_ORDER.indexOf(b.sph);
+      return diff !== 0 ? diff : a.id.localeCompare(b.id);
+    });
+    const count = lvNodes.length;
+    const baseR = RINGS_R[lv];
+
+    lvNodes.forEach((n, idx) => {
+      const angle = -Math.PI / 2 + (idx / count) * 2 * Math.PI;
+      const stagger = (idx % 2 === 0 ? -14 : 14);
+      n.x = cx + Math.cos(angle) * (baseR + stagger);
+      n.y = cy + Math.sin(angle) * (baseR + stagger);
+      n.vx = n.vy = 0;
+    });
+  }
+
+  const simConcentric = d3.forceSimulation(nodes)
+    .force('r', d3.forceRadial(n => RINGS_R[n.lv], cx, cy).strength(0.85))
+    .force('collide', d3.forceCollide(n => n.r + (D ? 30 : 20)).iterations(8))
+    .stop();
+
+  for (let i = 0; i < 180; i++) simConcentric.tick();
+  nodes.forEach(n => {
+    VIEW_POS.concentric[n.id] = { x: n.x, y: n.y };
+  });
+
+  // 4. Calcular VISTA URBANA CON IMÁGENES (Hitos territoriales de Kennedy)
+  const urbanHubs = D ? {
+    cor: [cx, cy - 30],
+    log: [cx - 680, cy - 420],
+    gob: [cx + 680, cy - 420],
+    mov: [cx + 820, cy + 140],
+    res: [cx + 580, cy + 620],
+    amb: [cx - 820, cy + 140],
+    edu: [cx - 580, cy + 620],
+    sal: [cx, cy + 700]
+  } : {
+    cor: [cx, cy],
+    log: [cx - 320, cy - 550],
+    gob: [cx + 320, cy - 550],
+    mov: [cx + 360, cy + 100],
+    res: [cx + 280, cy + 720],
+    amb: [cx - 360, cy + 100],
+    edu: [cx - 280, cy + 720],
+    sal: [cx, cy + 850]
+  };
+
+  nodes.forEach((n, idx) => {
+    const hub = urbanHubs[n.sph] || [cx, cy];
+    const a = -Math.PI / 2 + (idx % 8) * (2 * Math.PI / 8);
+    const dist = (D ? 130 : 90) + n.r * 1.5;
+    n.x = hub[0] + Math.cos(a) * dist;
+    n.y = hub[1] + Math.sin(a) * dist;
+    n.vx = n.vy = 0;
+  });
+
+  const simUrban = d3.forceSimulation(nodes)
+    .force('hub', () => {
+      nodes.forEach(n => {
+        const hub = urbanHubs[n.sph] || [cx, cy];
+        n.vx += (hub[0] - n.x) * 0.055;
+        n.vy += (hub[1] - n.y) * 0.055;
+      });
+    })
+    .force('link', d3.forceLink(links).distance(D ? 140 : 100).strength(0.08))
+    .force('charge', d3.forceManyBody().strength(-220).distanceMax(550))
+    .force('collide', d3.forceCollide(n => n.r + (D ? 34 : 24)).iterations(8))
+    .stop();
+
+  for (let i = 0; i < 400; i++) simUrban.tick();
+  nodes.forEach(n => {
+    VIEW_POS.urban[n.id] = { x: n.x, y: n.y };
+  });
+
+  // Aplicar posicion de la vista inicial (por defecto 'free' sin clústeres)
+  const initialMap = VIEW_POS[currentView] || VIEW_POS.free;
+  nodes.forEach(n => {
+    const p = initialMap[n.id] || { x: n.x, y: n.y };
+    n.x = p.x;
+    n.y = p.y;
+  });
 }
 layout();
 
@@ -699,12 +1000,16 @@ Object.entries(SPC).forEach(([k,c])=>{
 });
 
 const root = svg.append('g');
-const gH = root.append('g'),
-      gL = root.append('g'),
-      gLHit = root.append('g'),
+
+// Capas organizadas en profundidad
+const gConcentric = root.append('g').attr('class', 'layer-concentric'),
+      gH = root.append('g').attr('class', 'layer-cluster-halos'),
+      gUrban = root.append('g').attr('class', 'layer-urban'),
+      gL = root.append('g').attr('class', 'layer-links'),
+      gLHit = root.append('g').attr('class', 'layer-links-hit'),
       gP = root.append('g'),
-      gN = root.append('g'),
-      gT = root.append('g');
+      gN = root.append('g').attr('class', 'layer-nodes'),
+      gT = root.append('g').attr('class', 'layer-cluster-titles');
 
 function path(l){
   const s = l.source, t = l.target, dx = t.x - s.x, dy = t.y - s.y, d = Math.hypot(dx,dy) || 1;
@@ -747,6 +1052,321 @@ nodeSel.each(function(n){
 });
 nodeSel.append('text');
 
+/* Definición de los 8 Hitos Territoriales de Kennedy para la Cartografía con Imágenes */
+const URBAN_LANDMARKS = [
+  {
+    id: 'cor',
+    name: 'Central Mayorista de Corabastos',
+    tag: 'Abastecimiento alimentario',
+    desc: 'Patios de camiones, bodegas de acopio y 28 hectareas de comercio mayorista.',
+    color: '#F5A642',
+    iconLogo: 'corabastos'
+  },
+  {
+    id: 'mov',
+    name: 'Portal Americas y Bicitaxismo',
+    tag: 'Intermodalidad y ultima milla',
+    desc: 'Troncal masiva de TransMilenio conectada con transporte barrial de Patio Bonito.',
+    color: '#4CB6E8',
+    iconLogo: 'transmilenio'
+  },
+  {
+    id: 'gob',
+    name: 'Alcaldia Local y Plaza Americas',
+    tag: 'Gobierno y centro civico',
+    desc: 'Sede institucional local, presupuestos participativos y concertacion comunal.',
+    color: '#929CE8',
+    iconLogo: 'alcaldia_bogota'
+  },
+  {
+    id: 'amb',
+    name: 'Aula Ambiental Humedal La Vaca',
+    tag: 'Ecosistema y pedagogia',
+    desc: 'Reserva hidrica distrital, recuperacion ecologica y educacion ambiental.',
+    color: '#52CE92',
+    iconLogo: null
+  },
+  {
+    id: 'sal',
+    name: 'Hospital Occidente de Kennedy',
+    tag: 'Red hospitalaria y salud',
+    desc: 'Atencion medica hospitalaria de III nivel, urgencias y veeduria del COPACO.',
+    color: '#DF78DA',
+    iconLogo: null
+  },
+  {
+    id: 'edu',
+    name: 'Campus Colegios Distritales e INEM',
+    tag: 'Comunidad escolar y juventud',
+    desc: 'Convivencia escolar, comites directivos, rectores y Consejo de Juventud.',
+    color: '#5B8BF5',
+    iconLogo: null
+  },
+  {
+    id: 'res',
+    name: 'Rutas de Aseo y Bodegas de Reciclaje',
+    tag: 'Saneamiento y recuperacion',
+    desc: 'Flota de compactadores de basura de Ciudad Limpia y recicladores de oficio en ECA.',
+    color: '#B8D94B',
+    iconLogo: 'uaesp'
+  },
+  {
+    id: 'con',
+    name: 'Economia Popular y Comedores',
+    tag: 'Comercio barrial y solidaridad',
+    desc: 'Tenderos zonales, credito diario (gota a gota), comedores y madres comunitarias.',
+    color: '#E5A93C',
+    iconLogo: null
+  }
+];
+
+let urbanRaySel = null;
+
+function renderConcentricLayer(){
+  gConcentric.selectAll('*').remove();
+  const D = MODE === 'd';
+  const cx = W / 2, cy = H / 2;
+  const RINGS_R = D
+    ? { 1: 220, 2: 520, 3: 840, 4: 1160 }
+    : { 1: 140, 2: 320, 3: 560, 4: 800 };
+
+  const ringData = [
+    { lv: 1, r: RINGS_R[1], c: '#929CE8', title: 'Nivel 1: Quienes Deciden (Politicas publicas y marco legal)', desc: 'Alcaldia Local, Ministerios, Secretarias Distritales y Asojuntas' },
+    { lv: 2, r: RINGS_R[2], c: '#4CB6E8', title: 'Nivel 2: Quienes Coordinan (Gobierno societario y gremios)', desc: 'Corabastos S.A., Policia, Hospital, Gremios, Cooperativas y Comites' },
+    { lv: 3, r: RINGS_R[3], c: '#52CE92', title: 'Nivel 3: Quienes Ejecutan e Instrumentos (Operacion)', desc: 'Camiones recolectores, camiones de alimentos, bicitaxis, comedores, tenderos' },
+    { lv: 4, r: RINGS_R[4], c: '#F5A642', title: 'Nivel 4: Quienes Participan y Reciben (Comunidad y demanda)', desc: 'Hogares, usuarios de transporte, comerciantes ambulantes y veedurias' }
+  ];
+
+  // Ejes radiales tenues
+  for (let a = 0; a < 360; a += 45) {
+    const rad = (a * Math.PI) / 180;
+    const maxR = RINGS_R[4] + (D ? 80 : 40);
+    gConcentric.append('line')
+      .attr('class', 'concentric-axis')
+      .attr('x1', cx)
+      .attr('y1', cy)
+      .attr('x2', cx + Math.cos(rad) * maxR)
+      .attr('y2', cy + Math.sin(rad) * maxR);
+  }
+
+  // Anillos orbitales
+  ringData.forEach(d => {
+    gConcentric.append('circle')
+      .attr('class', 'concentric-ring')
+      .attr('cx', cx)
+      .attr('cy', cy)
+      .attr('r', d.r)
+      .attr('stroke', d.c)
+      .attr('stroke-width', d.lv === 1 ? 2.5 : 1.8);
+
+    // Badge explicativo del nivel en el arco superior
+    const badgeY = cy - d.r;
+    const gB = gConcentric.append('g').attr('class', 'concentric-badge')
+      .attr('transform', `translate(${cx}, ${badgeY})`);
+
+    const textW = D ? (d.lv === 1 ? 440 : 480) : 320;
+    gB.append('rect')
+      .attr('class', 'concentric-badge-bg')
+      .attr('x', -textW / 2)
+      .attr('y', -16)
+      .attr('width', textW)
+      .attr('height', 28)
+      .attr('stroke', d.c);
+
+    gB.append('text')
+      .attr('class', 'concentric-badge-text')
+      .attr('y', 2)
+      .style('fill', d.c)
+      .text(d.title);
+  });
+}
+
+function renderUrbanLayer(){
+  gUrban.selectAll('*').remove();
+  const D = MODE === 'd';
+  const cx = W / 2, cy = H / 2;
+
+  const urbanHubCoords = D ? {
+    cor: [cx, cy - 30],
+    log: [cx - 680, cy - 420],
+    gob: [cx + 680, cy - 420],
+    mov: [cx + 820, cy + 140],
+    res: [cx + 580, cy + 620],
+    amb: [cx - 820, cy + 140],
+    edu: [cx - 580, cy + 620],
+    sal: [cx, cy + 700]
+  } : {
+    cor: [cx, cy],
+    log: [cx - 320, cy - 550],
+    gob: [cx + 320, cy - 550],
+    mov: [cx + 360, cy + 100],
+    res: [cx + 280, cy + 720],
+    amb: [cx - 360, cy + 100],
+    edu: [cx - 280, cy + 720],
+    sal: [cx, cy + 850]
+  };
+
+  // 1. Rayos conectores desde el hito a sus actores
+  const rayData = [];
+  nodes.forEach(n => {
+    const hub = urbanHubCoords[n.sph] || [cx, cy];
+    rayData.push({ hub, node: n, sph: n.sph });
+  });
+
+  urbanRaySel = gUrban.append('g').attr('class', 'layer-urban-rays')
+    .selectAll('line').data(rayData).join('line')
+    .attr('class', 'urban-ray')
+    .attr('stroke', d => SPC[d.sph] || '#5B8BF5')
+    .attr('stroke-width', 1.2)
+    .attr('x1', d => d.hub[0])
+    .attr('y1', d => d.hub[1])
+    .attr('x2', d => d.node.x)
+    .attr('y2', d => d.node.y);
+
+  // 2. Viñetas circulares ilustradas de los Hitos de Kennedy
+  const gVigs = gUrban.append('g').attr('class', 'layer-urban-vignettes');
+
+  URBAN_LANDMARKS.forEach(lm => {
+    const coord = urbanHubCoords[lm.id] || [cx, cy];
+    const R = D ? 70 : 54;
+
+    const gV = gVigs.append('g')
+      .attr('class', 'urban-vignette')
+      .attr('transform', `translate(${coord[0]}, ${coord[1]})`)
+      .on('click', (e) => {
+        e.stopPropagation();
+        const sphereNodes = nodes.filter(n => n.sph === lm.id);
+        if (sphereNodes.length > 0) fitTo(sphereNodes, 650, 1.4);
+      })
+      .on('mouseenter', () => {
+        urbanRaySel.filter(r => r.sph === lm.id).classed('highlight', true);
+      })
+      .on('mouseleave', () => {
+        urbanRaySel.classed('highlight', false);
+      });
+
+    // Anillo arquitectonico punteado exterior
+    gV.append('circle')
+      .attr('class', 'vignette-outer-ring')
+      .attr('r', R + (D ? 14 : 10))
+      .attr('stroke', lm.color);
+
+    // Fondo circular con gradiente
+    gV.append('circle')
+      .attr('r', R)
+      .attr('fill', '#10141f')
+      .attr('stroke', lm.color)
+      .attr('stroke-width', 3.2);
+
+    // Ilustración vectorial interna según hito
+    const gArt = gV.append('g').attr('class', 'vignette-art');
+
+    if (lm.id === 'cor') {
+      // Corabastos: Galpones, camion y logo
+      gArt.append('path').attr('d', `M ${-R*.7},${R*.2} L 0,${-R*.5} L ${R*.7},${R*.2} Z`).attr('fill', '#F5A64222').attr('stroke', '#F5A642').attr('stroke-width', 1.5);
+      if (LOGO_DATA.corabastos) {
+        gArt.append('image').attr('href', LOGO_DATA.corabastos)
+          .attr('x', -R*.5).attr('y', -R*.3).attr('width', R).attr('height', R*.5).attr('preserveAspectRatio', 'xMidYMid meet');
+      }
+      gArt.append('rect').attr('x', -R*.4).attr('y', R*.15).attr('width', R*.8).attr('height', R*.35).attr('rx', 4).attr('fill', '#F5A64244').attr('stroke', '#F5A642');
+    } else if (lm.id === 'mov') {
+      // Portal Americas: Bus TransMilenio + Bicitaxi
+      if (LOGO_DATA.transmilenio) {
+        gArt.append('image').attr('href', LOGO_DATA.transmilenio)
+          .attr('x', -R*.5).attr('y', -R*.55).attr('width', R).attr('height', R*.45).attr('preserveAspectRatio', 'xMidYMid meet');
+      }
+      gArt.append('rect').attr('x', -R*.5).attr('y', 0).attr('width', R).attr('height', R*.4).attr('rx', 5).attr('fill', '#E74C3C33').attr('stroke', '#E74C3C');
+      gArt.append('circle').attr('cx', -R*.25).attr('cy', R*.4).attr('r', 6).attr('fill', '#FFF');
+      gArt.append('circle').attr('cx', R*.25).attr('cy', R*.4).attr('r', 6).attr('fill', '#FFF');
+    } else if (lm.id === 'gob') {
+      // Alcaldía Local de Kennedy
+      if (LOGO_DATA.alcaldia_bogota) {
+        gArt.append('image').attr('href', LOGO_DATA.alcaldia_bogota)
+          .attr('x', -R*.5).attr('y', -R*.55).attr('width', R).attr('height', R*.45).attr('preserveAspectRatio', 'xMidYMid meet');
+      }
+      // Columnas frontispicio civico
+      gArt.append('path').attr('d', `M ${-R*.5},0 L 0,${-R*.3} L ${R*.5},0 Z`).attr('fill', '#929CE833').attr('stroke', '#929CE8');
+      gArt.append('rect').attr('x', -R*.4).attr('y', 0).attr('width', 8).attr('height', R*.4).attr('fill', '#929CE8');
+      gArt.append('rect').attr('x', -4).attr('y', 0).attr('width', 8).attr('height', R*.4).attr('fill', '#929CE8');
+      gArt.append('rect').attr('x', R*.4-8).attr('y', 0).attr('width', 8).attr('height', R*.4).attr('fill', '#929CE8');
+    } else if (lm.id === 'amb') {
+      // Aula Ambiental Humedal La Vaca
+      gArt.append('path').attr('d', `M ${-R*.7},${R*.3} Q 0,${R*.5} ${R*.7},${R*.3} L ${R*.7},${R*.6} L ${-R*.7},${R*.6} Z`).attr('fill', '#3498DB44').attr('stroke', '#3498DB');
+      // Juncales / totoras
+      gArt.append('line').attr('x1', -R*.3).attr('y1', R*.35).attr('x2', -R*.2).attr('y2', -R*.2).attr('stroke', '#52CE92').attr('stroke-width', 3);
+      gArt.append('line').attr('x1', -R*.15).attr('y1', R*.35).attr('x2', -R*.05).attr('y2', -R*.3).attr('stroke', '#52CE92').attr('stroke-width', 2.5);
+      gArt.append('line').attr('x1', R*.1).attr('y1', R*.35).attr('x2', R*.15).attr('y2', -R*.25).attr('stroke', '#52CE92').attr('stroke-width', 3);
+      // Ave tingua
+      gArt.append('circle').attr('cx', -R*.15).attr('cy', -R*.35).attr('r', 4).attr('fill', '#E67E22');
+      gArt.append('circle').attr('cx', -R*.3).attr('cy', -R*.25).attr('r', 5).attr('fill', '#8E44AD');
+    } else if (lm.id === 'sal') {
+      // Hospital Occidente de Kennedy
+      gArt.append('rect').attr('x', -R*.5).attr('y', -R*.35).attr('width', R).attr('height', R*.75).attr('rx', 4).attr('fill', '#DF78DA22').attr('stroke', '#DF78DA');
+      // Cruz roja de salud
+      gArt.append('rect').attr('x', -6).attr('y', -R*.2).attr('width', 12).attr('height', 36).attr('fill', '#DF78DA');
+      gArt.append('rect').attr('x', -18).attr('y', -R*.2+12).attr('width', 36).attr('height', 12).attr('fill', '#DF78DA');
+    } else if (lm.id === 'edu') {
+      // Campus INEM y Colegios
+      gArt.append('rect').attr('x', -R*.6).attr('y', -R*.2).attr('width', R*1.2).attr('height', R*.6).attr('rx', 4).attr('fill', '#5B8BF522').attr('stroke', '#5B8BF5');
+      // Torre del reloj del colegio
+      gArt.append('rect').attr('x', -14).attr('y', -R*.5).attr('width', 28).attr('height', R*.3).attr('fill', '#5B8BF544').attr('stroke', '#5B8BF5');
+      gArt.append('circle').attr('cx', 0).attr('cy', -R*.35).attr('r', 6).attr('fill', '#FFF');
+    } else if (lm.id === 'res') {
+      // Rutas de Aseo Ciudad Limpia
+      if (LOGO_DATA.uaesp) {
+        gArt.append('image').attr('href', LOGO_DATA.uaesp)
+          .attr('x', -R*.5).attr('y', -R*.55).attr('width', R).attr('height', R*.45).attr('preserveAspectRatio', 'xMidYMid meet');
+      }
+      gArt.append('rect').attr('x', -R*.55).attr('y', 0).attr('width', R*1.1).attr('height', R*.4).attr('rx', 4).attr('fill', '#B8D94B33').attr('stroke', '#B8D94B');
+      gArt.append('circle').attr('cx', -R*.3).attr('cy', R*.4).attr('r', 6).attr('fill', '#FFF');
+      gArt.append('circle').attr('cx', R*.3).attr('cy', R*.4).attr('r', 6).attr('fill', '#FFF');
+    } else if (lm.id === 'con') {
+      // Economia Popular y Comedores
+      // Toldo de plaza
+      gArt.append('path').attr('d', `M ${-R*.6},${-R*.1} L 0,${-R*.4} L ${R*.6},${-R*.1} Z`).attr('fill', '#E5A93C44').attr('stroke', '#E5A93C');
+      // Olla comunitaria
+      gArt.append('rect').attr('x', -R*.3).attr('y', 0).attr('width', R*.6).attr('height', R*.35).attr('rx', 5).attr('fill', '#E5A93C').attr('opacity', 0.6);
+      gArt.append('line').attr('x1', -R*.15).attr('y1', -R*.08).attr('x2', -R*.15).attr('y2', -R*.25).attr('stroke', '#FFF').attr('stroke-width', 2);
+      gArt.append('line').attr('x1', 0).attr('y1', -R*.08).attr('x2', 0).attr('y2', -R*.28).attr('stroke', '#FFF').attr('stroke-width', 2);
+      gArt.append('line').attr('x1', R*.15).attr('y1', -R*.08).attr('x2', R*.15).attr('y2', -R*.25).attr('stroke', '#FFF').attr('stroke-width', 2);
+    }
+
+    // Badge inferior flotante
+    const badgeW = D ? 260 : 190;
+    const gPill = gV.append('g').attr('class', 'vignette-pill')
+      .attr('transform', `translate(0, ${R + (D ? 20 : 16)})`);
+
+    gPill.append('rect')
+      .attr('x', -badgeW / 2).attr('y', -12)
+      .attr('width', badgeW).attr('height', D ? 44 : 38)
+      .attr('rx', 8)
+      .attr('fill', '#121622')
+      .attr('stroke', lm.color)
+      .attr('stroke-width', 1.4);
+
+    gPill.append('text')
+      .attr('class', 'vignette-tag')
+      .attr('y', 0)
+      .style('fill', lm.color)
+      .text(lm.tag);
+
+    gPill.append('text')
+      .attr('class', 'vignette-title')
+      .attr('y', D ? 16 : 14)
+      .style('font-size', D ? '11px' : '9.5px')
+      .text(lm.name);
+  });
+}
+
+function updateUrbanRays(){
+  if (!urbanRaySel) return;
+  urbanRaySel
+    .attr('x1', d => d.hub[0])
+    .attr('y1', d => d.hub[1])
+    .attr('x2', d => d.node.x)
+    .attr('y2', d => d.node.y);
+}
+
 function geometry(){
   svg.attr('viewBox',`0 0 ${W} ${H}`);
   linkSel.attr('d',path).attr('stroke-width',l=>wid(l.w));
@@ -772,6 +1392,7 @@ function geometry(){
     .attr('x', n => -n.r * .625)
     .attr('y', n => -n.r * .625);
 
+  // Renderizar halos de clusters
   const cls = Object.keys(SPH).map(k => {
     const ns = nodes.filter(n => n.sph === k);
     const avgX = d3.mean(ns, n => n.x) || center[k][0], avgY = d3.mean(ns, n => n.y) || center[k][1];
@@ -784,8 +1405,85 @@ function geometry(){
   });
   gT.selectAll('text').data(cls).join('text').attr('class','hlabel').attr('fill',d=>SPC[d.k]).attr('text-anchor','middle').text(d=>SPH[d.k])
     .each(function(d){d.ly = d.top - 10; d3.select(this).attr('x',d.cx).attr('y',d.ly)});
+
+  // Renderizar capas de Anillos Concentricos y Cartografia Urbana
+  renderConcentricLayer();
+  renderUrbanLayer();
+
+  // Ajustar visibilidades segun la vista actual ('free' por defecto)
+  gH.style('opacity', currentView === 'clusters' ? 1 : 0);
+  gT.style('opacity', currentView === 'clusters' ? 1 : 0);
+  gConcentric.style('opacity', currentView === 'concentric' ? 1 : 0);
+  gUrban.style('opacity', currentView === 'urban' ? 1 : 0);
 }
 geometry();
+
+/* Transicion fluida entre modos de visualizacion */
+function switchView(viewName){
+  if (currentView === viewName) return;
+  currentView = viewName;
+
+  document.querySelectorAll('.view-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === viewName);
+  });
+
+  const posMap = VIEW_POS[viewName] || VIEW_POS.free;
+
+  // Animacion de desvanecimiento suave de capas
+  gH.transition().duration(500).style('opacity', viewName === 'clusters' ? 1 : 0);
+  gT.transition().duration(500).style('opacity', viewName === 'clusters' ? 1 : 0);
+  gConcentric.transition().duration(500).style('opacity', viewName === 'concentric' ? 1 : 0);
+  gUrban.transition().duration(500).style('opacity', viewName === 'urban' ? 1 : 0);
+
+  // Animacion interpolada de nodos y flechas bezier
+  const startPos = {};
+  nodes.forEach(n => {
+    startPos[n.id] = { x: n.x, y: n.y };
+  });
+
+  const duration = 850;
+  const ease = d3.easeCubicInOut;
+  const t0 = Date.now();
+
+  const timer = d3.timer(() => {
+    const elapsed = Date.now() - t0;
+    const progress = Math.min(1, elapsed / duration);
+    const k = ease(progress);
+
+    nodes.forEach(n => {
+      const sp = startPos[n.id];
+      const ep = posMap[n.id] || sp;
+      n.x = sp.x + (ep.x - sp.x) * k;
+      n.y = sp.y + (ep.y - sp.y) * k;
+    });
+
+    nodeSel.attr('transform', n => `translate(${n.x},${n.y})`);
+    linkSel.attr('d', path);
+    linkHitSel.attr('d', path);
+    if (viewName === 'urban') updateUrbanRays();
+
+    if (progress >= 1) {
+      timer.stop();
+      nodes.forEach(n => {
+        const ep = posMap[n.id] || startPos[n.id];
+        n.x = ep.x;
+        n.y = ep.y;
+      });
+      nodeSel.attr('transform', n => `translate(${n.x},${n.y})`);
+      linkSel.attr('d', path);
+      linkHitSel.attr('d', path);
+      if (viewName === 'urban') updateUrbanRays();
+    }
+  });
+  if (MODE === 'd') fitAll(850);
+}
+
+// Conectar botones del selector de vistas
+document.querySelectorAll('.view-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    switchView(btn.dataset.view);
+  });
+});
 
 const meas = document.createElement('canvas').getContext('2d');
 let T = d3.zoomIdentity;
