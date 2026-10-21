@@ -1,0 +1,2174 @@
+[
+  {
+    "id": "JAC_8063",
+    "name": "GUADALUPE",
+    "addr": "KR 62D 57D 33 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.151491,
+      4.596377
+    ]
+  },
+  {
+    "id": "JAC_8076",
+    "name": "LAS DELICIAS",
+    "addr": "TV 68F 44 44 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.143299,
+      4.597302
+    ]
+  },
+  {
+    "id": "JAC_8112",
+    "name": "SAN ANDRES I SECTOR",
+    "addr": "CL 43F SUR 68F 06",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.142622,
+      4.598083
+    ]
+  },
+  {
+    "id": "JAC_8097",
+    "name": "NUEVAS DELICIAS",
+    "addr": "CL 44F SUR 72B 36",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.147033,
+      4.599512
+    ]
+  },
+  {
+    "id": "JAC_8006",
+    "name": "ALQUERIAS DE LA FRAGUA   II SECTOR",
+    "addr": "KR 68C 38G 58 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.137165,
+      4.600858
+    ]
+  },
+  {
+    "id": "JAC_8113",
+    "name": "SAN ANDRES II SECTOR",
+    "addr": "TV 72C BIS 43B 02 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.14648,
+      4.601273
+    ]
+  },
+  {
+    "id": "JAC_8194",
+    "name": "AGRUPACION DE VIVIENDA BARRANQUILLITA",
+    "addr": "KR 68A BIS A 38D 70 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.136073,
+      4.601439
+    ]
+  },
+  {
+    "id": "JAC_8019",
+    "name": "BOITA I SECTOR",
+    "addr": "CL 48B SUR 72K 13",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.152603,
+      4.602377
+    ]
+  },
+  {
+    "id": "JAC_8236",
+    "name": "URBANIZACION TALAVERA",
+    "addr": "CL 39C SUR 68F 67",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.139407,
+      4.60248
+    ]
+  },
+  {
+    "id": "JAC_8121",
+    "name": "SINALOA",
+    "addr": "CL  35  SUR 5275",
+    "upz": "UPZ41-MUZU",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.129137,
+      4.603293
+    ]
+  },
+  {
+    "id": "JAC_8162",
+    "name": "VILLA NUEVA RINCON CORTES",
+    "addr": "KR 68I 39D 04 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.141132,
+      4.60337
+    ]
+  },
+  {
+    "id": "JAC_8067",
+    "name": "LA CHUCUA",
+    "addr": "KR 72G 42B 26 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.146247,
+      4.603718
+    ]
+  },
+  {
+    "id": "JAC_8059",
+    "name": "GERONA",
+    "addr": "CL 39A BIS 68G 98",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.140344,
+      4.603799
+    ]
+  },
+  {
+    "id": "JAC_8161",
+    "name": "VILLA DE LOS SAUCES",
+    "addr": "CL 58B BIS SUR 77H 83",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.174837,
+      4.603931
+    ]
+  },
+  {
+    "id": "JAC_8239",
+    "name": "PARQUE RESIDENCIAL LOS URAPANES II",
+    "addr": "CL 42F SUR 72H 88 AP 301",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.148182,
+      4.604151
+    ]
+  },
+  {
+    "id": "JAC_8020",
+    "name": "BOITA II SECTOR",
+    "addr": "KR 72R BIS 48 11 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.156209,
+      4.60429
+    ]
+  },
+  {
+    "id": "JAC_8096",
+    "name": "NUEVA YORK",
+    "addr": "CL 39D SUR 68J 15",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.141786,
+      4.604292
+    ]
+  },
+  {
+    "id": "JAC_8205",
+    "name": "LAS LUCES",
+    "addr": "KR 77H 51A 84 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.168313,
+      4.604954
+    ]
+  },
+  {
+    "id": "JAC_8203",
+    "name": "URBANIZACION SANTA CATALINA",
+    "addr": "CL 45 SUR 72Q 20",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.155036,
+      4.605121
+    ]
+  },
+  {
+    "id": "JAC_8210",
+    "name": "PARQUE RESIDENCIAL LOS URAPANES I",
+    "addr": "CL 42 SUR 72H 29",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.147079,
+      4.605252
+    ]
+  },
+  {
+    "id": "JAC_8181",
+    "name": "NUEVA ROMA I ETAPA",
+    "addr": "KR 77I BIS 57A 23 SUR CL 57 B SUR N 77 H 31 CORRESP",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.172207,
+      4.605268
+    ]
+  },
+  {
+    "id": "JAC_8066",
+    "name": "LA CAMPIÃA",
+    "addr": "CL 39G SUR 72F 29",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.143508,
+      4.605268
+    ]
+  },
+  {
+    "id": "JAC_8170",
+    "name": "URBANIZACION  EL PARQUE",
+    "addr": "CL 43 SUR 72M 77",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.153057,
+      4.605576
+    ]
+  },
+  {
+    "id": "JAC_8052",
+    "name": "EL RUBI  II SECTOR",
+    "addr": "CL 58B SUR 78 00 KR 21",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.175381,
+      4.605637
+    ]
+  },
+  {
+    "id": "JAC_8193",
+    "name": "MORABIA II SECTOR",
+    "addr": "KR 72 42 46 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.150335,
+      4.605766
+    ]
+  },
+  {
+    "id": "JAC_8005",
+    "name": "ALQUERIAS DE LA FRAGUA   I SECTOR",
+    "addr": "KR 68D 36A 21 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.13462,
+      4.605884
+    ]
+  },
+  {
+    "id": "JAC_8208",
+    "name": "LA UNIDAD",
+    "addr": "KR 77J 57C 02 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.172701,
+      4.605998
+    ]
+  },
+  {
+    "id": "JAC_8198",
+    "name": "EL PARQUE MORABIA",
+    "addr": "CL 43 SUR 72P 14",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.153886,
+      4.606036
+    ]
+  },
+  {
+    "id": "JAC_8163",
+    "name": "VILLA RICA",
+    "addr": "KR 77K BIS A 50 08 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.166852,
+      4.606136
+    ]
+  },
+  {
+    "id": "JAC_8155",
+    "name": "VALENCIA Y BOMBAY",
+    "addr": "KR 72G 39F 02 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.14442,
+      4.606358
+    ]
+  },
+  {
+    "id": "JAC_8029",
+    "name": "CARVAJAL OSORIO",
+    "addr": "KR 68L 37D 38 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.138381,
+      4.607192
+    ]
+  },
+  {
+    "id": "JAC_8182",
+    "name": "CATALINA II SECTOR",
+    "addr": "CL 54 SUR 77P 18",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.169148,
+      4.607632
+    ]
+  },
+  {
+    "id": "JAC_8012",
+    "name": "ARGELIA",
+    "addr": "DG 39 SUR 72F 70 BARRIO ARGELIA KENNEDY",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.143238,
+      4.607914
+    ]
+  },
+  {
+    "id": "JAC_8088",
+    "name": "LOS PRADOS",
+    "addr": "KR 82A 58A 36 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.176577,
+      4.608
+    ]
+  },
+  {
+    "id": "JAC_8107",
+    "name": "PRADOS DE KENNEDY II SECTOR",
+    "addr": "KR 79 58D 41 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.177472,
+      4.608452
+    ]
+  },
+  {
+    "id": "JAC_8058",
+    "name": "FUNDACION EL PERPETUO SOCORRO",
+    "addr": "CL 49 SUR 77R 15",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.166206,
+      4.608546
+    ]
+  },
+  {
+    "id": "JAC_8143",
+    "name": "TIMIZA I SECTOR",
+    "addr": "KR 72N BIS 40C 17 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.149388,
+      4.60869
+    ]
+  },
+  {
+    "id": "JAC_8064",
+    "name": "JACKELINE",
+    "addr": "KR 77Q 45A 21 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.162449,
+      4.608758
+    ]
+  },
+  {
+    "id": "JAC_8036",
+    "name": "ROMA IV ETAPA PRIMER SECTOR",
+    "addr": "CL 56A SUR 78A 20",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.171238,
+      4.608856
+    ]
+  },
+  {
+    "id": "JAC_8038",
+    "name": "FLORALIA",
+    "addr": "TV 68C 30 10 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.131987,
+      4.608906
+    ]
+  },
+  {
+    "id": "JAC_8073",
+    "name": "LAGO DE TIMIZA",
+    "addr": "CL 43 SUR 73D 20",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.158943,
+      4.609506
+    ]
+  },
+  {
+    "id": "JAC_8033",
+    "name": "CATALINA I SECTOR",
+    "addr": "CL 52A SUR 77W 05",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.168683,
+      4.610024
+    ]
+  },
+  {
+    "id": "JAC_8150",
+    "name": "URBANIZACION ACIP",
+    "addr": "CL 54A SUR 78A 15",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.169915,
+      4.610103
+    ]
+  },
+  {
+    "id": "JAC_8026",
+    "name": "CARIMAGUA",
+    "addr": "CL 39A SUR 72K 02",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.146515,
+      4.610163
+    ]
+  },
+  {
+    "id": "JAC_8051",
+    "name": "EL RUBI I SECTOR",
+    "addr": "CL 57F SUR 79 65",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.176102,
+      4.610297
+    ]
+  },
+  {
+    "id": "JAC_8094",
+    "name": "MULTIFAMILIARES LAGO TIMIZA II ETAPA 1,2,3Y 4",
+    "addr": "TV 74A 43 61 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.160188,
+      4.610407
+    ]
+  },
+  {
+    "id": "JAC_8049",
+    "name": "EL PORVENIR II SECTOR",
+    "addr": "KR 79F 57G 56 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.17736,
+      4.610796
+    ]
+  },
+  {
+    "id": "JAC_8226",
+    "name": "BUENA VISTA",
+    "addr": "CL 57D BIS SUR 79F 22",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.176852,
+      4.61165
+    ]
+  },
+  {
+    "id": "JAC_8034",
+    "name": "SAN MARTIN DE PORRES",
+    "addr": "CL 47 SUR 78B 42",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.163907,
+      4.612034
+    ]
+  },
+  {
+    "id": "JAC_8100",
+    "name": "NUEVO TIMIZA",
+    "addr": "KR 78A 43 37 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.161966,
+      4.612066
+    ]
+  },
+  {
+    "id": "JAC_8072",
+    "name": "URBANIZACION LA LLANURA",
+    "addr": "KR 68F 21 62 SUR",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.130213,
+      4.612079
+    ]
+  },
+  {
+    "id": "JAC_8037",
+    "name": "ROMA IV ETAPA II SECTOR",
+    "addr": "KR 78P 55 07 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.172631,
+      4.612193
+    ]
+  },
+  {
+    "id": "JAC_8144",
+    "name": "TIMIZA  II SECTOR",
+    "addr": "KR 74 BIS 42 08 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.157041,
+      4.612209
+    ]
+  },
+  {
+    "id": "JAC_8018",
+    "name": "BERLIN",
+    "addr": "KR 78D 47B 66 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.165439,
+      4.612312
+    ]
+  },
+  {
+    "id": "JAC_8102",
+    "name": "PASTRANITA II SECTOR",
+    "addr": "CL 49 SUR 78G 05",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.166307,
+      4.612592
+    ]
+  },
+  {
+    "id": "JAC_8089",
+    "name": "LUCERNA",
+    "addr": "KR 72M 38C 31 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.14636,
+      4.612599
+    ]
+  },
+  {
+    "id": "JAC_8156",
+    "name": "VILLA ADRIANA",
+    "addr": "CL 20 SUR 68D 36",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.129188,
+      4.613076
+    ]
+  },
+  {
+    "id": "JAC_8039",
+    "name": "CIUDAD BERTHA HERNANDEZ DE OSPINA URB R",
+    "addr": "CL 56 SUR 79D 17",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.174737,
+      4.613117
+    ]
+  },
+  {
+    "id": "JAC_8069",
+    "name": "LA GIRALDILLA I SECTOR",
+    "addr": "CL 49 SUR 78H 09",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.166838,
+      4.613367
+    ]
+  },
+  {
+    "id": "JAC_8046",
+    "name": "PALENQUE",
+    "addr": "KR 78F 41G 15 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.157677,
+      4.613759
+    ]
+  },
+  {
+    "id": "JAC_8030",
+    "name": "CARVAJAL TECHO I SECTOR",
+    "addr": "CL 37 SUR 70B 05",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.139871,
+      4.613857
+    ]
+  },
+  {
+    "id": "JAC_8040",
+    "name": "CLASS",
+    "addr": "CL 57B SUR 80H 32",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.178412,
+      4.614473
+    ]
+  },
+  {
+    "id": "JAC_8085",
+    "name": "LOS FUNDADORES",
+    "addr": "CL 19 SUR 68I 45",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.129676,
+      4.614729
+    ]
+  },
+  {
+    "id": "JAC_8013",
+    "name": "ARISTOTELES ONASSIS",
+    "addr": "TV 78H 43 76 SUR",
+    "upz": "UPZ48-TIMIZA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.162906,
+      4.614904
+    ]
+  },
+  {
+    "id": "JAC_8093",
+    "name": "MIRAFLORES",
+    "addr": "CL 48A SUR 78M 11",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.167207,
+      4.615051
+    ]
+  },
+  {
+    "id": "JAC_8158",
+    "name": "VILLA ANITA",
+    "addr": "CL 54B SUR 80 23",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.174664,
+      4.615054
+    ]
+  },
+  {
+    "id": "JAC_8043",
+    "name": "EL DESCANSO",
+    "addr": "KR 78L 45 75 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.165454,
+      4.616053
+    ]
+  },
+  {
+    "id": "JAC_8028",
+    "name": "CARVAJAL II SECTOR",
+    "addr": "KR 70B 24A 40 SUR MJ 2",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.135937,
+      4.616064
+    ]
+  },
+  {
+    "id": "JAC_8116",
+    "name": "SANTA MARTA DE PASTRANA",
+    "addr": "TV 78F 41G 25 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.15914,
+      4.616184
+    ]
+  },
+  {
+    "id": "JAC_8024",
+    "name": "CAMILO TORRES SUPERMANZANA # 6A",
+    "addr": "KR 73A 38A 30 SUR",
+    "upz": "UPZ45-CARVAJAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.14849,
+      4.616429
+    ]
+  },
+  {
+    "id": "JAC_8070",
+    "name": "LA GIRALDILLA  II SECTOR",
+    "addr": "TV 79 47 47 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.166929,
+      4.616453
+    ]
+  },
+  {
+    "id": "JAC_8120",
+    "name": "SECTOR EL SINAI",
+    "addr": "KR 78N 44 16 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.164765,
+      4.616836
+    ]
+  },
+  {
+    "id": "JAC_8002",
+    "name": "ALFONSO LOPEZ MICHELSEN",
+    "addr": "CL 53 BIS SUR 80A 35",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.173827,
+      4.616936
+    ]
+  },
+  {
+    "id": "JAC_8087",
+    "name": "LOS PERIODISTAS DE LA SUPERMANZANA 16",
+    "addr": "CL 41B SUR 78H 45",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.157827,
+      4.617265
+    ]
+  },
+  {
+    "id": "JAC_8159",
+    "name": "VILLA CLAUDIA",
+    "addr": "CL 9A SUR 68F 23",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.129147,
+      4.617309
+    ]
+  },
+  {
+    "id": "JAC_8139",
+    "name": "SUPERMANZANA 8A",
+    "addr": "TV 77A 40B 49 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.15398,
+      4.617922
+    ]
+  },
+  {
+    "id": "JAC_8232",
+    "name": "LAGOS DE CASTILLA II SECTOR",
+    "addr": "CL 10F SUR 80A 15",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.17139,
+      4.618295
+    ]
+  },
+  {
+    "id": "JAC_8101",
+    "name": "PASTRANITA  I SECTOR",
+    "addr": "KR 80A 49 08 SUR",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.170425,
+      4.618697
+    ]
+  },
+  {
+    "id": "JAC_8165",
+    "name": "VILLAS DE KENNEDY",
+    "addr": "KR 81D 54 31 SUR",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.176653,
+      4.619191
+    ]
+  },
+  {
+    "id": "JAC_8062",
+    "name": "GRAN COLOMBIANO",
+    "addr": "CL 42F SUR 79 88",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.163661,
+      4.619375
+    ]
+  },
+  {
+    "id": "JAC_8001",
+    "name": "ABRAHAM LINCOLN",
+    "addr": "TV 79 42A 20 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.161889,
+      4.619443
+    ]
+  },
+  {
+    "id": "JAC_8023",
+    "name": "CALIFORNIA",
+    "addr": "Kr  73 C #  36 â 47 Sur",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.148095,
+      4.619698
+    ]
+  },
+  {
+    "id": "JAC_8003",
+    "name": "ALMENAR",
+    "addr": "KR 80C 47 27 SUR",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.169404,
+      4.619952
+    ]
+  },
+  {
+    "id": "JAC_8022",
+    "name": "CALARCA SUR",
+    "addr": "CL 46 SUR 80 45",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.168193,
+      4.62004
+    ]
+  },
+  {
+    "id": "JAC_8133",
+    "name": "SUPERMANZANA 1 CERVANTES",
+    "addr": "CL 6 SUR 72B 33",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.141434,
+      4.620063
+    ]
+  },
+  {
+    "id": "JAC_8138",
+    "name": "SUPERMANZANA 8",
+    "addr": "KR 77B 40A 33 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.154979,
+      4.620228
+    ]
+  },
+  {
+    "id": "JAC_8068",
+    "name": "FLORESTA DEL SUR",
+    "addr": "Â KR 68C 2 04 SUR",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.127712,
+      4.620339
+    ]
+  },
+  {
+    "id": "JAC_8152",
+    "name": "EL CARMELO",
+    "addr": "CL 51C SUR 81F 15",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.175122,
+      4.620655
+    ]
+  },
+  {
+    "id": "JAC_8009",
+    "name": "AMERICAS CENTRAL",
+    "addr": "AV BOYACA 2A 34 SUR",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.138641,
+      4.620785
+    ]
+  },
+  {
+    "id": "JAC_8014",
+    "name": "ASOCIACION DE JUNTAS DE ACCION COMUNAL",
+    "addr": "CL 40 SUR 78H 04",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.154419,
+      4.620855
+    ]
+  },
+  {
+    "id": "JAC_8115",
+    "name": "SANTA MARIA DE KENNEDY",
+    "addr": "CL 53B 81 I 28 SUR",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.177141,
+      4.620931
+    ]
+  },
+  {
+    "id": "JAC_8229",
+    "name": "EL CARMELO II SECTOR",
+    "addr": "CL 51A SUR 81D 18",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.174353,
+      4.620999
+    ]
+  },
+  {
+    "id": "JAC_8065",
+    "name": "JORGE WASHINGTON  SUPERMANZANA 5",
+    "addr": "KR 75 35B 25 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.148525,
+      4.622028
+    ]
+  },
+  {
+    "id": "JAC_8061",
+    "name": "GRAN BRITALIA",
+    "addr": "KR 81B 47A 16 SUR",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.17081,
+      4.622036
+    ]
+  },
+  {
+    "id": "JAC_8071",
+    "name": "LA IGUALDAD",
+    "addr": "CL 2 68B 12",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.126879,
+      4.622166
+    ]
+  },
+  {
+    "id": "JAC_8056",
+    "name": "ESTADOS UNIDOS SUPERMANZANA 14",
+    "addr": "KR 79A 40C 40 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.159085,
+      4.622349
+    ]
+  },
+  {
+    "id": "JAC_8154",
+    "name": "VILLA ANDREA",
+    "addr": "CL 51C SUR # 82A 09",
+    "upz": "UPZ81-GRAN BRITALIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.17635,
+      4.622559
+    ]
+  },
+  {
+    "id": "JAC_8125",
+    "name": "LA IGUALDAD II SECTOR",
+    "addr": "TV 68A 2A 08",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.126036,
+      4.623142
+    ]
+  },
+  {
+    "id": "JAC_8135",
+    "name": "SUPERMANZANA 13   E.E.U.U.",
+    "addr": "KR 79B 40A 50 SUR IN 1",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.158913,
+      4.623164
+    ]
+  },
+  {
+    "id": "JAC_8142",
+    "name": "TEQUENDAMA SUPERMANZANA 10",
+    "addr": "CL 38C 78M 21 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.155293,
+      4.623278
+    ]
+  },
+  {
+    "id": "JAC_8192",
+    "name": "CENTRO AMERICAS",
+    "addr": "KR 70A BIS 2 28",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.132126,
+      4.623419
+    ]
+  },
+  {
+    "id": "JAC_8126",
+    "name": "LA MARIA",
+    "addr": "KR 80J 42F 50 SUR",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.166805,
+      4.623814
+    ]
+  },
+  {
+    "id": "JAC_8060",
+    "name": "UNIDAD RESIDENCIAL GLORIETA DE LAS AMERICAS",
+    "addr": "CL 5A SUR 73C 55",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.145053,
+      4.623898
+    ]
+  },
+  {
+    "id": "JAC_8199",
+    "name": "VILLA EMILIA AMPARO II SECTOR",
+    "addr": "KR 80H 42A 38 SUR",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.164989,
+      4.624365
+    ]
+  },
+  {
+    "id": "JAC_8190",
+    "name": "VILLA NELLY",
+    "addr": "KR. 81 B # 42 F - 39 SUR",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.167193,
+      4.624685
+    ]
+  },
+  {
+    "id": "JAC_8074",
+    "name": "LAS AMERICAS",
+    "addr": "KR 68F 3A 30",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.128134,
+      4.625757
+    ]
+  },
+  {
+    "id": "JAC_8186",
+    "name": "AMPARO CAÃIZARES",
+    "addr": "KR 80F 41B 04 SUR",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.162062,
+      4.62598
+    ]
+  },
+  {
+    "id": "JAC_8175",
+    "name": "NUEVA MARSELLA III SECTOR",
+    "addr": "CL 5A 68B 48",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.126762,
+      4.627391
+    ]
+  },
+  {
+    "id": "JAC_8057",
+    "name": "URBANIZACION FRANCISCO JOSE DE CALDAS",
+    "addr": "KR 79A 35 97 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.154394,
+      4.627822
+    ]
+  },
+  {
+    "id": "JAC_8015",
+    "name": "AYACUCHO I SECTOR",
+    "addr": "KR 78N 33A 01 SUR",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.151963,
+      4.628197
+    ]
+  },
+  {
+    "id": "JAC_8075",
+    "name": "AMERICAS OCCIDENTAL",
+    "addr": "CL 5A 72A 20",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.139244,
+      4.628322
+    ]
+  },
+  {
+    "id": "JAC_8132",
+    "name": "VILLA DE LA LOMA",
+    "addr": "KR 82D 42B 36 SUR",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.167899,
+      4.628597
+    ]
+  },
+  {
+    "id": "JAC_8095",
+    "name": "NUEVA MARSELLA",
+    "addr": "CL 5C 68F 58",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.12851,
+      4.628717
+    ]
+  },
+  {
+    "id": "JAC_8212",
+    "name": "SAN CARLOS",
+    "addr": "CL 41C SUR 81H 52",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.165555,
+      4.628786
+    ]
+  },
+  {
+    "id": "JAC_8016",
+    "name": "AYACUCHO II SECTOR",
+    "addr": "CL 6 SUR 78M 55",
+    "upz": "UPZ47-KENNEDY CENTRAL",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.150499,
+      4.628884
+    ]
+  },
+  {
+    "id": "JAC_8042",
+    "name": "EL AMPARO",
+    "addr": "CL 40G SUR 81D 33",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.163909,
+      4.628946
+    ]
+  },
+  {
+    "id": "JAC_8099",
+    "name": "NUEVO KENNEDY",
+    "addr": "DG 43 SUR 86A 01 IN 25",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.170977,
+      4.629215
+    ]
+  },
+  {
+    "id": "JAC_8090",
+    "name": "MANDALAY",
+    "addr": "KR 73B 5B 57",
+    "upz": "UPZ44-AMERICAS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.142199,
+      4.629763
+    ]
+  },
+  {
+    "id": "JAC_8145",
+    "name": "TINTALITO I SECTOR",
+    "addr": "CL 42G SUR 86C 10",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.170802,
+      4.630346
+    ]
+  },
+  {
+    "id": "JAC_8146",
+    "name": "TINTALITO II SECTOR",
+    "addr": "CL 43 86 D 06 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.171595,
+      4.630427
+    ]
+  },
+  {
+    "id": "JAC_8200",
+    "name": "LA CONCORDIA  I SECTOR",
+    "addr": "KR 83 40D 15 SUR",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.165658,
+      4.630897
+    ]
+  },
+  {
+    "id": "JAC_8105",
+    "name": "PINAR DEL RIO II SECTOR",
+    "addr": "KR 82B 40 45 SUR",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.164357,
+      4.631253
+    ]
+  },
+  {
+    "id": "JAC_8004",
+    "name": "ALOHA",
+    "addr": "KR 71A 6C 03",
+    "upz": "UPZ113-BAVARIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.133208,
+      4.631574
+    ]
+  },
+  {
+    "id": "JAC_8017",
+    "name": "BAVARIA TECHO I SECTOR",
+    "addr": "KR 71D 6B 23",
+    "upz": "UPZ113-BAVARIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.135793,
+      4.631576
+    ]
+  },
+  {
+    "id": "JAC_8084",
+    "name": "LLANO GRANDE",
+    "addr": "KR 82 38D 21 SUR",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.162882,
+      4.632178
+    ]
+  },
+  {
+    "id": "JAC_8079",
+    "name": "VILLA HERMOSA",
+    "addr": "CL 41 SUR 86B 20",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.167207,
+      4.632267
+    ]
+  },
+  {
+    "id": "JAC_8134",
+    "name": "SUPERMANZANA 12 A",
+    "addr": "KR 80C 2 40",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.155155,
+      4.632591
+    ]
+  },
+  {
+    "id": "JAC_8169",
+    "name": "PINAR DEL RIO I SECTOR",
+    "addr": "CL 39A SUR 83A 16",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.164086,
+      4.632743
+    ]
+  },
+  {
+    "id": "JAC_8228",
+    "name": "HATO NUEVO",
+    "addr": "CL 55A SUR 92 16",
+    "upz": "UPZ86-EL PORVENIR",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.190618,
+      4.632819
+    ]
+  },
+  {
+    "id": "JAC_8092",
+    "name": "MARSELLA",
+    "addr": "KR 69 8 28",
+    "upz": "UPZ113-BAVARIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.127021,
+      4.632976
+    ]
+  },
+  {
+    "id": "JAC_8187",
+    "name": "VILLA NELLY III SECTOR LOS ALISOS",
+    "addr": "KR 87A 42 26 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.168709,
+      4.633089
+    ]
+  },
+  {
+    "id": "JAC_8106",
+    "name": "PIO XII",
+    "addr": "KR 78F 6A 04",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.148785,
+      4.633538
+    ]
+  },
+  {
+    "id": "JAC_8045",
+    "name": "EL LLANITO",
+    "addr": "CL 38B SUR 83 59",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.163153,
+      4.633608
+    ]
+  },
+  {
+    "id": "JAC_8184",
+    "name": "HORIZONTE OCCIDENTE",
+    "addr": "KR 88 42F 23 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.172322,
+      4.634069
+    ]
+  },
+  {
+    "id": "JAC_8219",
+    "name": "BARRANQUILLITA",
+    "addr": "KR 87 BIS 40 73 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.166855,
+      4.634568
+    ]
+  },
+  {
+    "id": "JAC_8007",
+    "name": "ALTAMAR",
+    "addr": "CL 42F SUR 88C 20",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.17225,
+      4.635051
+    ]
+  },
+  {
+    "id": "JAC_8108",
+    "name": "RINCON DE LOS ANGELES",
+    "addr": "TV 77 7A 72",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.142157,
+      4.636436
+    ]
+  },
+  {
+    "id": "JAC_8217",
+    "name": "VILLA ANDRES",
+    "addr": "CL 40B SUR 88 22",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.168511,
+      4.636453
+    ]
+  },
+  {
+    "id": "JAC_8083",
+    "name": "LAS VEGAS II SECTOR",
+    "addr": "KR 89A 42F 15 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.173516,
+      4.636739
+    ]
+  },
+  {
+    "id": "JAC_8082",
+    "name": "LAS VEGAS I SECTOR",
+    "addr": "CL 42G BIS A # 89C 43 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.175088,
+      4.637201
+    ]
+  },
+  {
+    "id": "JAC_8032",
+    "name": "CASTILLA",
+    "addr": "CL 7F 76 20",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.141053,
+      4.637207
+    ]
+  },
+  {
+    "id": "JAC_8091",
+    "name": "MARIA PAZ",
+    "addr": "Calle 5 A Sur 82 63",
+    "upz": "UPZ80-CORABASTOS",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.158316,
+      4.63729
+    ]
+  },
+  {
+    "id": "JAC_8103",
+    "name": "PATIO BONITO I SECTOR",
+    "addr": "CL 38C SUR 87H 57",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.166189,
+      4.637318
+    ]
+  },
+  {
+    "id": "JAC_8160",
+    "name": "VILLA DE LA TORRE",
+    "addr": "KR 90A 42G 23 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.174939,
+      4.637757
+    ]
+  },
+  {
+    "id": "JAC_8127",
+    "name": "LAS BRISAS",
+    "addr": "KR 89F 42 20 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.171874,
+      4.638746
+    ]
+  },
+  {
+    "id": "JAC_8189",
+    "name": "TECHO BAVARIA II SECTOR",
+    "addr": "KR 72B 8B 49 IN 1",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.137341,
+      4.639433
+    ]
+  },
+  {
+    "id": "JAC_8025",
+    "name": "CAMPO HERMOSO",
+    "addr": "KR 88D 35B 23 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.165366,
+      4.63968
+    ]
+  },
+  {
+    "id": "JAC_8047",
+    "name": "EL PARAISO",
+    "addr": "KR 89C 39 21 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.168934,
+      4.639717
+    ]
+  },
+  {
+    "id": "JAC_8041",
+    "name": "DINDALITO",
+    "addr": "KR 91 42A 06 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.17341,
+      4.639817
+    ]
+  },
+  {
+    "id": "JAC_8173",
+    "name": "VILLA CASTILLA",
+    "addr": "KR 80D 7A 82",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.148181,
+      4.640252
+    ]
+  },
+  {
+    "id": "JAC_8104",
+    "name": "PATIO BONITO  II SECTOR",
+    "addr": "KR 87 1 85",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.159415,
+      4.640382
+    ]
+  },
+  {
+    "id": "JAC_8141",
+    "name": "BARRIO TAYRONA",
+    "addr": "CL 4 86D 17",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.158114,
+      4.640498
+    ]
+  },
+  {
+    "id": "JAC_8129",
+    "name": "SUMAPAZ",
+    "addr": "KR 93C 42F 58 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.176453,
+      4.641382
+    ]
+  },
+  {
+    "id": "JAC_8195",
+    "name": "LA RIVERA II SECTOR",
+    "addr": "CL 42F SUR 93B 20",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.175903,
+      4.641667
+    ]
+  },
+  {
+    "id": "JAC_8235",
+    "name": "URBANIZACION VILLA ALSACIA",
+    "addr": "CL 12A 71C 20 TO 2 AP 603",
+    "upz": "UPZ113-BAVARIA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.128495,
+      4.642134
+    ]
+  },
+  {
+    "id": "JAC_8080",
+    "name": "LAS PALMERAS",
+    "addr": "KR 91C 38B 16 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.170057,
+      4.642813
+    ]
+  },
+  {
+    "id": "JAC_8123",
+    "name": "EL TRIUNFO",
+    "addr": "KR 95 42F 27 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.177118,
+      4.643048
+    ]
+  },
+  {
+    "id": "JAC_8218",
+    "name": "URBANIZACION RIVERAS DE OCCIDENTE I ETAPA",
+    "addr": "CL 35A SUR 90A 90",
+    "upz": "UPZ79-CALANDAIMA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.168013,
+      4.643126
+    ]
+  },
+  {
+    "id": "JAC_8111",
+    "name": "UNIR UNO",
+    "addr": "CL 34 SUR 89D 71",
+    "upz": "UPZ79-CALANDAIMA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.166019,
+      4.643228
+    ]
+  },
+  {
+    "id": "JAC_8086",
+    "name": "LOS PATIOS III SECTOR",
+    "addr": "KR 88F BIS 2 09",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.161576,
+      4.643299
+    ]
+  },
+  {
+    "id": "JAC_8157",
+    "name": "VILLA ALSACIA",
+    "addr": "CL 11A 72D 20",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.136159,
+      4.643466
+    ]
+  },
+  {
+    "id": "JAC_8130",
+    "name": "LA RIVERA",
+    "addr": "KR 95A 42B 26 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.176469,
+      4.643694
+    ]
+  },
+  {
+    "id": "JAC_8131",
+    "name": "MONTERREY",
+    "addr": "KR 81B 8 51",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.14804,
+      4.643804
+    ]
+  },
+  {
+    "id": "JAC_8211",
+    "name": "EL CASTILLO",
+    "addr": "KR 82 7D 64",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.149439,
+      4.643989
+    ]
+  },
+  {
+    "id": "JAC_8174",
+    "name": "CIUDAD GRANADA",
+    "addr": "CL 40 SUR 93D 15",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.172525,
+      4.644147
+    ]
+  },
+  {
+    "id": "JAC_8147",
+    "name": "TOCAREMA",
+    "addr": "KR 88G 5 19",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.160809,
+      4.64417
+    ]
+  },
+  {
+    "id": "JAC_8213",
+    "name": "RIBERAS DE OCCIDENTE II SECTOR",
+    "addr": "CL 34A SUR 92B 21",
+    "upz": "UPZ79-CALANDAIMA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.168805,
+      4.645054
+    ]
+  },
+  {
+    "id": "JAC_8110",
+    "name": "BELLA VISTA",
+    "addr": "KR 93D 38 17 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.171165,
+      4.645098
+    ]
+  },
+  {
+    "id": "JAC_8168",
+    "name": "URBANIZACION VALLADOLID",
+    "addr": "CL 8B 82 51",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.148046,
+      4.645857
+    ]
+  },
+  {
+    "id": "JAC_8035",
+    "name": "CIUDAD DE CALI",
+    "addr": "CL 42 SUR 98A 15",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.176675,
+      4.646979
+    ]
+  },
+  {
+    "id": "JAC_8177",
+    "name": "LOS ALMENDROS",
+    "addr": "CR 98B # 41 37 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.176582,
+      4.647279
+    ]
+  },
+  {
+    "id": "JAC_8171",
+    "name": "VILLA ALEXANDRA",
+    "addr": "CL 42A SUR 99 22",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.177621,
+      4.647469
+    ]
+  },
+  {
+    "id": "JAC_8151",
+    "name": "CIUDAD GALAN SECTOR PATIO BONITO",
+    "addr": "KR 98 38 22 SUR",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.173841,
+      4.648579
+    ]
+  },
+  {
+    "id": "JAC_8166",
+    "name": "VISION DE COLOMBIA",
+    "addr": "KR 79C 13A 40",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.135303,
+      4.650706
+    ]
+  },
+  {
+    "id": "JAC_8197",
+    "name": "LAS PALMITAS",
+    "addr": "CL 38C SUR 100A 16",
+    "upz": "UPZ82-PATIO BONITO",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.176158,
+      4.650817
+    ]
+  },
+  {
+    "id": "JAC_8128",
+    "name": "SANTA CATALINA",
+    "addr": "KR 81F 11B 10",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.141562,
+      4.651018
+    ]
+  },
+  {
+    "id": "JAC_8237",
+    "name": "CIUDADELA TIERRA BUENA",
+    "addr": "CL 34A SUR 99A 37 CA 219",
+    "upz": "UPZ79-CALANDAIMA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.173536,
+      4.65138
+    ]
+  },
+  {
+    "id": "JAC_8053",
+    "name": "EL TINTAL",
+    "addr": "CL 13 BIS 80D 32",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.138376,
+      4.651891
+    ]
+  },
+  {
+    "id": "JAC_8196",
+    "name": "ANDALUCIA II SECTOR",
+    "addr": "CL 14A 81 38",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.136945,
+      4.653618
+    ]
+  },
+  {
+    "id": "JAC_8010",
+    "name": "ANDALUCIA",
+    "addr": "KR 82A 13C 22",
+    "upz": "UPZ46-CASTILLA",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.139498,
+      4.653731
+    ]
+  },
+  {
+    "id": "JAC_8117",
+    "name": "SANTA PAZ",
+    "addr": "CL 10B 89A 21",
+    "upz": "UPZ78-TINTAL NORTE",
+    "type": "Salón Comunal / JAC",
+    "cat": "jac",
+    "coord": [
+      -74.150931,
+      4.654611
+    ]
+  }
+]
