@@ -247,22 +247,28 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
 }
 @media (prefers-reduced-motion:reduce){.particle{display:none}}
 
-/* Barra selectora de modos de visualizacion */
-.view-bar {
+
+/* Barra de control unificada: Modo de Vista y Rutas (SIN EMOJIS, 1 sola barra) */
+.control-strip {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 10px 20px;
-  background: #0d1017;
-  border-bottom: 1px solid var(--line);
-  overflow-x: auto;
-  white-space: nowrap;
-  -webkit-overflow-scrolling: touch;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 20px;
+  background: #090c12;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-wrap: wrap;
 }
-.view-label {
+.strip-section {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+.strip-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -270,133 +276,164 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   color: var(--mute);
   flex-shrink: 0;
 }
-.view-group {
+.strip-tabs {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: nowrap;
+  gap: 6px;
 }
-.view-pill {
+.strip-tab {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.035);
-  border: 1px solid rgba(255,255,255,0.09);
+  gap: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
   color: var(--soft);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 5px 13px;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.22s ease;
+  transition: all 0.2s ease;
   outline: none !important;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
-.view-pill svg {
-  flex-shrink: 0;
-  stroke: currentColor;
+.strip-tab:hover {
+  background: rgba(255,255,255,0.07);
+  color: #FFFFFF;
+  border-color: rgba(255,255,255,0.18);
 }
-.view-pill:hover {
-  background: rgba(255,255,255,0.08);
-  color: var(--ink);
-  border-color: rgba(255,255,255,0.2);
-}
-.view-pill.active {
-  background: #1c2638;
+.strip-tab.active {
+  background: #192233;
   color: #FFFFFF;
   border-color: #5B8BF5;
-  box-shadow: 0 0 12px rgba(91,139,245,0.3);
+  box-shadow: 0 0 10px rgba(91,139,245,0.25);
   font-weight: 600;
 }
-.view-pill.active svg {
-  stroke: #5B8BF5;
+
+.strip-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,0.1);
 }
 
-/* Capa de Anillos Concentricos (Radar) */
+.tour-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.tour-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #121622;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 32px 5px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  outline: none !important;
+  transition: border-color 0.2s ease;
+}
+.tour-select:hover, .tour-select:focus {
+  border-color: #5B8BF5;
+  background: #161c2b;
+}
+.tour-select-arrow {
+  position: absolute;
+  right: 11px;
+  pointer-events: none;
+  color: var(--mute);
+}
+
+/* Lineas estilo Constelacion / Behind the Beats (vector-effect non-scaling) */
+.link {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke !important;
+  opacity: 0.32;
+  transition: opacity 0.2s, stroke 0.2s;
+}
+.link-hit {
+  fill: none;
+  stroke: transparent;
+  pointer-events: stroke;
+  cursor: pointer;
+  vector-effect: non-scaling-stroke !important;
+}
+.link.hov-link, .link.on {
+  opacity: 0.95 !important;
+  stroke-width: 2px !important;
+  vector-effect: non-scaling-stroke !important;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+.link.dim {
+  opacity: 0.05 !important;
+}
+
+/* Capa de Anillos Concentricos (simplificada y limpia) */
 .layer-concentric {
   pointer-events: none;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.4s ease;
 }
 .concentric-ring {
   fill: none;
-  stroke-dasharray: 6 6;
-  opacity: 0.45;
+  stroke-dasharray: 4 6;
+  opacity: 0.35;
+  vector-effect: non-scaling-stroke;
 }
 .concentric-axis {
   fill: none;
-  stroke: rgba(255,255,255,0.06);
-  stroke-dasharray: 4 6;
-}
-.concentric-label {
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  fill: var(--mute);
-  text-anchor: middle;
-}
-.concentric-badge {
-  pointer-events: auto;
-  cursor: default;
-}
-.concentric-badge-bg {
-  fill: #141824;
-  stroke: var(--line);
-  stroke-width: 1.2px;
-  rx: 10px;
+  stroke: rgba(255,255,255,0.04);
+  stroke-dasharray: 3 6;
 }
 .concentric-badge-text {
-  font-size: 11px;
-  font-weight: 600;
-  fill: var(--soft);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   text-anchor: middle;
 }
 
 /* Capa de Cartografia Urbana e Ilustraciones */
 .layer-urban {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.4s ease;
 }
 .urban-ray {
-  stroke-dasharray: 4 4;
-  opacity: 0.35;
+  stroke-dasharray: 3 4;
+  opacity: 0.22;
+  vector-effect: non-scaling-stroke;
   transition: opacity 0.2s, stroke-width 0.2s;
 }
 .urban-ray.highlight {
   opacity: 0.85;
-  stroke-width: 2.2px;
+  stroke-width: 1.8px;
 }
 .urban-vignette {
   cursor: pointer;
-  transition: transform 0.25s ease, filter 0.25s ease;
+  transition: transform 0.2s ease;
   outline: none !important;
   -webkit-tap-highlight-color: transparent;
 }
 .urban-vignette:hover {
-  filter: drop-shadow(0 0 16px rgba(91,139,245,0.5));
-}
-.vignette-outer-ring {
-  fill: none;
-  stroke-dasharray: 5 4;
-  opacity: 0.5;
-}
-.vignette-pill {
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
-}
-.vignette-tag {
-  font-size: 9.5px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-anchor: middle;
+  filter: drop-shadow(0 0 12px rgba(91,139,245,0.4));
 }
 .vignette-title {
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 700;
-  fill: #FFFFFF;
+  letter-spacing: 0.04em;
+  fill: #EAE6DF;
   text-anchor: middle;
 }
 
+/* Contorno sutil de clusters (sin luz de fondo ni nebulosas) */
+.cluster-boundary {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-dasharray: 4 5;
+  vector-effect: non-scaling-stroke;
+}
 </style>
 </head>
 <body>
@@ -476,49 +513,45 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
    </div>
   </header>
 
-  <!-- Selector de Vistas / Modos de visualizacion (SIN EMOJIS) -->
-  <div class="view-bar" id="viewBar">
-   <span class="view-label">
-     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-     Modos de visualización:
-   </span>
-   <div class="view-group">
-     <button class="view-pill active" data-view="free">
-       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><path d="m10 14-3 3M14 10l3-3M17 12a5 5 0 0 0-5-5"/></svg>
-       Sin clústeres (Red libre)
-     </button>
-     <button class="view-pill" data-view="clusters">
-       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="8" r="4"/><circle cx="17" cy="7" r="3"/><circle cx="12" cy="17" r="4"/></svg>
-       Clústeres territoriales
-     </button>
-     <button class="view-pill" data-view="concentric">
-       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-       Anillos de decisión (Radar)
-     </button>
-     <button class="view-pill" data-view="urban">
-       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-       Cartografía con imágenes (Hitos de Kennedy)
-     </button>
+  <!-- Barra de control unificada (1 sola barra: Vistas y Rutas tematicas, SIN EMOJIS) -->
+  <div class="control-strip" id="controlStrip">
+   <div class="strip-section">
+     <span class="strip-label">
+       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
+       Vista:
+     </span>
+     <div class="strip-tabs">
+       <button class="strip-tab active" data-view="free">Red libre</button>
+       <button class="strip-tab" data-view="clusters">Clústeres</button>
+       <button class="strip-tab" data-view="concentric">Anillos de poder</button>
+       <button class="strip-tab" data-view="urban">Hitos ilustrados</button>
+     </div>
+   </div>
+
+   <div class="strip-divider"></div>
+
+   <div class="strip-section">
+     <span class="strip-label">
+       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+       Ruta guiada:
+     </span>
+     <div class="tour-select-wrapper">
+       <select id="tourSelect" class="tour-select" aria-label="Seleccionar ruta temática">
+         <option value="all">Todas las relaciones (Vista general)</option>
+         <option value="alim">Abastecimiento y camiones de alimentos</option>
+         <option value="rec">Reciclaje, aseo y compactadores</option>
+         <option value="amb">Aula Ambiental La Vaca y ecología</option>
+         <option value="gob">Gobierno local, JAC y riesgos</option>
+         <option value="edu">Red escolar, universitarios y juventud</option>
+         <option value="sal">Salud pública, COPACO y hospital</option>
+         <option value="eco">Economía popular, crédito e informalidad</option>
+       </select>
+       <svg class="tour-select-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+     </div>
    </div>
   </div>
 
-  <!-- Barra didáctica superior con rutas guiadas (SIN EMOJIS) -->
-  <div class="tour-bar" id="tourBar">
-   <span class="tour-label">
-     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-     Rutas guiadas:
-   </span>
-   <button class="tour-pill" data-tour="alim"><span class="pill-dot"></span> Abastecimiento y camiones de alimentos</button>
-   <button class="tour-pill" data-tour="rec"><span class="pill-dot"></span> Reciclaje, aseo y camiones compactadores</button>
-   <button class="tour-pill" data-tour="amb"><span class="pill-dot"></span> Aula Ambiental La Vaca y colectivos ecologistas</button>
-   <button class="tour-pill" data-tour="gob"><span class="pill-dot"></span> Gobierno, JAC y Consejo de Riesgos</button>
-   <button class="tour-pill" data-tour="edu"><span class="pill-dot"></span> Red escolar, universitarios y Consejo Juvenil</button>
-   <button class="tour-pill" data-tour="sal"><span class="pill-dot"></span> Salud publica, COPACO y Hospital</button>
-   <button class="tour-pill" data-tour="eco"><span class="pill-dot"></span> Economia popular, credito e informalidad</button>
-   <button class="tour-pill" data-tour="all" style="margin-left:auto">Ver red completa</button>
-  </div>
-
-  <div class="stage" id="stage">
+<div class="stage" id="stage">
    <svg id="net" role="img" aria-label="Red interactiva de relaciones entre actores de Kennedy"></svg>
    <div id="node-pop" class="node-pop"></div>
    
@@ -970,19 +1003,17 @@ const defs = svg.append('defs');
 
 Object.entries(CONV).forEach(([k,v])=>defs.append('marker')
   .attr('id','m-'+k)
-  .attr('viewBox','0 0 10 10')
-  .attr('refX', 9.0)
-  .attr('refY', 5)
-  .attr('markerWidth', MODE==='d' ? 13 : 14)
-  .attr('markerHeight', MODE==='d' ? 13 : 14)
+  .attr('viewBox','0 0 6 6')
+  .attr('refX', 5.0)
+  .attr('refY', 3.0)
+  .attr('markerWidth', 4.5)
+  .attr('markerHeight', 4.5)
   .attr('orient','auto')
   .attr('markerUnits','userSpaceOnUse')
   .append('path')
-  .attr('d','M 0,1.4 L 9.5,5 L 0,8.6 L 2.4,5 Z')
+  .attr('d','M 0,0.8 L 5.5,3.0 L 0,5.2 L 1.2,3.0 Z')
   .attr('fill', v.c)
-  .attr('stroke', '#0b0d14')
-  .attr('stroke-width', 0.8)
-  .attr('stroke-linejoin', 'round')
+  .attr('opacity', 0.85)
 );
 
 nodes.forEach(n => {
@@ -1019,7 +1050,7 @@ function path(l){
   const padEnd = 8, padStart = 3;
   return `M${s.x + sx0 / sd * (s.r + padStart)},${s.y + sy0 / sd * (s.r + padStart)}Q${mx},${my} ${t.x - ex / ed * (t.r + padEnd)},${t.y - ey / ed * (t.r + padEnd)}`;
 }
-const wid = w => MODE === 'd' ? [0, 1.3, 2.0, 3.2][w] : [0, 1.5, 2.4, 3.5][w];
+const wid = w => [0, 0.75, 1.05, 1.45][w];
 
 const linkSel = gL.selectAll('path').data(links).join('path').attr('class','link')
   .attr('id',l=>'p'+l.i).attr('stroke',l=>CONV[l.c].c).attr('stroke-dasharray',l=>CONV[l.c].d)
@@ -1131,25 +1162,13 @@ function renderConcentricLayer(){
     : { 1: 140, 2: 320, 3: 560, 4: 800 };
 
   const ringData = [
-    { lv: 1, r: RINGS_R[1], c: '#929CE8', title: 'Nivel 1: Quienes Deciden (Politicas publicas y marco legal)', desc: 'Alcaldia Local, Ministerios, Secretarias Distritales y Asojuntas' },
-    { lv: 2, r: RINGS_R[2], c: '#4CB6E8', title: 'Nivel 2: Quienes Coordinan (Gobierno societario y gremios)', desc: 'Corabastos S.A., Policia, Hospital, Gremios, Cooperativas y Comites' },
-    { lv: 3, r: RINGS_R[3], c: '#52CE92', title: 'Nivel 3: Quienes Ejecutan e Instrumentos (Operacion)', desc: 'Camiones recolectores, camiones de alimentos, bicitaxis, comedores, tenderos' },
-    { lv: 4, r: RINGS_R[4], c: '#F5A642', title: 'Nivel 4: Quienes Participan y Reciben (Comunidad y demanda)', desc: 'Hogares, usuarios de transporte, comerciantes ambulantes y veedurias' }
+    { lv: 1, r: RINGS_R[1], c: '#929CE8', label: 'NIVEL 1: AUTORIDADES Y POLITICA PUBLICA (DECIDEN)' },
+    { lv: 2, r: RINGS_R[2], c: '#4CB6E8', label: 'NIVEL 2: GOBIERNO SOCIETARIO Y GREMIOS (COORDINAN)' },
+    { lv: 3, r: RINGS_R[3], c: '#52CE92', label: 'NIVEL 3: OPERACION TERRITORIAL E INSTRUMENTOS (EJECUTAN)' },
+    { lv: 4, r: RINGS_R[4], c: '#F5A642', label: 'NIVEL 4: HOGARES, USUARIOS Y COMUNIDAD (RECIBEN)' }
   ];
 
-  // Ejes radiales tenues
-  for (let a = 0; a < 360; a += 45) {
-    const rad = (a * Math.PI) / 180;
-    const maxR = RINGS_R[4] + (D ? 80 : 40);
-    gConcentric.append('line')
-      .attr('class', 'concentric-axis')
-      .attr('x1', cx)
-      .attr('y1', cy)
-      .attr('x2', cx + Math.cos(rad) * maxR)
-      .attr('y2', cy + Math.sin(rad) * maxR);
-  }
-
-  // Anillos orbitales
+  // Anillos orbitales limpios
   ringData.forEach(d => {
     gConcentric.append('circle')
       .attr('class', 'concentric-ring')
@@ -1157,27 +1176,16 @@ function renderConcentricLayer(){
       .attr('cy', cy)
       .attr('r', d.r)
       .attr('stroke', d.c)
-      .attr('stroke-width', d.lv === 1 ? 2.5 : 1.8);
+      .attr('stroke-width', 1.0);
 
-    // Badge explicativo del nivel en el arco superior
-    const badgeY = cy - d.r;
-    const gB = gConcentric.append('g').attr('class', 'concentric-badge')
-      .attr('transform', `translate(${cx}, ${badgeY})`);
-
-    const textW = D ? (d.lv === 1 ? 440 : 480) : 320;
-    gB.append('rect')
-      .attr('class', 'concentric-badge-bg')
-      .attr('x', -textW / 2)
-      .attr('y', -16)
-      .attr('width', textW)
-      .attr('height', 28)
-      .attr('stroke', d.c);
-
-    gB.append('text')
+    // Etiqueta limpia a lo largo del arco superior (sin recuadros gigantes)
+    gConcentric.append('text')
       .attr('class', 'concentric-badge-text')
-      .attr('y', 2)
+      .attr('x', cx)
+      .attr('y', cy - d.r - 8)
       .style('fill', d.c)
-      .text(d.title);
+      .style('opacity', 0.65)
+      .text(d.label);
   });
 }
 
@@ -1206,7 +1214,7 @@ function renderUrbanLayer(){
     sal: [cx, cy + 850]
   };
 
-  // 1. Rayos conectores desde el hito a sus actores
+  // Rayos sutiles tipo constelacion
   const rayData = [];
   nodes.forEach(n => {
     const hub = urbanHubCoords[n.sph] || [cx, cy];
@@ -1217,18 +1225,17 @@ function renderUrbanLayer(){
     .selectAll('line').data(rayData).join('line')
     .attr('class', 'urban-ray')
     .attr('stroke', d => SPC[d.sph] || '#5B8BF5')
-    .attr('stroke-width', 1.2)
     .attr('x1', d => d.hub[0])
     .attr('y1', d => d.hub[1])
     .attr('x2', d => d.node.x)
     .attr('y2', d => d.node.y);
 
-  // 2. Viñetas circulares ilustradas de los Hitos de Kennedy
+  // Viñetas circulares compactas y elegantes (R = 48)
   const gVigs = gUrban.append('g').attr('class', 'layer-urban-vignettes');
 
   URBAN_LANDMARKS.forEach(lm => {
     const coord = urbanHubCoords[lm.id] || [cx, cy];
-    const R = D ? 70 : 54;
+    const R = D ? 48 : 38;
 
     const gV = gVigs.append('g')
       .attr('class', 'urban-vignette')
@@ -1245,115 +1252,54 @@ function renderUrbanLayer(){
         urbanRaySel.classed('highlight', false);
       });
 
-    // Anillo arquitectonico punteado exterior
+    // Anillo exterior fino
     gV.append('circle')
-      .attr('class', 'vignette-outer-ring')
-      .attr('r', R + (D ? 14 : 10))
-      .attr('stroke', lm.color);
+      .attr('r', R + 6)
+      .attr('fill', 'none')
+      .attr('stroke', lm.color)
+      .attr('stroke-dasharray', '3 4')
+      .attr('opacity', 0.4);
 
-    // Fondo circular con gradiente
+    // Fondo oscuro puro
     gV.append('circle')
       .attr('r', R)
-      .attr('fill', '#10141f')
+      .attr('fill', '#0c1017')
       .attr('stroke', lm.color)
-      .attr('stroke-width', 3.2);
+      .attr('stroke-width', 2.0);
 
-    // Ilustración vectorial interna según hito
-    const gArt = gV.append('g').attr('class', 'vignette-art');
-
-    if (lm.id === 'cor') {
-      // Corabastos: Galpones, camion y logo
-      gArt.append('path').attr('d', `M ${-R*.7},${R*.2} L 0,${-R*.5} L ${R*.7},${R*.2} Z`).attr('fill', '#F5A64222').attr('stroke', '#F5A642').attr('stroke-width', 1.5);
-      if (LOGO_DATA.corabastos) {
-        gArt.append('image').attr('href', LOGO_DATA.corabastos)
-          .attr('x', -R*.5).attr('y', -R*.3).attr('width', R).attr('height', R*.5).attr('preserveAspectRatio', 'xMidYMid meet');
-      }
-      gArt.append('rect').attr('x', -R*.4).attr('y', R*.15).attr('width', R*.8).attr('height', R*.35).attr('rx', 4).attr('fill', '#F5A64244').attr('stroke', '#F5A642');
-    } else if (lm.id === 'mov') {
-      // Portal Americas: Bus TransMilenio + Bicitaxi
-      if (LOGO_DATA.transmilenio) {
-        gArt.append('image').attr('href', LOGO_DATA.transmilenio)
-          .attr('x', -R*.5).attr('y', -R*.55).attr('width', R).attr('height', R*.45).attr('preserveAspectRatio', 'xMidYMid meet');
-      }
-      gArt.append('rect').attr('x', -R*.5).attr('y', 0).attr('width', R).attr('height', R*.4).attr('rx', 5).attr('fill', '#E74C3C33').attr('stroke', '#E74C3C');
-      gArt.append('circle').attr('cx', -R*.25).attr('cy', R*.4).attr('r', 6).attr('fill', '#FFF');
-      gArt.append('circle').attr('cx', R*.25).attr('cy', R*.4).attr('r', 6).attr('fill', '#FFF');
-    } else if (lm.id === 'gob') {
-      // Alcaldía Local de Kennedy
-      if (LOGO_DATA.alcaldia_bogota) {
-        gArt.append('image').attr('href', LOGO_DATA.alcaldia_bogota)
-          .attr('x', -R*.5).attr('y', -R*.55).attr('width', R).attr('height', R*.45).attr('preserveAspectRatio', 'xMidYMid meet');
-      }
-      // Columnas frontispicio civico
-      gArt.append('path').attr('d', `M ${-R*.5},0 L 0,${-R*.3} L ${R*.5},0 Z`).attr('fill', '#929CE833').attr('stroke', '#929CE8');
-      gArt.append('rect').attr('x', -R*.4).attr('y', 0).attr('width', 8).attr('height', R*.4).attr('fill', '#929CE8');
-      gArt.append('rect').attr('x', -4).attr('y', 0).attr('width', 8).attr('height', R*.4).attr('fill', '#929CE8');
-      gArt.append('rect').attr('x', R*.4-8).attr('y', 0).attr('width', 8).attr('height', R*.4).attr('fill', '#929CE8');
+    // Icono o ilustración limpia
+    const gArt = gV.append('g');
+    if (lm.id === 'cor' && LOGO_DATA.corabastos) {
+      gArt.append('image').attr('href', LOGO_DATA.corabastos)
+        .attr('x', -R*.6).attr('y', -R*.4).attr('width', R*1.2).attr('height', R*.8).attr('preserveAspectRatio', 'xMidYMid meet');
+    } else if (lm.id === 'mov' && LOGO_DATA.transmilenio) {
+      gArt.append('image').attr('href', LOGO_DATA.transmilenio)
+        .attr('x', -R*.6).attr('y', -R*.4).attr('width', R*1.2).attr('height', R*.8).attr('preserveAspectRatio', 'xMidYMid meet');
+    } else if (lm.id === 'gob' && LOGO_DATA.alcaldia_bogota) {
+      gArt.append('image').attr('href', LOGO_DATA.alcaldia_bogota)
+        .attr('x', -R*.6).attr('y', -R*.4).attr('width', R*1.2).attr('height', R*.8).attr('preserveAspectRatio', 'xMidYMid meet');
+    } else if (lm.id === 'res' && LOGO_DATA.uaesp) {
+      gArt.append('image').attr('href', LOGO_DATA.uaesp)
+        .attr('x', -R*.6).attr('y', -R*.4).attr('width', R*1.2).attr('height', R*.8).attr('preserveAspectRatio', 'xMidYMid meet');
     } else if (lm.id === 'amb') {
-      // Aula Ambiental Humedal La Vaca
-      gArt.append('path').attr('d', `M ${-R*.7},${R*.3} Q 0,${R*.5} ${R*.7},${R*.3} L ${R*.7},${R*.6} L ${-R*.7},${R*.6} Z`).attr('fill', '#3498DB44').attr('stroke', '#3498DB');
-      // Juncales / totoras
-      gArt.append('line').attr('x1', -R*.3).attr('y1', R*.35).attr('x2', -R*.2).attr('y2', -R*.2).attr('stroke', '#52CE92').attr('stroke-width', 3);
-      gArt.append('line').attr('x1', -R*.15).attr('y1', R*.35).attr('x2', -R*.05).attr('y2', -R*.3).attr('stroke', '#52CE92').attr('stroke-width', 2.5);
-      gArt.append('line').attr('x1', R*.1).attr('y1', R*.35).attr('x2', R*.15).attr('y2', -R*.25).attr('stroke', '#52CE92').attr('stroke-width', 3);
-      // Ave tingua
-      gArt.append('circle').attr('cx', -R*.15).attr('cy', -R*.35).attr('r', 4).attr('fill', '#E67E22');
-      gArt.append('circle').attr('cx', -R*.3).attr('cy', -R*.25).attr('r', 5).attr('fill', '#8E44AD');
+      gArt.append('path').attr('d', `M ${-R*.5},${R*.2} Q 0,${R*.4} ${R*.5},${R*.2} L ${R*.5},${R*.5} L ${-R*.5},${R*.5} Z`).attr('fill', '#3498DB44');
+      gArt.append('line').attr('x1', -R*.2).attr('y1', R*.2).attr('x2', -R*.1).attr('y2', -R*.2).attr('stroke', '#52CE92').attr('stroke-width', 2);
+      gArt.append('line').attr('x1', R*.1).attr('y1', R*.2).attr('x2', R*.15).attr('y2', -R*.25).attr('stroke', '#52CE92').attr('stroke-width', 2);
     } else if (lm.id === 'sal') {
-      // Hospital Occidente de Kennedy
-      gArt.append('rect').attr('x', -R*.5).attr('y', -R*.35).attr('width', R).attr('height', R*.75).attr('rx', 4).attr('fill', '#DF78DA22').attr('stroke', '#DF78DA');
-      // Cruz roja de salud
-      gArt.append('rect').attr('x', -6).attr('y', -R*.2).attr('width', 12).attr('height', 36).attr('fill', '#DF78DA');
-      gArt.append('rect').attr('x', -18).attr('y', -R*.2+12).attr('width', 36).attr('height', 12).attr('fill', '#DF78DA');
+      gArt.append('rect').attr('x', -4).attr('y', -16).attr('width', 8).attr('height', 32).attr('fill', '#DF78DA');
+      gArt.append('rect').attr('x', -16).attr('y', -4).attr('width', 32).attr('height', 8).attr('fill', '#DF78DA');
     } else if (lm.id === 'edu') {
-      // Campus INEM y Colegios
-      gArt.append('rect').attr('x', -R*.6).attr('y', -R*.2).attr('width', R*1.2).attr('height', R*.6).attr('rx', 4).attr('fill', '#5B8BF522').attr('stroke', '#5B8BF5');
-      // Torre del reloj del colegio
-      gArt.append('rect').attr('x', -14).attr('y', -R*.5).attr('width', 28).attr('height', R*.3).attr('fill', '#5B8BF544').attr('stroke', '#5B8BF5');
-      gArt.append('circle').attr('cx', 0).attr('cy', -R*.35).attr('r', 6).attr('fill', '#FFF');
-    } else if (lm.id === 'res') {
-      // Rutas de Aseo Ciudad Limpia
-      if (LOGO_DATA.uaesp) {
-        gArt.append('image').attr('href', LOGO_DATA.uaesp)
-          .attr('x', -R*.5).attr('y', -R*.55).attr('width', R).attr('height', R*.45).attr('preserveAspectRatio', 'xMidYMid meet');
-      }
-      gArt.append('rect').attr('x', -R*.55).attr('y', 0).attr('width', R*1.1).attr('height', R*.4).attr('rx', 4).attr('fill', '#B8D94B33').attr('stroke', '#B8D94B');
-      gArt.append('circle').attr('cx', -R*.3).attr('cy', R*.4).attr('r', 6).attr('fill', '#FFF');
-      gArt.append('circle').attr('cx', R*.3).attr('cy', R*.4).attr('r', 6).attr('fill', '#FFF');
+      gArt.append('rect').attr('x', -R*.4).attr('y', -R*.1).attr('width', R*.8).attr('height', R*.5).attr('rx', 3).attr('fill', '#5B8BF533').attr('stroke', '#5B8BF5');
+      gArt.append('path').attr('d', `M ${-R*.45},${-R*.1} L 0,${-R*.4} L ${R*.45},${-R*.1} Z`).attr('fill', '#5B8BF5');
     } else if (lm.id === 'con') {
-      // Economia Popular y Comedores
-      // Toldo de plaza
-      gArt.append('path').attr('d', `M ${-R*.6},${-R*.1} L 0,${-R*.4} L ${R*.6},${-R*.1} Z`).attr('fill', '#E5A93C44').attr('stroke', '#E5A93C');
-      // Olla comunitaria
-      gArt.append('rect').attr('x', -R*.3).attr('y', 0).attr('width', R*.6).attr('height', R*.35).attr('rx', 5).attr('fill', '#E5A93C').attr('opacity', 0.6);
-      gArt.append('line').attr('x1', -R*.15).attr('y1', -R*.08).attr('x2', -R*.15).attr('y2', -R*.25).attr('stroke', '#FFF').attr('stroke-width', 2);
-      gArt.append('line').attr('x1', 0).attr('y1', -R*.08).attr('x2', 0).attr('y2', -R*.28).attr('stroke', '#FFF').attr('stroke-width', 2);
-      gArt.append('line').attr('x1', R*.15).attr('y1', -R*.08).attr('x2', R*.15).attr('y2', -R*.25).attr('stroke', '#FFF').attr('stroke-width', 2);
+      gArt.append('path').attr('d', `M ${-R*.4},${-R*.1} L 0,${-R*.35} L ${R*.4},${-R*.1} Z`).attr('fill', '#E5A93C');
+      gArt.append('rect').attr('x', -R*.25).attr('y', 0).attr('width', R*.5).attr('height', R*.35).attr('rx', 4).attr('fill', '#E5A93C44').attr('stroke', '#E5A93C');
     }
 
-    // Badge inferior flotante
-    const badgeW = D ? 260 : 190;
-    const gPill = gV.append('g').attr('class', 'vignette-pill')
-      .attr('transform', `translate(0, ${R + (D ? 20 : 16)})`);
-
-    gPill.append('rect')
-      .attr('x', -badgeW / 2).attr('y', -12)
-      .attr('width', badgeW).attr('height', D ? 44 : 38)
-      .attr('rx', 8)
-      .attr('fill', '#121622')
-      .attr('stroke', lm.color)
-      .attr('stroke-width', 1.4);
-
-    gPill.append('text')
-      .attr('class', 'vignette-tag')
-      .attr('y', 0)
-      .style('fill', lm.color)
-      .text(lm.tag);
-
-    gPill.append('text')
+    // Titulo unico y limpio debajo del hito
+    gV.append('text')
       .attr('class', 'vignette-title')
-      .attr('y', D ? 16 : 14)
-      .style('font-size', D ? '11px' : '9.5px')
+      .attr('y', R + (D ? 16 : 14))
       .text(lm.name);
   });
 }
@@ -1401,7 +1347,14 @@ function geometry(){
   });
   gH.selectAll('*').remove();
   cls.forEach(c => {
-    gH.append('circle').attr('class','neb').attr('cx',c.cx).attr('cy',c.cy).attr('r',c.R+25).attr('fill',`url(#g-${c.k})`);
+    gH.append('circle')
+      .attr('class', 'cluster-boundary')
+      .attr('cx', c.cx)
+      .attr('cy', c.cy)
+      .attr('r', c.R)
+      .attr('fill', 'none')
+      .attr('stroke', 'rgba(255,255,255,0.06)')
+      .attr('stroke-dasharray', '4 5');
   });
   gT.selectAll('text').data(cls).join('text').attr('class','hlabel').attr('fill',d=>SPC[d.k]).attr('text-anchor','middle').text(d=>SPH[d.k])
     .each(function(d){d.ly = d.top - 10; d3.select(this).attr('x',d.cx).attr('y',d.ly)});
@@ -1423,7 +1376,7 @@ function switchView(viewName){
   if (currentView === viewName) return;
   currentView = viewName;
 
-  document.querySelectorAll('.view-pill').forEach(btn => {
+  document.querySelectorAll('.strip-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === viewName);
   });
 
@@ -1479,11 +1432,20 @@ function switchView(viewName){
 }
 
 // Conectar botones del selector de vistas
-document.querySelectorAll('.view-pill').forEach(btn => {
+// Conectar selector de vistas (pestanas limpias)
+document.querySelectorAll('.strip-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     switchView(btn.dataset.view);
   });
 });
+
+// Conectar selector desplegable de rutas guiadas
+const tourSelect = document.getElementById('tourSelect');
+if (tourSelect) {
+  tourSelect.addEventListener('change', (e) => {
+    runTour(e.target.value);
+  });
+}
 
 const meas = document.createElement('canvas').getContext('2d');
 let T = d3.zoomIdentity;
@@ -2021,6 +1983,7 @@ function tourDetail(tKey){
 }
 
 function updateTourPills(){
+  const ts = document.getElementById('tourSelect'); if (ts) ts.value = state.activeTour || 'all';
   document.querySelectorAll('.tour-pill').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tour === state.activeTour);
   });
