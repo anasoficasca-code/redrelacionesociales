@@ -935,6 +935,164 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   border-color: #f59e0b !important;
 }
 
+
+/* 3D Pedagogical Focus HUD & Detail Card */
+.hud-3d-focus {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(10, 14, 23, 0.92);
+  backdrop-filter: blur(14px);
+  padding: 5px 12px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+  max-width: 95%;
+  overflow-x: auto;
+}
+.hud-focus-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.hud-focus-btn {
+  padding: 4px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  border-radius: 16px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.08);
+  color: #38bdf8;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.hud-focus-btn:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+.hud-focus-btn.btn-huertas {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+.hud-focus-btn.btn-huertas:hover {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+}
+.hud-focus-btn.btn-acueductos {
+  border-color: rgba(6, 182, 212, 0.45);
+  background: rgba(6, 182, 212, 0.12);
+  color: #06b6d4;
+}
+.hud-focus-btn.btn-acueductos:hover {
+  background: rgba(6, 182, 212, 0.3);
+  border-color: #06b6d4;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.35);
+}
+.hud-3d-card {
+  position: absolute;
+  top: 58px;
+  right: 18px;
+  width: 330px;
+  max-width: calc(100% - 36px);
+  z-index: 96;
+  background: rgba(10, 14, 23, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+  animation: hudCardIn 0.25s ease-out;
+  transition: opacity 0.2s ease;
+}
+.hud-3d-card.hidden {
+  display: none;
+}
+@keyframes hudCardIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hud-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.hud-card-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+.hud-card-tag.tag-huerta {
+  background: rgba(16, 185, 129, 0.18);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+.hud-card-tag.tag-agua {
+  background: rgba(6, 182, 212, 0.18);
+  color: #06b6d4;
+  border-color: rgba(6, 182, 212, 0.4);
+}
+.hud-card-tag.tag-biblioteca {
+  background: rgba(192, 132, 252, 0.18);
+  color: #c084fc;
+  border-color: rgba(192, 132, 252, 0.4);
+}
+.hud-card-tag.tag-comedor {
+  background: rgba(244, 63, 94, 0.18);
+  color: #f43f5e;
+  border-color: rgba(244, 63, 94, 0.4);
+}
+.hud-card-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+.hud-card-close:hover {
+  color: #ffffff;
+}
+.hud-card-title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+}
+.hud-card-addr {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+.hud-card-desc {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
 /* Floating 3D HUD for Community Layers */
 .hud-3d-community {
   position: absolute;
@@ -1111,6 +1269,26 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   <div id="map3d" class="map-3d-stage">
     <canvas id="threeCanvas"></canvas>
     <!-- Floating 3D HUD para Redes Comunitarias de Kennedy (IDECA) -->
+        <!-- Barra de Enfoques Directos Pedagógicos -->
+    <div class="hud-3d-focus">
+      <span class="hud-focus-title">Enfoques rápidos:</span>
+      <button class="hud-focus-btn btn-huertas" id="focusHuertas">Ver Huertas Comunitarias</button>
+      <button class="hud-focus-btn btn-acueductos" id="focusAcueductos">Ver Redes del Agua</button>
+      <button class="hud-focus-btn" id="focusHumedales">Ver Humedales</button>
+      <button class="hud-focus-btn" id="focusCorabastos">Ver Corabastos</button>
+      <button class="hud-focus-btn" id="focusOverview">Localidad Completa</button>
+    </div>
+
+    <!-- Tarjeta Flotante de Información Detallada en 3D -->
+    <div id="hud3d-card" class="hud-3d-card hidden">
+      <div class="hud-card-header">
+        <span class="hud-card-tag" id="hud3d-tag">Equipamiento Comunitario</span>
+        <button class="hud-card-close" id="hud3d-close" aria-label="Cerrar">&times;</button>
+      </div>
+      <h3 class="hud-card-title" id="hud3d-title">Nombre del espacio</h3>
+      <p class="hud-card-addr" id="hud3d-addr">Ubicación y barrio</p>
+      <p class="hud-card-desc" id="hud3d-desc">Descripción comunitaria y rol socioecológico en Kennedy.</p>
+    </div>
     <div class="hud-3d-community">
       <button class="hud-btn active" data-layer="jacs" id="toggleJacs">181 Salones JAC</button>
       <button class="hud-btn active" data-layer="bibliotecas" id="toggleBiblios">Bibliotecas Populares</button>
@@ -2203,19 +2381,21 @@ function initMap3D() {
   // 1. Escena 3D elegante con atmósfera oscura y niebla sutil
   threeScene = new THREE.Scene();
   threeScene.background = new THREE.Color(0x060911);
-  threeScene.fog = new THREE.FogExp2(0x060911, 0.0016);
+  threeScene.fog = new THREE.FogExp2(0x060911, 0.0015);
 
   threeTerritoryGroup = new THREE.Group();
   threeCommunityGroup = new THREE.Group();
+  threeBadgesGroup = new THREE.Group();
   threeLinksGroup = new THREE.Group();
   threeActorsGroup = new THREE.Group();
 
   threeScene.add(threeTerritoryGroup);
   threeScene.add(threeCommunityGroup);
+  threeScene.add(threeBadgesGroup);
   threeScene.add(threeLinksGroup);
   threeScene.add(threeActorsGroup);
 
-  // Cámara con perspectiva isométrica cinematográfica
+  // Cámara con perspectiva isométrica
   const w = container.clientWidth || window.innerWidth;
   const h = container.clientHeight || window.innerHeight;
   threeCamera = new THREE.PerspectiveCamera(40, w / h, 5, 5000);
@@ -2233,17 +2413,17 @@ function initMap3D() {
   threeRenderer.toneMapping = THREE.ACESFilmicToneMapping;
   threeRenderer.toneMappingExposure = 1.15;
 
-  // Controles de órbita centrados suavemente en Kennedy
+  // Controles de órbita suaves
   threeControls = new THREE.OrbitControls(threeCamera, canvas);
   threeControls.target.set(90, 8, 80);
   threeControls.enableDamping = true;
   threeControls.dampingFactor = 0.07;
   threeControls.maxPolarAngle = Math.PI / 2.08;
-  threeControls.minDistance = 30;
+  threeControls.minDistance = 25;
   threeControls.maxDistance = 1600;
   threeControls.update();
 
-  // Sistema de iluminación estética
+  // Iluminación
   const ambientLight = new THREE.AmbientLight(0xdbeafe, 1.35);
   threeScene.add(ambientLight);
 
@@ -2255,7 +2435,7 @@ function initMap3D() {
   fillCyan.position.set(-280, 260, -180);
   threeScene.add(fillCyan);
 
-  // 2. Activos territoriales reales de Kennedy (Carga rápida local)
+  // 2. Activos territoriales reales de Kennedy
   const NET_URL = './assets/kennedy_net.json';
   const WATER_URL = './assets/kennedy_water_bodies.json';
   const PARQUES_URL = './assets/kennedy_parques.json';
@@ -2264,7 +2444,6 @@ function initMap3D() {
   fetch(NET_URL)
     .then(r => r.json())
     .then(data => {
-      // Plano base de suelo tecnológico
       const minP = toThreeScene(data.bbox[0] - 800, data.bbox[1] - 800);
       const maxP = toThreeScene(data.bbox[2] + 800, data.bbox[3] + 800);
       const gW = Math.abs(maxP.x - minP.x);
@@ -2276,12 +2455,10 @@ function initMap3D() {
       groundMesh.position.y = -0.2;
       threeTerritoryGroup.add(groundMesh);
 
-      // Rejilla sutil de referencia espacial
       const gridHelper = new THREE.GridHelper(Math.max(gW, gD), 36, 0x1e293b, 0x0f172a);
       gridHelper.position.y = -0.15;
       threeTerritoryGroup.add(gridHelper);
 
-      // Vías de Kennedy: Una sola BufferGeometry fusionada
       const positions = [];
       data.edges.forEach(([kind, pts]) => {
         for (let i = 0; i < pts.length - 1; i++) {
@@ -2321,7 +2498,6 @@ function initMap3D() {
         }
         perimeterPts.push(new THREE.Vector3(first.x, 0.22, first.z));
 
-        // Espejo de agua translúcido
         const geo = new THREE.ShapeGeometry(shape);
         const mat = new THREE.MeshBasicMaterial({
           color: 0x0284c7,
@@ -2334,7 +2510,6 @@ function initMap3D() {
         mesh.position.y = 0.15;
         threeTerritoryGroup.add(mesh);
 
-        // Borde hídrico luminoso
         const edgeGeo = new THREE.BufferGeometry().setFromPoints(perimeterPts);
         const edgeMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.9 });
         const edgeLine = new THREE.Line(edgeGeo, edgeMat);
@@ -2343,7 +2518,7 @@ function initMap3D() {
     })
     .catch(err => console.warn('Error cargando agua:', err));
 
-  // Parques y zonas verdes reales de Kennedy
+  // Parques y zonas verdes
   fetch(PARQUES_URL)
     .then(r => r.json())
     .then(parques => {
@@ -2379,14 +2554,13 @@ function initMap3D() {
     mov: '#FF8A65', sal: '#80CBC4'
   };
 
-  // Coordenadas base de los actores en Three.js
   const actorPositions = {};
   nodes.forEach(n => {
     const rawPos = geoToThree(ACTOR_GEO[n.id] || [-74.1528, 4.6269]);
     actorPositions[n.id] = { x: rawPos.x, z: rawPos.z };
   });
 
-  // Pasada de relajación espacial (evita que actores del mismo nodo se amontonen)
+  // Relajación espacial para que los actores de un mismo nodo no se monten
   const aKeys = Object.keys(actorPositions);
   const MIN_DIST = 13.5;
   for (let step = 0; step < 16; step++) {
@@ -2410,7 +2584,7 @@ function initMap3D() {
     }
   }
 
-  // Creación de actores con balizas, halos y badges limpios
+  // Creación de actores 3D
   nodes.forEach(n => {
     const p = actorPositions[n.id];
     const logoUrl = REAL_LOGOS[n.id];
@@ -2418,7 +2592,6 @@ function initMap3D() {
     const colorHex = parseInt(sphColor.replace('#', '0x'), 16);
     const elevation = 16 + (n.lv === 1 ? 9 : n.lv === 2 ? 5 : 2);
 
-    // Baliza vertical de rayo de luz
     const beaconGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(p.x, 0, p.z),
       new THREE.Vector3(p.x, elevation, p.z)
@@ -2431,7 +2604,6 @@ function initMap3D() {
     const beaconLine = new THREE.Line(beaconGeo, beaconMat);
     threeActorsGroup.add(beaconLine);
 
-    // Halo circular elegante en el suelo
     const ringGeo = new THREE.RingGeometry(1.2, 2.4, 20);
     const ringMat = new THREE.MeshBasicMaterial({
       color: colorHex,
@@ -2444,14 +2616,12 @@ function initMap3D() {
     groundRing.position.set(p.x, 0.2, p.z);
     threeActorsGroup.add(groundRing);
 
-    // Badge circular 3D
     const spriteSize = n.lv === 1 ? 15 : n.lv === 2 ? 12 : 9.5;
     const c2d = document.createElement('canvas');
     c2d.width = 128;
     c2d.height = 128;
     const ctx = c2d.getContext('2d');
 
-    // Fondo y borde del badge
     ctx.beginPath();
     ctx.arc(64, 64, 58, 0, Math.PI * 2);
     ctx.fillStyle = n.id === 'A01' ? '#0e3820' : (logoUrl ? '#FFFFFF' : '#0f172a');
@@ -2478,10 +2648,9 @@ function initMap3D() {
     const sprite = new THREE.Sprite(spriteMat);
     sprite.position.set(p.x, elevation, p.z);
     sprite.scale.set(spriteSize, spriteSize, 1);
-    sprite.userData = { node: n, p: p, elevation: elevation, beacon: beaconLine, groundRing: groundRing };
+    sprite.userData = { node: n, p: p, elevation: elevation, beacon: beaconLine, groundRing: groundRing, isActor: true };
     threeActorsGroup.add(sprite);
 
-    // Logo oficial si corresponde (solo 8 entidades confirmadas)
     if (logoUrl) {
       const img = new Image();
       img.crossOrigin = 'anonymous';
@@ -2548,7 +2717,10 @@ function initMap3D() {
     link3dLines.push(line);
   });
 
-  // 5. Interacción interactiva por clic con Raycaster
+  // 5. Crear CARTELES Y BALIZAS FLOTANTES PEDAGÓGICAS 3D (Huertas, Acueductos, Humedales)
+  initProminent3DBadges();
+
+  // 6. Interacción por clic y hover con Raycaster
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
 
@@ -2558,9 +2730,19 @@ function initMap3D() {
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, threeCamera);
+    
+    // Probar primero carteles destacados
+    const badgeIntersects = raycaster.intersectObjects(clickableBadges);
+    if (badgeIntersects.length > 0) {
+      const bData = badgeIntersects[0].object.userData;
+      showHud3DCard(bData.tag, bData.title, bData.addr, bData.desc, bData.tagClass);
+      flyCameraTo(bData.pos.x, 12, bData.pos.z, 90);
+      return;
+    }
+
+    // Probar actores
     const sprites = actor3dMeshes.map(m => m.sprite);
     const intersects = raycaster.intersectObjects(sprites);
-
     if (intersects.length > 0) {
       const selectedNode = intersects[0].object.userData.node;
       selectActorInThree(selectedNode);
@@ -2569,7 +2751,7 @@ function initMap3D() {
     }
   });
 
-  // 6. Loop de animación continuo con pulso suave
+  // 7. Loop de animación continuo con pulso suave
   let pulseTimer = 0;
   function animate() {
     animFrameId = requestAnimationFrame(animate);
@@ -2587,13 +2769,365 @@ function initMap3D() {
   }
   animate();
 
-  // 7. Cargar e inicializar Redes Comunitarias reales desde IDECA
+  // 8. Cargar e inicializar Redes Comunitarias reales desde IDECA
   initCommunity3DLayer();
+
+  // 9. Configurar barra de enfoques directos pedagógicos
+  setupFocusButtons();
 
   window.addEventListener('resize', onThreeResize);
 }
 
-// Redes Comunitarias reales con marcadores esbeltos y luminosos
+// Generador de Carteles 3D Flotantes de Alta Legibilidad
+let clickableBadges = [];
+
+function makeBadgeSprite(title, subtitle, bgColor, strokeColor, scaleW, scaleH) {
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 128;
+  const ctx = c.getContext('2d');
+  
+  const r = 24;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(512 - r, 0);
+  ctx.quadraticCurveTo(512, 0, 512, r);
+  ctx.lineTo(512, 128 - r);
+  ctx.quadraticCurveTo(512, 128, 512 - r, 128);
+  ctx.lineTo(r, 128);
+  ctx.quadraticCurveTo(0, 128, 0, 128 - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fillStyle = bgColor || 'rgba(10, 15, 26, 0.94)';
+  ctx.fill();
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = strokeColor || '#38bdf8';
+  ctx.stroke();
+
+  ctx.fillStyle = strokeColor || '#38bdf8';
+  ctx.font = 'bold 24px "Instrument Sans", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(subtitle.toUpperCase(), 256, 46);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 36px "Instrument Sans", sans-serif';
+  ctx.fillText(title, 256, 94);
+
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(scaleW || 42, scaleH || 10.5, 1);
+  return sprite;
+}
+
+// Inicializar Carteles Destacados de Huertas, Acueductos y Humedales
+function initProminent3DBadges() {
+  clickableBadges = [];
+
+  // HUERTAS COMUNITARIAS (Verde Esmeralda - Muy visibles)
+  const huertasData = [
+    {
+      id: 'HUE_LAVACA',
+      title: 'Huerta La Vaca Sur',
+      sub: 'Huerta Agroecológica',
+      addr: 'Ronda Humedal La Vaca Sur (Cl. 42A Sur con KR 81)',
+      desc: 'Recuperación de la ronda ecológica con siembra comunitaria de hortalizas nativas y abono orgánico compostado de plazas.',
+      coord: [-74.1620, 4.6285],
+      color: '#10b981',
+      tagClass: 'tag-huerta',
+      tag: 'Huerta Comunitaria Urbana'
+    },
+    {
+      id: 'HUE_CASTILLA',
+      title: 'Huerta Popular Castilla',
+      sub: 'Huerta Comunitaria',
+      addr: 'Barrio Castilla (Cl. 8 con KR 78)',
+      desc: 'Siembra vecinal en espacio público comunitario y educación agroecológica para jóvenes y familias del sector.',
+      coord: [-74.1480, 4.6470],
+      color: '#10b981',
+      tagClass: 'tag-huerta',
+      tag: 'Huerta Comunitaria Urbana'
+    },
+    {
+      id: 'HUE_DINDALITO',
+      title: 'Huerta Dindalito Bellavista',
+      sub: 'Huerta Agroecológica',
+      addr: 'Barrio Dindalito (KR 88C con Cl. 42 Sur)',
+      desc: 'Huerta comunitaria de mujeres y adultos mayores para seguridad y soberanía alimentaria barrial.',
+      coord: [-74.1690, 4.6320],
+      color: '#10b981',
+      tagClass: 'tag-huerta',
+      tag: 'Huerta Comunitaria Urbana'
+    }
+  ];
+
+  huertasData.forEach(h => {
+    const p = geoToThree(h.coord);
+    const sprite = makeBadgeSprite(h.title, h.sub, 'rgba(6, 78, 59, 0.94)', '#10b981', 46, 11.5);
+    sprite.position.set(p.x, 26, p.z);
+    sprite.userData = { ...h, pos: p };
+    threeBadgesGroup.add(sprite);
+    clickableBadges.push(sprite);
+
+    // Baliza láser vertical verde
+    const beamGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(p.x, 0, p.z),
+      new THREE.Vector3(p.x, 26, p.z)
+    ]);
+    const beamMat = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.85 });
+    threeBadgesGroup.add(new THREE.Line(beamGeo, beamMat));
+
+    // Halo circular en el suelo
+    const ringGeo = new THREE.RingGeometry(2.0, 4.2, 24);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x10b981, side: THREE.DoubleSide, transparent: true, opacity: 0.75 });
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = -Math.PI / 2;
+    ringMesh.position.set(p.x, 0.25, p.z);
+    threeBadgesGroup.add(ringMesh);
+  });
+
+  // ACUEDUCTOS COMUNITARIOS (Cian Eléctrico)
+  const acueductosData = [
+    {
+      id: 'ACU_LAVACA',
+      title: 'Comité Agua La Vaca',
+      sub: 'Acueducto y Ronda',
+      addr: 'Sector Norte Humedal La Vaca (Cl. 42A Sur con KR 81)',
+      desc: 'Gestión comunitaria del agua, veeduría hidrosanitaria y defensa del cuerpo de agua frente a descargas residuales.',
+      coord: [-74.1595, 4.6315],
+      color: '#06b6d4',
+      tagClass: 'tag-agua',
+      tag: 'Red Comunitaria del Agua'
+    },
+    {
+      id: 'ACU_PATIOBONITO',
+      title: 'Veeduría Agua Patio Bonito',
+      sub: 'Gestión Hidrosanitaria',
+      addr: 'Patio Bonito III Sector (Borde Canal Tintal)',
+      desc: 'Comité vecinal que exige la normalización del alcantarillado pluvial, acceso al agua potable y cese de inundaciones.',
+      coord: [-74.1725, 4.6370],
+      color: '#06b6d4',
+      tagClass: 'tag-agua',
+      tag: 'Gestión Popular del Agua'
+    },
+    {
+      id: 'ACU_ELBURRO',
+      title: 'Mesa Agua Humedal El Burro',
+      sub: 'Defensa de Cuenca',
+      addr: 'Av. Ciudad de Cali con Cl. 8 Sur',
+      desc: 'Monitoreo hidrográfico ciudadano y articulación comunitaria ante obras viales que amenazan la ronda del humedal.',
+      coord: [-74.1512, 4.6415],
+      color: '#06b6d4',
+      tagClass: 'tag-agua',
+      tag: 'Mesa del Agua'
+    }
+  ];
+
+  acueductosData.forEach(a => {
+    const p = geoToThree(a.coord);
+    const sprite = makeBadgeSprite(a.title, a.sub, 'rgba(8, 51, 68, 0.94)', '#06b6d4', 46, 11.5);
+    sprite.position.set(p.x, 24, p.z);
+    sprite.userData = { ...a, pos: p };
+    threeBadgesGroup.add(sprite);
+    clickableBadges.push(sprite);
+
+    const beamGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(p.x, 0, p.z),
+      new THREE.Vector3(p.x, 24, p.z)
+    ]);
+    const beamMat = new THREE.LineBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.8 });
+    threeBadgesGroup.add(new THREE.Line(beamGeo, beamMat));
+  });
+
+  // LANDMARKS PRINCIPALES (Humedal La Vaca, Humedal El Burro, Corabastos, Portal Américas)
+  const landmarks = [
+    {
+      title: 'Humedal La Vaca',
+      sub: 'Ecosistema de Humedal',
+      addr: 'Cl. 40 Sur con KR 81 / Patio Bonito',
+      desc: 'Humedal distrital recuperado comunitariamente tras rellenos ilegales; hábitat de la Tingua Bogotana.',
+      coord: [-74.1595, 4.6285],
+      color: '#38bdf8',
+      tagClass: 'tag-huerta',
+      tag: 'Ecosistema de Humedal',
+      h: 30
+    },
+    {
+      title: 'Humedal El Burro',
+      sub: 'Reserva Ecológica',
+      addr: 'Av. Ciudad de Cali con Cl. 8 Sur',
+      desc: 'Cuerpo hídrico mayor fraccionado por la Av. Cali; corredor biológico de aves migratorias y flora acuática.',
+      coord: [-74.1505, 4.6443],
+      color: '#38bdf8',
+      tagClass: 'tag-huerta',
+      tag: 'Reserva Ecológica',
+      h: 30
+    },
+    {
+      title: 'Corabastos S.A.',
+      sub: 'Central Mayorista',
+      addr: 'Av. Carrera 80 # 2-51 Sur',
+      desc: 'Epicentro del abastecimiento de Bogotá: 12.000 vehículos y 1.500 camiones pesados al día.',
+      coord: [-74.1528, 4.6269],
+      color: '#f59e0b',
+      tagClass: 'tag-huerta',
+      tag: 'Nodo Agroalimentario',
+      h: 32
+    },
+    {
+      title: 'Portal de las Américas',
+      sub: 'Transporte Masivo',
+      addr: 'Av. Ciudad de Cali con Av. Villavicencio',
+      desc: 'Estación cabecera de TransMilenio en el suroccidente; nodo de transbordo masivo e intermodalidad popular.',
+      coord: [-74.1706, 4.6295],
+      color: '#f43f5e',
+      tagClass: 'tag-comedor',
+      tag: 'Terminal de Movilidad',
+      h: 32
+    }
+  ];
+
+  landmarks.forEach(lm => {
+    const p = geoToThree(lm.coord);
+    const sprite = makeBadgeSprite(lm.title, lm.sub, 'rgba(15, 23, 42, 0.95)', lm.color, 48, 12);
+    sprite.position.set(p.x, lm.h, p.z);
+    sprite.userData = { ...lm, pos: p };
+    threeBadgesGroup.add(sprite);
+    clickableBadges.push(sprite);
+
+    const beamGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(p.x, 0, p.z),
+      new THREE.Vector3(p.x, lm.h, p.z)
+    ]);
+    const beamMat = new THREE.LineBasicMaterial({ color: parseInt(lm.color.replace('#', '0x'), 16), transparent: true, opacity: 0.65 });
+    threeBadgesGroup.add(new THREE.Line(beamGeo, beamMat));
+  });
+}
+
+// Configurar Botones de Enfoque Pedagógico
+function setupFocusButtons() {
+  const btnHuertas = document.getElementById('focusHuertas');
+  const btnAcueductos = document.getElementById('focusAcueductos');
+  const btnHumedales = document.getElementById('focusHumedales');
+  const btnCorabastos = document.getElementById('focusCorabastos');
+  const btnOverview = document.getElementById('focusOverview');
+  const cardClose = document.getElementById('hud3d-close');
+
+  if (cardClose) {
+    cardClose.onclick = () => {
+      const card = document.getElementById('hud3d-card');
+      if (card) card.classList.add('hidden');
+    };
+  }
+
+  if (btnHuertas) {
+    btnHuertas.onclick = () => {
+      const p = geoToThree([-74.1620, 4.6285]); // Huerta La Vaca
+      flyCameraTo(p.x, 14, p.z, 105);
+      showHud3DCard(
+        'Huertas Comunitarias Urbanas',
+        'Red de Huertas de Kennedy',
+        'Huerta La Vaca Sur | Huerta Popular Castilla | Huerta Dindalito',
+        'Procesos comunitarios de siembra agroecológica, compostaje de residuos orgánicos de Corabastos y soberanía alimentaria para familias de la localidad.',
+        'tag-huerta'
+      );
+    };
+  }
+
+  if (btnAcueductos) {
+    btnAcueductos.onclick = () => {
+      const p = geoToThree([-74.1595, 4.6315]);
+      flyCameraTo(p.x, 14, p.z, 115);
+      showHud3DCard(
+        'Red Comunitaria del Agua',
+        'Comités y Veedurías Populares del Agua',
+        'Humedal La Vaca | Patio Bonito | Humedal El Burro | Cuenca Tunjuelo',
+        'Organizaciones barriales en defensa del agua potable, monitoreo comunitario de vertimientos y reclamos a la EAAB por reflujos y alcantarillado.',
+        'tag-agua'
+      );
+    };
+  }
+
+  if (btnHumedales) {
+    btnHumedales.onclick = () => {
+      const p = geoToThree([-74.1550, 4.6360]);
+      flyCameraTo(p.x, 18, p.z, 160);
+      showHud3DCard(
+        'Ecosistemas de Humedal',
+        'Humedal La Vaca y Humedal El Burro',
+        'Cuenca media del Río Bogotá - Localidad de Kennedy',
+        'Reservas ambientales estratégicas que regulan inundaciones y albergan fauna nativa amenazada como la Tingua Bogotana.',
+        'tag-huerta'
+      );
+    };
+  }
+
+  if (btnCorabastos) {
+    btnCorabastos.onclick = () => {
+      const p = geoToThree([-74.1528, 4.6269]);
+      flyCameraTo(p.x, 16, p.z, 100);
+      showHud3DCard(
+        'Central Mayorista',
+        'Corabastos y Complejo Logístico',
+        'Av. Carrera 80 con Calle 38 Sur',
+        'Principal central de abastos del país. Genera una intensa dinámica comercial y tensiones viales y ambientales en Patio Bonito y El Amparo.',
+        'tag-huerta'
+      );
+    };
+  }
+
+  if (btnOverview) {
+    btnOverview.onclick = () => {
+      flyCameraTo(90, 8, 80, 240);
+      const card = document.getElementById('hud3d-card');
+      if (card) card.classList.add('hidden');
+    };
+  }
+}
+
+// Desplegar Tarjeta de Información Detallada en el HUD
+function showHud3DCard(tag, title, addr, desc, tagClass) {
+  const card = document.getElementById('hud3d-card');
+  const tagEl = document.getElementById('hud3d-tag');
+  const titleEl = document.getElementById('hud3d-title');
+  const addrEl = document.getElementById('hud3d-addr');
+  const descEl = document.getElementById('hud3d-desc');
+  if (!card) return;
+
+  tagEl.textContent = tag;
+  tagEl.className = 'hud-card-tag ' + (tagClass || '');
+  titleEl.textContent = title;
+  addrEl.textContent = addr;
+  descEl.textContent = desc;
+  card.classList.remove('hidden');
+}
+
+// Animación Suave de Cámara (Vuelo hacia coordenadas específicas)
+function flyCameraTo(targetX, targetY, targetZ, camDist) {
+  if (!threeControls || !threeCamera) return;
+  const startTarget = threeControls.target.clone();
+  const endTarget = new THREE.Vector3(targetX, targetY, targetZ);
+  
+  const startCam = threeCamera.position.clone();
+  const d = camDist || 130;
+  const endCam = new THREE.Vector3(targetX + d * 0.9, targetY + d * 1.1, targetZ + d * 0.9);
+  
+  let progress = 0;
+  function step() {
+    progress += 0.04;
+    const ease = 0.5 - 0.5 * Math.cos(Math.min(1, progress) * Math.PI);
+    threeControls.target.lerpVectors(startTarget, endTarget, ease);
+    threeCamera.position.lerpVectors(startCam, endCam, ease);
+    threeControls.update();
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  }
+  step();
+}
+
+// Capas Comunitarias 3D desde el Shapefile oficial Organización.shp
 let communityMeshes = {
   jacs: null,
   bibliotecas: null,
@@ -2606,10 +3140,8 @@ function initCommunity3DLayer() {
   if (!threeCommunityGroup || typeof COMMUNITY_NETWORKS === 'undefined') return;
 
   const dummy = new THREE.Object3D();
-  // Marcadores estilizados tipo gema / prisma luminoso (no cilindros toscos)
   const markerGeo = new THREE.CylinderGeometry(0.8, 1.4, 2.0, 8);
 
-  // Filtrar JACs a Kennedy estricto (evita anomalías de otros municipios)
   const validJacs = (COMMUNITY_NETWORKS.jacs || []).filter(j => {
     return j.coord && j.coord[0] >= -74.195 && j.coord[0] <= -74.120 && j.coord[1] >= 4.580 && j.coord[1] <= 4.665;
   });
@@ -2676,9 +3208,16 @@ function selectActorInThree(n, skipFly) {
   const elevation = 16 + (n.lv === 1 ? 9 : n.lv === 2 ? 5 : 2);
 
   if (threeControls && !skipFly) {
-    threeControls.target.set(p.x, elevation, p.z);
-    threeControls.update();
+    flyCameraTo(p.x, elevation, p.z, 90);
   }
+
+  showHud3DCard(
+    (n.sph || 'Actor').toUpperCase() + ' - NIVEL ' + n.lv,
+    n.name,
+    (n.prob_rol || n.fun || ''),
+    'Actor clave en las relaciones territoriales y problemas socioambientales de Kennedy.',
+    'tag-huerta'
+  );
 
   const connectedIds = new Set();
   connectedIds.add(n.id);
@@ -2718,6 +3257,9 @@ function selectActorInThree(n, skipFly) {
 
 function clearActorInThree() {
   select(null);
+  const card = document.getElementById('hud3d-card');
+  if (card) card.classList.add('hidden');
+
   actor3dMeshes.forEach(m => {
     const origSize = m.node.lv === 1 ? 15 : m.node.lv === 2 ? 12 : 9.5;
     m.sprite.scale.set(origSize, origSize, 1);
