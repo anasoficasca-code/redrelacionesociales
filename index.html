@@ -76,9 +76,9 @@ button:focus-visible{outline:2px solid #828ecc;outline-offset:2px}
 .sec{padding:22px 24px;border-bottom:1px solid var(--line)}
 h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#EDEAE3}
 .hint{margin:0 0 14px;font-size:12.5px;line-height:1.4;color:var(--soft)}
-.conv{display:flex;flex-direction:column;gap:5px}
+.conv{{display:flex;flex-direction:column;gap:5px}}
 .cv{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:7px;background:none;border:1px solid transparent;cursor:pointer;font-size:13px;color:var(--soft);transition:background .15s,color .15s;text-align:left;width:100%}
-.cv:hover{{background:#151923;color:var(--ink)}}
+.cv:hover{background:#151923;color:var(--ink)}
 .cv[aria-pressed="false"]{opacity:.35}
 .cv .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cv .n{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
@@ -107,7 +107,7 @@ h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#ED
 .who .kind{font-size:12px;color:var(--soft)}
 .who p{margin:12px 0 16px;font-size:13px;line-height:1.5;color:var(--soft)}
 .who .av{border-radius:50%;border:2px solid;display:grid;place-items:center;overflow:hidden}
-.io{{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;border-radius:8px;background:#121622;border:1px solid var(--line)}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;border-radius:8px;background:#121622;border:1px solid var(--line)}
 .io div{text-align:center}.io b{display:block;font-size:20px;font-weight:600;color:#F3EFE7;line-height:1}.io span{font-size:12px;color:var(--mute)}
 .group{margin-top:18px}
 .group:first-child{margin-top:0}
@@ -145,20 +145,77 @@ h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#ED
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
- <!-- Iconos estándar limpios y universales -->
- <symbol id="i-per" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="7.5" r="3.6"/><path d="M5.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/></symbol>
- <symbol id="i-hog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20.5h12V9.5"/><path d="M10 20.5v-5h4v5"/></symbol>
- <symbol id="i-pub" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.2 12 4l9 5.2z"/><path d="M5.5 11v6.5M9.8 11v6.5M14.2 11v6.5M18.5 11v6.5M3 20h18"/></symbol>
- <symbol id="i-emp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 7.5h2M13.5 7.5h2M8.5 11.5h2M13.5 11.5h2M8.5 15.5h2M13.5 15.5h2"/></symbol>
- <symbol id="i-org" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="6" r="2.8"/><circle cx="5.5" cy="17.5" r="2.8"/><circle cx="18.5" cy="17.5" r="2.8"/><path d="M10.7 8.3 7 15.2M13.3 8.3 17 15.2M8.1 17.5h7.8"/></symbol>
- <symbol id="i-ins" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="3.5" r="1.6"/><circle cx="12" cy="20.5" r="1.6"/><circle cx="4.5" cy="7.8" r="1.6"/><circle cx="19.5" cy="7.8" r="1.6"/><circle cx="4.5" cy="16.2" r="1.6"/><circle cx="19.5" cy="16.2" r="1.6"/></symbol>
- <symbol id="i-sal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M4 12h16"/><circle cx="12" cy="12" r="9"/></symbol>
- <symbol id="i-edu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5 12 4l10 5.5L12 15z"/><path d="M6 11.7V17c0 2 2.7 3.5 6 3.5s6-1.5 6-3.5v-5.3"/><path d="M22 9.5v6"/></symbol>
- <symbol id="i-amb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 19 8.5 19 14.5a5.5 5.5 0 0 1-5.5 5.5Z"/><path d="M11 20v-7"/></symbol>
- <symbol id="i-mov" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2.5"/><circle cx="7" cy="17" r="1.5"/><circle cx="17" cy="17" r="1.5"/><path d="M3 11h18M7 7h10"/></symbol>
- <symbol id="i-jus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3v18M3 7l4 7h6L9 7M15 7l4 7h6l-4-7M4 21h16"/></symbol>
- <symbol id="i-rec" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 3-4 3 4M10 3v8M17 17l-3 4-3-4M14 21v-8M4 14l4 3-4 3M8 17H3M20 10l-4-3 4-3M16 7h5"/></symbol>
- <symbol id="i-obj" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M2.5 6.5h11v9.5h-11z"/><path d="M13.5 9.5h4l3.5 3.5v3h-7.5"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+ <!-- ÍCONOS ESTÁNDAR OFICIALES LUCIDE (Clásicos, universales y 100% familiares) -->
+ <!-- Persona: User avatar clásico -->
+ <symbol id="i-per" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+   <circle cx="12" cy="7" r="4"/>
+ </symbol>
+ 
+ <!-- Hogar: Casa clásica con puerta -->
+ <symbol id="i-hog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+   <polyline points="9 22 9 12 15 12 15 22"/>
+ </symbol>
+ 
+ <!-- Organización / Comunidad / JAC: Dos personas (Users) -->
+ <symbol id="i-org" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+   <circle cx="9" cy="7" r="4"/>
+   <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+   <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+ </symbol>
+ 
+ <!-- Empresa / Establecimiento / Comercio: Tienda / Negocio -->
+ <symbol id="i-emp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="m2 7 3-4h14l3 4"/>
+   <path d="M4 11v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9"/>
+   <path d="M9 21v-5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5"/>
+   <path d="M2 7h20"/>
+ </symbol>
+ 
+ <!-- Entidad pública / Institución / Órgano: Edificio institucional / Landmark con columnas -->
+ <symbol id="i-pub" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <line x1="3" x2="21" y1="22" y2="22"/>
+   <line x1="6" x2="6" y1="18"/>
+   <line x1="10" x2="10" y1="18"/>
+   <line x1="14" x2="14" y1="18"/>
+   <line x1="18" x2="18" y1="18"/>
+   <polygon points="12 2 20 7 4 7"/>
+   <line x1="2" x2="22" y1="11" y2="11"/>
+ </symbol>
+ <symbol id="i-ins" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <line x1="3" x2="21" y1="22" y2="22"/>
+   <line x1="6" x2="6" y1="18"/>
+   <line x1="10" x2="10" y1="18"/>
+   <line x1="14" x2="14" y1="18"/>
+   <line x1="18" x2="18" y1="18"/>
+   <polygon points="12 2 20 7 4 7"/>
+   <line x1="2" x2="22" y1="11" y2="11"/>
+ </symbol>
+ 
+ <!-- Salud: Cruz médica en círculo (Hospitales, Subred, Centro de salud) -->
+ <symbol id="i-sal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <circle cx="12" cy="12" r="9"/>
+   <path d="M12 8v8"/>
+   <path d="M8 12h8"/>
+ </symbol>
+ 
+ <!-- Educación: Birrete de graduación (Colegios, Universidades, DLE) -->
+ <symbol id="i-edu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M22 10v6"/>
+   <path d="M2 10l10-5 10 5-10 5z"/>
+   <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+ </symbol>
+ 
+ <!-- Objeto / Vehículo / Carga: Camión -->
+ <symbol id="i-obj" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
+   <path d="M15 18H9"/>
+   <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
+   <circle cx="17" cy="18" r="2"/>
+   <circle cx="7" cy="18" r="2"/>
+ </symbol>
 </defs></svg>
 
 <div class="app">
@@ -194,7 +251,7 @@ const LOGO_DATA = {
 };
 
 
-// Mapeo exclusivo: 1 logo real único por institución oficial (sin repetir ningún logo)
+// 1 logo real único por institución oficial verificada
 const REAL_LOGOS = {
   'A01': LOGO_DATA.corabastos,       // Corabastos S.A.
   'A34': LOGO_DATA.alcaldia_bogota,  // Alcaldía Local de Kennedy
@@ -243,25 +300,47 @@ const SPH = {
 };
 const RING = ['log','res','gob','sal','edu','mov','con'];
 const SPC = {cor:'#DE9F50',log:'#4EAECF',con:'#DE7766',res:'#8EBF4C',gob:'#9382E0',edu:'#CF7ABB',sal:'#4EBF94',mov:'#BFB080'};
-const TYPES = {pub:'Entidad pública',emp:'Empresa o establecimiento',ins:'Órgano, comité o asamblea',org:'Organización comunitaria',per:'Personas por su rol',hog:'Hogares y usuarios',obj:'Vehículo u objeto'};
+const TYPES = {
+  pub:'Entidad pública o institucional',
+  emp:'Empresa o establecimiento',
+  org:'Organización comunitaria',
+  per:'Persona por su rol',
+  hog:'Hogar o usuario',
+  sal:'Institución de salud',
+  edu:'Institución educativa'
+};
 const mobile = () => window.matchMedia('(max-width:900px)').matches;
 const esc = s => String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 
-/* Selector semántico de íconos normales para nodos sin logo oficial */
+/* Selector limpio, claro y sin íconos extraños */
 function getNodeIconId(n) {
   if (REAL_LOGOS[n.id]) return null;
+  const cat = n.cat;
   const name = (n.name || '').toLowerCase();
-  if (n.sph === 'sal' || /salud|hospital|médic|subred|clínic/.test(name)) return 'i-sal';
-  if (n.sph === 'edu' || /educaci|colegio|escuela|universidad/.test(name)) return 'i-edu';
-  if (n.sph === 'res' && /recicl|recuperad|aprovech/.test(name)) return 'i-rec';
-  if (/ambient|ecolog|fauna|flora/.test(name)) return 'i-amb';
-  if (/movilidad|conductor|transporte|camion|flota/.test(name)) return 'i-mov';
-  if (/justicia|seguridad|inspecci|defensor|personer|comisar|jal|idpac|junta/.test(name)) return 'i-jus';
-  if (n.cat === 'hog') return 'i-hog';
-  if (n.cat === 'per') return 'i-per';
-  if (n.cat === 'org') return 'i-org';
-  if (n.cat === 'emp') return 'i-emp';
-  return 'i-ins';
+  
+  // 1. Personas: SIEMPRE ícono universal de persona
+  if (cat === 'per') return 'i-per';
+  
+  // 2. Hogares / Familias: SIEMPRE ícono de hogar
+  if (cat === 'hog') return 'i-hog';
+  
+  // 3. Organizaciones comunitarias / Juntas: Dos personas (comunidad)
+  if (cat === 'org') return 'i-org';
+  
+  // 4. Objetos / Vehículos
+  if (cat === 'obj') return 'i-obj';
+  
+  // 5. Colegios / Educación
+  if (/colegio|educaci|escuela|formaci|universidad|inem/.test(name)) return 'i-edu';
+  
+  // 6. Salud (Hospitales, Subred, Centros de salud)
+  if (/salud|hospital|médic|subred|clínic|abastos/.test(name) && !/corabastos/.test(name)) return 'i-sal';
+  
+  // 7. Empresas y comercios
+  if (cat === 'emp') return 'i-emp';
+  
+  // 8. Instituciones públicas / Órganos de gobierno
+  return 'i-pub';
 }
 
 const nodes = DATA.nodes.map(d=>({...d})), byId = new Map(nodes.map(n=>[n.id,n]));
@@ -304,7 +383,6 @@ function layout(){
     n.vx = n.vy = 0;
   });
 
-  /* Simulación con separación generosa: flechitas y arcos completamente visibles */
   const sim = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links).distance(l => l.source.sph === l.target.sph ? (D ? 120 : 95) : (D ? 185 : 145)).strength(l => l.source.sph === l.target.sph ? 0.14 : 0.08))
     .force('charge', d3.forceManyBody().strength(n => (D ? -180 : -120) - n.r * (D ? 8 : 6)).distanceMax(D ? 500 : 350))
@@ -327,7 +405,7 @@ layout();
 const svg = d3.select('#net').attr('preserveAspectRatio','xMidYMid meet');
 const defs = svg.append('defs');
 
-/* Flechitas de dirección ultra nítidas con contorno de contraste */
+/* Flechitas de dirección nítidas con contorno de contraste */
 Object.entries(CONV).forEach(([k,v])=>defs.append('marker')
   .attr('id','m-'+k)
   .attr('viewBox','0 0 10 10')
@@ -384,7 +462,7 @@ nodeSel.filter(n=>n.lv===1).append('circle').attr('class','crown');
 nodeSel.append('circle').attr('class','halo');
 nodeSel.append('circle').attr('class','ring');
 
-/* Para logos reales: imagen oficial única recortada. Para los que no tienen logo: icono normalito estándar. */
+/* Para logos reales: imagen oficial única recortada. Para los que no tienen logo: icono estándar Lucide. */
 nodeSel.each(function(n){
   const el = d3.select(this);
   if (REAL_LOGOS[n.id]) {
@@ -420,7 +498,7 @@ function geometry(){
     .attr('x', n => -(n.r - 2.5))
     .attr('y', n => -(n.r - 2.5));
 
-  /* Iconos normales estándar */
+  /* Iconos estándar nítidos */
   nodeSel.select('.icon')
     .style('color', n => n.lv===4?'#FFFFFF':n.lv===1?'#FFFFFF':SPC[n.sph])
     .attr('width', n => n.r * 1.25)
@@ -496,6 +574,7 @@ function placeLabels(){
     ];
     const soft = isPrio;
     for(const [bx,by,anc,dx,dy] of cand){
+      const b = [bx - 3, by - 2, bx + w + 3, by + fs + 2];
       if(!hit(b, soft)){
         boxes.push(b);
         shown.set(n, [anc, dx/u, dy/u]);
@@ -659,7 +738,6 @@ const dots = (w, c) => `<span class="dots" style="--c:${c}" title="Intensidad ${
 
 function overview(){
   const counts = d3.rollup(links, v => v.length, l => l.c);
-  // Las 7 instituciones con su logo oficial único:
   const featuredInst = [
     byId.get('A01'), byId.get('A34'), byId.get('A38'), byId.get('A48'),
     byId.get('A49'), byId.get('N07'), byId.get('A32')
@@ -690,9 +768,15 @@ function overview(){
    </div>
   </section>
 
-  <section class="sec"><h2>Tipos de actor</h2><p class="hint">Íconos estándar según rol y sector:</p>
+  <section class="sec"><h2>Tipos de actor</h2><p class="hint">Íconos estándar reconocibles según rol y sector:</p>
    <div class="types">
-    ${Object.entries(TYPES).map(([k,v])=>`<div><span class="av"><svg width="15" height="15"><use href="#i-${k}"/></svg></span>${v}</div>`).join('')}
+    <div><span class="av"><svg width="15" height="15"><use href="#i-per"/></svg></span>Persona / Rol</div>
+    <div><span class="av"><svg width="15" height="15"><use href="#i-hog"/></svg></span>Hogar / Familia</div>
+    <div><span class="av"><svg width="15" height="15"><use href="#i-org"/></svg></span>Organización / Junta</div>
+    <div><span class="av"><svg width="15" height="15"><use href="#i-emp"/></svg></span>Comercio / Empresa</div>
+    <div><span class="av"><svg width="15" height="15"><use href="#i-pub"/></svg></span>Entidad pública</div>
+    <div><span class="av"><svg width="15" height="15"><use href="#i-sal"/></svg></span>Salud / Hospital</div>
+    <div><span class="av"><svg width="15" height="15"><use href="#i-edu"/></svg></span>Educación / Colegio</div>
     <div><span class="dash"></span>Añadido a tu Excel</div>
    </div>
   </section>
@@ -714,7 +798,7 @@ function actorList(){
      const hasLogo = !!REAL_LOGOS[n.id];
      return `<li><button class="row" data-id="${n.id}">
        <span class="av" style="border-color:${hasLogo?SPC[n.sph]:'#2e3547'};background:${hasLogo?'#fff':'#141722'}">${avatar(n, 30)}</span>
-       <span><span class="nm">${esc(n.short)}</span><span class="sub">${esc(n.name!==n.short?n.name:TYPES[n.cat])}</span></span>
+       <span><span class="nm">${esc(n.short)}</span><span class="sub">${esc(n.name!==n.short?n.name:TYPES[n.cat]||'Actor')}</span></span>
        <span class="deg">${n.deg}</span>
      </button></li>`;
    }).join('');
