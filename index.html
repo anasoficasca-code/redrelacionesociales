@@ -1099,12 +1099,20 @@ const ACTOR_PHOTOS = {"A01":"https://upload.wikimedia.org/wikipedia/commons/thum
 const REAL_LOGOS = {
   'A01': LOGO_DATA.corabastos,       // Corabastos S.A.
   'A34': LOGO_DATA.alcaldia_bogota,  // Alcaldia Local de Kennedy
-  'A38': LOGO_DATA.policia_nacional, // Estacion de Policia Kennedy
+  'A33': LOGO_DATA.alcaldia_bogota,  // Secretaría Distrital de Ambiente
+  'A38': LOGO_DATA.policia_nacional, // Estación de Policía Kennedy
   'A48': LOGO_DATA.transmilenio,     // TransMilenio S. A.
   'A49': LOGO_DATA.sitp,             // Operadores zonales del SITP
+  'A65': LOGO_DATA.alcaldia_bogota,  // Secretaría de Educación
+  'A66': LOGO_DATA.alcaldia_bogota,  // Secretaría de Movilidad
+  'N01': LOGO_DATA.alcaldia_bogota,  // JAL Kennedy
+  'N02': LOGO_DATA.alcaldia_bogota,  // IDPAC
+  'N03': LOGO_DATA.alcaldia_bogota,  // IPES
+  'N04': LOGO_DATA.alcaldia_bogota,  // Secretaría de Integración Social
+  'N05': LOGO_DATA.alcaldia_bogota,  // Secretaría de Salud
+  'N06': LOGO_DATA.acueducto,        // Empresa de Acueducto y Alcantarillado de Bogotá (EAAB)
   'N07': LOGO_DATA.minagricultura,   // Ministerio de Agricultura y Desarrollo Rural
-  'A32': LOGO_DATA.uaesp,            // UAESP
-  'N06': LOGO_DATA.acueducto         // Empresa de Acueducto y Alcantarillado de Bogota (EAAB)
+  'A32': LOGO_DATA.uaesp             // UAESP
 };
 
 const CONV = {
@@ -1535,36 +1543,38 @@ nodeSel.append('circle').attr('class','halo');
 
 // 3. Fondo oscuro base para que no se trasluzcan líneas debajo de la foto
 nodeSel.append('circle')
-  .attr('class', 'photo-bg')
+  .attr('class', 'node-bg')
   .attr('r', n => n.r - 1.5)
-  .attr('fill', '#0d111a');
+  .attr('fill', n => REAL_LOGOS[n.id] ? '#FFFFFF' : (n.lv === 4 ? d3.interpolateRgb('#161a24', SPC[n.sph])(0.40) : d3.interpolateRgb('#11141c', SPC[n.sph])(n.lv === 1 ? 0.32 : 0.20)));
 
-// 4. FOTOGRAFÍA REAL / LOGO OFICIAL DENTRO DE CADA BOLA
+// 4. LOGOS OFICIALES Y SÍMBOLOS VECTORIALES LIMPIOS (Sin fotos genéricas)
 nodeSel.each(function(n){
   const el = d3.select(this);
-  const photoUrl = REAL_LOGOS[n.id] || ACTOR_PHOTOS[n.id];
-  
-  // Crear clipPath circular exacto en defs para cada nodo
-  const clipId = 'clip-photo-' + n.id;
-  defs.append('clipPath').attr('id', clipId)
-    .append('circle')
-    .attr('r', n.r - 1.5);
+  if (REAL_LOGOS[n.id]) {
+    const clipId = 'clip-logo-' + n.id;
+    defs.append('clipPath').attr('id', clipId)
+      .append('circle')
+      .attr('r', n.r - 2.5);
 
-  if (photoUrl) {
     el.append('image')
-      .attr('class', 'node-photo-img' + (REAL_LOGOS[n.id] ? ' is-logo' : ''))
-      .attr('href', photoUrl)
-      .attr('x', -(n.r - 1.5))
-      .attr('y', -(n.r - 1.5))
-      .attr('width', (n.r - 1.5) * 2)
-      .attr('height', (n.r - 1.5) * 2)
-      .attr('preserveAspectRatio', REAL_LOGOS[n.id] ? 'xMidYMid meet' : 'xMidYMid slice')
+      .attr('class', 'logo-img')
+      .attr('href', REAL_LOGOS[n.id])
+      .attr('x', -(n.r - 2.5))
+      .attr('y', -(n.r - 2.5))
+      .attr('width', (n.r - 2.5) * 2)
+      .attr('height', (n.r - 2.5) * 2)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
       .attr('clip-path', 'url(#' + clipId + ')');
   } else {
     const iconId = getNodeIconId(n);
     el.append('use')
       .attr('class', 'icon')
-      .attr('href', '#' + iconId);
+      .attr('href', '#' + iconId)
+      .attr('x', -n.r * 0.55)
+      .attr('y', -n.r * 0.55)
+      .attr('width', n.r * 1.1)
+      .attr('height', n.r * 1.1)
+      .style('color', '#FFFFFF');
   }
 });
 
@@ -2217,7 +2227,7 @@ function initMap3D() {
 
   nodes.forEach(n => {
     const p = getActorScenePos(n.id);
-    const photoUrl = REAL_LOGOS[n.id] || ACTOR_PHOTOS[n.id];
+    const logoUrl = REAL_LOGOS[n.id];
     const colorHex = parseInt((SPC[n.sph] || '#38bdf8').replace('#', '0x'), 16);
     const elevation = 16 + (n.lv === 1 ? 8 : n.lv === 2 ? 5 : 2);
 
@@ -2247,10 +2257,9 @@ function initMap3D() {
     groundRing.position.set(p.x, 0.2, p.z);
     threeActorsGroup.add(groundRing);
 
-    // Sprite circular con foto real y borde del color de la esfera
+    // Sprite circular: con logo oficial si existe, o con fondo y sigla limpia del sector
     const spriteSize = n.lv === 1 ? 16 : n.lv === 2 ? 13 : 10;
     
-    // Crear canvas para el sprite con foto
     const c2d = document.createElement('canvas');
     c2d.width = 128;
     c2d.height = 128;
@@ -2258,12 +2267,22 @@ function initMap3D() {
 
     // Círculo base con color del sector
     ctx.beginPath();
-    ctx.arc(64, 64, 60, 0, Math.PI * 2);
-    ctx.fillStyle = '#0f1422';
+    ctx.arc(64, 64, 58, 0, Math.PI * 2);
+    ctx.fillStyle = logoUrl ? '#FFFFFF' : '#111726';
     ctx.fill();
     ctx.lineWidth = n.lv === 1 ? 8 : 6;
-    ctx.strokeStyle = SPC[n.sph] || '#38bdf8';
+    ctx.strokeStyle = logoUrl ? '#5B8BF5' : (SPC[n.sph] || '#38bdf8');
     ctx.stroke();
+
+    if (!logoUrl) {
+      // Texto o sigla identificadora en lugar de fotos borrosas
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 36px "Instrument Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const initials = (n.short || n.name || '').slice(0, 3).toUpperCase();
+      ctx.fillText(initials, 64, 66);
+    }
 
     const spriteTex = new THREE.CanvasTexture(c2d);
     const spriteMat = new THREE.SpriteMaterial({
@@ -2277,25 +2296,25 @@ function initMap3D() {
     sprite.userData = { node: n, p: p, elevation: elevation, beacon: beaconLine, groundRing: groundRing };
     threeActorsGroup.add(sprite);
 
-    // Cargar la imagen real sobre el canvas del sprite
-    if (photoUrl) {
+    // Si tiene logo oficial, dibujarlo en el sprite 3D
+    if (logoUrl) {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
         ctx.save();
         ctx.beginPath();
-        ctx.arc(64, 64, 56, 0, Math.PI * 2);
+        ctx.arc(64, 64, 54, 0, Math.PI * 2);
         ctx.clip();
-        ctx.drawImage(img, 8, 8, 112, 112);
+        ctx.drawImage(img, 12, 12, 104, 104);
         ctx.restore();
         ctx.beginPath();
         ctx.arc(64, 64, 58, 0, Math.PI * 2);
         ctx.lineWidth = n.lv === 1 ? 8 : 6;
-        ctx.strokeStyle = SPC[n.sph] || '#38bdf8';
+        ctx.strokeStyle = '#5B8BF5';
         ctx.stroke();
         spriteTex.needsUpdate = true;
       };
-      img.src = photoUrl;
+      img.src = logoUrl;
     }
 
     actor3dMeshes.push({
@@ -2964,7 +2983,7 @@ function linkDetail(l){
 function overview(){
   const counts = d3.rollup(links, v => v.length, l => l.c);
   
-  // Instituciones clave con más relaciones y logos verificados
+  // Instituciones clave con logos oficiales verificados
   const featuredInst = [
     byId.get('A01'), byId.get('A34'), byId.get('A38'), byId.get('A48'),
     byId.get('A49'), byId.get('N06'), byId.get('N07'), byId.get('A32'),
@@ -2972,57 +2991,168 @@ function overview(){
   ].filter(Boolean);
 
   return `
-  <section class="sec" style="padding:14px 16px 10px">
+  <section class="sec" style="padding:14px 16px 12px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--mute)">Explorador</span>
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--mute)">Explorador de la red</span>
       <span style="font-size:10px;color:var(--soft);background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:10px">90 actores • 239 enlaces</span>
     </div>
 
     <!-- Buscador compacto -->
-    <label class="search" style="margin:0 0 12px">
+    <label class="search" style="margin:0 0 14px">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="search" id="q" placeholder="Buscar actor o entidad..." autocomplete="off">
+      <input type="search" id="q" placeholder="Buscar actor, organización o entidad..." autocomplete="off">
     </label>
 
-    <!-- Convenciones de Niveles por TAMAÑO DE LA BOLA (Jerarquía de decisión) -->
-    <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:10px;margin-top:4px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute)">Jerarquía de decisión (Tamaño de bola)</span>
+    <!-- 1. CONVENCIÓN: TIPO DE RELACIÓN (LÍNEAS) -->
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;margin-top:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#38bdf8">1. Tipo de relación (Líneas)</span>
+        <span style="font-size:9.5px;color:var(--mute)">Toca para filtrar</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-        <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:7px">
-          <svg width="28" height="28" viewBox="0 0 28 28" style="flex-shrink:0"><circle cx="14" cy="14" r="11" fill="#182234" stroke="#929CE8" stroke-width="2.5"/><circle cx="14" cy="14" r="6" fill="#929CE8"/></svg>
-          <div style="font-size:10px;line-height:1.2"><b style="color:#FFFFFF;display:block">Nivel 1 (Grande)</b>Deciden política</div>
+      <p style="margin:0 0 8px;font-size:11px;color:var(--soft);line-height:1.35">Vínculos sociales, laborales, comerciales y normativos entre los actores:</p>
+      
+      <div class="conv-compact-list">
+        ${Object.entries(CONV).map(([k, v]) => `
+          <button class="cv-pill ${state.conv.has(k) ? 'active' : ''}" data-c="${k}" style="padding:5px 8px;border-radius:6px;margin-bottom:3px">
+            <span style="display:flex;align-items:center;gap:8px;font-size:11px;color:${state.conv.has(k) ? '#fff' : 'var(--soft)'}">
+              <span style="width:16px;height:2.5px;background:${v.c};border-radius:2px;${v.d ? 'border-bottom:1.5px dashed '+v.c+';height:0;' : ''}flex-shrink:0"></span>
+              ${esc(v.n)}
+            </span>
+            <span style="font-size:10px;font-weight:700;color:var(--mute);background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:8px">${counts.get(k) || 0}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- 2. CONVENCIÓN: ACTORES SOCIALES Y ORGANIZACIONES SOCIALES -->
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#38bdf8">2. Actores y organizaciones</span>
+        <span style="font-size:9.5px;color:var(--mute)">Naturaleza</span>
+      </div>
+      <p style="margin:0 0 8px;font-size:11px;color:var(--soft);line-height:1.35">Simbología por rol social, comunitario e institucional:</p>
+
+      <div style="display:grid;grid-template-columns:1fr;gap:4px">
+        <div style="display:flex;align-items:center;gap:9px;padding:5px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <span style="width:22px;height:22px;border-radius:50%;background:#1b2438;border:1px solid #929CE8;display:grid;place-items:center;flex-shrink:0">
+            <svg width="12" height="12" fill="none" stroke="#FFFFFF" stroke-width="2"><use href="#i-org"/></svg>
+          </span>
+          <div style="font-size:10.5px;line-height:1.2">
+            <b style="color:#FFFFFF;display:block">Organizaciones sociales</b>
+            <span style="color:var(--soft)">Juntas Comunales (JAC), colectivos ambientales y comedores</span>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:7px">
-          <svg width="28" height="28" viewBox="0 0 28 28" style="flex-shrink:0"><circle cx="14" cy="14" r="8.5" fill="#182234" stroke="#4CB6E8" stroke-width="2.2"/><circle cx="14" cy="14" r="4" fill="#4CB6E8"/></svg>
-          <div style="font-size:10px;line-height:1.2"><b style="color:#FFFFFF;display:block">Nivel 2 (Medio-alto)</b>Coordinan entes</div>
+
+        <div style="display:flex;align-items:center;gap:9px;padding:5px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <span style="width:22px;height:22px;border-radius:50%;background:#1b2438;border:1px solid #F5A642;display:grid;place-items:center;flex-shrink:0">
+            <svg width="12" height="12" fill="none" stroke="#FFFFFF" stroke-width="2"><use href="#i-per"/></svg>
+          </span>
+          <div style="font-size:10.5px;line-height:1.2">
+            <b style="color:#FFFFFF;display:block">Actores y personas sociales</b>
+            <span style="color:var(--soft)">Recicladores, tenderos, coteros, vendedores, líderes comunales</span>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:7px">
-          <svg width="28" height="28" viewBox="0 0 28 28" style="flex-shrink:0"><circle cx="14" cy="14" r="6.5" fill="#182234" stroke="#52CE92" stroke-width="1.8"/><circle cx="14" cy="14" r="2.5" fill="#52CE92"/></svg>
-          <div style="font-size:10px;line-height:1.2"><b style="color:#FFFFFF;display:block">Nivel 3 (Medio)</b>Ejecutan campo</div>
+
+        <div style="display:flex;align-items:center;gap:9px;padding:5px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <span style="width:22px;height:22px;border-radius:50%;background:#1b2438;border:1px solid #f472b6;display:grid;place-items:center;flex-shrink:0">
+            <svg width="12" height="12" fill="none" stroke="#FFFFFF" stroke-width="2"><use href="#i-hog"/></svg>
+          </span>
+          <div style="font-size:10.5px;line-height:1.2">
+            <b style="color:#FFFFFF;display:block">Familias y hogares</b>
+            <span style="color:var(--soft)">Familias de Kennedy, consumidores y usuarios de servicios</span>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:7px">
-          <svg width="28" height="28" viewBox="0 0 28 28" style="flex-shrink:0"><circle cx="14" cy="14" r="4.5" fill="#182234" stroke="#F5A642" stroke-width="1.6"/></svg>
-          <div style="font-size:10px;line-height:1.2"><b style="color:#FFFFFF;display:block">Nivel 4 (Compacto)</b>Comunidad</div>
+
+        <div style="display:flex;align-items:center;gap:9px;padding:5px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <span style="width:22px;height:22px;border-radius:50%;background:#ffffff;border:1px solid #5B8BF5;display:grid;place-items:center;flex-shrink:0">
+            <svg width="12" height="12" fill="none" stroke="#0f172a" stroke-width="2"><use href="#i-pub"/></svg>
+          </span>
+          <div style="font-size:10.5px;line-height:1.2">
+            <b style="color:#FFFFFF;display:block">Instituciones públicas</b>
+            <span style="color:var(--soft)">Alcaldía Local, Secretarías, JAL, Policía Nacional, UAESP</span>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:9px;padding:5px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <span style="width:22px;height:22px;border-radius:50%;background:#1b2438;border:1px solid #4ade80;display:grid;place-items:center;flex-shrink:0">
+            <svg width="12" height="12" fill="none" stroke="#FFFFFF" stroke-width="2"><use href="#i-emp"/></svg>
+          </span>
+          <div style="font-size:10.5px;line-height:1.2">
+            <b style="color:#FFFFFF;display:block">Empresas y cooperativas</b>
+            <span style="color:var(--soft)">Corabastos, cooperativas de transporte, microfinancieras</span>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:9px;padding:5px 8px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <span style="width:22px;height:22px;border-radius:50%;background:#1b2438;border:1px solid #38bdf8;display:grid;place-items:center;flex-shrink:0">
+            <svg width="12" height="12" fill="none" stroke="#FFFFFF" stroke-width="2"><use href="#i-obj"/></svg>
+          </span>
+          <div style="font-size:10.5px;line-height:1.2">
+            <b style="color:#FFFFFF;display:block">Instrumentos técnicos</b>
+            <span style="color:var(--soft)">Camiones de alimentos y camiones recolectores de basura</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Instituciones clave con más relaciones (Toca para enfocar) -->
-    <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:10px;margin-top:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute)">Instituciones con más relaciones</span>
+    <!-- 3. CONVENCIÓN: JERARQUÍA DE DECISIÓN (TAMAÑO DE LA BOLA) -->
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#38bdf8">3. Jerarquía (Tamaño de bola)</span>
+        <span style="font-size:9.5px;color:var(--mute)">Poder</span>
+      </div>
+      <p style="margin:0 0 8px;font-size:11px;color:var(--soft);line-height:1.35">Capacidad de decisión presupuestal y normativa:</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+        <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <svg width="24" height="24" viewBox="0 0 28 28" style="flex-shrink:0"><circle cx="14" cy="14" r="11" fill="#182234" stroke="#929CE8" stroke-width="2.5"/><circle cx="14" cy="14" r="6" fill="#929CE8"/></svg>
+          <div style="font-size:9.5px;line-height:1.2"><b style="color:#FFFFFF;display:block">Nivel 1 (Grande)</b>Decisores política</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <svg width="24" height="24" viewBox="0 0 28 28" style="flex-shrink:0"><circle cx="14" cy="14" r="8.5" fill="#182234" stroke="#4CB6E8" stroke-width="2.2"/><circle cx="14" cy="14" r="4" fill="#4CB6E8"/></svg>
+          <div style="font-size:9.5px;line-height:1.2"><b style="color:#FFFFFF;display:block">Nivel 2 (Medio-alto)</b>Coordinadores</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <svg width="24" height="24" viewBox="0 0 28 28" style="flex-shrink:0"><circle cx="14" cy="14" r="6.5" fill="#182234" stroke="#52CE92" stroke-width="1.8"/><circle cx="14" cy="14" r="2.5" fill="#52CE92"/></svg>
+          <div style="font-size:9.5px;line-height:1.2"><b style="color:#FFFFFF;display:block">Nivel 3 (Medio)</b>Ejecutores directos</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;padding:5px 7px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:6px">
+          <svg width="24" height="24" viewBox="0 0 28 28" style="flex-shrink:0"><circle cx="14" cy="14" r="4.5" fill="#182234" stroke="#F5A642" stroke-width="1.6"/></svg>
+          <div style="font-size:9.5px;line-height:1.2"><b style="color:#FFFFFF;display:block">Nivel 4 (Compacto)</b>Bases y hogares</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. CONVENCIÓN: SECTORES Y CLÚSTERES (COLOR DEL BORDE) -->
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#38bdf8">4. Sectores temáticos (Color de borde)</span>
         <span style="font-size:9.5px;color:var(--mute)">Toca para enfocar</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        ${Object.entries(SPH).map(([k, name]) => `
+          <button class="sp" data-s="${k}" style="display:flex;align-items:center;gap:6px;padding:4px 6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:5px;cursor:pointer;text-align:left">
+            <span style="width:8px;height:8px;border-radius:50%;background:${SPC[k]};flex-shrink:0"></span>
+            <span style="font-size:9.5px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(name)}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- 5. INSTITUCIONES CON LOGO OFICIAL VERIFICADO -->
+    <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#38bdf8">5. Entidades con logo oficial</span>
+        <span style="font-size:9.5px;color:var(--mute)">Verificados</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
         ${featuredInst.map(inst => {
-          const photoUrl = REAL_LOGOS[inst.id] || ACTOR_PHOTOS[inst.id];
+          const logoUrl = REAL_LOGOS[inst.id];
           const totalRel = inst.out.length + inst.in.length;
           return `
           <button class="it" data-id="${inst.id}" style="display:flex;align-items:center;gap:7px;padding:5px 7px;background:#0f1422;border:1px solid rgba(255,255,255,0.08);border-radius:7px;text-align:left;cursor:pointer">
             <span class="av" style="width:26px;height:26px;border-radius:50%;border:1.5px solid ${SPC[inst.sph]};overflow:hidden;flex-shrink:0;background:#fff;display:flex;align-items:center;justify-content:center">
-              <img src="${photoUrl}" style="width:100%;height:100%;object-fit:contain" alt="${inst.short}">
+              ${logoUrl ? `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:contain" alt="${inst.short}">` : `<svg width="14" height="14" fill="none" stroke="${SPC[inst.sph]}" stroke-width="2"><use href="#${getNodeIconId(inst)}"/></svg>`}
             </span>
             <div style="min-width:0;flex:1">
               <div style="font-size:10.5px;font-weight:600;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(inst.short)}</div>
@@ -3030,38 +3160,6 @@ function overview(){
             </div>
           </button>`;
         }).join('')}
-      </div>
-    </div>
-
-    <!-- Convenciones de Interacciones (Líneas - Toca para filtrar) -->
-    <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-        <span style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute)">Interacciones sociales (Líneas)</span>
-        <span style="font-size:9.5px;color:var(--mute)">Filtro</span>
-      </div>
-      <div class="conv-compact-list">
-        ${Object.entries(CONV).map(([k, v]) => `
-          <button class="cv-pill ${state.conv.has(k) ? 'active' : ''}" data-c="${k}">
-            <span style="display:flex;align-items:center;gap:7px;font-size:10.5px;color:${state.conv.has(k) ? '#fff' : 'var(--soft)'}">
-              <span style="width:14px;height:2px;background:${v.c};border-radius:1px;${v.d ? 'border-bottom:1px dashed '+v.c+';height:0;' : ''}"></span>
-              ${esc(v.n)}
-            </span>
-            <span style="font-size:10px;font-weight:600;color:var(--mute)">${counts.get(k) || 0}</span>
-          </button>
-        `).join('')}
-      </div>
-    </div>
-
-    <!-- Sectores / Esferas temáticas (Color del borde de bola) -->
-    <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px">
-      <span style="display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);margin-bottom:6px">Sectores y Clústeres (Color de borde)</span>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-        ${Object.entries(SPH).map(([k, name]) => `
-          <button class="sp" data-s="${k}" style="display:flex;align-items:center;gap:6px;padding:3px 6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:5px;cursor:pointer;text-align:left">
-            <span style="width:7px;height:7px;border-radius:50%;background:${SPC[k]};flex-shrink:0"></span>
-            <span style="font-size:9.5px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(name)}</span>
-          </button>
-        `).join('')}
       </div>
     </div>
   </section>`;
