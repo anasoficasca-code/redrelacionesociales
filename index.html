@@ -9,12 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0c0e14;
-  --ink:#E5E1D8;
-  --soft:#A6A197;
-  --mute:#726E67;
-  --line:#1c202a;
-  --faint:#272d3b;
+  --bg:#0b0d14;
+  --ink:#EAE6DE;
+  --soft:#A8A398;
+  --mute:#747068;
+  --line:#1c202c;
+  --faint:#262b3a;
   --ui:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
   color-scheme:dark;
 }
@@ -24,54 +24,79 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family
 button{font:inherit;color:inherit}
 .app{display:grid;grid-template-columns:1fr 390px;height:100%}
 .left{display:grid;grid-template-rows:auto 1fr;min-height:0}
-header{padding:18px 26px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-bottom:1px solid var(--line);background:#0a0c12}
-h1{margin:0;font-size:25px;font-weight:600;letter-spacing:-.025em;line-height:1.05;color:#F0ECE4}
+header{padding:18px 26px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-bottom:1px solid var(--line);background:#090b10}
+h1{margin:0;font-size:25px;font-weight:600;letter-spacing:-.025em;line-height:1.05;color:#F4F0E8}
 .lede{margin:6px 0 0;font-size:13px;line-height:1.45;color:var(--soft);max-width:62ch}
 .nums{display:flex;gap:24px;flex:none}
-.nums div{text-align:right}.nums b{display:block;font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1;color:#F0ECE4}
+.nums div{text-align:right}.nums b{display:block;font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1;color:#F4F0E8}
 .nums span{font-size:12px;color:var(--mute)}
-.stage{position:relative;min-height:0;background:radial-gradient(circle at 1px 1px,#191e2b 1px,transparent 1.3px) 0 0/26px 26px,#0c0e14;overflow:hidden}
+.stage{position:relative;min-height:0;background:radial-gradient(circle at 1px 1px,#181e2b 1px,transparent 1.3px) 0 0/26px 26px,#0b0d14;overflow:hidden}
 #net{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
 #net:active{cursor:grabbing}
-.zoom{position:absolute;right:18px;bottom:18px;display:flex;border:1px solid var(--faint);border-radius:999px;overflow:hidden;background:#10131c;z-index:10;box-shadow:0 6px 16px rgba(0,0,0,0.5)}
-.zoom button{background:none;border:0;height:34px;padding:0 14px;cursor:pointer;font-size:13px;color:var(--soft)}
+.zoom{position:absolute;right:18px;bottom:18px;display:flex;border:1px solid var(--faint);border-radius:999px;overflow:hidden;background:#10131d;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,0.55)}
+.zoom button{background:none;border:0;height:34px;padding:0 14px;cursor:pointer;font-size:13px;color:var(--soft);transition:background .15s,color .15s}
 .zoom button+button{border-left:1px solid var(--faint)}
-.zoom button:hover{color:var(--ink)}
+.zoom button:hover{color:var(--ink);background:#181c2a}
 button:focus-visible{outline:2px solid #828ecc;outline-offset:2px}
 
-.neb{pointer-events:none;transition:opacity .3s}
+.neb{pointer-events:none;transition:opacity .35s ease}
 .orbit{fill:none;stroke-opacity:.2;stroke-width:1;stroke-dasharray:1 5;pointer-events:none}
-.crown{fill:none;stroke:#D4AF37;stroke-width:1.6;stroke-opacity:.45;pointer-events:none}
-.hlabel{font-weight:600;pointer-events:none;letter-spacing:.02em;paint-order:stroke;stroke:#0c0e14;stroke-width:3px;stroke-linejoin:round;font-size:13px;opacity:.9}
+.crown{fill:none;stroke:#E5C06E;stroke-width:1.6;stroke-opacity:.48;pointer-events:none}
+.hlabel{font-weight:600;pointer-events:none;letter-spacing:.02em;paint-order:stroke;stroke:#0b0d14;stroke-width:3px;stroke-linejoin:round;font-size:13px;opacity:.9}
 
-/* Enlaces limpios con visibilidad de dirección */
-.link{fill:none;stroke-linecap:round;opacity:.30;transition:opacity .2s, stroke-width .2s}
-.node{cursor:pointer}
-.node .ring{stroke-opacity:.88;transition:stroke .2s,stroke-width .2s,fill .2s}
+/* Enlaces limpios e interactivos */
+.link{fill:none;stroke-linecap:round;opacity:.32;transition:opacity .2s, stroke-width .2s, stroke .2s}
+.link-hit{fill:none;stroke:transparent;pointer-events:stroke;cursor:pointer}
+.link-hit:hover + .link, .link.hov-link{opacity:1 !important;stroke-width:3.2px !important;filter:drop-shadow(0 0 5px currentColor)}
+.link.sel-link{opacity:1 !important;stroke-width:3.6px !important;filter:drop-shadow(0 0 8px currentColor)}
+
+/* Nodos elegantes con relieve y acabado visual */
+.node{cursor:pointer;transition:transform .15s ease}
+.node .ring{stroke-opacity:.90;transition:stroke .2s,stroke-width .2s,fill .2s}
 .node .icon,.node .logo-img{pointer-events:none}
 .node .halo{fill:none;stroke:#fff;stroke-opacity:0;pointer-events:none}
 .node.new .ring{stroke-dasharray:4 3}
-.node text{fill:#EDE9E1;font-weight:600;pointer-events:none;paint-order:stroke;stroke:#0c0e14;stroke-linejoin:round;stroke-width:3px;font-size:12px}
-.node,.hull,.hlabel{transition:opacity .25s}
-.focus .node{opacity:.14}.focus .link{opacity:.03}.focus .neb{opacity:.15}
-.focus .node.on{opacity:1}.focus .link.on{opacity:.92;stroke-width:2.4px}
+.node text{fill:#F0ECE4;font-weight:600;pointer-events:none;paint-order:stroke;stroke:#0b0d14;stroke-linejoin:round;stroke-width:3px;font-size:12px}
+.node,.hull,.hlabel{transition:opacity .25s ease}
+
+/* Modos de enfoque (focus) al seleccionar o pasar cursor */
+.focus .node{opacity:.12}.focus .link{opacity:.025}.focus .neb{opacity:.12}
+.focus .node.on{opacity:1;filter:drop-shadow(0 4px 14px rgba(0,0,0,0.85))}
+.focus .link.on{opacity:.95;stroke-width:2.4px}
 .node.sel .halo{stroke-opacity:.5}
 .node.sel .ring{stroke:#fff;stroke-opacity:1}
 .off{display:none}
 .particle{pointer-events:none}
 
-/* Popover interactivo en hover ("pop") sobrio y elegante */
-.node-pop{position:absolute;pointer-events:none;z-index:50;display:none;background:rgba(15,18,25,0.96);border:1px solid rgba(255,255,255,0.12);backdrop-filter:blur(10px);padding:12px 14px;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,0.65);max-width:280px;transform:translate(-50%,-100%);margin-top:-14px}
-.node-pop.visible{display:block;animation:popFade .15s ease-out}
+/* Popover interactivo flotante en hover ("pop") sobrio y elegante */
+.node-pop{position:absolute;pointer-events:none;z-index:50;display:none;background:rgba(14,17,24,0.96);border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(12px);padding:13px 15px;border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,0.75);max-width:310px;transform:translate(-50%,-100%);margin-top:-14px}
+.node-pop.visible{display:block;animation:popFade .15s cubic-bezier(0.16, 1, 0.3, 1)}
 @keyframes popFade{from{opacity:0;transform:translate(-50%,-92%) scale(0.97)}to{opacity:1;transform:translate(-50%,-100%) scale(1)}}
-.node-pop .pop-head{display:flex;align-items:center;gap:10px}
-.node-pop .pop-av{width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);display:grid;place-items:center;flex:none;background:#fff;overflow:hidden}
-.node-pop .pop-av.dark-av{background:#141722}
-.node-pop .pop-title{font-size:13.5px;font-weight:600;color:#F3EFE7;line-height:1.25}
-.node-pop .pop-sub{font-size:11.5px;color:var(--soft);margin-top:2px}
-.node-pop .pop-meta{margin-top:9px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;font-size:11.5px;color:var(--mute)}
-.node-pop .pop-hint{margin-top:6px;font-size:10.5px;color:var(--soft);opacity:.75;font-style:italic}
 
+/* Estructura del popover para nodos */
+.node-pop .pop-head{display:flex;align-items:center;gap:11px}
+.node-pop .pop-av{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);display:grid;place-items:center;flex:none;background:#fff;overflow:hidden}
+.node-pop .pop-av.dark-av{background:#141722}
+.node-pop .pop-title{font-size:14px;font-weight:600;color:#F6F3EB;line-height:1.25}
+.node-pop .pop-sub{font-size:11.5px;color:var(--soft);margin-top:2px}
+.node-pop .pop-meta{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;font-size:11.5px;color:var(--mute)}
+.node-pop .pop-hint{margin-top:7px;font-size:10.5px;color:var(--soft);opacity:.8;font-style:italic}
+
+/* Estructura del popover para líneas (relaciones) */
+.pop-link-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.pop-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid}
+.pop-badge i{width:6px;height:6px;border-radius:50%}
+.pop-intens{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--soft)}
+.pop-link-title{font-size:14px;font-weight:600;color:#F6F3EB;line-height:1.25;margin-bottom:5px}
+.pop-link-desc{font-size:12px;color:var(--soft);line-height:1.45;margin-bottom:12px}
+.pop-flow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:9px;border:1px solid rgba(255,255,255,0.06)}
+.flow-actor{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.flow-name{display:flex;flex-direction:column;min-width:0}
+.flow-name b{font-size:11.5px;color:#F6F3EB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:92px}
+.flow-name small{font-size:10px;color:var(--mute)}
+.flow-arrow{font-size:14px;font-weight:700;flex:none;opacity:.9}
+
+/* Panel lateral sobrio y moderno */
 .panel{border-left:1px solid var(--line);overflow-y:auto;background:#0d1017}
 .sec{padding:22px 24px;border-bottom:1px solid var(--line)}
 h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#EDEAE3}
@@ -101,14 +126,14 @@ h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#ED
 .row .nm{font-size:13px;font-weight:500;display:block;line-height:1.2}
 .row .sub{font-size:11.5px;color:var(--mute);display:block;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
 .row .deg{margin-left:auto;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
-.back{background:none;border:0;padding:0;color:var(--soft);font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.back{background:none;border:0;padding:0;color:var(--soft);font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
 .back:hover{color:var(--ink)}
-.who h3{margin:10px 0 2px;font-size:17px;font-weight:600;letter-spacing:-.015em;line-height:1.2;color:#F3EFE7}
+.who h3{margin:10px 0 2px;font-size:17px;font-weight:600;letter-spacing:-.015em;line-height:1.2;color:#F4F0E8}
 .who .kind{font-size:12px;color:var(--soft)}
 .who p{margin:12px 0 16px;font-size:13px;line-height:1.5;color:var(--soft)}
 .who .av{border-radius:50%;border:2px solid;display:grid;place-items:center;overflow:hidden}
 .io{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;border-radius:8px;background:#121622;border:1px solid var(--line)}
-.io div{text-align:center}.io b{display:block;font-size:20px;font-weight:600;color:#F3EFE7;line-height:1}.io span{font-size:12px;color:var(--mute)}
+.io div{text-align:center}.io b{display:block;font-size:20px;font-weight:600;color:#F4F0E8;line-height:1}.io span{font-size:12px;color:var(--mute)}
 .group{margin-top:18px}
 .group:first-child{margin-top:0}
 .ghead{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--soft);margin-bottom:4px}
@@ -126,6 +151,9 @@ h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#ED
 .inst-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:9px 5px;border:1px solid var(--faint);border-radius:10px;background:#10131d;cursor:pointer;transition:border-color .15s,background .15s}
 .inst-card:hover{border-color:#5a6385;background:#171c2a}
 .inst-card span{font-size:11px;color:var(--soft);margin-top:5px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.link-actor-card{transition:border-color .15s,background .15s;text-align:left}
+.link-actor-card:hover{border-color:#616c96 !important;background:#161a27 !important}
 
 @media (max-width:900px){
   .app{display:block;height:auto}
@@ -175,7 +203,7 @@ h2{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#ED
    <path d="M2 7h20"/>
  </symbol>
  
- <!-- Entidad pública / Institución: Edificio normal de oficina con ventanas (SIN triángulos ni columnas griegas) -->
+ <!-- Entidad pública / Institución: Edificio normal de oficina con ventanas -->
  <symbol id="i-pub" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
    <rect width="16" height="20" x="4" y="2" rx="2"/>
    <path d="M9 22v-4h6v4"/>
@@ -260,7 +288,6 @@ const REAL_LOGOS = {
   'A32': LOGO_DATA.uaesp,            // UAESP
   'N06': LOGO_DATA.acueducto         // Empresa de Acueducto y Alcantarillado de Bogotá (EAAB)
 };
-
 
 const CONV = {
   com:{n:'Comercial y abastecimiento',c:'#F5A642',d:null},
@@ -417,7 +444,7 @@ Object.entries(CONV).forEach(([k,v])=>defs.append('marker')
   .append('path')
   .attr('d','M 0,1.4 L 9.5,5 L 0,8.6 L 2.4,5 Z')
   .attr('fill', v.c)
-  .attr('stroke', '#0c0e14')
+  .attr('stroke', '#0b0d14')
   .attr('stroke-width', 0.8)
   .attr('stroke-linejoin', 'round')
 );
@@ -430,7 +457,7 @@ nodes.forEach(n => {
   }
 });
 
-/* Nebulosas tenues, suaves y elegantes (sin neón chillón) */
+/* Nebulosas tenues, suaves y elegantes */
 Object.entries(SPC).forEach(([k,c])=>{
   const g = defs.append('radialGradient').attr('id','g-'+k);
   g.append('stop').attr('offset','0').attr('stop-color',c).attr('stop-opacity',.10);
@@ -439,7 +466,12 @@ Object.entries(SPC).forEach(([k,c])=>{
 });
 
 const root = svg.append('g');
-const gH = root.append('g'), gL = root.append('g'), gP = root.append('g'), gN = root.append('g'), gT = root.append('g');
+const gH = root.append('g'),      // nebulosas
+      gL = root.append('g'),      // líneas visibles
+      gLHit = root.append('g'),   // zona transparente táctil/clic para líneas
+      gP = root.append('g'),      // partículas de flujo
+      gN = root.append('g'),      // nodos
+      gT = root.append('g');      // etiquetas
 
 function path(l){
   const s = l.source, t = l.target, dx = t.x - s.x, dy = t.y - s.y, d = Math.hypot(dx,dy) || 1;
@@ -450,9 +482,15 @@ function path(l){
   return `M${s.x + sx0 / sd * (s.r + 2)},${s.y + sy0 / sd * (s.r + 2)}Q${mx},${my} ${t.x - ex / ed * (t.r + pad)},${t.y - ey / ed * (t.r + pad)}`;
 }
 const wid = w => MODE === 'd' ? [0, 1.3, 2.0, 3.2][w] : [0, 1.5, 2.4, 3.5][w];
+
+// Líneas visibles
 const linkSel = gL.selectAll('path').data(links).join('path').attr('class','link')
   .attr('id',l=>'p'+l.i).attr('stroke',l=>CONV[l.c].c).attr('stroke-dasharray',l=>CONV[l.c].d)
   .attr('marker-end',l=>`url(#m-${l.c})`);
+
+// Zonas transparentes anchas para poder tocar y hacer clic en la línea con facilidad
+const linkHitSel = gLHit.selectAll('path').data(links).join('path').attr('class','link-hit')
+  .attr('stroke-width', MODE === 'd' ? 16 : 22);
 
 const nodeSel = gN.selectAll('g').data(nodes).join('g').attr('class',n=>'node'+(n.new?' new':'')+(REAL_LOGOS[n.id]?' has-real-logo':''))
   .attr('tabindex',0).attr('role','button').attr('aria-label',n=>n.name);
@@ -482,6 +520,7 @@ nodeSel.append('text');
 function geometry(){
   svg.attr('viewBox',`0 0 ${W} ${H}`);
   linkSel.attr('d',path).attr('stroke-width',l=>wid(l.w));
+  linkHitSel.attr('d',path);
   nodeSel.attr('transform',n=>`translate(${n.x},${n.y})`);
   nodeSel.select('.crown').attr('r',n=>n.r+(MODE==='d'?7:6));
   nodeSel.select('.ring').attr('r',n=>n.r)
@@ -534,7 +573,9 @@ function placeLabels(){
   const R = svg.node().getBoundingClientRect(), boxes = [], out = b => b[0]<4||b[1]<4||b[2]>R.width-4||b[3]>R.height-4, ov = (a,o)=>a[0]<o[2]&&a[2]>o[0]&&a[1]<o[3]&&a[3]>o[1], nb = [], hit = (b,soft)=>out(b)||boxes.some(o=>ov(b,o))||(!soft&&nb.some(o=>ov(b,o)));
   const O = offs(), sx = n => (n.x*T.k + T.x)*unitPx() + O[0], sy = n => (n.y*T.k + T.y)*unitPx() + O[1];
   const vis = nodes.filter(n => !n.hidden);
-  vis.filter(n => !state.sel || n === state.sel || state.sel.nb.has(n.id)).forEach(n => {
+  
+  const activeLink = state.selLink || state.hovLink;
+  vis.filter(n => !state.sel && !activeLink || n === state.sel || (state.sel && state.sel.nb.has(n.id)) || (activeLink && (n === activeLink.source || n === activeLink.target))).forEach(n => {
     const r = n.r * u, x = sx(n), y = sy(n);
     nb.push([x-r, y-r, x+r, y+r]);
   });
@@ -545,7 +586,7 @@ function placeLabels(){
   gT.selectAll('text').attr('font-size', hu).each(function(d){
     const w = meas.measureText(SPH[d.k]).width, x = (d.cx*T.k + T.x)*unitPx() + O[0];
     let ok = false;
-    if(!state.sel && !state.hov){
+    if(!state.sel && !state.hov && !activeLink){
       const ly = d.top - 10, y = (ly*T.k + T.y)*unitPx() + O[1];
       boxes.push([x - w/2 - 6, y - hs, x + w/2 + 6, y + 6]);
       d3.select(this).attr('y', ly);
@@ -555,13 +596,17 @@ function placeLabels(){
   });
 
   meas.font = `500 ${fs}px "Instrument Sans", sans-serif`;
-  const sel = state.sel, prio = n => (sel && (n === sel ? 5 : sel.nb.has(n.id) ? 3 : 0)) + (n === state.hov ? 5 : (state.hov && state.hov.nb.has(n.id) ? 3 : 0)) + (REAL_LOGOS[n.id] ? 2 : 0) + (n.lv <= 2 ? 1 : 0);
+  const sel = state.sel;
+  const prio = n => (sel && (n === sel ? 6 : sel.nb.has(n.id) ? 4 : 0)) +
+                    (activeLink && (n === activeLink.source || n === activeLink.target) ? 8 : 0) +
+                    (n === state.hov ? 5 : (state.hov && state.hov.nb.has(n.id) ? 3 : 0)) +
+                    (REAL_LOGOS[n.id] ? 2 : 0) + (n.lv <= 2 ? 1 : 0);
   const order = [...vis].sort((a,b) => prio(b) - prio(a) || b.deg - a.deg);
   const shown = new Map();
 
   order.forEach(n => {
-    const isPrio = n === sel || n === state.hov || (sel && sel.nb.has(n.id)) || (state.hov && state.hov.nb.has(n.id));
-    const base = !sel && !state.hov && (n.lv <= 1 || (REAL_LOGOS[n.id] && T.k > 1.05) || T.k > 1.5);
+    const isPrio = n === sel || n === state.hov || (sel && sel.nb.has(n.id)) || (state.hov && state.hov.nb.has(n.id)) || (activeLink && (n === activeLink.source || n === activeLink.target));
+    const base = !sel && !state.hov && !activeLink && (n.lv <= 1 || (REAL_LOGOS[n.id] && T.k > 1.05) || T.k > 1.5);
     if (!isPrio && !base) return;
 
     const w = meas.measureText(n.short).width, r = n.r * u, x = sx(n), y = sy(n), g = 7;
@@ -586,7 +631,7 @@ function placeLabels(){
     const s = shown.get(n), t = d3.select(this);
     if(!s){ t.style('display','none'); return; }
     t.style('display', null).attr('text-anchor', s[0]).attr('x', s[1]).attr('y', s[2]).attr('font-size', fu)
-     .attr('stroke-width', 3.2/u).attr('font-weight', (n === sel || n === state.hov || REAL_LOGOS[n.id]) ? 600 : 500).text(n.short);
+     .attr('stroke-width', 3.2/u).attr('font-weight', (n === sel || n === state.hov || (activeLink && (n === activeLink.source || n === activeLink.target)) || REAL_LOGOS[n.id]) ? 600 : 500).text(n.short);
   });
 }
 let raf; const queue = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(placeLabels); };
@@ -622,13 +667,13 @@ function scrollToNode(n){
 }
 document.getElementById('zin').onclick = () => svg.transition().call(zoom.scaleBy, 1.35);
 document.getElementById('zout').onclick = () => svg.transition().call(zoom.scaleBy, 1/1.35);
-document.getElementById('zfit').onclick = () => { select(null); fitAll(); };
+document.getElementById('zfit').onclick = () => { select(null); selectLink(null); fitAll(); };
 
-/* ---------- popover flotante en hover ("pop") ---------- */
+/* ---------- popover flotante ("pop") para nodos y para líneas ---------- */
 const pop = document.getElementById('node-pop');
 const stage = document.getElementById('stage');
 
-function showPop(n, e){
+function showNodePop(n, e){
   const O = offs(), u = unitPx();
   const screenX = (n.x * T.k + T.x) * u + O[0];
   const screenY = (n.y * T.k + T.y) * u + O[1] - (n.r * u * T.k) - 8;
@@ -636,7 +681,7 @@ function showPop(n, e){
   const hasLogo = !!REAL_LOGOS[n.id];
   pop.innerHTML = `
     <div class="pop-head">
-      <div class="pop-av ${hasLogo?'':'dark-av'}" style="border-color:${SPC[n.sph]}">${avatar(n, 32)}</div>
+      <div class="pop-av ${hasLogo?'':'dark-av'}" style="border-color:${SPC[n.sph]}">${avatar(n, 34)}</div>
       <div>
         <div class="pop-title">${esc(n.name)}</div>
         <div class="pop-sub">${esc(n.nat)}</div>
@@ -646,30 +691,73 @@ function showPop(n, e){
       <span><b style="color:${SPC[n.sph]}">${esc(SPH[n.sph].split(' ')[0])}</b> • ${esc(LV[n.lv])}</span>
       <span>${n.deg} vínculos</span>
     </div>
-    <div class="pop-hint">Toca para ver sus relaciones completas</div>
+    <div class="pop-hint">Toca el actor para ver toda su red</div>
   `;
   pop.style.left = screenX + 'px';
   pop.style.top = screenY + 'px';
   pop.classList.add('visible');
 }
+
+function showLinkPop(l, e){
+  const s = l.source, t = l.target;
+  const stageRect = stage.getBoundingClientRect();
+  const screenX = Math.min(stageRect.width - 160, Math.max(160, e.clientX - stageRect.left));
+  const screenY = e.clientY - stageRect.top - 16;
+
+  const conv = CONV[l.c];
+  const sLogo = !!REAL_LOGOS[s.id], tLogo = !!REAL_LOGOS[t.id];
+  const intensLabel = l.w === 3 ? 'Relación Fuerte' : l.w === 2 ? 'Relación Moderada' : 'Relación Ocasional';
+
+  pop.innerHTML = `
+    <div class="pop-link-head">
+      <span class="pop-badge" style="background:${conv.c}22;color:${conv.c};border-color:${conv.c}55">
+        <i style="background:${conv.c}"></i> ${esc(conv.n)}
+      </span>
+      <span class="pop-intens">${dots(l.w, conv.c)} <small>${intensLabel}</small></span>
+    </div>
+    
+    <div class="pop-link-title">${esc(l.type)}</div>
+    <div class="pop-link-desc">${esc(l.desc)}</div>
+
+    <div class="pop-flow">
+      <div class="flow-actor">
+        <span class="av ${sLogo?'':'dark-av'}" style="border-color:${SPC[s.sph]};width:28px;height:28px">${avatar(s, 24)}</span>
+        <div class="flow-name"><b>${esc(s.short)}</b><small>Inicia relación</small></div>
+      </div>
+      <div class="flow-arrow" style="color:${conv.c}">➔</div>
+      <div class="flow-actor">
+        <span class="av ${tLogo?'':'dark-av'}" style="border-color:${SPC[t.sph]};width:28px;height:28px">${avatar(t, 24)}</span>
+        <div class="flow-name"><b>${esc(t.short)}</b><small>Recibe relación</small></div>
+      </div>
+    </div>
+    <div class="pop-hint">Toca la línea para fijar los detalles en el panel</div>
+  `;
+  pop.style.left = screenX + 'px';
+  pop.style.top = screenY + 'px';
+  pop.classList.add('visible');
+}
+
 function hidePop(){
   pop.classList.remove('visible');
 }
 
 /* ---------- estado, filtros, selección ---------- */
-const state = {sel:null, hov:null, conv:new Set(Object.keys(CONV)), q:''};
+const state = {sel:null, hov:null, selLink:null, hovLink:null, conv:new Set(Object.keys(CONV)), q:''};
 
 function applyConv(){
   linkSel.classed('off', l => !state.conv.has(l.c));
+  linkHitSel.classed('off', l => !state.conv.has(l.c));
   nodes.forEach(n => n.hidden = false);
-  if(state.sel) focus(state.sel);
+  if(state.sel) focusNode(state.sel);
+  if(state.selLink) focusLink(state.selLink);
   queue();
 }
 
-function focus(n){
+function focusNode(n){
   svg.classed('focus', !!n);
   nodeSel.classed('on', d => n && (d === n || n.nb.has(d.id))).classed('sel', d => d === n);
-  linkSel.classed('on', l => n && (l.source === n || l.target === n));
+  linkSel.classed('on', l => n && (l.source === n || l.target === n))
+         .classed('sel-link', false);
   gP.selectAll('*').remove();
   if(n && !window.matchMedia('(prefers-reduced-motion:reduce)').matches){
     [...n.out, ...n.in].filter(l => state.conv.has(l.c)).forEach((l, j) => {
@@ -682,9 +770,25 @@ function focus(n){
   }
 }
 
+function focusLink(l){
+  svg.classed('focus', !!l);
+  nodeSel.classed('on', d => l && (d === l.source || d === l.target)).classed('sel', false);
+  linkSel.classed('on', o => l && o === l)
+         .classed('sel-link', o => l && o === l);
+  gP.selectAll('*').remove();
+  if(l && !window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    for(let q = 0; q < 3; q++){
+      const c = gP.append('circle').attr('class','particle').attr('r', MODE === 'd' ? 3.4 : 3.8).attr('fill', CONV[l.c].c);
+      c.append('animateMotion').attr('dur', '1.8s').attr('repeatCount', 'indefinite').attr('begin', (q * 0.6) + 's')
+       .append('mpath').attr('href', '#p' + l.i);
+    }
+  }
+}
+
 function select(n, how){
   state.sel = n;
-  focus(n);
+  state.selLink = null;
+  focusNode(n);
   renderPanel();
   queue();
   if (n) hidePop();
@@ -694,15 +798,30 @@ function select(n, how){
   if (n && MODE === 'm' && how === 'list') scrollToNode(n);
 }
 
+function selectLink(l){
+  state.selLink = l;
+  state.sel = null;
+  focusLink(l);
+  renderPanel();
+  queue();
+  hidePop();
+  if (l && MODE === 'd'){
+    fitTo([l.source, l.target], 650, 2.2);
+  }
+}
+
+/* Eventos sobre Nodos */
 nodeSel.on('mouseenter', (e, n) => {
+  if (state.selLink) return;
   state.hov = n;
-  if (!state.sel){ focus(n); }
-  showPop(n, e);
+  if (!state.sel){ focusNode(n); }
+  showNodePop(n, e);
   queue();
 })
 .on('mouseleave', () => {
+  if (state.selLink) return;
   state.hov = null;
-  if (!state.sel) focus(null);
+  if (!state.sel) focusNode(null);
   hidePop();
   queue();
 })
@@ -717,8 +836,34 @@ nodeSel.on('mouseenter', (e, n) => {
   }
 });
 
+/* Eventos sobre Líneas de interacción (Hit-area) */
+linkHitSel.on('mouseenter', (e, l) => {
+  if (state.sel || state.selLink) return;
+  state.hovLink = l;
+  linkSel.filter(o => o === l).classed('hov-link', true);
+  nodeSel.classed('on', d => d === l.source || d === l.target);
+  showLinkPop(l, e);
+  queue();
+})
+.on('mouseleave', (e, l) => {
+  if (state.sel || state.selLink) return;
+  state.hovLink = null;
+  linkSel.classed('hov-link', false);
+  nodeSel.classed('on', false);
+  hidePop();
+  queue();
+})
+.on('click', (e, l) => {
+  e.stopPropagation();
+  selectLink(l);
+});
+
 svg.on('click', () => {
-  if (state.sel){ select(null, 'keep'); }
+  if (state.sel || state.selLink){
+    select(null, 'keep');
+    selectLink(null);
+    fitAll();
+  }
   hidePop();
 });
 
@@ -735,6 +880,69 @@ const avatar = (n, s = 24) => {
 const sample = (k, w = 46) => `<svg width="${w}" height="12" aria-hidden="true"><path d="M2 6H${w-9}" stroke="${CONV[k].c}" stroke-width="2.2" stroke-linecap="round" ${CONV[k].d?`stroke-dasharray="${CONV[k].d}"`:''}/><path d="M${w-10} 2.2 ${w-2} 6 ${w-10} 9.8z" fill="${CONV[k].c}"/></svg>`;
 const dots = (w, c) => `<span class="dots" style="--c:${c}" title="Intensidad ${w} de 3">${[1,2,3].map(i=>`<i class="${i<=w?'f':''}"></i>`).join('')}</span>`;
 
+function linkDetail(l){
+  const s = l.source, t = l.target;
+  const conv = CONV[l.c];
+  const sLogo = !!REAL_LOGOS[s.id], tLogo = !!REAL_LOGOS[t.id];
+  const intensLabel = l.w === 3 ? 'Fuerte e intensiva' : l.w === 2 ? 'Moderada y frecuente' : 'Ocasional / En desarrollo';
+
+  return `
+  <section class="sec">
+    <button class="back" id="back">← Volver a toda la red</button>
+    <div style="margin-top:16px">
+      <span class="pop-badge" style="background:${conv.c}22;color:${conv.c};border-color:${conv.c}55;font-size:12px;padding:4px 10px">
+        <i style="background:${conv.c}"></i> ${esc(conv.n)}
+      </span>
+      <h3 style="margin:12px 0 6px;font-size:18px;font-weight:600;color:#F4F0E8;line-height:1.25">${esc(l.type)}</h3>
+      <p style="margin:0 0 16px;font-size:13.5px;line-height:1.55;color:var(--soft)">${esc(l.desc)}</p>
+      
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#121622;border:1px solid var(--line);border-radius:10px">
+        <span style="font-size:12px;color:var(--mute)">Intensidad:</span>
+        ${dots(l.w, conv.c)}
+        <span style="font-size:12.5px;font-weight:500;color:var(--ink)">${intensLabel}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Actores que interactúan</h2>
+    <p class="hint">Toca cualquiera de los dos actores para explorar toda su red:</p>
+    
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <!-- Actor Origen -->
+      <button class="it link-actor-card" data-id="${s.id}" style="padding:12px;border:1px solid var(--faint);border-radius:12px;background:#10131d">
+        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);margin-bottom:6px">Inicia la relación (Origen)</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="av ${sLogo?'':'dark-av'}" style="width:42px;height:42px;border-color:${SPC[s.sph]};border-width:2px;flex:none;background:${sLogo?'#fff':'#141722'}">${avatar(s, 36)}</span>
+          <div style="min-width:0;flex:1">
+            <div style="font-size:14px;font-weight:600;color:#F4F0E8;line-height:1.2">${esc(s.name)}</div>
+            <div style="font-size:12px;color:var(--soft);margin-top:2px">${esc(SPH[s.sph])} • <b style="color:${SPC[s.sph]}">${esc(LV[s.lv])}</b></div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--soft);margin-top:8px;line-height:1.4">${esc(s.fun)}</div>
+      </button>
+
+      <!-- Indicador de flujo con flecha -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:2px 0;color:${conv.c}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+      </div>
+
+      <!-- Actor Destino -->
+      <button class="it link-actor-card" data-id="${t.id}" style="padding:12px;border:1px solid var(--faint);border-radius:12px;background:#10131d">
+        <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);margin-bottom:6px">Recibe la relación (Destino)</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="av ${tLogo?'':'dark-av'}" style="width:42px;height:42px;border-color:${SPC[t.sph]};border-width:2px;flex:none;background:${tLogo?'#fff':'#141722'}">${avatar(t, 36)}</span>
+          <div style="min-width:0;flex:1">
+            <div style="font-size:14px;font-weight:600;color:#F4F0E8;line-height:1.2">${esc(t.name)}</div>
+            <div style="font-size:12px;color:var(--soft);margin-top:2px">${esc(SPH[t.sph])} • <b style="color:${SPC[t.sph]}">${esc(LV[t.lv])}</b></div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--soft);margin-top:8px;line-height:1.4">${esc(t.fun)}</div>
+      </button>
+    </div>
+  </section>`;
+}
+
 function overview(){
   const counts = d3.rollup(links, v => v.length, l => l.c);
   // Las 8 instituciones con su logo oficial único:
@@ -746,7 +954,7 @@ function overview(){
   return `
   <section class="sec"><h2>Quién decide y quién ejecuta</h2>
    <p class="hint">Red social interconectada: en cada ámbito, los decisores al centro con mayor tamaño; en su órbita, quienes coordinan, ejecutan y reciben en Kennedy.</p>
-   <div class="lvls">${[1,2,3,4].map(l=>{const r=LVR.d[l];return `<div><svg width="68" height="68" viewBox="0 0 68 68">${l===1?`<circle cx="34" cy="34" r="${r*.75+5}" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-opacity=".45"/>`:''}<circle cx="34" cy="34" r="${r*.75}" fill="${l===4?'#E5E1D8':'#181c26'}" stroke="#E5E1D8" stroke-width="${l===1?2.2:l===2?1.6:1.2}"/></svg><span><b>${LV[l]}</b><br>${LVD[l]}</span></div>`}).join('')}</div>
+   <div class="lvls">${[1,2,3,4].map(l=>{const r=LVR.d[l];return `<div><svg width="68" height="68" viewBox="0 0 68 68">${l===1?`<circle cx="34" cy="34" r="${r*.75+5}" fill="none" stroke="#E5C06E" stroke-width="1.5" stroke-opacity=".5"/>`:''}<circle cx="34" cy="34" r="${r*.75}" fill="${l===4?'#E5E1D8':'#181c26'}" stroke="#E5E1D8" stroke-width="${l===1?2.2:l===2?1.6:1.2}"/></svg><span><b>${LV[l]}</b><br>${LVD[l]}</span></div>`}).join('')}</div>
   </section>
 
   <section class="sec"><h2>Instituciones oficiales clave</h2>
@@ -760,7 +968,7 @@ function overview(){
   </section>
 
   <section class="sec"><h2>Convenciones de interacción</h2>
-   <p class="hint">Color y trazo definen el tipo de relación; el grosor, la intensidad. Toca para filtrar.</p>
+   <p class="hint">Color y trazo definen el tipo de relación; el grosor, la intensidad. Toca cualquier línea en el gráfico para ver su detalle.</p>
    <div class="conv">${Object.entries(CONV).map(([k,v])=>`<button class="cv" data-c="${k}" aria-pressed="${state.conv.has(k)}">${sample(k)}<span class="t">${v.n}</span><span class="n">${counts.get(k)||0}</span></button>`).join('')}</div>
    <div class="conv" style="margin-top:12px;font-size:12.5px;color:var(--mute);gap:8px">
     <div style="display:flex;align-items:center;gap:12px"><svg width="46" height="12"><path d="M2 6H44" stroke="#827D76" stroke-width="1.1"/></svg>Débil</div>
@@ -805,7 +1013,7 @@ function actorList(){
 }
 
 function detail(n){
-  const rows = [...n.out.map(l => ({l, o: l.target, d: 'Hacia'})), ...n.in.map(l => ({l, o: l.source, d: 'Desde'}))];
+  const rows = [...n.out.map(l => ({l, o: l.target, d: 'Hacia'})) , ...n.in.map(l => ({l, o: l.source, d: 'Desde'}))];
   const groups = Object.keys(CONV).map(k => [k, rows.filter(r => r.l.c === k)]).filter(g => g[1].length);
   const hasLogo = !!REAL_LOGOS[n.id];
   return `
@@ -826,10 +1034,11 @@ function detail(n){
   </section>
   <section class="sec">
    <h2>Relaciones con otros actores</h2>
+   <p class="hint">Toca cualquier relación para ver sus detalles:</p>
    ${groups.map(([k,rs])=>`<div class="group"><div class="ghead">${sample(k,34)}${CONV[k].n}</div>
     ${rs.map(({l,o,d})=>{
       const oLogo = !!REAL_LOGOS[o.id];
-      return `<button class="it" data-id="${o.id}">
+      return `<button class="it" data-link-i="${l.i}">
         <div style="display:flex;align-items:center;gap:10px">
          <span class="av" style="width:30px;height:30px;border-color:${oLogo?SPC[o.sph]:'#2e3547'};flex:none;background:${oLogo?'#fff':'#141722'}">${avatar(o, 26)}</span>
          <div style="flex:1;min-width:0">
@@ -845,9 +1054,19 @@ function detail(n){
 }
 
 function renderPanel(){
-  if(state.sel){
+  if(state.selLink){
+    P.innerHTML = linkDetail(state.selLink);
+    document.getElementById('back').onclick = () => { selectLink(null); fitAll(); };
+    P.querySelectorAll('[data-id]').forEach(b => b.onclick = () => select(byId.get(b.dataset.id), 'list'));
+    P.scrollTop = 0;
+  } else if(state.sel){
     P.innerHTML = detail(state.sel);
     document.getElementById('back').onclick = () => { select(null, 'keep'); fitAll(); };
+    P.querySelectorAll('[data-link-i]').forEach(b => {
+      const idx = +b.dataset.linkI;
+      const targetLink = links.find(l => l.i === idx);
+      if (targetLink) b.onclick = () => selectLink(targetLink);
+    });
     P.scrollTop = 0;
   } else {
     P.innerHTML = overview();
@@ -866,8 +1085,8 @@ function renderPanel(){
       else scrollToNode(ns[0]);
     });
     P.querySelectorAll('.inst-card').forEach(b => b.onclick = () => select(byId.get(b.dataset.id), 'list'));
+    P.querySelectorAll('[data-id]').forEach(b => b.onclick = () => select(byId.get(b.dataset.id), 'list'));
   }
-  P.querySelectorAll('[data-id]').forEach(b => b.onclick = () => select(byId.get(b.dataset.id), 'list'));
 }
 
 /* ---------- inicio ---------- */
@@ -884,7 +1103,7 @@ let rt;
 window.addEventListener('resize', () => {
   clearTimeout(rt);
   rt = setTimeout(() => {
-    if ((mobile() ? 'm' : 'd') !== MODE){ layout(); geometry(); if(state.sel) focus(state.sel); }
+    if ((mobile() ? 'm' : 'd') !== MODE){ layout(); geometry(); if(state.sel) focusNode(state.sel); if(state.selLink) focusLink(state.selLink); }
     sizeMobile(); fitAll(0);
   }, 180);
 });
