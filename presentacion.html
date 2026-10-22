@@ -88,11 +88,13 @@
 <header class="bar">
  <a class="brand" href="index.html" target="_top">Kennedy · Corte III</a>
  <nav class="blocks" id="blocks" aria-label="Bloques"></nav>
- <span class="count" id="count"></span>
+ <button class="gbtn" id="gbtn" aria-pressed="false">Guion <span class="mono">N</span></button>
+ <span class="count" id="count"></span><span class="pline"><i id="pbar"></i></span>
 </header>
 <div class="head" id="head"><p class="kicker" id="kicker"></p><h1 id="title"></h1><p class="sub" id="sub"></p></div>
 <main class="stage" id="stage" aria-live="polite"></main>
 <div class="below" id="below"></div>
+<div class="guion" id="guion"><p id="guionTxt"></p></div>
 <footer class="foot">
  <p class="src" id="src"></p>
  <div class="prog" id="prog"></div>
@@ -103,6 +105,7 @@
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="corte3-data.js"></script>
 <script src="c3-red.js"></script>
+<script src="guion-corte3.js"></script>
 <script src="presentacion.js"></script>
 </body>
 </html>

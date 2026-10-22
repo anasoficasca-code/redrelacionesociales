@@ -43,7 +43,9 @@ const MH=met('hoy'),MP=met('prop');
 
 /* ================= vistas reutilizables ================= */
 function size(el){const r=el.getBoundingClientRect();return{W:Math.max(320,r.width),H:Math.max(300,r.height)}}
-function svgIn(el){const {W,H}=size(el);const s=d3.select(el).append('svg').attr('class','full').attr('viewBox',`0 0 ${W} ${H}`);return{svg:s,W,H,P:W<H}}
+let CUR_CTX=null;
+function svgIn(el){const {W,H}=size(el);const s=d3.select(el).append('svg').attr('class','full').attr('viewBox',`0 0 ${W} ${H}`);if(CUR_CTX&&!CUR_CTX.svg)CUR_CTX.svg=s;return{svg:s,W,H,P:W<H}}
+const anchor=(id,x,y,r)=>{if(CUR_CTX)CUR_CTX.anchors[id]=[x,y,r||12]};
 
 // red de influencia (hoy / propuesta) con la representación de la Red libre
 const KS={formal:{n:'Atribución formal',c:'#8f8a82',d:'6 5',w:1.4},efectiva:{n:'Influencia efectiva',c:RED,w:3.4},coop:{n:'Cooperación',c:INK,w:1.5},conflicto:{n:'Conflicto y costos',c:'#F0705A',d:'1.5 4',w:2},flujo:{n:'Flujo',c:OCH,d:'7 5',w:1.4}};
@@ -64,6 +66,7 @@ function influence(ctx,st){
   .attr('marker-end',e=>`url(#${e.k==='flujo'?'f-'+e.f:'k-'+e.k})`).classed('flowing',e=>e.k==='flujo')
   .on('mousemove',(ev,e)=>showTip(`<b>${ACT(e.s).short} → ${ACT(e.t).short}</b><br>${KS[e.k].n} · ${e.st}<br>${esc(e.m)}`,ev)).on('mouseleave',hideTip);
  const ks=gK.selectAll('g').data(edges.filter(e=>e.key)).join('g').attr('transform',e=>`translate(${e._mid})`);ks.append('circle').attr('r',9).attr('fill','#141518').attr('stroke',RED);ks.each(function(){icon(d3.select(this),'i-key',0,0,13,RED)});
+ nodes.forEach(n=>anchor(n.id,n.x,n.y,R));
  const ns=gN.selectAll('g').data(nodes).join('g').attr('class','node').attr('transform',n=>`translate(${n.x},${n.y})`).each(function(n){actor(d3.select(this),n.id,R,{fs:P?10:11,wrap:P?12:18})})
   .on('mousemove',(ev,n)=>{const a=ACT(n.id);showTip(`<b>${esc(a.name)}</b><br>${esc(a.fun||'')}`,ev)}).on('mouseleave',hideTip);
  ctx.legend([...['formal','efectiva','coop','conflicto'].map(k=>[KS[k].c,KS[k].d,KS[k].n]),[OCH,'7 5','Flujo de recursos, información o trabajo'],['key',null,'Puede detener el flujo'],['prop',null,'Actor propuesto']]);
@@ -79,7 +82,7 @@ function trayecto(ctx,st){
  svg.append('path').attr('id','trk').attr('d',P?`M46,${pos(0).y}V${pos(4).y}`:`M${pos(0).x},${pos(0).y}H${pos(4).x}`).attr('stroke','#3a3c42').attr('stroke-width',2);
  if(st==='prop'){svg.append('path').attr('d',P?`M${46-r},${pos(4).y} C${4},${pos(4).y} ${4},${pos(0).y} ${46-r},${pos(0).y}`:`M${pos(4).x},${pos(4).y-r-4} C${pos(4).x},${pos(4).y-r-70} ${pos(0).x},${pos(0).y-r-70} ${pos(0).x},${pos(0).y-r-4}`).attr('fill','none').attr('stroke',RED).attr('stroke-width',1.6).attr('stroke-dasharray','6 6').attr('class','flowing');
   if(!P)txt(svg,W/2,pos(0).y-r-60,'rectificar reabre el ciclo',{a:'middle',c:RED,fs:13})}
- ST.forEach(([ic,n],i)=>{const p=pos(i);const g=svg.append('g').attr('transform',`translate(${p.x},${p.y})`);
+ ST.forEach(([ic,n],i)=>{const p=pos(i);anchor('st'+i,p.x,p.y,r);const g=svg.append('g').attr('transform',`translate(${p.x},${p.y})`);
   g.append('circle').attr('r',r).attr('fill',RED);icon(g,ic,0,0,r*1.1,'#fff');
   const tx=P?r+14:0,ty=P?-8:r+24,an=P?'start':'middle';
   txt(g,tx,ty,n,{a:an,fw:700,fs:P?15:17});txt(g,tx,ty+(P?17:20),R3.REG[st][i],{a:an,c:st==='prop'?OCH:'#9A958C',fs:13});txt(g,tx,ty+(P?32:38),'Escala: '+R3.ESC[st][i],{a:an,c:MUTE,fs:11.5,mono:1});
@@ -100,7 +103,7 @@ function vensim(ctx){
  const df=svg.append('defs');
  df.append('marker').attr('id','va').attr('viewBox','0 0 10 10').attr('refX',9).attr('refY',5).attr('markerWidth',22).attr('markerHeight',22).attr('orient','auto').attr('markerUnits','userSpaceOnUse').append('path').attr('d','M0 1L9 5L0 9z').attr('fill','#1d3fd0');
  df.append('marker').attr('id','vp').attr('viewBox','0 0 10 10').attr('refX',8).attr('refY',5).attr('markerWidth',34).attr('markerHeight',34).attr('orient','auto').attr('markerUnits','userSpaceOnUse').append('path').attr('d','M0 0L10 5L0 10z').attr('fill','#fff').attr('stroke','#111').attr('stroke-width',1);
- const pt=id=>V.get(id)||VA.get(id)||CL.get(id);
+ const pt=id=>V.get(id)||VA.get(id)||CL.get(id);VEN.vars.forEach(v=>anchor(v.id,v.x,v.y,Math.max(v.w,v.h)));
  const half=id=>{const v=V.get(id);if(v)return v.k==='stock'?[v.w,v.h]:[v.w*.9,v.h*.75];if(VA.get(id))return[14,14];return[30,20]};
  const inside=(p,id)=>{const o=pt(id),h=half(id);return Math.abs(p[0]-o.x)<h[0]+6&&Math.abs(p[1]-o.y)<h[1]+6};
  function arcPts(a,b,c){const ax=a.x,ay=a.y,bx=c[0],by=c[1],cx=b.x,cy=b.y;const d=2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));
@@ -189,8 +192,8 @@ const SL=[
    const gL=svg.append('g');const ns=svg.append('g').selectAll('g').data(A).join('g').attr('class','node');
    ns.each(function(id){const g=d3.select(this);g.append('g').attr('class','body')});
    const cap=txt(svg,P?14:W*.06,H-16,'',{c:SOFT,fs:13});
-   function set(k){const R=R3.RANK[k];if(P){cap.text('');ctx.setSub(R.t)}else cap.text(R.t).attr('fill',k==='hoy'?SOFT:R.c);
-    ns.each(function(id){const i=R.o.indexOf(id),s=slot(i,k),g=d3.select(this);const b=g.select('.body');b.selectAll('*').remove();actor(b,id,s.r,{fs:P?11:12.5,glow:k!=='hoy'&&i<3,wrap:P?13:16});
+   function set(k){const R=R3.RANK[k];cap.text('');
+    ns.each(function(id){const i=R.o.indexOf(id),s=slot(i,k),g=d3.select(this);anchor(id,s.x,s.y,s.r);const b=g.select('.body');b.selectAll('*').remove();actor(b,id,s.r,{fs:P?11:12.5,glow:k!=='hoy'&&i<3,wrap:P?13:16});
      if(k==='hoy'&&P)b.select('text').attr('text-anchor','start').attr('y',4).selectAll('tspan').attr('x',s.r+8);
      g.transition('p').duration(reduce?0:900).ease(d3.easeCubicInOut).attr('transform',`translate(${s.x},${s.y})`).style('opacity',k==='hoy'&&id==='GUAR'?.3:1)});
     gL.selectAll('*').remove();if(k==='hoy'){gL.append('path').attr('d',d3.line()(A.map((_,i)=>{const s=slot(i,'hoy');return[s.x,s.y]}))).attr('fill','none').attr('stroke','#3a3c42').attr('stroke-dasharray','4 6')}
@@ -200,13 +203,14 @@ const SL=[
  {b:0,t:'De los macromodelos ecológicos al político',s:'Los siete macromodelos dicen qué cuidar; la heterarquía dice quién decide sobre cada cosa.',src:'Macromodelos ecológicos del grupo (macromodelos-kennedy)',subs:1,draw(ctx){
    const {svg,W,H,P}=svgIn(ctx.el);const S={eco:'Marco general',hid:'Agua: custodios primero',reg:'Restaurar antes que compensar',com:'Abasto: comerciantes y coteros',cir:'Residuos: quien separa',lim:'Llave ecológica',bio:'Voz de otras vidas'};
    const c={x:W/2,y:P?H*.5:H*.62};const rr=P?Math.min(W,H)*.38:Math.min(W*.4,H*.46);
-   const cg=svg.append('g').attr('transform',`translate(${c.x},${c.y})`);cg.append('circle').attr('r',P?44:58).attr('fill','#1d1a12').attr('stroke',OCH).attr('stroke-width',2.5);
+   const cg=svg.append('g').attr('transform',`translate(${c.x},${c.y})`).style('opacity',0);const lines=[];cg.append('circle').attr('r',P?44:58).attr('fill','#1d1a12').attr('stroke',OCH).attr('stroke-width',2.5);
    txt(cg,0,-4,'Heterarquía',{a:'middle',fw:700,fs:P?14:17});txt(cg,0,16,'macromodelo político',{a:'middle',c:SOFT,fs:11});
    C3.ECO.forEach((m,i)=>{const a=P?(-Math.PI/2+i*2*Math.PI/7):(Math.PI+(i+.5)*Math.PI/7);const x=c.x+Math.cos(a)*rr,y=c.y+Math.sin(a)*rr*(P?1:.95);
-    const ln=svg.insert('path','g').attr('d',`M${x},${y}L${c.x},${c.y}`).attr('stroke',m.c).attr('stroke-width',1.6).attr('stroke-dasharray','5 5').attr('class','flowing').attr('opacity',.7);
+    const ln=svg.insert('path','g').attr('d',`M${x},${y}L${c.x},${c.y}`).attr('stroke',m.c).attr('stroke-width',1.6).attr('stroke-dasharray','5 5').attr('class','flowing').attr('opacity',0);lines.push(ln);
     const g=svg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);g.transition().delay(reduce?0:i*160).duration(500).style('opacity',1);
     g.append('circle').attr('r',P?20:26).attr('fill','#141518').attr('stroke',m.c).attr('stroke-width',2.4);icon(g,['i-hoja','i-gota','i-ciclo','i-moneda','i-ciclo','i-alerta','i-hoja'][i],0,0,P?18:22,m.c);
-    txt(g,0,(P?20:26)+16,m.n,{a:'middle',fw:700,fs:P?11.5:13.5});txt(g,0,(P?20:26)+31,S[m.id],{a:'middle',c:SOFT,fs:P?10.5:12})});}},
+    txt(g,0,(P?20:26)+16,m.n,{a:'middle',fw:700,fs:P?11.5:13.5});txt(g,0,(P?20:26)+31,S[m.id],{a:'middle',c:SOFT,fs:P?10.5:12})});
+   return sub=>{cg.transition().duration(600).style('opacity',sub?1:0);lines.forEach((l,i)=>l.transition().delay(sub?i*120:0).duration(500).attr('opacity',sub?.7:0))}}},
  {b:0,t:'Cinco principios',s:'Cada principio responde a una pregunta de la guía: quién decide, quién ejecuta y quién puede corregir.',src:'Decisiones de diseño del grupo · referentes S7, S8, S10',subs:5,draw(ctx){
    const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:5},1fr)`);
    const cs=el.selectAll('div').data(R3.PRINCIPIOS).join('div').attr('class','card off').html((p,i)=>`<svg width="40" height="40" style="color:${OCH}"><use href="#${p.ic}" width="40" height="40"/></svg><div class="n">0${i+1}</div><h3>${p.t}</h3><p>${p.d}</p>`);
@@ -230,8 +234,8 @@ const SL=[
    const lx=P?W*.12:W*.2,rx=P?W*.88:W*.8,cy0=P?H*.08:H*.18;
    txt(g1,lx,cy0,'IMPULSAN',{a:'middle',c:GRN,fs:12,mono:1});txt(g1,rx,cy0,'RESISTEN',{a:'middle',c:RED,fs:12,mono:1});
    const ty0=P?H*.74:H*.72,sp=(ty0-cy0-90)/4;
-   T.impulsan.forEach((id,i)=>{const g=g1.append('g').attr('class','node').attr('transform',`translate(${lx},${cy0+36+i*sp})`);actor(g,id,r,{label:false});if(!P)txt(g,-r-10,4,ACT(id).short,{a:'end',fs:12,c:SOFT})});
-   T.resisten.forEach((id,i)=>{const g=g1.append('g').attr('class','node').attr('transform',`translate(${rx},${cy0+36+i*sp*1.3})`);actor(g,id,r,{label:false});if(!P)txt(g,r+10,4,ACT(id).short,{fs:12,c:SOFT})});
+   T.impulsan.forEach((id,i)=>{anchor(id,lx,cy0+36+i*sp,r);const g=g1.append('g').attr('class','node').attr('transform',`translate(${lx},${cy0+36+i*sp})`);actor(g,id,r,{label:false});if(!P)txt(g,-r-10,4,ACT(id).short,{a:'end',fs:12,c:SOFT})});
+   T.resisten.forEach((id,i)=>{anchor(id,rx,cy0+36+i*sp*1.3,r);const g=g1.append('g').attr('class','node').attr('transform',`translate(${rx},${cy0+36+i*sp*1.3})`);actor(g,id,r,{label:false});if(!P)txt(g,r+10,4,ACT(id).short,{fs:12,c:SOFT})});
    txt(g2,W/2,cy0,'RECURSOS EN DISPUTA',{a:'middle',c:OCH,fs:12,mono:1});
    T.disputa.forEach((d,i)=>{const y=cy0+34+i*(P?44:(H*.72-cy0-100)/4);g2.append('rect').attr('x',W/2-(P?70:110)).attr('y',y-16).attr('width',P?140:220).attr('height',32).attr('rx',16).attr('fill','#1d1a12').attr('stroke',OCH);txt(g2,W/2,y+5,d,{a:'middle',fs:P?12:14,fw:600});
     g2.append('path').attr('d',`M${lx+r+8},${y}H${W/2-(P?74:114)}`).attr('stroke',GRN).attr('stroke-dasharray','5 5').attr('class','flowing').attr('marker-end',null);g2.append('path').attr('d',`M${rx-r-8},${y}H${W/2+(P?74:114)}`).attr('stroke',RED).attr('stroke-dasharray','5 5').attr('class','flowing')});
@@ -242,13 +246,14 @@ const SL=[
    return sub=>[g1,g2,g3].forEach((g,i)=>{if(i<=sub)g.transition().duration(500).style('opacity',1)})}},
  {b:0,t:'Lo que enseñan los referentes',s:'Ningún mecanismo funcionó solo por voluntad: Christiania y Findhorn dependieron del suelo y de ingresos propios.',src:'Comparativa Christiania – Findhorn del grupo (S10)',subs:1,draw(ctx){
    const R=R3.REFERENTES;const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:3},1fr)`).style('align-content','stretch');
-   el.selectAll('div').data(R.cols).join('div').attr('class','card').style('border-color',(c,i)=>i===2?'#5a4520':null).html((c,i)=>`<div class="n">${c.sub}</div><h3 style="${i===2?'color:'+OCH:''}">${c.n}</h3>${R.filas.map((f,j)=>c.c[j]==='—'?'':`<p style="margin-top:12px"><span class="mono" style="font-size:11px;color:#77736b;text-transform:uppercase">${f}</span><br>${c.c[j]}</p>`).join('')}`)}},
+   const cs=el.selectAll('div').data(R.cols).join('div').attr('class','card off').style('border-color',(c,i)=>i===2?'#5a4520':null).html((c,i)=>`<div class="n">${c.sub}</div><h3 style="${i===2?'color:'+OCH:''}">${c.n}</h3>${R.filas.map((f,j)=>c.c[j]==='—'?'':`<p style="margin-top:12px"><span class="mono" style="font-size:11px;color:#77736b;text-transform:uppercase">${f}</span><br>${c.c[j]}</p>`).join('')}`);return sub=>cs.classed('off',(c,i)=>i>sub)}},
  {b:1,t:'La red de actores de Kennedy',s:'Los mismos actores y colores de la Red libre: el Corte III trabaja sobre esta red.',src:'Red de actores del grupo · capas IDECA (S4)',subs:1,draw(ctx){
    const {svg,W,H,P}=svgIn(ctx.el);const N=RED_DATA.nodes.map(n=>({...n})),NB=new Map(N.map(n=>[n.id,n]));const Lk=RED_DATA.links.filter(l=>NB.has(l.s)&&NB.has(l.t)).map(l=>({...l,source:l.s,target:l.t}));
    const RING=['log','res','gob','sal','edu','mov','con'];const cen={cor:[W/2,H/2]};RING.forEach((k,i)=>{const a=-Math.PI/2+(i+.5)*2*Math.PI/7;cen[k]=[W/2+Math.cos(a)*W*(P?.28:.33),H/2+Math.sin(a)*H*(P?.36:.34)]});
    const r=n=>({1:P?12:16,2:P?9:12,3:P?7:9,4:P?6:8})[n.lv]||8;
    const sim=d3.forceSimulation(N).force('l',d3.forceLink(Lk).id(d=>d.id).distance(40).strength(.05)).force('q',d3.forceManyBody().strength(-60)).force('x',d3.forceX(n=>cen[n.sph][0]).strength(.15)).force('y',d3.forceY(n=>cen[n.sph][1]).strength(.15)).force('c',d3.forceCollide(n=>r(n)+4)).stop();
    for(let i=0;i<300;i++)sim.tick();
+   N.forEach(n=>anchor(n.id,n.x,n.y,r(n)));
    svg.append('g').selectAll('path').data(Lk).join('path').attr('d',l=>`M${l.source.x},${l.source.y}L${l.target.x},${l.target.y}`).attr('stroke',l=>CONV[l.c]||'#555').attr('stroke-dasharray',l=>CONVD[l.c]).attr('stroke-width',1).attr('opacity',.55);
    const ns=svg.append('g').selectAll('g').data(N).join('g').attr('class','node').attr('transform',n=>`translate(${n.x},${n.y})`).each(function(n){actor(d3.select(this),n.id,r(n),{label:n.lv===1&&!P,fs:10,wrap:16})})
     .on('mousemove',(e,n)=>showTip(`<b>${esc(n.name)}</b><br>${esc(n.fun||'')}`,e)).on('mouseleave',hideTip);
@@ -256,10 +261,10 @@ const SL=[
    ctx.legend(Object.entries({com:'Comercial y abastecimiento',lab:'Laboral y empleo',ser:'Prestación de un servicio',rec:'Reciclaje',gov:'Gobierno y control',par:'Participación y solicitudes'}).map(([k,n])=>[CONV[k],CONVD[k],n]))}},
  {b:1,t:'Hoy: la firma no es el poder',s:'Separamos la atribución formal de la influencia efectiva: quién mueve de verdad cada decisión.',src:'Relaciones documentadas: S1, S2, S3, S5, S9 · el resto son hipótesis por verificar',subs:3,draw(ctx){
    const v=influence(ctx,'hoy');const cap=['','Influencia efectiva y llaves: entidades y la asamblea de Corabastos controlan los flujos.',`Afectados sin voz: ${MH.sv.map(id=>ACT(id).short).join(', ')}.`];
-   return sub=>{ctx.caption(cap[sub]);v.focus(sub===1?e=>e.k==='efectiva'||e.key:sub===2?e=>e.k==='conflicto':null)}}},
+   return sub=>{v.focus(sub===1?e=>e.k==='efectiva'||e.key:sub===2?e=>e.k==='conflicto':null)}}},
  {b:1,t:'Propuesta: núcleos por asunto',s:'Aparecen la mesa, los núcleos, las vocerías revocables, la guardianía, el fondo y la planta (borde punteado).',src:'Decisiones de diseño del grupo · permiso ambiental y suelo: competencias existentes',subs:3,draw(ctx){
    const v=influence(ctx,'prop');const cap=['','Quien trabaja encabeza: recicladores en orgánicos, colectivos en agua; las vocerías llevan mandatos revocables.','Llaves que siguen afuera: permiso de Ambiente, suelo de Corabastos, contratación de la Alcaldía.'];
-   return sub=>{ctx.caption(cap[sub]);v.focus(sub===1?e=>R3.PROP[e.s]||R3.PROP[e.t]:sub===2?e=>e.key&&!isC(e.s):null)}}},
+   return sub=>{v.focus(sub===1?e=>R3.PROP[e.s]||R3.PROP[e.t]:sub===2?e=>e.key&&!isC(e.s):null)}}},
  {b:1,t:'Lectura crítica de la red',s:'Qué cambia en la distribución efectiva de la influencia entre hoy y la propuesta.',src:'Medidas calculadas sobre la capa de influencia; nodos = actores, líneas = relaciones con tipo y dirección',subs:1,draw(ctx){
    const {svg,W,H,P}=svgIn(ctx.el);const M=[['Influencia efectiva en manos colectivas',MH.ef,MP.ef,'%'],['Llaves en manos colectivas',MH.ky,MP.ky,'%'],['Afectados sin voz',MH.sv.length,MP.sv.length,'']];
    M.forEach((m,i)=>{const y=P?H*(.12+i*.3):H*.2+i*H*.25;const x0=P?16:W*.06,bw=P?W-32:W*.55,bx=P?16:W*.38;
@@ -288,9 +293,9 @@ const SL=[
     const g=svg.append('g').attr('transform',`translate(${c.x+Math.cos(a)*r},${c.y+Math.sin(a)*r})`).style('opacity',0);g.transition().delay(reduce?0:300+si*800+i*120).style('opacity',1);g.append('circle').attr('r',13).attr('fill',si?OCH:'#55575d');txt(g,0,4,String(i+1),{a:'middle',fs:11,fw:700,c:'#111'})}));
    if(!P){txt(svg,W*.72,H*.4,'Etapas 1 a 5',{fw:700,fs:15});const l=svg.append('g').attr('transform',`translate(${W*.72},${H*.48})`);l.append('circle').attr('r',9).attr('fill','#55575d');txt(l,18,5,'Hoy',{c:SOFT,fs:13});l.append('circle').attr('cy',30).attr('r',9).attr('fill',OCH);txt(l,18,35,'Propuesta',{c:OCH,fs:13})}}},
  {b:3,t:'Modelo dinámico de las interacciones',s:SUBSYS[0].t,src:'Modelo Vensim del grupo: Red_interacciones_actores.mdl',subs:SUBSYS.length,draw(ctx){
-   const v=vensim(ctx);return sub=>{ctx.setSub(SUBSYS[sub].t);ctx.caption(sub?SUBSYS[sub].n:'');v.zoom(SUBSYS[sub].ids)}}},
+   const v=vensim(ctx);return sub=>{v.zoom(SUBSYS[sub].ids)}}},
  {b:3,t:'Bucles de la organización propuesta',s:'Toca un bucle o avanza: R refuerza la organización, B la frena o la transforma.',src:'Hipótesis del grupo · mecanismos marcados como hipótesis o propuesta (corte3-data)',subs:6,draw(ctx){
-   const v=bucles(ctx);const ids=[null,'R1','B1','B2','R2','B3'];return sub=>{const lo=v.loop(ids[sub]);ctx.setSub(lo?`${lo.id} · ${lo.n}: ${lo.d}`:'Doce variables que cambian en el tiempo; + mismo sentido, − sentido opuesto, ‖ retardo.')}}},
+   const v=bucles(ctx);const ids=[null,'R1','B1','B2','R2','B3'];return sub=>{v.loop(ids[sub])}}},
  {b:3,t:'Prueba en el tiempo',s:'Estado inicial, decisión, efectos, perturbación en el mes 18 y dos trayectorias. Ilustrativo, sin calibrar.',src:'Supuestos del grupo; no es una predicción',subs:2,draw(ctx){
    const {svg,W,H,P}=svgIn(ctx.el);const T=C3.TIEMPO;const tg=svg.append('g');const th=P?H*.34:H*.3;
    T.forEach((t,i)=>{const x=P?14:W*(.04+i*.19),y=P?14+i*th/5:20,w=P?W-28:W*.17;const g=tg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);g.transition().delay(reduce?0:i*200).style('opacity',1);
@@ -324,7 +329,7 @@ const SL=[
    if(!P){const sg=svg.append('g').attr('transform',`translate(${W*.8},${H*.2})`);}
    const dots=svg.append('g');
    return sub=>{dots.selectAll('*').remove();const id=sub?'pT':'pD';for(let i=0;i<3;i++){const cc=dots.append('circle').attr('r',5).attr('fill',sub?OCH:'#9A958C');cc.append('animateMotion').attr('dur','1.8s').attr('repeatCount','indefinite').attr('begin',(i*.6)+'s').append('mpath').attr('href','#'+id)}
-    pT.attr('opacity',sub?1:.25);pD.attr('opacity',sub?.25:1);ctx.caption(sub?'Señal de transformación: suben a la vez las toneladas aprovechadas y el ingreso de los independientes.':'Hoy: el costo de separar cae en puestos pequeños y recicladores independientes.')}}},
+    pT.attr('opacity',sub?1:.25);pD.attr('opacity',sub?.25:1);(()=>{})(sub?'Señal de transformación: suben a la vez las toneladas aprovechadas y el ingreso de los independientes.':'Hoy: el costo de separar cae en puestos pequeños y recicladores independientes.')}}},
  {b:4,t:'Sostenibilidad en el tiempo',s:'Dos escenarios con supuestos explícitos, autoorganización y quién representa al humedal.',src:'Guía Corte III, 5.3 y 6.3 · supuestos del grupo',subs:4,draw(ctx){
    const D=[['i-ciclo','Continuidad',R3.ESCENARIOS[0].sup+' '+R3.ESCENARIOS[0].res],['i-rayo','Transformación',R3.ESCENARIOS[1].sup+' '+R3.ESCENARIOS[1].res],['i-grupo','Autoorganización','Turnos, entregas y calidad del compost se ajustan entre quienes trabajan. Límite: el suelo, el permiso y el presupuesto siguen afuera.'],['i-gota','Voz del humedal','Lo representan los colectivos y el aula ambiental con datos públicos; su mecanismo es la llave ecológica.']];
    const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:4},1fr)`);
@@ -358,21 +363,40 @@ const SL=[
 ];
 
 /* ================= motor de la presentación ================= */
-const stage=$('#stage'),below=$('#below');let cur=-1,sub=0,upd=null,exits=[];
+SL.forEach((S,i)=>{S.g=window.GUION[i];S.subs=S.g.length});
+const OFF=[];let tot=0;SL.forEach(S=>{OFF.push(tot);tot+=S.subs});
+const stage=$('#stage'),below=$('#below');let cur=-1,sub=0,upd=null,exits=[],ctxNow=null,tagT=[];
 $('#blocks').innerHTML=B.map((n,i)=>`<button data-b="${i}">${ROM[i]}<span class="nm"> ${n}</span></button>`).join('');
 document.querySelectorAll('#blocks button').forEach(b=>b.onclick=e=>{e.stopPropagation();go(SL.findIndex(s=>s.b===+b.dataset.b))});
-$('#prog').innerHTML=SL.map((s,i)=>`<span class="${i&&SL[i-1].b!==s.b?'gap':''}" data-i="${i}" title="${i+1}"></span>`).join('');
-document.querySelectorAll('#prog span').forEach(s=>s.onclick=()=>go(+s.dataset.i));
+let ph='';SL.forEach((S,i)=>S.g.forEach((g,j)=>{ph+=`<span class="${OFF[i]+j&&j===0&&SL[i-1].b!==S.b?'gap':''}" data-i="${i}" data-j="${j}" title="${OFF[i]+j+1}"></span>`}));$('#prog').innerHTML=ph;
+document.querySelectorAll('#prog span').forEach(s=>s.onclick=()=>go(+s.dataset.i,+s.dataset.j));
 const mobile=()=>matchMedia('(max-width:760px)').matches;
-function go(i,s=0){i=Math.max(0,Math.min(SL.length-1,i));exits.forEach(f=>f());exits=[];hideTip();cur=i;sub=s;const S=SL[i];
- stage.innerHTML='';below.innerHTML='';const el=document.createElement('div');el.className='slide';stage.appendChild(el);
- $('#kicker').textContent=`${String(i+1).padStart(2,'0')} — Bloque ${ROM[S.b]} · ${B[S.b]}`;$('#title').textContent=S.t;$('#sub').textContent=S.s;$('#src').textContent='Fuentes · '+S.src;
- $('#count').textContent=`${i+1} / ${SL.length}`;
+function drawTags(){tagT.forEach(clearTimeout);tagT=[];const c=ctxNow;if(!c||!c.svg)return;c.svg.selectAll('g.tags').remove();const tags=SL[cur].g[sub].tags||[];if(!tags.length)return;
+ const base=SL[cur].b===3&&cur===OFF.indexOf(OFF[cur])&&SL[cur].t.startsWith('Modelo')?1300:500;
+ tagT.push(setTimeout(()=>{const svg=c.svg;const vb=svg.attr('viewBox').split(' ').map(Number);const px=svg.node().getBoundingClientRect().width||1;const k=vb[2]/px*(svg.attr('preserveAspectRatio')==='xMidYMid meet'?Math.max(1,(vb[3]/vb[2])/(svg.node().getBoundingClientRect().height/px)):1);
+  const L=svg.append('g').attr('class','tags');const light=c.el.classList.contains('vensim');const placed=[];
+  tags.forEach(([id,t1,t2,col],i)=>{const a=c.anchors[id];if(!a)return;const [x,y,r]=a;const right=x<vb[0]+vb[2]*.62;const bw=Math.max(t1.length*7.6,t2.length*6.6)*k+22*k,bh=42*k;
+   const cands=[[x+r+40*k,y-r-30*k-bh/2],[x-r-40*k-bw,y-r-30*k-bh/2],[x+r+40*k,y+r+18*k],[x-r-40*k-bw,y+r+18*k],[x-bw/2,y-r-60*k-bh],[x-bw/2,y+r+40*k]];
+   const clamp=([cx,cy])=>[Math.max(vb[0]+6*k,Math.min(vb[0]+vb[2]-bw-6*k,cx)),Math.max(vb[1]+6*k,Math.min(vb[1]+vb[3]-bh-6*k,cy))];
+   const hit=([cx,cy])=>Object.entries(c.anchors).some(([aid,[ax,ay,ar]])=>aid!==id&&ax+ar>cx-4*k&&ax-ar<cx+bw+4*k&&ay+ar+28*k>cy&&ay-ar<cy+bh)||placed.some(p=>p[0]<cx+bw&&p[0]+p[2]>cx&&p[1]<cy+bh&&p[1]+p[3]>cy);
+   let [bx,by]=clamp((right?cands:[cands[1],cands[0],cands[3],cands[2],cands[4],cands[5]]).map(clamp).find(q=>!hit(q))||cands[right?0:1]);placed.push([bx,by,bw,bh]);
+   const g=L.append('g').style('opacity',0);g.transition().delay(i*450).duration(500).style('opacity',1);
+   g.append('circle').attr('cx',x).attr('cy',y).attr('r',r+7*k).attr('fill','none').attr('stroke',col).attr('stroke-width',2.4*k).append('animate').attr('attributeName','r').attr('values',`${r+5*k};${r+12*k};${r+5*k}`).attr('dur','1.8s').attr('repeatCount','indefinite');
+   const ex=bx+bw/2<x?bx+bw:bx,ey=by+bh/2;g.append('path').attr('d',`M${x+(right?1:-1)*(r+7*k)},${y}L${ex},${ey}`).attr('stroke',col).attr('stroke-width',1.8*k).attr('fill','none');
+   g.append('rect').attr('x',bx).attr('y',by).attr('width',bw).attr('height',bh).attr('rx',4*k).attr('fill',light?'#ffffff':'#101113').attr('stroke',col).attr('stroke-width',2*k);
+   g.append('text').attr('x',bx+11*k).attr('y',by+17*k).attr('font-size',13*k).attr('font-weight',700).attr('fill',light?'#111':'#F2EFE8').attr('font-family','Instrument Sans').text(t1);
+   g.append('text').attr('x',bx+11*k).attr('y',by+33*k).attr('font-size',11.5*k).attr('fill',light?'#444':'#B8B3A8').attr('font-family','Instrument Sans').text(t2)})},SL[cur].t.startsWith('Modelo')?1300:(cur===0?1000:450)))}
+function header(){const S=SL[cur],g=S.g[sub];const n=OFF[cur]+sub+1;
+ $('#kicker').textContent=`${String(n).padStart(2,'0')} — Bloque ${ROM[S.b]} · ${B[S.b]}`;
+ ['title','sub'].forEach(id=>{const e=$('#'+id);e.classList.remove('rise');void e.offsetWidth;e.classList.add('rise')});$('#title').textContent=g.t;$('#sub').textContent=g.s||'';
+ $('#guionTxt').textContent=g.n||'';$('#count').textContent=`${window.TIMES[S.b]}`;$('#pbar').style.width=(n/tot*100)+'%';
+ document.querySelectorAll('#prog span').forEach(p=>{const q=OFF[+p.dataset.i]+ +p.dataset.j;p.classList.toggle('on',q===n-1);p.classList.toggle('done',q<n-1)});
+ const h=stage.querySelector('.hint');if(h)h.innerHTML=(S.subs>1?Array.from({length:S.subs},(_,j)=>`<i class="${j<=sub?'on':''}"></i>`).join(''):'')+(n===tot?'Fin':'Clic para continuar');
+ $('#next').textContent=n===tot?'Fin':'Siguiente';history.replaceState(null,'','#'+n);}
+function go(i,s=0){i=Math.max(0,Math.min(SL.length-1,i));exits.forEach(f=>f());exits=[];hideTip();tagT.forEach(clearTimeout);cur=i;sub=s;const S=SL[i];
+ stage.innerHTML='';below.innerHTML='';const el=document.createElement('div');el.className='slide';stage.appendChild(el);$('#src').textContent='Fuentes · '+S.src;
  document.querySelectorAll('#blocks button').forEach(b=>{const on=+b.dataset.b===S.b;b.classList.toggle('on',on);b.querySelector('.nm').style.display=on?'':'none'});
- document.querySelectorAll('#prog span').forEach((p,j)=>{p.classList.toggle('on',j===i);p.classList.toggle('done',j<i)});
- let capEl=null;
- const ctx={el,onExit:f=>exits.push(f),setSub:t=>$('#sub').textContent=t,
-  caption(t){if(!capEl){capEl=document.createElement('div');capEl.className='leg';capEl.style.cssText='left:12px;right:auto;top:auto;bottom:54px;max-width:520px;font-size:13px;color:#F2EFE8';(mobile()?below:el).appendChild(capEl)}capEl.style.display=t?'':'none';capEl.textContent=t;if(mobile())capEl.style.position='static'},
+ const ctx={el,anchors:{},svg:null,onExit:f=>exits.push(f),setSub:()=>{},caption:()=>{},
   legend(items,light){const d=document.createElement('div');d.className='leg'+(light?' light':'');
    d.innerHTML=items.map(([c,dash,n])=>{let sw;if(c==='key')sw=`<svg width="22" height="16"><circle cx="11" cy="8" r="7" fill="none" stroke="${RED}"/><use href="#i-key" x="5" y="2" width="12" height="12" style="color:${RED}"/></svg>`;
     else if(c==='prop')sw=`<svg width="22" height="16"><circle cx="11" cy="8" r="6.5" fill="none" stroke="#B8B3A8" stroke-dasharray="3 2"/></svg>`;
@@ -380,17 +404,16 @@ function go(i,s=0){i=Math.max(0,Math.min(SL.length-1,i));exits.forEach(f=>f());e
     else if(c==='valve')sw=`<svg width="22" height="16"><path d="M0 8H22" stroke="#111" stroke-width="5"/><path d="M0 8H22" stroke="#fff" stroke-width="2.5"/><path d="M5 3L17 13V3L5 13z" fill="#fff" stroke="#111"/></svg>`;
     else if(c==='cloud')sw=`<svg width="22" height="16"><path d="M4 12c-3 0-4-4-1-5 0-4 4-5 6-2 2-3 7-2 6 2 3 0 3 5 0 5z" fill="#fff" stroke="#111"/></svg>`;
     else sw=`<svg width="26" height="10"><path d="M1 5H25" stroke="${c}" stroke-width="2.4" ${dash?`stroke-dasharray="${dash}"`:''} stroke-linecap="round"/></svg>`;return`<span>${sw}${n}</span>`}).join('');(mobile()?below:el).appendChild(d)}};
- upd=S.draw(ctx)||null;const hint=document.createElement('div');hint.className='hint';el.appendChild(hint);ctx._hint=hint;render(hint);
- if(upd)upd(sub);history.replaceState(null,'','#'+(i+1));
- $('#next').textContent=sub<S.subs-1?'Siguiente paso':'Siguiente';
-}
-function render(h){const S=SL[cur];h=h||stage.querySelector('.hint');if(!h)return;h.innerHTML=(S.subs>1?Array.from({length:S.subs},(_,j)=>`<i class="${j<=sub?'on':''}"></i>`).join(''):'')+(cur===SL.length-1&&sub>=S.subs-1?'Fin':'Clic para continuar');$('#next').textContent=sub<S.subs-1?'Siguiente paso':'Siguiente'}
-function next(){const S=SL[cur];if(sub<S.subs-1){sub++;upd&&upd(sub);render()}else if(cur<SL.length-1)go(cur+1)}
-function prev(){if(sub>0){sub--;upd&&upd(sub);render()}else if(cur>0)go(cur-1,SL[cur-1].subs-1)}
+ CUR_CTX=ctx;ctxNow=ctx;upd=S.draw(ctx)||null;const hint=document.createElement('div');hint.className='hint';el.appendChild(hint);
+ if(upd)upd(sub);CUR_CTX=null;header();drawTags();}
+function next(){const S=SL[cur];if(sub<S.subs-1){sub++;CUR_CTX=ctxNow;upd&&upd(sub);CUR_CTX=null;header();drawTags()}else if(cur<SL.length-1)go(cur+1)}
+function prev(){if(sub>0){sub--;CUR_CTX=ctxNow;upd&&upd(sub);CUR_CTX=null;header();drawTags()}else if(cur>0)go(cur-1,SL[cur-1].subs-1)}
 $('#next').onclick=e=>{e.stopPropagation();next()};$('#prev').onclick=e=>{e.stopPropagation();prev()};
+$('#gbtn').onclick=e=>{e.stopPropagation();document.body.classList.toggle('show-guion');$('#gbtn').setAttribute('aria-pressed',document.body.classList.contains('show-guion'))};
 stage.addEventListener('click',e=>{if(e.target.closest('.chip,a,button,.maplibregl-ctrl,#mapC'))return;const r=stage.getBoundingClientRect();if(e.clientX-r.left<r.width*.12)prev();else next()});
-addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();next()}else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev()}else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}});
+addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();next()}else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev()}
+ else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}else if(e.key==='n'||e.key==='N'){$('#gbtn').click()}});
 let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>go(cur,sub),250)});
-go((parseInt(location.hash.slice(1))||1)-1);
-window.__pres={SL,go,get cur(){return cur}};
+const h0=(parseInt(location.hash.slice(1))||1)-1;let si=0;while(si<SL.length-1&&OFF[si+1]<=h0)si++;go(si,Math.min(h0-OFF[si],SL[si].subs-1));
+window.__pres={SL,go,OFF,tot,get cur(){return cur}};
 })();

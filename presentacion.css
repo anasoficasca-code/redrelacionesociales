@@ -2,7 +2,7 @@
  --ui:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace;color-scheme:dark}
 *{box-sizing:border-box;font-style:normal}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased;overflow:hidden}
-body{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 1fr auto;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 1fr auto auto;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 button{font:inherit;color:inherit}
 button:focus-visible,a:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
 .bar{display:flex;align-items:center;gap:16px;padding:10px 14px;border-bottom:1px solid var(--line)}
@@ -12,6 +12,15 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ochre);outline-offs
 .blocks button{flex:none;border:1px solid var(--line);background:none;border-radius:999px;padding:5px 12px;font:500 11.5px var(--mono);color:var(--mute);cursor:pointer;white-space:nowrap}
 .blocks button.on{background:var(--ochre);border-color:var(--ochre);color:#16130c;font-family:var(--ui);font-weight:600;font-size:12.5px}
 .count{font:500 12px var(--mono);color:var(--soft);white-space:nowrap}
+.pline{width:110px;height:3px;background:#2a2c31;border-radius:2px;overflow:hidden;flex:none}.pline i{display:block;height:100%;background:var(--ochre);width:0;transition:width .4s}
+.gbtn{border:1px solid var(--line);background:none;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--soft);cursor:pointer;white-space:nowrap}
+.gbtn[aria-pressed=true]{background:var(--ink);color:#111;border-color:var(--ink)}
+.guion{display:none;margin:8px 8px 0;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--ochre);border-radius:8px;padding:10px 14px;max-height:22vh;overflow:auto}
+.guion p{margin:0;font-size:15px;line-height:1.55;color:var(--ink)}
+body.show-guion .guion{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.rise{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+#sub.rise{animation-delay:.12s}
 .head{padding:10px 14px 8px}
 .kicker{margin:0;font:600 11.5px var(--mono);letter-spacing:.06em;color:var(--ochre);text-transform:uppercase}
 .head h1{margin:4px 0 0;font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
@@ -64,7 +73,9 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ochre);outline-offs
  .below .chips,.below .leg{position:static;max-width:none;margin:8px 0}
  .head{order:4;padding:12px 12px 4px}
  .head h1{font-size:20px}
- .foot{order:5;grid-template-columns:1fr;padding:8px 12px 14px}
+ .guion{order:5;margin:8px 6px 0;max-height:none}
+ .pline{display:none}
+ .foot{order:6;grid-template-columns:1fr;padding:8px 12px 14px}
  .nav{justify-content:space-between}.nav button{flex:1}
  .src{white-space:normal}
  .cards{overflow-y:auto;align-content:start}
