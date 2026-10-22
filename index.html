@@ -1133,9 +1133,9 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   color: #f59e0b;
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
 }
-#map3d > :not(#terrFrame){display:none!important}
+#map3d > :not(iframe){display:none!important}
 #map3d.active ~ .zoom,#map3d.active ~ .stage-hint,#map3d.active ~ .node-pop{display:none!important}
-#terrFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#05070b}
+#map3d iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#0b0d14}
 </style>
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
@@ -1212,7 +1212,6 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
     </div>
    </div>
    <div class="header-actions">
-    <a class="btn-how-to" href="corte3.html" style="text-decoration:none;border-color:#D2553A;color:#F1ECE2">Corte III · Heterarquía</a>
     <button class="btn-how-to" id="btnHowTo">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       Como entender la red
@@ -1236,6 +1235,11 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
        <button class="strip-tab" data-view="clusters">Clústeres</button>
        <button class="strip-tab" data-view="concentric">Anillos de poder</button>
        <button class="strip-tab" data-view="map3d">Territorio 3D</button>
+       <button class="strip-tab" data-view="c3-het">Heterarquía</button>
+       <button class="strip-tab" data-view="c3-inf">Influencia</button>
+       <button class="strip-tab" data-view="c3-dec">Decisión</button>
+       <button class="strip-tab" data-view="c3-cau">Modelo causal</button>
+       <button class="strip-tab" data-view="c3-con">Contradicciones</button>
      </div>
    </div>
 
@@ -3321,19 +3325,22 @@ function switchView(viewName){
   const map3dEl = document.getElementById('map3d');
   const netSvg = document.getElementById('net');
 
-  if (viewName === 'map3d') {
+  if (viewName === 'map3d' || viewName.startsWith('c3-')) {
     if (map3dEl) map3dEl.classList.add('active');
     if (netSvg) {
       netSvg.style.opacity = '0';
       netSvg.style.pointerEvents = 'none';
     }
     // Territorio 3D con capas oficiales de IDECA (territorio.html)
-    let tf = document.getElementById('terrFrame');
+    const fid = viewName === 'map3d' ? 'terrFrame' : 'frame-' + viewName;
+    map3dEl.querySelectorAll('iframe').forEach(f => f.style.display = f.id === fid ? 'block' : 'none');
+    let tf = document.getElementById(fid);
     if (!tf) {
       tf = document.createElement('iframe');
-      tf.id = 'terrFrame';
-      tf.title = 'Territorio 3D de Kennedy';
-      tf.src = 'territorio.html?embed=1';
+      tf.id = fid;
+      tf.className = 'viewFrame';
+      tf.title = viewName === 'map3d' ? 'Territorio 3D de Kennedy' : 'Corte III';
+      tf.src = viewName === 'map3d' ? 'territorio.html?embed=1' : 'c3.html?v=' + viewName.slice(3);
       map3dEl.appendChild(tf);
     }
     return;

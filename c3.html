@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Corte III · Kennedy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d14;--ink:#F3F0EA;--soft:#BDB8AF;--mute:#7E7A73;--line:#232736;--card:#121624;--red:#D2553A;--ochre:#E3A549;color-scheme:dark}
+*{box-sizing:border-box;font-style:normal}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Instrument Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+.view{position:absolute;inset:0;display:none;flex-direction:column}
+.view.on{display:flex}
+.head{padding:22px 28px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex:none}
+.head h1{margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em}
+.head p{margin:6px 0 0;font-size:14px;color:var(--soft);max-width:52ch}
+.stage{flex:1;min-height:0;position:relative}
+.stage svg.main{position:absolute;inset:0;width:100%;height:100%}
+.foot{flex:none;padding:0 28px 20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:999px;padding:7px 14px;font-size:13px;color:var(--soft);cursor:pointer;transition:all .2s}
+.chip:hover{color:var(--ink);border-color:#3b4258}
+.chip[aria-pressed=true]{background:var(--ink);color:#0b0d14;border-color:var(--ink)}
+.chip i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:7px}
+.sep{width:1px;height:22px;background:var(--line);margin:0 6px}
+.nums{display:flex;gap:26px;flex:none}
+.nums div{text-align:right}
+.nums b{display:block;font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.nums span{font-size:11.5px;color:var(--mute)}
+.card{position:absolute;left:24px;bottom:18px;max-width:340px;background:rgba(11,13,20,.94);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--soft);line-height:1.45;display:none}
+.card b{display:block;color:var(--ink);font-size:14px;margin-bottom:3px}
+.tip{position:fixed;z-index:9;pointer-events:none;background:#0b0d14;border:1px solid #33394d;border-radius:9px;padding:8px 10px;max-width:260px;font-size:12.5px;line-height:1.4;color:var(--soft);display:none}
+.tip b{color:var(--ink)}
+.lg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--soft)}
+.lg span{display:inline-flex;align-items:center;gap:7px}
+a.doc{font-size:12px;color:var(--mute);margin-left:auto}
+.node text,.lbl{font-weight:500;fill:#E9E5DD;paint-order:stroke;stroke:#0b0d14;stroke-linejoin:round;pointer-events:none}
+.dim .node{opacity:.14}.dim .edge,.dim .keyi{opacity:.05}.dim .node.on,.dim .edge.on,.dim .keyi.on{opacity:1}
+.node{cursor:pointer}
+@keyframes dash{to{stroke-dashoffset:-24}}
+.flowing{animation:dash 1.2s linear infinite}
+@media (max-width:760px){
+  .head{padding:14px 14px 0;flex-direction:column;gap:10px}
+  .head h1{font-size:20px}.head p{font-size:13px}
+  .nums{gap:18px}.nums div{text-align:left}.nums b{font-size:24px}
+  .foot{padding:8px 12px 12px;gap:6px}
+  .chip{padding:6px 11px;font-size:12px}
+  .card{position:static;display:none;margin:0 12px 10px;max-width:none}
+  .sep{display:none}
+  a.doc{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){.flowing{animation:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <symbol id="i-persona" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z" fill="currentColor"/></symbol>
+ <symbol id="i-cargo" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2" fill="currentColor"/><rect x="5" y="8" width="6" height="7" fill="#0b0d14"/><path d="M13 9h6M13 12h6M13 15h4" stroke="#0b0d14" stroke-width="1.6"/></symbol>
+ <symbol id="i-entidad" viewBox="0 0 24 24"><path d="M2.5 9 12 3.5 21.5 9z" fill="currentColor"/><path d="M5 10.5v7M9.6 10.5v7M14.4 10.5v7M19 10.5v7" stroke="currentColor" stroke-width="2.2"/><rect x="2.5" y="18.5" width="19" height="2.4" fill="currentColor"/></symbol>
+ <symbol id="i-colectivo" viewBox="0 0 24 24"><circle cx="8.5" cy="8" r="3.4" fill="currentColor"/><circle cx="16.5" cy="9" r="2.8" fill="currentColor"/><path d="M2 20c0-3.8 2.9-6.6 6.5-6.6S15 16.2 15 20z" fill="currentColor"/><path d="M14.5 14.4c.6-.2 1.3-.3 2-.3 3 0 5.5 2.4 5.5 5.9h-6" fill="currentColor"/></symbol>
+ <symbol id="i-objeto" viewBox="0 0 24 24"><rect x="1.5" y="6" width="12.5" height="10" rx="1" fill="currentColor"/><path d="M14 9h4.5l3.5 3.6V16h-8z" fill="currentColor"/><circle cx="6" cy="17.6" r="2.2" fill="currentColor" stroke="#0b0d14" stroke-width="1.2"/><circle cx="17.5" cy="17.6" r="2.2" fill="currentColor" stroke="#0b0d14" stroke-width="1.2"/></symbol>
+ <symbol id="i-operador" viewBox="0 0 24 24"><path d="M4 17a8 8 0 0 1 16 0z" fill="currentColor"/><circle cx="12" cy="7.5" r="1.6" fill="currentColor"/><rect x="2.5" y="18" width="19" height="2.6" rx="1.2" fill="currentColor"/></symbol>
+ <symbol id="i-regulador" viewBox="0 0 24 24"><path d="M5 2.5h10l4 4V21.5H5z" fill="currentColor"/><path d="M8 11h8M8 14.5h8M8 18h5" stroke="#0b0d14" stroke-width="1.6"/></symbol>
+ <symbol id="i-instancia" viewBox="0 0 24 24"><rect x="9" y="2.5" width="9" height="5" rx="1" transform="rotate(40 13.5 5)" fill="currentColor"/><path d="M10.5 9.2 4 16.6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><rect x="3" y="19" width="12" height="2.6" rx="1" fill="currentColor"/></symbol>
+ <symbol id="i-nohumano" viewBox="0 0 24 24"><path d="M12 2.5c-4 5.5-6.5 9-6.5 12.3a6.5 6.5 0 0 0 13 0c0-3.3-2.5-6.8-6.5-12.3z" fill="currentColor"/></symbol>
+ <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11.5 12H21M17.5 12v3.4M20.5 12v2.6" stroke="currentColor" stroke-width="2.4"/></symbol>
+ <symbol id="i-agenda" viewBox="0 0 24 24"><path d="M3 10v4h3l7 4.5V5.5L6 10z" fill="currentColor"/><path d="M16.5 9a4 4 0 0 1 0 6" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+ <symbol id="i-delib" viewBox="0 0 24 24"><path d="M2.5 4.5h12.5v8.5H7.5l-4 3.2V13h-1z" fill="currentColor"/><path d="M17 8.5h4.5v8.5h-1v3l-3-3H11v-2.5" fill="currentColor"/></symbol>
+ <symbol id="i-lupa" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6" stroke="currentColor" stroke-width="2.6" fill="none"/><path d="M14.5 14.5 20.5 20.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></symbol>
+ <symbol id="i-fabrica" viewBox="0 0 24 24"><path d="M2 21V10l6 3.5V10l6 3.5V6h3l1.5-3h2V21z" fill="currentColor"/></symbol>
+ <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="i-rayo" viewBox="0 0 24 24"><path d="M13.5 2 4.5 13.5h6.5L9.5 22l9-11.5H12z" fill="currentColor"/></symbol>
+ <symbol id="i-casa" viewBox="0 0 24 24"><path d="M3 11 12 3.5 21 11v9.5H3z" fill="currentColor"/><rect x="10" y="14" width="4" height="6.5" fill="#0b0d14"/></symbol>
+ <symbol id="i-cadena" viewBox="0 0 24 24"><rect x="2" y="8" width="11" height="8" rx="4" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="11" y="8" width="11" height="8" rx="4" fill="none" stroke="currentColor" stroke-width="2.6"/></symbol>
+ <symbol id="i-ciclo" viewBox="0 0 24 24"><path d="M19 8a8 8 0 0 0-14 2M5 16a8 8 0 0 0 14-2" stroke="currentColor" stroke-width="2.6" fill="none"/><path d="M19 3v5h-5M5 21v-5h5" stroke="currentColor" stroke-width="2.6" fill="none"/></symbol>
+ <symbol id="i-reloj" viewBox="0 0 24 24"><path d="M6 2h12v3l-4 7 4 7v3H6v-3l4-7-4-7z" fill="currentColor"/></symbol>
+ <symbol id="i-moneda" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3" fill="currentColor"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6" fill="currentColor"/><path d="M4 10c0 1.7 3.6 3 8 3s8-1.3 8-3M4 14c0 1.7 3.6 3 8 3s8-1.3 8-3" stroke="#0b0d14" stroke-width="1.3" fill="none"/></symbol>
+ <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 2.5 22.5 21h-21z" fill="currentColor"/><path d="M12 9v5.5M12 17v1.5" stroke="#0b0d14" stroke-width="2.4" stroke-linecap="round"/></symbol>
+</defs></svg>
+
+<!-- HETERARQUÍA -->
+<section class="view" id="v-het">
+ <div class="head"><div><h1 id="hetT">Quién encabeza cambia con el asunto</h1><p id="hetP"></p></div></div>
+ <div class="stage"><svg class="main" id="hetSvg" role="img" aria-label="Orden de actores según el asunto"></svg></div>
+ <div class="foot" id="hetChips"></div>
+</section>
+
+<!-- INFLUENCIA -->
+<section class="view" id="v-inf">
+ <div class="head"><div><h1>La firma no es el poder</h1><p>Quién influye de verdad, quién puede detener un flujo y quién carga los costos sin voz.</p></div>
+  <div class="nums"><div><b id="nEf">0%</b><span>influencia colectiva</span></div><div><b id="nKey">0%</b><span>llaves colectivas</span></div><div><b id="nSv">3</b><span>afectados sin voz</span></div></div></div>
+ <div class="stage"><svg class="main" id="infSvg" role="img" aria-label="Red de influencia"></svg><div class="card" id="infCard"></div></div>
+ <div class="foot"><button class="chip" data-s="hoy" aria-pressed="true">Hoy</button><button class="chip" data-s="prop" aria-pressed="false">Heterarquía propuesta</button><span class="sep"></span><div class="lg" id="infLg"></div></div>
+</section>
+
+<!-- DECISIÓN -->
+<section class="view" id="v-dec">
+ <div class="head"><div><h1>El trayecto de una decisión</h1><p>Orgánicos y efluentes de Corabastos que llegan al Humedal La Vaca.</p></div></div>
+ <div class="stage"><svg class="main" id="decSvg" role="img" aria-label="Etapas de la decisión"></svg><div class="card" id="decCard"></div></div>
+ <div class="foot"><button class="chip" data-s="hoy" aria-pressed="false">Hoy</button><button class="chip" data-s="prop" aria-pressed="true">Heterarquía propuesta</button></div>
+</section>
+
+<!-- MODELO CAUSAL -->
+<section class="view" id="v-cau">
+ <div class="head"><div><h1>Cómo se reproduce y cómo cambia</h1><p id="cauP">Toca un bucle: R refuerza, B frena o transforma.</p></div></div>
+ <div class="stage"><svg class="main" id="cauSvg" role="img" aria-label="Diagrama causal"></svg><div class="card" id="cauCard"></div></div>
+ <div class="foot" id="cauChips"></div>
+</section>
+
+<!-- CONTRADICCIONES -->
+<section class="view" id="v-con">
+ <div class="head"><div><h1>Las contradicciones también se modelan</h1><p id="conP">Cuatro tensiones. La balanza muestra hacia dónde se inclina hoy y con la propuesta.</p></div></div>
+ <div class="stage"><svg class="main" id="conSvg" role="img" aria-label="Tensiones y contradicción"></svg></div>
+ <div class="foot"><button class="chip" data-s="hoy" aria-pressed="true">Hoy</button><button class="chip" data-s="prop" aria-pressed="false">Heterarquía propuesta</button><a class="doc" href="corte3.html" target="_blank" rel="noopener">Documento con fuentes y supuestos</a></div>
+</section>
+
+<div class="tip" id="tip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="corte3-data.js"></script>
+<script src="c3.js"></script>
+</body>
+</html>
