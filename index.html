@@ -1133,6 +1133,9 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
   color: #f59e0b;
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
 }
+#map3d > :not(#terrFrame){display:none!important}
+#map3d.active ~ .zoom,#map3d.active ~ .stage-hint,#map3d.active ~ .node-pop{display:none!important}
+#terrFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#05070b}
 </style>
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
@@ -3323,9 +3326,15 @@ function switchView(viewName){
       netSvg.style.opacity = '0';
       netSvg.style.pointerEvents = 'none';
     }
-    initMap3D();
-    setTimeout(onThreeResize, 60);
-    setTimeout(onThreeResize, 200);
+    // Territorio 3D con capas oficiales de IDECA (territorio.html)
+    let tf = document.getElementById('terrFrame');
+    if (!tf) {
+      tf = document.createElement('iframe');
+      tf.id = 'terrFrame';
+      tf.title = 'Territorio 3D de Kennedy';
+      tf.src = 'territorio.html?embed=1';
+      map3dEl.appendChild(tf);
+    }
     return;
   }
 
@@ -4371,6 +4380,7 @@ function runTour(tKey){
   queue();
 }
 
+function renderCommunityList(){ /* lista comunitaria ahora vive en el Territorio 3D */ }
 function renderPanel(){
   if(state.activeTour){
     P.innerHTML = tourDetail(state.activeTour);
