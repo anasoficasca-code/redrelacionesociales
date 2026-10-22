@@ -172,19 +172,87 @@ function bucles(ctx){
 }
 
 /* ================= diapositivas ================= */
-const B=['Macromodelo político','Red de interacciones','Trayecto de decisión','Modelo dinámico','Contradicciones','Síntesis territorial','Fuentes y supuestos'];
-const ROM=['I','II','III','IV','V','VI','VII'];
-const SUBSYS=[
- {n:'Todo el modelo',ids:null,t:'El modelo en Vensim: cajas son niveles (actores que acumulan), válvulas son flujos y flechas azules son influencias con signo.'},
- {n:'Abastecimiento y Corabastos',ids:['1','2','3','4','5','6','7','8','19','20','21','22','23','24','25','44','50','60','67','77','78','84','168'],t:'Corabastos, mayoristas, camiones y compradores: el flujo de alimentos desde productores hasta hogares.'},
- {n:'Residuos y reciclaje',ids:['9','10','11','26','27','91','94','95','112','113','114'],t:'Comercios y hogares generan; recicladores, operador de aseo, UAESP y Ambiente reducen el nivel (signo −).'},
- {n:'Educación',ids:['13','30','31','32','33','153','158'],t:'Ingreso y egreso de estudiantes; rectores, docentes y familias sostienen a los colegios.'},
- {n:'Salud',ids:['14','34','179','184'],t:'La demanda de atención primaria entra a la Subred y la atienden médicos y personal de salud.'},
- {n:'Transporte público',ids:['15','35','132','137','144'],t:'TransMilenio y operadores ponen buses; los usuarios los ocupan (signo −).'},
- {n:'Gobierno local',ids:['12','28','29','125'],t:'Residentes, juntas y presidentes de JAC llevan solicitudes a la Alcaldía Local.'}
-];
+const B=window.BLOQUES;
+const ROM=['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+const VZ={abasto:['1','2','3','4','5','6','7','8','19','20','21','22','23','24','25','44','50','60','67','77','78','84','168'],residuos:['9','10','11','26','27','91','94','95','112','113','114']};
+
+/* ---------- red completa: libre, clústeres, niveles, flujo ---------- */
+function redOrg(ctx){
+ const {svg,W,H,P}=svgIn(ctx.el);const N=RED_DATA.nodes.map(n=>({...n})),NB=new Map(N.map(n=>[n.id,n]));
+ const Lk=RED_DATA.links.filter(l=>NB.has(l.s)&&NB.has(l.t)).map(l=>({...l,source:l.s,target:l.t}));
+ const RING=['log','res','gob','sal','edu','mov','con'];const cen={cor:[W/2,H/2]};RING.forEach((k,i)=>{const a=-Math.PI/2+(i+.5)*2*Math.PI/7;cen[k]=[W/2+Math.cos(a)*W*(P?.28:.33),H/2+Math.sin(a)*H*(P?.36:.34)]});
+ const r=n=>({1:P?11:15,2:P?8:11,3:P?6.5:8.5,4:P?6:8})[n.lv]||8;
+ const sim=d3.forceSimulation(N).force('l',d3.forceLink(Lk).id(d=>d.id).distance(40).strength(.05)).force('q',d3.forceManyBody().strength(-60)).force('x',d3.forceX(n=>cen[n.sph][0]).strength(.15)).force('y',d3.forceY(n=>cen[n.sph][1]).strength(.15)).force('c',d3.forceCollide(n=>r(n)+4)).stop();
+ for(let i=0;i<300;i++)sim.tick();
+ N.forEach(n=>{n.cx=n.x;n.cy=n.y});
+ // posiciones por niveles
+ const LVN={1:'Deciden',2:'Coordinan y gestionan',3:'Ejecutan',4:'Participan y reciben'};const ORDER=['cor','log','con','res','gob','edu','sal','mov'];
+ const x0=P?18:W*.17,x1=W-(P?18:30);
+ [1,2,3,4].forEach(l=>{const g=N.filter(n=>n.lv===l).sort((a,b)=>ORDER.indexOf(a.sph)-ORDER.indexOf(b.sph));const rows=P&&g.length>12?2:1;const per=Math.ceil(g.length/rows);
+  g.forEach((n,i)=>{const row=Math.floor(i/per),j=i%per;n.lx=x0+(j+.5)*(x1-x0)/per;n.ly=H*(.13+(l-1)*.235)+(rows>1?(row-.5)*22:0)})});
+ const gH=svg.append('g'),gB=svg.append('g'),gE=svg.append('g'),gN=svg.append('g'),gT=svg.append('g');
+ const es=gE.selectAll('line').data(Lk).join('line').attr('stroke',l=>CONV[l.c]||'#555').attr('stroke-width',1).attr('opacity',.5);
+ const ns=gN.selectAll('g').data(N).join('g').attr('class','node').each(function(n){actor(d3.select(this),n.id,r(n),{label:false})})
+  .on('mousemove',(e,n)=>showTip(`<b>${esc(n.name)}</b><br>${esc(n.fun||'')}`,e)).on('mouseleave',hideTip);
+ function place(k){N.forEach(n=>{n.x=k==='levels'||k==='flow'?n.lx:n.cx;n.y=k==='levels'||k==='flow'?n.ly:n.cy;anchor(n.id,n.x,n.y,r(n))})}
+ function draw(dur){ns.transition('pos').duration(dur).attr('transform',n=>`translate(${n.x},${n.y})`);
+  es.transition('pos').duration(dur).attr('x1',l=>l.source.x).attr('y1',l=>l.source.y).attr('x2',l=>l.target.x).attr('y2',l=>l.target.y)}
+ const hull=d3.line().curve(d3.curveCatmullRomClosed.alpha(.8));
+ const CN={cor:'Corabastos y comercio mayorista',log:'Logística y carga',con:'Comercio barrial',res:'Residuos y reciclaje',gob:'Gobierno local',edu:'Educación',sal:'Salud',mov:'Transporte público'};
+ place('full');draw(0);ns.style('opacity',0).transition('op').delay(n=>reduce?0:Math.hypot(n.x-W/2,n.y-H/2)*1.2).duration(500).style('opacity',1);
+ return{mode(k){gH.selectAll('*').remove();gB.selectAll('*').remove();gT.selectAll('*').remove();place(k);draw(reduce?0:1100);
+  ns.select('text').remove();
+  if(k==='clusters'){Object.keys(CN).forEach((sp,i)=>{const pts=[];N.filter(n=>n.sph===sp).forEach(n=>{for(let a=0;a<10;a++)pts.push([n.cx+Math.cos(a/10*6.28)*(r(n)+14),n.cy+Math.sin(a/10*6.28)*(r(n)+14)])});const h=d3.polygonHull(pts);if(!h)return;
+    gH.append('path').attr('d',hull(h)).attr('fill',SPC[sp]).attr('fill-opacity',.1).attr('stroke',SPC[sp]).attr('stroke-opacity',.5).style('opacity',0).transition().delay(reduce?0:300+i*120).style('opacity',1);
+    const c=d3.polygonCentroid(h),top=d3.min(h,p=>p[1]);const n=N.filter(x=>x.sph===sp).length;
+    const t=txt(gT,c[0],top-8,`${CN[sp]} · ${n}`,{a:'middle',fw:700,fs:P?10.5:12.5,c:SPC[sp]});t.style('opacity',0).transition().delay(reduce?0:400+i*120).style('opacity',1)})}
+  if(k==='levels'||k==='flow'){[1,2,3,4].forEach(l=>{const y=H*(.13+(l-1)*.235);gB.append('line').attr('x1',8).attr('x2',W-8).attr('y1',y+H*.1).attr('y2',y+H*.1).attr('stroke','#2a2c31').attr('stroke-dasharray','2 6');
+    const n=N.filter(x=>x.lv===l).length;const t=txt(gT,P?10:18,P?y-H*.075:y+4,`${LVN[l]} · ${n}`,{fw:700,fs:P?11.5:14,c:l===1?'#9382E0':l===2?OCH:l===3?'#4FB98C':SOFT});t.style('opacity',0).transition().delay(reduce?0:600+l*150).style('opacity',1)})}
+  if(k==='flow'){es.transition('col').duration(600).attr('stroke',l=>l.source.lv<l.target.lv?OCH:l.source.lv>l.target.lv?'#4FB98C':'#3a3c42').attr('opacity',l=>l.source.lv===l.target.lv?.08:.75).attr('stroke-width',l=>l.source.lv>l.target.lv&&l.c==='par'?2.2:1.1);
+   if(!P){txt(gT,W-20,H-38,'Bajan 102 · gobierno, control y servicios',{a:'end',c:OCH,fs:13,fw:600});txt(gT,W-20,H-18,'Suben 77 · sobre todo solicitudes y participación',{a:'end',c:'#4FB98C',fs:13,fw:600})}}
+  else es.transition('col').duration(600).attr('stroke',l=>CONV[l.c]||'#555').attr('opacity',k==='levels'?.18:.5).attr('stroke-width',1);
+ }};
+}
+
+/* ---------- bandas de niveles propuestos (núcleo, local, distrital) ---------- */
+const BANDS=[{k:'dis',n:'Distrital',ids:['A32','A33','N06','A02']},{k:'loc',n:'Local',ids:['MESA','A34','N01','AMB03','FDL']},{k:'nuc',n:'Núcleo por asunto',ids:['NRES','VOC','A35']},{k:'cot',n:'Cotidiano',ids:['A27','A25','A26','A57','A23','A24','A28','RES01']}];
+function bands(ctx){
+ const {svg,W,H,P}=svgIn(ctx.el);const df=svg.append('defs');mk(df,'ba-o',OCH,10);mk(df,'ba-g','#4FB98C',10);
+ const R=P?15:Math.min(24,W/48);const pos={};const x0=P?14:W*.17,x1=W-(P?14:24);
+ const gB=svg.append('g'),gA=svg.append('g'),gN=svg.append('g'),gX=svg.append('g');
+ const bg=BANDS.map((b,i)=>{const y=H*(.14+i*.24);const g=gB.append('g').style('opacity',0);
+  g.append('rect').attr('x',6).attr('y',y-H*.1).attr('width',W-12).attr('height',H*.2).attr('rx',10).attr('fill','#17191d').attr('stroke','#25272c');
+  txt(g,P?14:20,P?y-H*.1+15:y+5,b.n,{fw:700,fs:P?12:15,c:OCH});
+  b.ids.forEach((id,j)=>{const x=x0+(j+.5)*(x1-x0)/b.ids.length;pos[id]=[x,y+(P?6:0)];anchor(id,x,y+(P?6:0),R)});return{g,y}});
+ const ng={};BANDS.forEach((b,i)=>b.ids.forEach(id=>{const g=gN.append('g').attr('class','node').attr('transform',`translate(${pos[id]})`).style('opacity',0);actor(g,id,R,{fs:P?9.5:11,wrap:P?11:16});ng[id]={g,band:i}}));
+ return{pos,R,
+  show(n){bg.forEach((b,i)=>b.g.transition().duration(500).style('opacity',i<n?1:0));Object.values(ng).forEach(o=>o.g.transition().duration(500).style('opacity',o.band<n?1:0))},
+  showBands(list){bg.forEach((b,i)=>b.g.transition().duration(500).style('opacity',list.includes(i)?1:0));Object.values(ng).forEach(o=>o.g.transition().duration(500).style('opacity',list.includes(o.band)?1:0))},
+  focus(ids){Object.entries(ng).forEach(([id,o])=>o.g.transition().duration(500).style('opacity',!ids||ids.includes(id)?1:.18))},
+  arrows(list,col){gA.selectAll('*').remove();(list||[]).forEach(([a,b],i)=>{const A=pos[a]||a,Bp=pos[b]||b;if(!A||!Bp)return;const dx=Bp[0]-A[0],dy=Bp[1]-A[1],d=Math.hypot(dx,dy)||1;const k=.18;
+   const mx=(A[0]+Bp[0])/2-dy*k,my=(A[1]+Bp[1])/2+dx*k;const ua=Math.atan2(my-A[1],mx-A[0]),ub=Math.atan2(Bp[1]-my,Bp[0]-mx);
+   gA.append('path').attr('d',`M${A[0]+Math.cos(ua)*(R+3)},${A[1]+Math.sin(ua)*(R+3)}Q${mx},${my} ${Bp[0]-Math.cos(ub)*(R+5)},${Bp[1]-Math.sin(ub)*(R+5)}`).attr('fill','none').attr('stroke',col||OCH).attr('stroke-width',2.2)
+    .attr('stroke-dasharray','7 5').attr('class','flowing').attr('marker-end',`url(#${col==='#4FB98C'?'ba-g':'ba-o'})`).style('opacity',0).transition().delay(reduce?0:i*120).duration(400).style('opacity',1)})},
+  extra:gX,P,W,H};
+}
+
+/* ---------- vistas simples ---------- */
+function cards(ctx,data,cols){const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:cols},1fr)`);
+ return el.selectAll('div').data(data).join('div').attr('class','card').html(d=>`${d[0]?`<svg width="40" height="40" style="color:${d[3]||OCH}"><use href="#${d[0]}" width="40" height="40"/></svg>`:''}<h3>${d[1]}</h3><p>${d[2]||''}</p>`)}
+function statement(ctx,parts){const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns','1fr').style('padding','6% 9%');
+ return el.selectAll('div').data(parts).join('div').attr('class','card').style('background','none').style('border','0').style('border-left','4px solid '+OCH).style('border-radius','0').html(p=>`<p style="font-size:clamp(18px,2.4vw,30px);line-height:1.35;color:#F2EFE8;font-weight:500">${p}</p>`)}
+
 const SL=[
- {b:0,t:'Quién encabeza cambia con el asunto',s:'Heterarquía: los actores no tienen un rango fijo; se ordenan según la materia.',src:'Crumley (1995), S7 · Ostrom (2010), S8 · actores: Red libre de Kennedy',subs:5,draw(ctx){
+ /* I · Apertura */
+ {b:0,key:'apertura',src:'Red de actores del grupo: 95 actores y 254 relaciones',draw(ctx){const v=redOrg(ctx);return()=>{}}},
+ /* II · Situación actual */
+ {b:1,key:'situacion',to:3,slow:1300,src:'Modelo Vensim del grupo: Red_interacciones_actores.mdl',draw(ctx){const v=vensim(ctx);return sub=>v.zoom(sub===0?VZ.abasto:sub===1?VZ.residuos:null)}},
+ {b:1,key:'situacion',from:3,src:'Guía Corte III · condiciones materiales',draw(ctx){const cs=cards(ctx,[['i-casa','Suelo','¿Quién lo tiene?'],['i-moneda','Dinero','¿Quién lo asigna?'],['i-grupo','Trabajo','¿Quién lo pone?'],['i-doc','Información','¿Quién la conoce?'],['i-reloj','Tiempo','¿Quién lo dedica?']],5);cs.classed('off',true).transition().delay((d,i)=>reduce?0:i*180).on('start',function(){d3.select(this).classed('off',false)})}},
+ /* III · Organización actual */
+ {b:2,key:'organizacion',src:'Red de actores del grupo · clústeres y niveles de decisión',draw(ctx){const v=redOrg(ctx);return sub=>v.mode(['full','clusters','levels','flow'][sub])}},
+ /* IV · Macromodelo político */
+ {b:3,key:'hetero',slow:1000,src:'Crumley (1995) · actores de la red',draw(ctx){
+   
    const {svg,W,H,P}=svgIn(ctx.el);const keys=Object.keys(R3.RANK);const A=R3.RANK.hoy.o;
    const slot=(i,m)=>{if(m==='hoy')return P?{x:40+i*(W-200)/9,y:40+i*(H-80)/9.5,r:22-i*.7}:{x:W*.06+i*W*.095,y:H*.12+i*H*.075,r:Math.min(40,W/30)-i*1.5};
     if(P){if(i===0)return{x:W/2,y:H*.14,r:42};if(i<3)return{x:i===1?W*.27:W*.73,y:H*.38,r:30};const j=i-3;return j<4?{x:W*(.14+j*.24),y:H*.62,r:22}:{x:W*(.26+(j-4)*.24),y:H*.84,r:22}}
@@ -199,111 +267,73 @@ const SL=[
     gL.selectAll('*').remove();if(k==='hoy'){gL.append('path').attr('d',d3.line()(A.map((_,i)=>{const s=slot(i,'hoy');return[s.x,s.y]}))).attr('fill','none').attr('stroke','#3a3c42').attr('stroke-dasharray','4 6')}
     else{const s=slot(0,k);gL.append('circle').attr('cx',s.x).attr('cy',s.y).attr('r',s.r+34).attr('fill','none').attr('stroke',R.c).attr('stroke-opacity',.5).attr('stroke-dasharray','3 7').attr('class','flowing')}}
    ns.attr('transform',(id,i)=>{const s=slot(i,'hoy');return`translate(${s.x},${s.y})`});
-   return sub=>set(keys[sub]);}},
- {b:0,t:'De los macromodelos ecológicos al político',s:'Los siete macromodelos dicen qué cuidar; la heterarquía dice quién decide sobre cada cosa.',src:'Macromodelos ecológicos del grupo (macromodelos-kennedy)',subs:1,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const S={eco:'Marco general',hid:'Agua: custodios primero',reg:'Restaurar antes que compensar',com:'Abasto: comerciantes y coteros',cir:'Residuos: quien separa',lim:'Llave ecológica',bio:'Voz de otras vidas'};
-   const c={x:W/2,y:P?H*.5:H*.62};const rr=P?Math.min(W,H)*.38:Math.min(W*.4,H*.46);
-   const cg=svg.append('g').attr('transform',`translate(${c.x},${c.y})`).style('opacity',0);const lines=[];cg.append('circle').attr('r',P?44:58).attr('fill','#1d1a12').attr('stroke',OCH).attr('stroke-width',2.5);
-   txt(cg,0,-4,'Heterarquía',{a:'middle',fw:700,fs:P?14:17});txt(cg,0,16,'macromodelo político',{a:'middle',c:SOFT,fs:11});
-   C3.ECO.forEach((m,i)=>{const a=P?(-Math.PI/2+i*2*Math.PI/7):(Math.PI+(i+.5)*Math.PI/7);const x=c.x+Math.cos(a)*rr,y=c.y+Math.sin(a)*rr*(P?1:.95);
-    const ln=svg.insert('path','g').attr('d',`M${x},${y}L${c.x},${c.y}`).attr('stroke',m.c).attr('stroke-width',1.6).attr('stroke-dasharray','5 5').attr('class','flowing').attr('opacity',0);lines.push(ln);
-    const g=svg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);g.transition().delay(reduce?0:i*160).duration(500).style('opacity',1);
-    g.append('circle').attr('r',P?20:26).attr('fill','#141518').attr('stroke',m.c).attr('stroke-width',2.4);icon(g,['i-hoja','i-gota','i-ciclo','i-moneda','i-ciclo','i-alerta','i-hoja'][i],0,0,P?18:22,m.c);
-    txt(g,0,(P?20:26)+16,m.n,{a:'middle',fw:700,fs:P?11.5:13.5});txt(g,0,(P?20:26)+31,S[m.id],{a:'middle',c:SOFT,fs:P?10.5:12})});
-   return sub=>{cg.transition().duration(600).style('opacity',sub?1:0);lines.forEach((l,i)=>l.transition().delay(sub?i*120:0).duration(500).attr('opacity',sub?.7:0))}}},
- {b:0,t:'Cinco principios',s:'Cada principio responde a una pregunta de la guía: quién decide, quién ejecuta y quién puede corregir.',src:'Decisiones de diseño del grupo · referentes S7, S8, S10',subs:5,draw(ctx){
-   const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:5},1fr)`);
-   const cs=el.selectAll('div').data(R3.PRINCIPIOS).join('div').attr('class','card off').html((p,i)=>`<svg width="40" height="40" style="color:${OCH}"><use href="#${p.ic}" width="40" height="40"/></svg><div class="n">0${i+1}</div><h3>${p.t}</h3><p>${p.d}</p>`);
-   return sub=>cs.classed('off',(p,i)=>i>sub)}},
- {b:0,t:'Qué es colectivo y qué se delega',s:'Delegar no es controlar: la delegación tiene límites y se puede retirar.',src:'Decisiones de diseño del grupo',subs:4,draw(ctx){
-   const D=[['i-grupo','Colectivo','Presupuesto participativo, reglas de separación y uso del entorno del humedal.'],['i-doc','Se delega','Operar la planta, medir el agua y contratar, con mandato escrito y plazo.'],['i-alerta','Límites','Máximo dos periodos; nada de presupuesto sin acta; la llave ecológica no se delega.'],['i-key','Revocación','Un tercio del núcleo pide revisión; la mayoría retira el mandato.']];
-   const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:4},1fr)`);
-   const cs=el.selectAll('div').data(D).join('div').attr('class','card off').html(d=>`<svg width="40" height="40" style="color:${OCH}"><use href="#${d[0]}" width="40" height="40"/></svg><h3>${d[1]}</h3><p>${d[2]}</p>`);return sub=>cs.classed('off',(d,i)=>i>sub)}},
- {b:0,t:'Objetivos que se pueden verificar',s:'«Habrá participación» no basta: cada objetivo dice cómo se comprueba.',src:'Presupuestos participativos: S1 · cifras de residuos en disputa: S6',subs:5,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const O=R3.OBJETIVOS;const top=P?20:30,rh=(H-top-20)/O.length;const x0=P?14:W*.04,xa=P?W*.12:W*.42,xb=P?W*.88:W*.9;
-   if(!P){txt(svg,xa,top-6,'HOY',{a:'middle',c:MUTE,fs:11,mono:1});txt(svg,xb,top-6,'META',{a:'middle',c:OCH,fs:11,mono:1})}
-   const rows=O.map((o,i)=>{const y=top+i*rh+rh/2;const g=svg.append('g').style('opacity',0);
-    txt(g,x0,P?y-rh*.3:y-6,o.t,{fw:700,fs:P?15:17});txt(g,x0,P?y-rh*.3+18:y+14,o.i,{c:SOFT,fs:P?12:13,wrap:P?48:40});
-    const ly=P?y+rh*.22:y;g.append('line').attr('x1',xa).attr('x2',xb).attr('y1',ly).attr('y2',ly).attr('stroke','#3a3c42').attr('stroke-width',2);
-    g.append('circle').attr('cx',xa).attr('cy',ly).attr('r',7).attr('fill','#55575d');const m=g.append('circle').attr('cx',xa).attr('cy',ly).attr('r',9).attr('fill',OCH);
-    txt(g,xa,ly+(P?22:24),o.hoy,{a:P?'start':'middle',c:MUTE,fs:12});txt(g,xb,ly+(P?22:24),o.meta,{a:'end',c:OCH,fs:12});return{g,m}});
-   return sub=>rows.forEach((r,i)=>{if(i<=sub&&r.g.style('opacity')=='0'){r.g.transition().duration(400).style('opacity',1);r.m.transition().delay(300).duration(reduce?0:1100).attr('cx',xb)}})}},
- {b:0,t:'De la situación actual a la propuesta',s:'Quién impulsa, quién resiste, qué recursos se disputan y qué hecho inicia el cambio.',src:'Diagnóstico del grupo (S5) · presupuestos participativos (S1)',subs:3,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const T=R3.TRANS;const r=P?20:Math.min(30,W/40);
-   const g1=svg.append('g').style('opacity',0),g2=svg.append('g').style('opacity',0),g3=svg.append('g').style('opacity',0);
-   const lx=P?W*.12:W*.2,rx=P?W*.88:W*.8,cy0=P?H*.08:H*.18;
-   txt(g1,lx,cy0,'IMPULSAN',{a:'middle',c:GRN,fs:12,mono:1});txt(g1,rx,cy0,'RESISTEN',{a:'middle',c:RED,fs:12,mono:1});
-   const ty0=P?H*.74:H*.72,sp=(ty0-cy0-90)/4;
-   T.impulsan.forEach((id,i)=>{anchor(id,lx,cy0+36+i*sp,r);const g=g1.append('g').attr('class','node').attr('transform',`translate(${lx},${cy0+36+i*sp})`);actor(g,id,r,{label:false});if(!P)txt(g,-r-10,4,ACT(id).short,{a:'end',fs:12,c:SOFT})});
-   T.resisten.forEach((id,i)=>{anchor(id,rx,cy0+36+i*sp*1.3,r);const g=g1.append('g').attr('class','node').attr('transform',`translate(${rx},${cy0+36+i*sp*1.3})`);actor(g,id,r,{label:false});if(!P)txt(g,r+10,4,ACT(id).short,{fs:12,c:SOFT})});
-   txt(g2,W/2,cy0,'RECURSOS EN DISPUTA',{a:'middle',c:OCH,fs:12,mono:1});
-   T.disputa.forEach((d,i)=>{const y=cy0+34+i*(P?44:(H*.72-cy0-100)/4);g2.append('rect').attr('x',W/2-(P?70:110)).attr('y',y-16).attr('width',P?140:220).attr('height',32).attr('rx',16).attr('fill','#1d1a12').attr('stroke',OCH);txt(g2,W/2,y+5,d,{a:'middle',fs:P?12:14,fw:600});
-    g2.append('path').attr('d',`M${lx+r+8},${y}H${W/2-(P?74:114)}`).attr('stroke',GRN).attr('stroke-dasharray','5 5').attr('class','flowing').attr('marker-end',null);g2.append('path').attr('d',`M${rx-r-8},${y}H${W/2+(P?74:114)}`).attr('stroke',RED).attr('stroke-dasharray','5 5').attr('class','flowing')});
-   const ty=P?H*.74:H*.72;const sx=i=>W*(.12+i*.25);
-   g3.append('line').attr('x1',sx(0)).attr('x2',sx(3)).attr('y1',ty).attr('y2',ty).attr('stroke',RED).attr('stroke-dasharray','6 5');
-   T.pasos.forEach(([n,d],i)=>{const g=g3.append('g').attr('transform',`translate(${sx(i)},${ty})`);g.append('circle').attr('r',P?14:18).attr('fill','#141518').attr('stroke',RED).attr('stroke-width',2);txt(g,0,5,String(i+1),{a:'middle',c:RED,fw:700,fs:13});txt(g,0,(P?14:18)+18,n,{a:'middle',fw:700,fs:P?12:14});if(!P)txt(g,0,(P?14:18)+36,d,{a:'middle',c:SOFT,fs:12,wrap:26})});
-   txt(g3,W/2,H-14,T.inicio,{a:'middle',c:SOFT,fs:P?11:12.5,wrap:P?60:140});
-   return sub=>[g1,g2,g3].forEach((g,i)=>{if(i<=sub)g.transition().duration(500).style('opacity',1)})}},
- {b:0,t:'Lo que enseñan los referentes',s:'Ningún mecanismo funcionó solo por voluntad: Christiania y Findhorn dependieron del suelo y de ingresos propios.',src:'Comparativa Christiania – Findhorn del grupo (S10)',subs:1,draw(ctx){
-   const R=R3.REFERENTES;const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:3},1fr)`).style('align-content','stretch');
-   const cs=el.selectAll('div').data(R.cols).join('div').attr('class','card off').style('border-color',(c,i)=>i===2?'#5a4520':null).html((c,i)=>`<div class="n">${c.sub}</div><h3 style="${i===2?'color:'+OCH:''}">${c.n}</h3>${R.filas.map((f,j)=>c.c[j]==='—'?'':`<p style="margin-top:12px"><span class="mono" style="font-size:11px;color:#77736b;text-transform:uppercase">${f}</span><br>${c.c[j]}</p>`).join('')}`);return sub=>cs.classed('off',(c,i)=>i>sub)}},
- {b:1,t:'La red de actores de Kennedy',s:'Los mismos actores y colores de la Red libre: el Corte III trabaja sobre esta red.',src:'Red de actores del grupo · capas IDECA (S4)',subs:1,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const N=RED_DATA.nodes.map(n=>({...n})),NB=new Map(N.map(n=>[n.id,n]));const Lk=RED_DATA.links.filter(l=>NB.has(l.s)&&NB.has(l.t)).map(l=>({...l,source:l.s,target:l.t}));
-   const RING=['log','res','gob','sal','edu','mov','con'];const cen={cor:[W/2,H/2]};RING.forEach((k,i)=>{const a=-Math.PI/2+(i+.5)*2*Math.PI/7;cen[k]=[W/2+Math.cos(a)*W*(P?.28:.33),H/2+Math.sin(a)*H*(P?.36:.34)]});
-   const r=n=>({1:P?12:16,2:P?9:12,3:P?7:9,4:P?6:8})[n.lv]||8;
-   const sim=d3.forceSimulation(N).force('l',d3.forceLink(Lk).id(d=>d.id).distance(40).strength(.05)).force('q',d3.forceManyBody().strength(-60)).force('x',d3.forceX(n=>cen[n.sph][0]).strength(.15)).force('y',d3.forceY(n=>cen[n.sph][1]).strength(.15)).force('c',d3.forceCollide(n=>r(n)+4)).stop();
-   for(let i=0;i<300;i++)sim.tick();
-   N.forEach(n=>anchor(n.id,n.x,n.y,r(n)));
-   svg.append('g').selectAll('path').data(Lk).join('path').attr('d',l=>`M${l.source.x},${l.source.y}L${l.target.x},${l.target.y}`).attr('stroke',l=>CONV[l.c]||'#555').attr('stroke-dasharray',l=>CONVD[l.c]).attr('stroke-width',1).attr('opacity',.55);
-   const ns=svg.append('g').selectAll('g').data(N).join('g').attr('class','node').attr('transform',n=>`translate(${n.x},${n.y})`).each(function(n){actor(d3.select(this),n.id,r(n),{label:n.lv===1&&!P,fs:10,wrap:16})})
-    .on('mousemove',(e,n)=>showTip(`<b>${esc(n.name)}</b><br>${esc(n.fun||'')}`,e)).on('mouseleave',hideTip);
-   ns.style('opacity',0).transition().delay(n=>reduce?0:Math.hypot(n.x-W/2,n.y-H/2)*1.2).duration(500).style('opacity',1);
-   ctx.legend(Object.entries({com:'Comercial y abastecimiento',lab:'Laboral y empleo',ser:'Prestación de un servicio',rec:'Reciclaje',gov:'Gobierno y control',par:'Participación y solicitudes'}).map(([k,n])=>[CONV[k],CONVD[k],n]))}},
- {b:1,t:'Hoy: la firma no es el poder',s:'Separamos la atribución formal de la influencia efectiva: quién mueve de verdad cada decisión.',src:'Relaciones documentadas: S1, S2, S3, S5, S9 · el resto son hipótesis por verificar',subs:3,draw(ctx){
-   const v=influence(ctx,'hoy');const cap=['','Influencia efectiva y llaves: entidades y la asamblea de Corabastos controlan los flujos.',`Afectados sin voz: ${MH.sv.map(id=>ACT(id).short).join(', ')}.`];
-   return sub=>{v.focus(sub===1?e=>e.k==='efectiva'||e.key:sub===2?e=>e.k==='conflicto':null)}}},
- {b:1,t:'Propuesta: núcleos por asunto',s:'Aparecen la mesa, los núcleos, las vocerías revocables, la guardianía, el fondo y la planta (borde punteado).',src:'Decisiones de diseño del grupo · permiso ambiental y suelo: competencias existentes',subs:3,draw(ctx){
-   const v=influence(ctx,'prop');const cap=['','Quien trabaja encabeza: recicladores en orgánicos, colectivos en agua; las vocerías llevan mandatos revocables.','Llaves que siguen afuera: permiso de Ambiente, suelo de Corabastos, contratación de la Alcaldía.'];
-   return sub=>{v.focus(sub===1?e=>R3.PROP[e.s]||R3.PROP[e.t]:sub===2?e=>e.key&&!isC(e.s):null)}}},
- {b:1,t:'Lectura crítica de la red',s:'Qué cambia en la distribución efectiva de la influencia entre hoy y la propuesta.',src:'Medidas calculadas sobre la capa de influencia; nodos = actores, líneas = relaciones con tipo y dirección',subs:1,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const M=[['Influencia efectiva en manos colectivas',MH.ef,MP.ef,'%'],['Llaves en manos colectivas',MH.ky,MP.ky,'%'],['Afectados sin voz',MH.sv.length,MP.sv.length,'']];
-   M.forEach((m,i)=>{const y=P?H*(.12+i*.3):H*.2+i*H*.25;const x0=P?16:W*.06,bw=P?W-32:W*.55,bx=P?16:W*.38;
-    txt(svg,x0,y,m[0],{fw:700,fs:P?15:18});const max=m[3]?100:4;
-    [['Hoy',m[1],'#77736b'],['Propuesta',m[2],OCH]].forEach(([n,v,c],j)=>{const yy=y+(P?18:-4)+j*28;txt(svg,bx-10+(P?50:0),yy+14,n,{a:'end',c:SOFT,fs:12,mono:1});
-     const r=svg.append('rect').attr('x',bx+(P?60:0)).attr('y',yy).attr('height',18).attr('rx',4).attr('fill',c).attr('width',0);r.transition().delay(300+j*300).duration(reduce?0:900).attr('width',Math.max(4,v/max*(bw-(P?60:0)-60)));
-     const t=txt(svg,bx+(P?60:0)+8,yy+14,'',{fw:700,fs:14,c});t.transition().delay(300+j*300).duration(reduce?0:900).attr('x',bx+(P?60:0)+Math.max(4,v/max*(bw-(P?60:0)-60))+8).tween('t',()=>{const ip=d3.interpolateNumber(0,v);return u=>t.text(Math.round(ip(u))+m[3])})})});
-   txt(svg,P?16:W*.06,H-18,'La propuesta reduce la concentración, pero el permiso, el suelo y el contrato siguen en entidades externas.',{c:SOFT,fs:13,wrap:P?52:200})}},
- {b:2,t:'Hoy: decide quien no trabaja',s:'Orgánicos y efluentes de Corabastos que llegan al Humedal La Vaca.',src:'Estatutos de Corabastos (S2) · esquema de aseo (S3)',subs:1,draw(ctx){trayecto(ctx,'hoy')}},
- {b:2,t:'Propuesta: el trayecto completo',s:'Agenda, deliberación, resolución, ejecución y rectificación, con la regla de cada etapa.',src:'Decisiones de diseño del grupo',subs:1,draw(ctx){trayecto(ctx,'prop')}},
- {b:2,t:'Decidir no es hacer',s:'¿Quien decide traslada trabajo y costos a quien ejecuta?',src:'Guía Corte III, 4.2',subs:2,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const r=P?18:Math.min(26,W/45);
-   const panel=(st,x,w)=>{const D=R3.DECIDE[st];const g=svg.append('g').attr('transform',`translate(${x},20)`).style('opacity',0);const h=H-40;
-    g.append('rect').attr('width',w).attr('height',h).attr('rx',12).attr('fill','#17191d').attr('stroke','#25272c');
-    txt(g,16,26,st==='hoy'?'HOY':'PROPUESTA',{c:st==='hoy'?MUTE:OCH,fs:12,mono:1});txt(g,16,h*.2,'Decide',{c:OCH,fw:700,fs:16});txt(g,16,h*.68,'Ejecuta',{c:OCH,fw:700,fs:16});
-    const row=(ids,y)=>ids.forEach((id,i)=>actor(g.append('g').attr('class','node').attr('transform',`translate(${w*(.3+i*.24)},${y})`),id,r,{fs:11,wrap:14}));
-    row(D.d,h*.22);row(D.e,h*.7);
-    g.append('path').attr('d',`M40,${h*.3}V${h*.58}`).attr('stroke',st==='hoy'?RED:GRN).attr('stroke-width',2.4).attr('stroke-dasharray','6 5').attr('class','flowing');
-    txt(g,52,h*.45,D.m,{c:st==='hoy'?RED:GRN,fs:12.5,wrap:P?22:30});txt(g,w-14,h-14,D.x,{a:'end',c:OCH,fs:12});return g};
-   const gh=panel('hoy',P?8:W*.04,P?W-16:W*.44),gp=panel('prop',P?8:W*.52,P?W-16:W*.44);
-   return sub=>{if(P){gh.style('opacity',sub===0?1:0);gp.style('opacity',sub===1?1:0)}else{gh.transition().style('opacity',1);if(sub>0)gp.transition().style('opacity',1)}}}},
- {b:2,t:'Escalas de cada decisión',s:'Hoy casi todo se decide en la ciudad o la nación; la propuesta lo baja a la localidad y la central.',src:'Guía Corte III, 4.3',subs:1,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const SC=['Región y Nación','Ciudad','Localidad','Barrio y central','Hogar y calle'];const c={x:P?W/2:W*.35,y:H/2},R=Math.min(W*(P?.42:.3),H*.44);
-   SC.forEach((n,i)=>{const r=R*(1-i*.19);svg.append('circle').attr('cx',c.x).attr('cy',c.y).attr('r',r).attr('fill','none').attr('stroke',RED).attr('stroke-opacity',.35+i*.13);txt(svg,c.x+(P?0:r+10),c.y-r+(P?16:5),n,{a:P?'middle':'start',c:SOFT,fs:12})});
-   const lvl={'Nación y Distrito':0,'Ciudad':1,'Localidad':2,'Central y barrios':3};['hoy','prop'].forEach((st,si)=>R3.ESC[st].forEach((e,i)=>{const k=lvl[e]??1;const r=R*(1-k*.19)-10;const a=-Math.PI*.9+i*.35+(si?Math.PI:0);
-    const g=svg.append('g').attr('transform',`translate(${c.x+Math.cos(a)*r},${c.y+Math.sin(a)*r})`).style('opacity',0);g.transition().delay(reduce?0:300+si*800+i*120).style('opacity',1);g.append('circle').attr('r',13).attr('fill',si?OCH:'#55575d');txt(g,0,4,String(i+1),{a:'middle',fs:11,fw:700,c:'#111'})}));
-   if(!P){txt(svg,W*.72,H*.4,'Etapas 1 a 5',{fw:700,fs:15});const l=svg.append('g').attr('transform',`translate(${W*.72},${H*.48})`);l.append('circle').attr('r',9).attr('fill','#55575d');txt(l,18,5,'Hoy',{c:SOFT,fs:13});l.append('circle').attr('cy',30).attr('r',9).attr('fill',OCH);txt(l,18,35,'Propuesta',{c:OCH,fs:13})}}},
- {b:3,t:'Modelo dinámico de las interacciones',s:SUBSYS[0].t,src:'Modelo Vensim del grupo: Red_interacciones_actores.mdl',subs:SUBSYS.length,draw(ctx){
-   const v=vensim(ctx);return sub=>{v.zoom(SUBSYS[sub].ids)}}},
- {b:3,t:'Bucles de la organización propuesta',s:'Toca un bucle o avanza: R refuerza la organización, B la frena o la transforma.',src:'Hipótesis del grupo · mecanismos marcados como hipótesis o propuesta (corte3-data)',subs:6,draw(ctx){
-   const v=bucles(ctx);const ids=[null,'R1','B1','B2','R2','B3'];return sub=>{v.loop(ids[sub])}}},
- {b:3,t:'Prueba en el tiempo',s:'Estado inicial, decisión, efectos, perturbación en el mes 18 y dos trayectorias. Ilustrativo, sin calibrar.',src:'Supuestos del grupo; no es una predicción',subs:2,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const T=C3.TIEMPO;const tg=svg.append('g');const th=P?H*.34:H*.3;
-   T.forEach((t,i)=>{const x=P?14:W*(.04+i*.19),y=P?14+i*th/5:20,w=P?W-28:W*.17;const g=tg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);g.transition().delay(reduce?0:i*200).style('opacity',1);
-    g.append('rect').attr('width',w).attr('height',P?th/5-6:th-10).attr('rx',8).attr('fill','#17191d').attr('stroke',i===3?RED:'#25272c');txt(g,10,18,t.t,{c:i===3?RED:OCH,fs:P?11:12,fw:600,mono:1});if(!P)txt(g,10,38,t.d.split('.')[0]+'.',{c:SOFT,fs:12,wrap:Math.floor(w/6.4)})});
+   
+   return sub=>set(sub?'org':'hoy')}},
+ {b:3,key:'poli',src:'Ostrom (2010)',draw(ctx){
+   const {svg,W,H,P}=svgIn(ctx.el);const C=[['Núcleo de residuos','#8EBF4C',['A25','A27']],['Núcleo de agua','#4EAECF',['AMB04','AMB01']],['Núcleo de abastecimiento','#DE9F50',['A06','A13']],['Entidades','#9382E0',['A34','A32']]];
+   const c={x:W/2,y:H/2},R0=Math.min(W,H)*(P?.33:.32);const pts=C.map((_,i)=>{const a=-Math.PI/2+i*Math.PI/2+Math.PI/4;return[c.x+Math.cos(a)*R0*(P?1:1.35),c.y+Math.sin(a)*R0]});
+   const gl=svg.append('g');for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)gl.append('path').attr('d',`M${pts[i]}L${pts[j]}`).attr('stroke','#55575d').attr('stroke-width',1.4).attr('stroke-dasharray','5 6').attr('class','flowing');
+   C.forEach(([n,col,ids],i)=>{const g=svg.append('g').attr('transform',`translate(${pts[i]})`);g.append('circle').attr('r',P?44:62).attr('fill','#17191d').attr('stroke',col).attr('stroke-width',2.5);
+    ids.forEach((id,j)=>actor(g.append('g').attr('class','node').attr('transform',`translate(${(j-.5)*(P?36:50)},${-6})`),id,P?14:19,{label:false}));txt(g,0,(P?44:62)+18,n,{a:'middle',fw:700,fs:P?12:14,c:col})});
+   const rules=['Compartir información','Definir responsabilidades','Tratar desacuerdos','Revisar resultados'];
+   const gr=svg.append('g');rules.forEach((r,i)=>{const y=c.y-(P?60:66)+i*(P?30:34);gr.append('rect').attr('x',c.x-(P?78:104)).attr('y',y-13).attr('width',P?156:208).attr('height',26).attr('rx',13).attr('fill','#1d1a12').attr('stroke',OCH);txt(gr,c.x,y+5,r,{a:'middle',fs:P?11:13,fw:600})});
+   const gm=svg.append('g').style('opacity',0);gm.append('path').attr('d',`M${pts[0][0]},${pts[0][1]+(P?50:70)}Q${c.x},${H-20} ${pts[1][0]},${pts[1][1]+(P?50:70)}`).attr('fill','none').attr('stroke',OCH).attr('stroke-width',2.4).attr('stroke-dasharray','7 5').attr('class','flowing');
+   const kg=gm.append('g').attr('transform',`translate(${c.x},${H-(P?60:52)})`);kg.append('circle').attr('r',14).attr('fill','#141518').attr('stroke',RED);icon(kg,'i-key',0,0,18,RED);txt(kg,22,5,'mandato con límites y revocable',{fs:13,fw:600});
+   return sub=>gm.transition().style('opacity',sub?1:0)}},
+ {b:3,key:'proposito',src:'Decisión de diseño del grupo',draw(ctx){statement(ctx,['Coordinar las decisiones, los recursos y el trabajo del territorio para que <span style="color:#F2B53A">quienes ejecutan y quienes reciben las consecuencias</span> tengan capacidad real de incidir.','Empezando por la <span style="color:#8EBF4C">recuperación de residuos aprovechables</span>.'])}},
+ {b:3,key:'niveles',src:'Decisión de diseño del grupo · actores de la red',draw(ctx){const v=bands(ctx);
+   return sub=>{if(sub===0){v.show(4);v.arrows([])}else if(sub<5){v.showBands([4-sub]);v.arrows([])}else{v.show(4);v.arrows([['VOC','MESA'],['MESA','A32'],['A25','NRES'],['NRES','VOC']])}}}},
+ {b:3,key:'cogestion',src:'Decisión de diseño del grupo',draw(ctx){
+   const {svg,W,H,P}=svgIn(ctx.el);const r=P?18:26;const L=P?{x:W*.22,y:H*.25}:{x:W*.16,y:H*.45},Rr=P?{x:W*.78,y:H*.25}:{x:W*.84,y:H*.45},C=P?{x:W/2,y:H*.66}:{x:W/2,y:H*.45};
+   [['A32','A34'],['A25','A27']].forEach((ids,s)=>{const o=s?Rr:L;ids.forEach((id,j)=>actor(svg.append('g').attr('class','node').attr('transform',`translate(${o.x},${o.y-50+j*100*(P?.7:1)})`),id,r,{fs:11,wrap:14}));
+    txt(svg,o.x,o.y-(P?90:110),s?'Organizaciones':'Instituciones',{a:'middle',fw:700,fs:15,c:s?'#4FB98C':'#9382E0'});
+    (s?['conocimiento práctico','trabajo']:['competencia legal','recursos']).forEach((t,k)=>txt(svg,o.x,o.y+(P?95:120)+k*18,t,{a:'middle',c:SOFT,fs:12.5}))});
+   const doc=svg.append('g').attr('transform',`translate(${C.x},${C.y})`);doc.append('rect').attr('x',-(P?90:120)).attr('y',-80).attr('width',P?180:240).attr('height',160).attr('rx',10).attr('fill','#1d1a12').attr('stroke',OCH).attr('stroke-width',2);
+   icon(doc,'i-doc',0,-52,30,OCH);['Quién hace qué','Con qué recursos','En qué plazo','Cómo se revisa'].forEach((t,i)=>txt(doc,0,-14+i*24,t,{a:'middle',fs:P?12.5:14,fw:600}));
+   [[L,C],[Rr,C]].forEach(([a,b],i)=>svg.insert('path','g').attr('d',`M${a.x},${a.y}L${b.x},${b.y}`).attr('stroke',i?'#4FB98C':'#9382E0').attr('stroke-width',2).attr('stroke-dasharray','6 5').attr('class','flowing'))}},
+ {b:3,key:'coaprendizaje',src:'Decisión de diseño del grupo',draw(ctx){
+   const {svg,W,H,P}=svgIn(ctx.el);const c={x:W/2,y:H/2},R0=Math.min(W,H)*.34;const S=['Registrar','Revisar','Discutir errores','Ajustar reglas'];
+   svg.append('circle').attr('id','cyc').attr('cx',c.x).attr('cy',c.y).attr('r',R0).attr('fill','none').attr('stroke','#3a3c42').attr('stroke-width',2).attr('stroke-dasharray','4 6');
+   const p=svg.append('path').attr('id','cycp').attr('d',`M${c.x},${c.y-R0}A${R0},${R0} 0 1 1 ${c.x-.01},${c.y-R0}`).attr('fill','none');
+   S.forEach((s,i)=>{const a=-Math.PI/2+i*Math.PI/2;const g=svg.append('g').attr('transform',`translate(${c.x+Math.cos(a)*R0},${c.y+Math.sin(a)*R0})`);g.append('circle').attr('r',P?24:30).attr('fill','#141518').attr('stroke',OCH).attr('stroke-width',2.4);txt(g,0,6,String(i+1),{a:'middle',fw:700,fs:16,c:OCH});
+    txt(g,(i===1?1:i===3?-1:0)*(P?30:40),i===0?-(P?32:40):i===2?(P?44:52):6,s,{a:i===1?'start':i===3?'end':'middle',fw:700,fs:P?12.5:15})});
+   const dot=svg.append('circle').attr('r',7).attr('fill',OCH);dot.append('animateMotion').attr('dur','6s').attr('repeatCount','indefinite').append('mpath').attr('href','#cycp');
+   actor(svg.append('g').attr('class','node').attr('transform',`translate(${c.x-(P?34:46)},${c.y-6})`),'A32',P?18:24,{label:false});actor(svg.append('g').attr('class','node').attr('transform',`translate(${c.x+(P?34:46)},${c.y-6})`),'A27',P?18:24,{label:false});
+   txt(svg,c.x-(P?34:46),c.y+(P?36:44),'saber técnico',{a:'middle',c:'#9382E0',fs:12,fw:600});txt(svg,c.x+(P?34:46),c.y+(P?36:44),'saber práctico',{a:'middle',c:'#4FB98C',fs:12,fw:600})}},
+ /* V · Red de actores */
+ {b:4,key:'red1',src:'Relaciones documentadas: S2, S3, S5 · el resto son hipótesis por verificar',draw(ctx){const v=influence(ctx,'hoy');const chain=new Set(['A06','A13','LOG01','A10','A01','A66','A70','A04']);
+   return sub=>v.focus(sub===0?e=>chain.has(e.s)&&chain.has(e.t):e=>['A02','A04','A70'].includes(e.s)||['A02','A04','A70'].includes(e.t))}},
+ {b:4,key:'red2',src:'Decisiones de diseño del grupo marcadas como propuesta',draw(ctx){const v=influence(ctx,'prop');return sub=>v.focus(sub===0?e=>R3.PROP[e.s]||R3.PROP[e.t]:null)}},
+ /* VI · Trayecto de decisión */
+ {b:5,key:'trayecto',src:'Guía Corte III, 4.1',draw(ctx){trayecto(ctx,'prop')}},
+ {b:5,key:'orden',src:'Decisión de diseño del grupo · actores de la red de Kennedy',draw(ctx){
+   const v=bands(ctx);v.show(4);const {W,H,P}=v;
+   const STEPS=[{a:['A27','A28'],ar:[]},{a:['A27','A25','NRES'],ar:[['A27','NRES'],['A25','NRES']]},{a:['NRES','A25'],ar:[]},
+    {a:['NRES','A27','A25','A57','A28','A23','A24','A32'],ar:[['A57','NRES'],['A28','NRES'],['A23','NRES'],['A24','NRES'],['A32','NRES']]},
+    {a:['NRES','A23','A28','A35'],ar:[['A23','NRES'],['A28','NRES'],['A35','NRES']]},
+    {a:['NRES','VOC','A32','A34'],ar:[['NRES','VOC'],['VOC','A32'],['VOC','A34']]},
+    {a:['A25','A28','A34','FDL'],ar:[['A25','A34'],['A28','A34'],['FDL','A34']]},
+    {a:['A23','A24','A27','A26','A57','A28','RES01'],ar:[['A24','A27'],['A23','A26'],['A27','A57'],['A26','A57'],['A28','RES01']]},
+    {a:['A25','VOC','MESA','A32'],ar:[['A25','VOC'],['VOC','MESA'],['A32','A25']]},
+    {a:['NRES','A25','A27','A28','A23','VOC'],ar:[['NRES','A27']]},
+    {a:['A34','A32','A02','A27','A26','A28'],ar:[]}];
+   const strip=v.extra.append('g');const n=9,sw=P?(W-28)/n:Math.min(64,(W*.6)/n),sx=P?14:W/2-sw*n/2;
+   const chips=d3.range(n).map(i=>{const g=strip.append('g').attr('transform',`translate(${sx+i*sw+sw/2},${H-16})`);g.append('circle').attr('r',P?10:12).attr('fill','#141518').attr('stroke','#3a3c42');const t=txt(g,0,4,String(i+1),{a:'middle',fs:11,fw:700,c:MUTE});return{g,t}});
+   return sub=>{const S=STEPS[sub];v.focus(S.a);v.arrows(S.ar,sub===7?'#4FB98C':OCH);
+    chips.forEach((c,i)=>{const on=i===sub-1,done=i<sub-1&&sub<10;c.g.select('circle').attr('fill',on?OCH:done?'#3a3c42':'#141518').attr('stroke',on?OCH:'#3a3c42');c.t.attr('fill',on?'#141518':done?INK:MUTE)});
+    strip.style('opacity',sub>=1&&sub<=9?1:.4)}}},
+ /* VII · Modelo dinámico */
+ {b:6,key:'vensim',slow:1300,src:'Modelo Vensim del grupo: Red_interacciones_actores.mdl',draw(ctx){const v=vensim(ctx);return sub=>v.zoom(sub?VZ.residuos:null)}},
+ {b:6,key:'bucles',src:'Hipótesis del grupo',draw(ctx){const v=bucles(ctx);const ids=[null,'R1','B1','B2'];return sub=>{v.loop(ids[sub])}}},
+ {b:6,key:'prueba',src:'Supuestos del grupo; ilustrativo, no predice',draw(ctx){
+   
+   const {svg,W,H,P}=svgIn(ctx.el);const T=[{t:'Estado inicial',d:'Recorridos y pagos dependen de pocos actores; quien recupera el material no decide.'},{t:'Decisión concreta',d:'Acordar entre organizaciones horarios y puntos de entrega del material.'},{t:'Perturbación',d:'Se retrasa un pago o se cierra una bodega.'}];const tg=svg.append('g');const th=P?H*.34:H*.3;
+   T.forEach((t,i)=>{const x=P?14:W*(.04+i*.32),y=P?14+i*th/3:20,w=P?W-28:W*.29;const g=tg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);g.transition().delay(reduce?0:i*200).style('opacity',1);
+    g.append('rect').attr('width',w).attr('height',P?th/3-6:th-10).attr('rx',8).attr('fill','#17191d').attr('stroke',i===2?RED:'#25272c');txt(g,10,18,t.t,{c:i===2?RED:OCH,fs:P?11:12,fw:600,mono:1});if(!P)txt(g,10,38,t.d.split('.')[0]+'.',{c:SOFT,fs:12,wrap:Math.floor(w/6.4)})});
    function sim(sc){let Pp=.35,C=.3,D=0,O=.05,F=0,Hh=1;const out=[];for(let m=0;m<=36;m++){if(sc==='hoy'){out.push({m,P:.15,H:1});continue}
     const ext=m>=18?2.2:1,Td=.2+.9*O,rot=sc==='rot'?Math.min(1,D*2.5):0,CAR=Td/Math.max(Pp,.05)*(1-.7*rot);D=Math.max(0,Math.min(1,D+.08*(CAR-1)-(CAR<1?.05*D:0)));
     const DEP=sc==='rot'?1-F:1,cum=Math.min(1,Pp/Td),ACU=Math.max(0,Math.min(1,.25+.65*cum-.18*DEP*ext));C+=.12*(ACU-C);Pp=Math.max(.03,Math.min(1,Pp+.1*(C-Pp)-.07*D+.03*rot));O+=.08*(cum*.85*(m>=1)-O);if(sc==='rot')F+=.05*(O-F);Hh+=.12*((1-.8*O)-Hh);out.push({m,P:Pp,H:Hh})}return out}
-   const S=[['hoy','Hoy sin cambios','#77736b'],['rot','Con rotación y fondo propio',OCH],['sin','Sin rotación ni fondo',RED]].map(s=>({k:s[0],n:s[1],c:s[2],d:sim(s[0])}));
+   const S=[['hoy','Hoy sin cambios','#77736b'],['rot','Con rotación y recursos propios',OCH],['sin','Sin rotación ni recursos propios',RED]].map(s=>({k:s[0],n:s[1],c:s[2],d:sim(s[0])}));
    const cg=svg.append('g').style('opacity',0);const cy=P?th+30:th+30,ch=H-cy-30;
    [['P','Participación efectiva'],['H','Carga sobre La Vaca (1 = hoy)']].forEach(([k,n],i)=>{const x0=P?40:W*(.06+i*.48),w=P?W-60:W*.42,y0=P?cy+i*(ch/2+10):cy,h=P?ch/2-20:ch;
     const x=d3.scaleLinear([0,36],[x0,x0+w]),y=d3.scaleLinear([0,1.05],[y0+h,y0+16]);txt(cg,x0,y0+6,n,{fw:700,fs:14});
@@ -312,58 +342,57 @@ const SL=[
     S.forEach(s=>{const p=cg.append('path').attr('fill','none').attr('stroke',s.c).attr('stroke-width',2.4).attr('d',d3.line().x(d=>x(d.m)).y(d=>y(d[k]))(s.d)).attr('class','simline')})});
    S.forEach((s,i)=>txt(cg,P?14+i*0:W*.5+i*W*.16,P?cy-8+i*0:cy-8,s.n,{c:s.c,fs:12,fw:600}));
    return sub=>{if(sub===1){cg.transition().style('opacity',1);cg.selectAll('.simline').each(function(){const L=this.getTotalLength();d3.select(this).attr('stroke-dasharray',L).attr('stroke-dashoffset',L).transition().duration(reduce?0:2000).attr('stroke-dashoffset',0)})}}}},
- {b:4,t:'Cuatro tensiones',s:'La balanza muestra hacia dónde se inclina hoy y hacia dónde con la propuesta.',src:'Guía Corte III, 6.1',subs:2,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const IC=[['A35','A33'],['A34','A02'],['A25','A13'],['A06','A27']];const TL={0:[7,6,7,8],1:[-1.5,2,-1,1]};
-   const bx=W/2,bl=Math.min(W*(P?.3:.32),260);const bs=C3.TENSIONES.map((t,i)=>{const y=H*(.14+i*.23);const g=svg.append('g').attr('transform',`translate(${bx},${y})`);
-    txt(g,0,-30,t.q,{a:'middle',c:MUTE,fs:P?11.5:13});g.append('path').attr('d','M0 6L-12 30H12z').attr('fill','#3a3c42');const b=g.append('g');b.append('line').attr('x1',-bl).attr('x2',bl).attr('stroke',RED).attr('stroke-width',3);
-    [[-bl,IC[i][0],t.a],[bl,IC[i][1],t.b]].forEach(([x,id,n])=>{const e=b.append('g').attr('transform',`translate(${x},0)`).attr('class','node');actor(e,id,P?18:24,{label:false});txt(e,0,(P?18:24)+16,n,{a:'middle',fw:700,fs:P?11.5:13})});return b});
-   return sub=>bs.forEach((b,i)=>b.transition().duration(reduce?0:1200).ease(d3.easeElasticOut.amplitude(1).period(.5)).attr('transform',`rotate(${TL[sub][i]})`))}},
- {b:4,t:'Una contradicción: el pago por tonelada',s:'Si se paga por tonelada, ¿el costo se transforma o se desplaza a los recicladores independientes?',src:'Decisiones de diseño del grupo · señales a verificar en campo',subs:2,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const c={x:P?W/2:W*.32,y:H*.5};const g=svg.append('g');
-   actor(g.append('g').attr('transform',`translate(${c.x},${c.y-H*.32})`),'A02',24,{fs:12});g.append('path').attr('d',`M${c.x},${c.y-H*.32+44}V${c.y-40}`).attr('stroke',INK).attr('stroke-width',2);
-   const k=g.append('g').attr('transform',`translate(${c.x},${c.y})`);k.append('circle').attr('r',38).attr('fill',RED);icon(k,'i-rayo',0,0,40,'#141518');txt(k,0,58,'Pago por tonelada',{a:'middle',c:RED,fw:700,fs:14});
-   const tx=P?W*.82:W*.68,dy=H*.26;const pT=svg.append('path').attr('id','pT').attr('d',`M${c.x+40},${c.y-10}Q${(c.x+tx)/2},${c.y-dy} ${tx-30},${c.y-dy}`).attr('fill','none').attr('stroke',OCH).attr('stroke-width',2.4);
-   const pD=svg.append('path').attr('id','pD').attr('d',`M${c.x+40},${c.y+10}Q${(c.x+tx)/2},${c.y+dy} ${tx-30},${c.y+dy}`).attr('fill','none').attr('stroke','#77736b').attr('stroke-width',2).attr('stroke-dasharray','6 6');
-   const T=svg.append('g').attr('transform',`translate(${tx},${c.y-dy})`);T.append('circle').attr('r',24).attr('fill',OCH);icon(T,'i-check',0,0,24,'#141518');txt(T,0,44,'Se transforma',{a:'middle',fw:700,fs:15});txt(T,0,62,'cuota y tarifa progresiva',{a:'middle',c:SOFT,fs:12});
-   const Dd=svg.append('g').attr('transform',`translate(${tx},${c.y+dy})`).attr('class','node');actor(Dd,'A27',24,{label:false});txt(Dd,0,44,'Se desplaza',{a:'middle',fw:700,fs:15});txt(Dd,0,62,'pierden los independientes',{a:'middle',c:SOFT,fs:12});
-   if(!P){const sg=svg.append('g').attr('transform',`translate(${W*.8},${H*.2})`);}
-   const dots=svg.append('g');
-   return sub=>{dots.selectAll('*').remove();const id=sub?'pT':'pD';for(let i=0;i<3;i++){const cc=dots.append('circle').attr('r',5).attr('fill',sub?OCH:'#9A958C');cc.append('animateMotion').attr('dur','1.8s').attr('repeatCount','indefinite').attr('begin',(i*.6)+'s').append('mpath').attr('href','#'+id)}
-    pT.attr('opacity',sub?1:.25);pD.attr('opacity',sub?.25:1);(()=>{})(sub?'Señal de transformación: suben a la vez las toneladas aprovechadas y el ingreso de los independientes.':'Hoy: el costo de separar cae en puestos pequeños y recicladores independientes.')}}},
- {b:4,t:'Sostenibilidad en el tiempo',s:'Dos escenarios con supuestos explícitos, autoorganización y quién representa al humedal.',src:'Guía Corte III, 5.3 y 6.3 · supuestos del grupo',subs:4,draw(ctx){
-   const D=[['i-ciclo','Continuidad',R3.ESCENARIOS[0].sup+' '+R3.ESCENARIOS[0].res],['i-rayo','Transformación',R3.ESCENARIOS[1].sup+' '+R3.ESCENARIOS[1].res],['i-grupo','Autoorganización','Turnos, entregas y calidad del compost se ajustan entre quienes trabajan. Límite: el suelo, el permiso y el presupuesto siguen afuera.'],['i-gota','Voz del humedal','Lo representan los colectivos y el aula ambiental con datos públicos; su mecanismo es la llave ecológica.']];
-   const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:4},1fr)`);
-   const cs=el.selectAll('div').data(D).join('div').attr('class','card off').html(d=>`<svg width="40" height="40" style="color:${OCH}"><use href="#${d[0]}" width="40" height="40"/></svg><h3>${d[1]}</h3><p>${d[2]}</p>`);return sub=>cs.classed('off',(d,i)=>i>sub)}},
- {b:5,t:'El efecto sobre un problema',s:'Los orgánicos de Corabastos dejan de ir al humedal y vuelven como compost a las huertas registradas.',src:'Capas IDECA: huertas (Jardín Botánico), comedores (SDIS) · mapa base © OpenStreetMap, CARTO',subs:1,draw(ctx){
+ /* VIII · Contradicciones */
+ {b:7,key:'tensiones',src:'Guía Corte III, 6.1',draw(ctx){
+   const {svg,W,H,P}=svgIn(ctx.el);const T=[['Decisión distribuida','Influencia informal','i-grupo','i-key'],['Autonomía','Dependencia material','i-casa','i-cadena'],['Trabajo repartido','Trabajo concentrado','i-ciclo','i-reloj'],['Beneficios','Costos','i-moneda','i-alerta']];
+   const bx=W/2,bl=Math.min(W*(P?.3:.3),260);
+   const bs=T.map((t,i)=>{const y=H*(.15+i*.23);const g=svg.append('g').attr('transform',`translate(${bx},${y})`).style('opacity',0);g.append('path').attr('d','M0 6L-12 30H12z').attr('fill','#3a3c42');
+    const b=g.append('g');b.append('line').attr('x1',-bl).attr('x2',bl).attr('stroke',RED).attr('stroke-width',3);
+    [[-bl,t[2],t[0],'#4FB98C'],[bl,t[3],t[1],RED]].forEach(([x,ic,n,c])=>{const e=b.append('g').attr('transform',`translate(${x},0)`);e.append('circle').attr('r',P?18:24).attr('fill','#141518').attr('stroke',c).attr('stroke-width',2);icon(e,ic,0,0,P?18:24,c);txt(e,0,(P?18:24)+16,n,{a:'middle',fw:700,fs:P?11.5:13})});return{g,b}});
+   return sub=>bs.forEach((o,i)=>{if(i<=sub){o.g.transition().duration(400).style('opacity',1);o.b.transition().delay(300).duration(reduce?0:1200).ease(d3.easeElasticOut.amplitude(1).period(.5)).attr('transform','rotate(7)')}})}},
+ {b:7,key:'contradiccion',src:'Hipótesis del grupo',draw(ctx){
+   const {svg,W,H,P}=svgIn(ctx.el);const c={x:P?W/2:W*.3,y:H*.5};const k=svg.append('g').attr('transform',`translate(${c.x},${c.y})`);k.append('circle').attr('r',40).attr('fill',RED);icon(k,'i-rayo',0,0,40,'#141518');txt(k,0,62,'Pago por material recuperado',{a:'middle',c:RED,fw:700,fs:14});
+   const tx=P?W*.8:W*.7,dy=H*.27;
+   svg.append('path').attr('id','pT').attr('d',`M${c.x+40},${c.y-10}Q${(c.x+tx)/2},${c.y-dy} ${tx-30},${c.y-dy}`).attr('fill','none').attr('stroke',OCH).attr('stroke-width',2.4);
+   svg.append('path').attr('id','pD').attr('d',`M${c.x+40},${c.y+10}Q${(c.x+tx)/2},${c.y+dy} ${tx-30},${c.y+dy}`).attr('fill','none').attr('stroke','#77736b').attr('stroke-width',2).attr('stroke-dasharray','6 6');
+   const T=svg.append('g').attr('transform',`translate(${tx},${c.y-dy})`);T.append('circle').attr('r',24).attr('fill',OCH);icon(T,'i-check',0,0,24,'#141518');txt(T,0,44,'Se transforma',{a:'middle',fw:700,fs:15});txt(T,0,62,'reglas que incluyen a los independientes',{a:'middle',c:SOFT,fs:12});
+   const D=svg.append('g').attr('class','node').attr('transform',`translate(${tx},${c.y+dy})`);actor(D,'A27',24,{label:false});txt(D,0,44,'Se desplaza',{a:'middle',fw:700,fs:15});txt(D,0,62,'quedan por fuera los independientes',{a:'middle',c:SOFT,fs:12});
+   anchor('A27',tx,c.y+dy,24);
+   ['pD','pT'].forEach((id,s)=>{for(let i=0;i<3;i++){const cc=svg.append('circle').attr('r',5).attr('fill',s?OCH:'#9A958C');cc.append('animateMotion').attr('dur','2s').attr('repeatCount','indefinite').attr('begin',(i*.66+s*.33)+'s').append('mpath').attr('href','#'+id)}})}},
+ /* IX · Transición */
+ {b:8,key:'transicion',src:'Decisión de diseño del grupo; meses propuestos',draw(ctx){
+   const {svg,W,H,P}=svgIn(ctx.el);const S=[['Diagnóstico','meses 1–2',['A25','A57','A23','A28']],['Convocatoria','mes 3',['A35','AMB03']],['Piloto','meses 4–9',['NRES','A32','A34']],['Financiación','presupuesto participativo',['A35','A34','FDL']],['Revisión','mes 9',['NRES']]];
+   const pos=i=>P?{x:40,y:40+i*(H-70)/4.3}:{x:W*(.1+i*.2),y:H*.3};const r=P?16:Math.min(22,W/50);
+   svg.append('path').attr('d',P?`M40,${pos(0).y}V${pos(4).y}`:`M${pos(0).x},${pos(0).y}H${pos(4).x}`).attr('stroke',RED).attr('stroke-width',2).attr('stroke-dasharray','6 5');
+   const gs=S.map(([n,m,ids],i)=>{const p=pos(i);const g=svg.append('g').attr('transform',`translate(${p.x},${p.y})`).style('opacity',.15);g.append('circle').attr('r',P?18:24).attr('fill','#141518').attr('stroke',RED).attr('stroke-width',2.4);txt(g,0,6,String(i+1),{a:'middle',fw:700,fs:15,c:RED});
+    const tx=P?32:0,an=P?'start':'middle';txt(g,tx,P?-4:44,n,{a:an,fw:700,fs:P?14:16});txt(g,tx,P?12:62,m,{a:an,c:OCH,fs:12,mono:1});
+    ids.forEach((id,j)=>{const wx=P?tx+16+j*40:(j-(ids.length-1)/2)*(r*2+14),wy=P?44:110;anchor(id,p.x+wx,p.y+wy,r);actor(g.append('g').attr('class','node').attr('transform',`translate(${wx},${wy})`),id,P?14:r,{label:!P,fs:10,wrap:12})});return g});
+   return sub=>gs.forEach((g,i)=>g.transition().duration(500).style('opacity',sub===0?.6:i<sub?(i===sub-1?1:.55):.15))}},
+ /* X · Síntesis y cierre */
+ {b:9,key:'sintesis',src:'Capas IDECA: juntas de acción comunal (IDPAC), huertas (Jardín Botánico) · mapa base © OpenStreetMap, CARTO',draw(ctx){
    d3.select(ctx.el).append('div').attr('id','mapC');
-   const map=new maplibregl.Map({container:'mapC',style:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',center:[-74.157,4.630],zoom:size(ctx.el).W<700?12.4:13.4,attributionControl:{compact:false}});map.scrollZoom.disable();ctx.onExit(()=>map.remove());
+   const map=new maplibregl.Map({container:'mapC',style:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',center:[-74.155,4.630],zoom:size(ctx.el).W<700?11.9:12.9,attributionControl:{compact:false}});map.scrollZoom.disable();ctx.onExit(()=>map.remove());
    map.on('load',()=>Promise.all(['assets/territorio_kennedy.geojson','assets/territorio_puntos.geojson'].map(u=>fetch(u).then(r=>r.json()))).then(([K,Pt])=>{
     map.addSource('k',{type:'geojson',data:K});map.addLayer({id:'k',type:'line',source:'k',paint:{'line-color':'#F2EFE8','line-opacity':.6,'line-width':1.2}});
-    const cora=[-74.1590,4.6295],vaca=[-74.16198,4.62870];const hu=Pt.features.filter(f=>f.properties.c==='huerta');const dist=f=>Math.hypot(f.geometry.coordinates[0]-cora[0],f.geometry.coordinates[1]-cora[1]);
-    const near=[...hu].sort((a,b)=>dist(a)-dist(b)).slice(0,30);
-    map.addSource('fl',{type:'geojson',data:{type:'FeatureCollection',features:near.map(f=>({type:'Feature',geometry:{type:'LineString',coordinates:[cora,f.geometry.coordinates]}}))}});map.addLayer({id:'fl',type:'line',source:'fl',paint:{'line-color':OCH,'line-width':1.3,'line-opacity':.8,'line-dasharray':[2,2]}});
-    map.addSource('p',{type:'geojson',data:{type:'FeatureCollection',features:Pt.features.filter(f=>f.properties.c==='huerta'||/^Comedor/.test(f.properties.n))}});
-    map.addLayer({id:'p',type:'circle',source:'p',paint:{'circle-radius':['case',['==',['get','c'],'huerta'],2.6,5],'circle-color':['case',['==',['get','c'],'huerta'],'#8EBF4C','#DE7766']}});
-    map.addSource('h',{type:'geojson',data:{type:'FeatureCollection',features:[{type:'Feature',geometry:{type:'Point',coordinates:cora},properties:{c:'#DE9F50'}},{type:'Feature',geometry:{type:'Point',coordinates:vaca},properties:{c:'#4EAECF'}}]}});
-    map.addLayer({id:'hg',type:'circle',source:'h',paint:{'circle-radius':22,'circle-color':['get','c'],'circle-opacity':.2}});map.addLayer({id:'hh',type:'circle',source:'h',paint:{'circle-radius':8,'circle-color':['get','c'],'circle-stroke-width':2,'circle-stroke-color':'#111'}});
-    [[cora,'Corabastos','#DE9F50',[0,-16]],[vaca,'Humedal La Vaca','#4EAECF',[0,22]]].forEach(([ll,n,c,o])=>{const e=document.createElement('div');e.style.cssText=`font:600 12.5px Instrument Sans;color:${c};text-shadow:0 1px 6px #000`;e.textContent=n;new maplibregl.Marker({element:e,offset:o}).setLngLat(ll).addTo(map)})}));
-   ctx.legend([['#DE9F50',null,'Corabastos'],['#4EAECF',null,'Humedal La Vaca'],['#8EBF4C',null,'Huertas (811)'],['#DE7766',null,'Comedores (11)'],[OCH,'4 4','Compost propuesto']])}},
- {b:5,t:'Efecto en cada enfoque',s:'Lo que la organización propuesta cambiaría en los siete macromodelos ecológicos.',src:'Hipótesis del grupo; requieren medición',subs:1,draw(ctx){
-   const E=Object.fromEntries(C3.ECO.map(m=>[m.id,m]));const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:4},1fr)`);
-   el.selectAll('div').data(C3.EFECTOS).join('div').attr('class','card').html(e=>`<div class="n" style="color:${E[e.m].c}">${E[e.m].n}</div><p style="margin-top:8px">${e.e}</p>`)}},
- {b:6,t:'Datos separados de hipótesis',s:'Cada relación lleva su marca: documentada con fuente, hipótesis por verificar o decisión de diseño.',src:'Registro completo con enlaces: corte3.html',subs:1,draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const all=[...R3.EDGES,...C3.LINKS];const n=k=>all.filter(x=>x.ev===k).length;
-   [['doc','Documentadas',GRN],['hip','Hipótesis',OCH],['prop','Decisiones de diseño',RED]].forEach(([k,lab,c],i)=>{const x=P?W/2:W*(.17+i*.33),y=P?H*(.14+i*.15):H*.22;
-    const t=txt(svg,x,y,'0',{a:'middle',fs:P?40:64,fw:700,c});t.transition().duration(reduce?0:1200).tween('t',()=>{const ip=d3.interpolateNumber(0,n(k));return u=>t.text(Math.round(ip(u)))});txt(svg,x,y+(P?22:30),lab,{a:'middle',c:SOFT,fs:14})});
-   const S=Object.entries(C3.SRC);const y0=P?H*.6:H*.44,rh=(H-y0-10)/S.length;
-   S.forEach(([k,s],i)=>{const y=y0+i*rh+rh*.6;txt(svg,P?14:W*.06,y,k,{c:OCH,fs:12,fw:600,mono:1});txt(svg,P?50:W*.1,y,s.tipo,{c:MUTE,fs:12,mono:1});if(!P)txt(svg,W*.3,y,s.t.length>120?s.t.slice(0,118)+'…':s.t,{c:SOFT,fs:12.5})})}},
- {b:6,t:'Lo que falta verificar',s:'Antes de presentar como hechos, el grupo debe comprobar esto.',src:'Guía Corte III, 7.1 y 8.1',subs:1,draw(ctx){
-   const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns',`repeat(${size(ctx.el).W<700?1:3},1fr)`);
-   el.selectAll('div').data([...C3.PENDIENTE,'Que el grupo adopte o cambie la Mesa, los núcleos, la guardianía y el fondo']).join('div').attr('class','card').html((p,i)=>`<div class="n">0${i+1}</div><p style="margin-top:8px;color:#F2EFE8;font-size:15px">${p}</p>`)}}
+    map.addSource('p',{type:'geojson',data:{type:'FeatureCollection',features:Pt.features.filter(f=>['huerta','jac'].includes(f.properties.c))}});
+    map.addLayer({id:'p',type:'circle',source:'p',paint:{'circle-radius':['case',['==',['get','c'],'jac'],4.5,2.5],'circle-color':['case',['==',['get','c'],'jac'],'#9382E0','#8EBF4C'],'circle-opacity':.9}});
+    const cora=[-74.1590,4.6295];const e=document.createElement('div');e.style.cssText='font:600 12.5px Instrument Sans;color:#DE9F50;text-shadow:0 1px 6px #000';e.textContent='Corabastos';new maplibregl.Marker({element:e,offset:[0,-14]}).setLngLat(cora).addTo(map);
+    map.addSource('c',{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:cora}}});map.addLayer({id:'c',type:'circle',source:'c',paint:{'circle-radius':8,'circle-color':'#DE9F50','circle-stroke-width':2,'circle-stroke-color':'#111'}})}));
+   ctx.legend([['#9382E0',null,'Juntas de acción comunal (188)'],['#8EBF4C',null,'Huertas (811)'],['#DE9F50',null,'Corabastos']])}},
+ {b:9,key:'piezas',src:'Guía Corte III, 7',draw(ctx){
+   const {svg,W,H,P}=svgIn(ctx.el);const PZ=[['i-doc','Ficha del macromodelo'],['i-grupo','Red de actores'],['i-mazo','Trayecto de decisión'],['i-ciclo','Modelo dinámico-causal'],['i-casa','Síntesis territorial'],['i-lupa','Fuentes y supuestos']];
+   const c={x:W/2,y:H/2},R0=Math.min(W*(P?.36:.3),H*.36);const pts=PZ.map((_,i)=>{const a=-Math.PI/2+i*Math.PI/3;return[c.x+Math.cos(a)*R0*(P?1:1.3),c.y+Math.sin(a)*R0]});
+   const gl=svg.append('g').style('opacity',0);for(let i=0;i<6;i++)for(let j=i+1;j<6;j++)gl.append('path').attr('d',`M${pts[i]}L${pts[j]}`).attr('stroke',OCH).attr('stroke-opacity',.35).attr('stroke-dasharray','4 6').attr('class','flowing');
+   PZ.forEach(([ic,n],i)=>{const g=svg.append('g').attr('transform',`translate(${pts[i]})`).style('opacity',0);g.transition().delay(reduce?0:i*160).style('opacity',1);g.append('circle').attr('r',P?24:32).attr('fill','#141518').attr('stroke',OCH).attr('stroke-width',2.2);icon(g,ic,0,0,P?22:28,OCH);txt(g,0,(P?24:32)+18,n,{a:'middle',fw:700,fs:P?11.5:14})});
+   const ct=txt(svg,c.x,c.y+6,'coherencia',{a:'middle',c:OCH,fs:P?14:17,fw:600});ct.style('opacity',0);
+   return sub=>{gl.transition().duration(600).style('opacity',sub?1:0);ct.transition().style('opacity',sub?1:0)}}},
+ {b:9,key:'cierre',src:'Corte III · Kennedy',draw(ctx){const cs=statement(ctx,['La <span style="color:#F2B53A">heterarquía</span> distribuye la influencia; la <span style="color:#4EAECF">gobernanza policéntrica</span> coordina los centros; las <span style="color:#8EBF4C">reglas de mandato, seguimiento y rectificación</span> las hacen revisables.','¿Quién decide, qué recursos circulan y <span style="color:#F2B53A">quién puede corregir lo que no funciona</span>?']);
+   return sub=>cs.style('opacity',(d,i)=>i<=sub?1:.15)}}
 ];
 
+
 /* ================= motor de la presentación ================= */
-SL.forEach((S,i)=>{S.g=window.GUION[i];S.subs=S.g.length});
+SL.forEach(S=>{S.g=window.GUION[S.key].slice(S.from||0,S.to);S.subs=S.g.length});
 const OFF=[];let tot=0;SL.forEach(S=>{OFF.push(tot);tot+=S.subs});
 const stage=$('#stage'),below=$('#below');let cur=-1,sub=0,upd=null,exits=[],ctxNow=null,tagT=[];
 $('#blocks').innerHTML=B.map((n,i)=>`<button data-b="${i}">${ROM[i]}<span class="nm"> ${n}</span></button>`).join('');
@@ -372,7 +401,6 @@ let ph='';SL.forEach((S,i)=>S.g.forEach((g,j)=>{ph+=`<span class="${OFF[i]+j&&j=
 document.querySelectorAll('#prog span').forEach(s=>s.onclick=()=>go(+s.dataset.i,+s.dataset.j));
 const mobile=()=>matchMedia('(max-width:760px)').matches;
 function drawTags(){tagT.forEach(clearTimeout);tagT=[];const c=ctxNow;if(!c||!c.svg)return;c.svg.selectAll('g.tags').remove();const tags=SL[cur].g[sub].tags||[];if(!tags.length)return;
- const base=SL[cur].b===3&&cur===OFF.indexOf(OFF[cur])&&SL[cur].t.startsWith('Modelo')?1300:500;
  tagT.push(setTimeout(()=>{const svg=c.svg;const vb=svg.attr('viewBox').split(' ').map(Number);const px=svg.node().getBoundingClientRect().width||1;const k=vb[2]/px*(svg.attr('preserveAspectRatio')==='xMidYMid meet'?Math.max(1,(vb[3]/vb[2])/(svg.node().getBoundingClientRect().height/px)):1);
   const L=svg.append('g').attr('class','tags');const light=c.el.classList.contains('vensim');const placed=[];
   tags.forEach(([id,t1,t2,col],i)=>{const a=c.anchors[id];if(!a)return;const [x,y,r]=a;const right=x<vb[0]+vb[2]*.62;const bw=Math.max(t1.length*7.6,t2.length*6.6)*k+22*k,bh=42*k;
@@ -385,7 +413,7 @@ function drawTags(){tagT.forEach(clearTimeout);tagT=[];const c=ctxNow;if(!c||!c.
    const ex=bx+bw/2<x?bx+bw:bx,ey=by+bh/2;g.append('path').attr('d',`M${x+(right?1:-1)*(r+7*k)},${y}L${ex},${ey}`).attr('stroke',col).attr('stroke-width',1.8*k).attr('fill','none');
    g.append('rect').attr('x',bx).attr('y',by).attr('width',bw).attr('height',bh).attr('rx',4*k).attr('fill',light?'#ffffff':'#101113').attr('stroke',col).attr('stroke-width',2*k);
    g.append('text').attr('x',bx+11*k).attr('y',by+17*k).attr('font-size',13*k).attr('font-weight',700).attr('fill',light?'#111':'#F2EFE8').attr('font-family','Instrument Sans').text(t1);
-   g.append('text').attr('x',bx+11*k).attr('y',by+33*k).attr('font-size',11.5*k).attr('fill',light?'#444':'#B8B3A8').attr('font-family','Instrument Sans').text(t2)})},SL[cur].t.startsWith('Modelo')?1300:(cur===0?1000:450)))}
+   g.append('text').attr('x',bx+11*k).attr('y',by+33*k).attr('font-size',11.5*k).attr('fill',light?'#444':'#B8B3A8').attr('font-family','Instrument Sans').text(t2)})},SL[cur].slow||450))}
 function header(){const S=SL[cur],g=S.g[sub];const n=OFF[cur]+sub+1;
  $('#kicker').textContent=`${String(n).padStart(2,'0')} — Bloque ${ROM[S.b]} · ${B[S.b]}`;
  ['title','sub'].forEach(id=>{const e=$('#'+id);e.classList.remove('rise');void e.offsetWidth;e.classList.add('rise')});$('#title').textContent=g.t;$('#sub').textContent=g.s||'';
