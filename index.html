@@ -1290,11 +1290,12 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
       <p class="hud-card-desc" id="hud3d-desc">Descripción comunitaria y rol socioecológico en Kennedy.</p>
     </div>
     <div class="hud-3d-community">
+      <button class="hud-btn active" data-layer="huertas" id="toggleHuertas">Huertas (3)</button>
+      <button class="hud-btn active" data-layer="acueductos" id="toggleAcueductos">Acueductos (4)</button>
+      <button class="hud-btn active" data-layer="bibliotecas" id="toggleBiblios">Bibliotecas (4)</button>
+      <button class="hud-btn active" data-layer="comedores" id="toggleComedores">Comedores (3)</button>
       <button class="hud-btn active" data-layer="jacs" id="toggleJacs">181 Salones JAC</button>
-      <button class="hud-btn active" data-layer="bibliotecas" id="toggleBiblios">Bibliotecas Populares</button>
-      <button class="hud-btn active" data-layer="acueductos" id="toggleAcueductos">Acueductos Comunitarios</button>
-      <button class="hud-btn active" data-layer="huertas" id="toggleHuertas">Huertas</button>
-      <button class="hud-btn active" data-layer="comedores" id="toggleComedores">Comedores</button>
+      <button class="hud-btn" data-layer="links" id="toggleLinks">Líneas de Relación</button>
     </div>
     <div id="status3d" class="status-3d-badge">Cargando territorio 3D de Kennedy...</div>
   </div>
@@ -2395,6 +2396,9 @@ function initMap3D() {
   threeScene.add(threeLinksGroup);
   threeScene.add(threeActorsGroup);
 
+  // Por defecto, las 250 líneas de relación inician APAGADAS para no saturar el territorio 3D
+  threeLinksGroup.visible = false;
+
   // Cámara con perspectiva isométrica
   const w = container.clientWidth || window.innerWidth;
   const h = container.clientHeight || window.innerHeight;
@@ -2774,6 +2778,22 @@ function initMap3D() {
 
   // 9. Configurar barra de enfoques directos pedagógicos
   setupFocusButtons();
+
+  // Configurar botón para prender y apagar las líneas de relación
+  const btnToggleLinks = document.getElementById('toggleLinks');
+  if (btnToggleLinks) {
+    btnToggleLinks.onclick = () => {
+      threeLinksGroup.visible = !threeLinksGroup.visible;
+      btnToggleLinks.classList.toggle('active', threeLinksGroup.visible);
+      // Restaurar opacidades estándar si se prenden
+      if (threeLinksGroup.visible) {
+        link3dLines.forEach(l => {
+          l.material.opacity = 0.55;
+          l.material.color.setHex(l.userData.color);
+        });
+      }
+    };
+  }
 
   window.addEventListener('resize', onThreeResize);
 }
@@ -3242,15 +3262,24 @@ function selectActorInThree(n, skipFly) {
     }
   });
 
+  // Si las líneas globales están apagadas, mostrar SOLO las líneas del actor seleccionado
+  threeLinksGroup.visible = true;
   link3dLines.forEach(line => {
     if (line.userData.s === n.id || line.userData.t === n.id) {
+      line.visible = true;
       line.userData.highlighted = true;
       line.material.opacity = 1.0;
       line.material.color.setHex(0xffffff);
     } else {
       line.userData.highlighted = false;
-      line.material.opacity = 0.08;
-      line.material.color.setHex(line.userData.color);
+      const isGlobalOn = document.getElementById('toggleLinks') && document.getElementById('toggleLinks').classList.contains('active');
+      if (isGlobalOn) {
+        line.visible = true;
+        line.material.opacity = 0.08;
+        line.material.color.setHex(line.userData.color);
+      } else {
+        line.visible = false;
+      }
     }
   });
 }
@@ -3267,7 +3296,10 @@ function clearActorInThree() {
     m.beacon.material.opacity = 0.65;
   });
 
+  const isGlobalOn = document.getElementById('toggleLinks') && document.getElementById('toggleLinks').classList.contains('active');
+  threeLinksGroup.visible = isGlobalOn;
   link3dLines.forEach(line => {
+    line.visible = isGlobalOn;
     line.userData.highlighted = false;
     line.material.opacity = 0.55;
     line.material.color.setHex(line.userData.color);
