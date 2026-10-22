@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Corte III · Heterarquía ecosocial de Kennedy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<style>
+:root{--bg:#111315;--bg2:#181b1e;--card:#1d2125;--ink:#F1ECE2;--soft:#C9C2B6;--mute:#8C877E;--line:#2a2e33;
+  --red:#D2553A;--ochre:#E3A549;--cream:#F1ECE2;--blue:#8DB3D9;--green:#8FC59A;
+  --sans:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Source Serif 4',Georgia,serif;color-scheme:dark}
+*{box-sizing:border-box;font-style:normal}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+a{color:var(--ochre)}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+.top{position:sticky;top:0;z-index:20;background:rgba(17,19,21,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1320px;margin:0 auto;padding:14px 28px 10px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.top h1{margin:0;font:600 17px/1.2 var(--sans);letter-spacing:-.01em}
+.top h1 span{color:var(--red);font-weight:700;letter-spacing:.12em;font-size:11.5px;display:block;margin-bottom:3px}
+.top .back{margin-left:auto;font:500 13px var(--sans);color:var(--soft);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:7px 13px}
+.nav{max-width:1320px;margin:0 auto;padding:0 28px 12px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none;font:500 13px var(--sans);color:var(--soft);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:7px 13px;white-space:nowrap}
+.nav a b{color:var(--red);margin-right:6px}
+.nav a.on{background:var(--ink);color:#111;border-color:var(--ink)}
+.nav a.on b{color:var(--red)}
+main{max-width:1320px;margin:0 auto;padding:0 28px 80px}
+section.mod{padding:72px 0 40px;border-bottom:1px solid var(--line)}
+.eyebrow{font:700 12px var(--sans);letter-spacing:.14em;color:var(--red);text-transform:uppercase;margin:0 0 10px}
+h2{font:700 clamp(30px,4vw,46px)/1.05 var(--sans);letter-spacing:-.025em;margin:0 0 16px}
+h3{font:600 20px/1.25 var(--sans);letter-spacing:-.01em;margin:0 0 10px}
+h4{font:600 15px/1.3 var(--sans);margin:0 0 6px}
+.lede{font-size:19px;line-height:1.55;color:var(--soft);max-width:68ch;margin:0 0 28px}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+.card p{margin:0;color:var(--soft);font-size:15px}
+.k{font:600 11.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ochre);margin-bottom:8px;display:block}
+.sub{margin:38px 0 14px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.sub h3{margin:0}
+.sub span{font:400 14px var(--sans);color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:none;border-radius:999px;padding:7px 13px;font:500 13px var(--sans);color:var(--soft);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:#111;border-color:var(--ink)}
+.chip:hover{border-color:#4b5056}
+.tag{display:inline-block;font:600 11px var(--sans);letter-spacing:.04em;border-radius:5px;padding:2px 7px;margin-right:6px;vertical-align:1px}
+.t-doc{background:#23352a;color:#9ED3A9}.t-hip{background:#3a2e18;color:#E8C27A}.t-prop{background:#3a1f19;color:#F09A84}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+td{color:var(--soft)}
+td b{color:var(--ink);font-family:var(--sans);font-weight:600}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.def{border-left:3px solid var(--red);padding:4px 0 4px 18px;font-size:20px;line-height:1.5;max-width:60ch;margin:0 0 26px}
+.def small{display:block;font:400 13px var(--sans);color:var(--mute);margin-top:8px}
+
+/* modelos de decisión */
+.mods svg{width:100%;height:auto;display:block}
+/* rango por asunto */
+.rankwrap{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start}
+.rank{position:relative;height:520px;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ri{position:absolute;left:18px;right:18px;height:48px;border-radius:10px;display:flex;align-items:center;gap:12px;padding:0 14px;background:#22272c;transition:transform .7s cubic-bezier(.65,0,.35,1),background .5s;font:500 14.5px var(--sans)}
+.ri .pos{font:700 13px var(--sans);color:var(--mute);width:22px}
+.ri.lead{background:#3a1f19}
+.ri.lead .pos{color:var(--red)}
+.ri .bar{margin-left:auto;height:6px;border-radius:3px;background:var(--red);transition:width .7s}
+@media (prefers-reduced-motion:reduce){.ri,.ri .bar{transition:none}}
+
+/* transición */
+.trans{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:stretch}
+.flow{display:flex;flex-direction:column;gap:10px}
+.flow .st{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:start}
+.flow .st i{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--red);display:grid;place-items:center;font:700 12px var(--sans);color:var(--red)}
+.flow .st b{font:600 14.5px var(--sans);display:block}
+.flow .st span{font-size:14px;color:var(--soft)}
+ul.plain{list-style:none;margin:0;padding:0}
+ul.plain li{padding:6px 0;border-bottom:1px solid var(--line);font-size:14.5px;color:var(--soft)}
+ul.plain li:last-child{border-bottom:0}
+
+/* red */
+.netwrap{display:grid;grid-template-columns:1fr 340px;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0d0f11}
+.netbar{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--bg2)}
+#net{width:100%;height:640px;display:block}
+.netside{border-left:1px solid var(--line);padding:18px;overflow-y:auto;max-height:640px;background:var(--bg2)}
+.netside h4{font-size:17px}
+.facts{display:grid;grid-template-columns:96px 1fr;gap:6px 10px;font-size:13.5px;margin-top:10px}
+.facts dt{font:600 12px var(--sans);color:var(--mute)}
+.facts dd{margin:0;color:var(--soft)}
+.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 18px;font:400 13px var(--sans);color:var(--soft);margin-top:14px}
+.legend div{display:flex;align-items:center;gap:10px}
+.legend svg{flex:none}
+.node text{font:500 11px var(--sans);fill:#E8E2D6;paint-order:stroke;stroke:#0d0f11;stroke-width:3.5px;pointer-events:none}
+.node{cursor:pointer}
+.edge{fill:none}
+.dim .node{opacity:.15}.dim .edge,.dim .keyi{opacity:.06}
+.dim .node.on{opacity:1}.dim .edge.on,.dim .keyi.on{opacity:1}
+.metric{display:grid;grid-template-columns:1fr auto auto;gap:6px 14px;font:400 13.5px var(--sans);align-items:baseline}
+.metric .h{font:600 11.5px var(--sans);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.metric b{font:600 15px var(--sans)}
+.tip{position:fixed;z-index:50;pointer-events:none;background:#0b0c0e;border:1px solid #3a3f45;border-radius:10px;padding:10px 12px;max-width:300px;font:400 13px/1.45 var(--sans);color:var(--soft);display:none}
+.tip b{color:var(--ink)}
+
+/* trayecto */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative;margin:10px 0 24px}
+.step{text-align:center;padding:0 6px;position:relative;background:none;border:0;cursor:pointer}
+.step .ic{width:74px;height:74px;border-radius:50%;background:var(--red);display:grid;place-items:center;margin:0 auto 12px;position:relative;z-index:2;transition:transform .3s}
+.step[aria-pressed=true] .ic{transform:scale(1.12);box-shadow:0 0 0 6px rgba(210,85,58,.25)}
+.step b{font:600 16px var(--sans);display:block}
+.step span{font-size:13.5px;color:var(--mute)}
+.steps:before{content:"";position:absolute;left:10%;right:10%;top:37px;height:2px;background:#5a5f66;z-index:1}
+.retro{font:400 13.5px var(--sans);color:var(--red);text-align:center;margin:-6px 0 20px}
+.cmp{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.cmp .card h4{display:flex;align-items:center;gap:8px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:14.5px;margin-top:10px}
+.kv dt{font:600 12px var(--sans);color:var(--mute);padding-top:2px}
+.kv dd{margin:0;color:var(--soft)}
+.decide{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-top:18px}
+
+/* causal */
+.cldwrap{display:grid;grid-template-columns:1fr 330px;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0d0f11}
+#cld{width:100%;height:auto;display:block}
+.cldside{border-left:1px solid var(--line);padding:18px;background:var(--bg2)}
+.var rect{fill:#22272c;stroke:#3a3f45}
+.var text{font:500 13px var(--sans);fill:#F1ECE2}
+.var{cursor:pointer}
+.lk{fill:none;stroke:#C9573E;stroke-width:1.8}
+.lk.hl{stroke:#F1ECE2;stroke-width:2.6}
+.sg{font:700 15px var(--sans);fill:#E3A549}
+.cld.dimmed .lk:not(.hl){opacity:.18}.cld.dimmed .var:not(.hl){opacity:.35}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:18px}
+.timeline .card{padding:16px}
+.timeline .card b{font:600 14px var(--sans);display:block;margin-bottom:6px;color:var(--ochre)}
+.timeline .card p{font-size:14px}
+.sim{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px}
+.sim svg{width:100%;height:auto;display:block}
+.sim .axis text{font:400 11px var(--sans);fill:#8C877E}
+.sim .axis line,.sim .axis path{stroke:#33383d}
+
+/* contradicciones */
+.tens{display:grid;grid-template-columns:1fr;gap:14px}
+.ten{display:grid;grid-template-columns:150px 1fr 150px;gap:14px;align-items:center}
+.ten .ab{font:600 14px var(--sans);text-align:center}
+.ten .mid{position:relative;text-align:center}
+.ten .mid:before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:var(--red)}
+.ten .mid span{position:relative;background:var(--bg);padding:0 10px;font:500 13.5px var(--sans);color:var(--soft)}
+.ten p{grid-column:1/-1;margin:-4px 0 6px;font-size:14px;color:var(--mute);text-align:center}
+
+/* mapa */
+#map{height:520px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.maplegend{display:flex;flex-wrap:wrap;gap:16px;font:400 13px var(--sans);color:var(--soft);margin-top:12px}
+.maplegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:0}
+.maplibregl-ctrl-attrib{background:rgba(17,19,21,.75)!important;color:#8C877E!important;font-size:10.5px}
+
+footer{max-width:1320px;margin:0 auto;padding:30px 28px 60px;font:400 13px var(--sans);color:var(--mute)}
+
+@media (max-width:1000px){
+  .g3,.g4,.g5{grid-template-columns:repeat(2,1fr)}
+  .rankwrap,.trans,.cmp,.decide,.sim{grid-template-columns:1fr}
+  .netwrap,.cldwrap{grid-template-columns:1fr}
+  .netside,.cldside{border-left:0;border-top:1px solid var(--line);max-height:none}
+  .timeline{grid-template-columns:1fr 1fr}
+  .legend{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  html{scroll-padding-top:120px}
+  main{padding:0 16px 60px}
+  .top-in{padding:12px 16px 8px}.nav{padding:0 16px 10px}
+  .top .back{display:none}
+  section.mod{padding:48px 0 30px}
+  .lede{font-size:17px}
+  .g2,.g3,.g4,.g5,.timeline{grid-template-columns:1fr}
+  #net{height:auto;aspect-ratio:640/1000}
+  .node text{font-size:15px;stroke-width:4px}
+  .var text{font-size:16px}
+  .sg{font-size:20px}
+  .steps{grid-template-columns:1fr;gap:14px}
+  .steps:before{display:none}
+  .step{display:grid;grid-template-columns:64px 1fr;text-align:left;align-items:center;gap:12px}
+  .step .ic{width:56px;height:56px;margin:0}
+  .ten{grid-template-columns:1fr}
+  .ten .mid{display:none}
+  .ten .ab:first-child:after{content:" frente a";color:var(--mute);font-weight:400}
+  .rank{height:520px}
+  #map{height:420px}
+  .legend{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <symbol id="i-persona" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z" fill="currentColor"/></symbol>
+ <symbol id="i-cargo" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2" fill="currentColor"/><rect x="5" y="8" width="6" height="7" fill="#111"/><path d="M13 9h6M13 12h6M13 15h4" stroke="#111" stroke-width="1.6"/></symbol>
+ <symbol id="i-entidad" viewBox="0 0 24 24"><path d="M2.5 9 12 3.5 21.5 9z" fill="currentColor"/><path d="M5 10.5v7M9.6 10.5v7M14.4 10.5v7M19 10.5v7" stroke="currentColor" stroke-width="2.2"/><rect x="2.5" y="18.5" width="19" height="2.4" fill="currentColor"/></symbol>
+ <symbol id="i-colectivo" viewBox="0 0 24 24"><circle cx="8.5" cy="8" r="3.4" fill="currentColor"/><circle cx="16.5" cy="9" r="2.8" fill="currentColor"/><path d="M2 20c0-3.8 2.9-6.6 6.5-6.6S15 16.2 15 20z" fill="currentColor"/><path d="M14.5 14.4c.6-.2 1.3-.3 2-.3 3 0 5.5 2.4 5.5 5.9h-6" fill="currentColor"/></symbol>
+ <symbol id="i-objeto" viewBox="0 0 24 24"><rect x="1.5" y="6" width="12.5" height="10" rx="1" fill="currentColor"/><path d="M14 9h4.5l3.5 3.6V16h-8z" fill="currentColor"/><circle cx="6" cy="17.6" r="2.2" fill="currentColor" stroke="#111" stroke-width="1.2"/><circle cx="17.5" cy="17.6" r="2.2" fill="currentColor" stroke="#111" stroke-width="1.2"/></symbol>
+ <symbol id="i-operador" viewBox="0 0 24 24"><path d="M4 17a8 8 0 0 1 16 0z" fill="currentColor"/><circle cx="12" cy="7.5" r="1.6" fill="currentColor"/><rect x="2.5" y="18" width="19" height="2.6" rx="1.2" fill="currentColor"/></symbol>
+ <symbol id="i-regulador" viewBox="0 0 24 24"><path d="M5 2.5h10l4 4V21.5H5z" fill="currentColor"/><path d="M8 11h8M8 14.5h8M8 18h5" stroke="#111" stroke-width="1.6"/></symbol>
+ <symbol id="i-instancia" viewBox="0 0 24 24"><rect x="9" y="2.5" width="9" height="5" rx="1" transform="rotate(40 13.5 5)" fill="currentColor"/><path d="M10.5 9.2 4 16.6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><rect x="3" y="19" width="12" height="2.6" rx="1" fill="currentColor"/></symbol>
+ <symbol id="i-nohumano" viewBox="0 0 24 24"><path d="M12 2.5c-4 5.5-6.5 9-6.5 12.3a6.5 6.5 0 0 0 13 0c0-3.3-2.5-6.8-6.5-12.3z" fill="currentColor"/></symbol>
+ <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M11.5 12H21M17.5 12v3.4M20.5 12v2.6" stroke="currentColor" stroke-width="2.4"/></symbol>
+</defs></svg>
+
+<header class="top">
+ <div class="top-in">
+  <h1><span>Guía Corte III · Proyecto de ciudad</span>Heterarquía ecosocial de Kennedy</h1>
+  <a class="back" href="index.html">Volver a la red de actores</a>
+ </div>
+ <nav class="nav" id="nav">
+  <a href="#m1"><b>1</b>Ficha del macromodelo</a>
+  <a href="#m2"><b>2</b>Red de interacciones</a>
+  <a href="#m3"><b>3</b>Trayecto de decisión</a>
+  <a href="#m4"><b>4</b>Modelo dinámico-causal</a>
+  <a href="#m5"><b>5</b>Contradicciones</a>
+  <a href="#m6"><b>6</b>Síntesis territorial</a>
+  <a href="#m7"><b>7</b>Fuentes y supuestos</a>
+ </nav>
+</header>
+
+<main>
+<!-- 1 -->
+<section class="mod" id="m1">
+ <p class="eyebrow">1 · Ficha del macromodelo político</p>
+ <h2>Nadie ocupa siempre la cima</h2>
+ <p class="lede">Nuestros siete macromodelos ecológicos dicen qué debe cuidarse en Kennedy. La heterarquía es el macromodelo político que dice quién decide sobre cada cosa: el orden de los actores cambia según el asunto, y quien decide queda sujeto a mandato y revocación.</p>
+ <p class="def">Heterarquía: relación entre elementos que no tienen rango fijo o que pueden ordenarse de varias maneras según lo que el sistema requiera.<small>Crumley (1995), S7. No es lo mismo que igualitarismo: hay rangos, pero cambian con el asunto. Se complementa con la gobernanza policéntrica de Ostrom (2010), S8.</small></p>
+
+ <div class="sub"><h3>Tres formas de decidir</h3><span>La representación es una forma histórica entre varias</span></div>
+ <div class="grid g3 mods" id="modsDecision"></div>
+
+ <div class="sub"><h3>El rango lo da el asunto</h3><span>Elige un asunto y mira cómo se reordena quién encabeza</span></div>
+ <div class="rankwrap">
+  <div>
+   <div class="chips" id="rankChips" style="margin-bottom:14px"></div>
+   <p style="font-size:15px;color:var(--soft);margin:0" id="rankText"></p>
+  </div>
+  <div class="rank" id="rank" role="list" aria-label="Orden de los actores según el asunto"></div>
+ </div>
+
+ <div class="sub"><h3>Los macromodelos ecológicos como criterio de rango</h3><span>Cada uno define quién encabeza en su materia</span></div>
+ <div class="grid g4" id="ecoCards"></div>
+
+ <div class="sub"><h3>Principios</h3></div>
+ <div class="grid g5" id="principios"></div>
+
+ <div class="sub"><h3>Qué es colectivo y qué se delega</h3></div>
+ <div class="grid g4" id="reparto"></div>
+
+ <div class="sub"><h3>Objetivos verificables</h3><span>«Habrá participación» no basta: cada objetivo dice cómo se comprueba</span></div>
+ <div class="tablewrap"><table id="objetivos"><thead><tr><th>Objetivo</th><th>Indicador</th><th>Hoy</th><th>Cómo se verifica</th></tr></thead><tbody></tbody></table></div>
+
+ <div class="sub"><h3>De la situación actual a la propuesta</h3></div>
+ <div class="trans" id="trans"></div>
+
+ <div class="sub"><h3>Origen de cada mecanismo</h3><span>Lo que ya existe, lo que tomamos de referentes y lo que proponemos</span></div>
+ <div class="tablewrap"><table id="mecanismos"><thead><tr><th>Mecanismo</th><th>Origen</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<!-- 2 -->
+<section class="mod" id="m2">
+ <p class="eyebrow">2 · Red de interacciones sociales</p>
+ <h2>Quién influye de verdad</h2>
+ <p class="lede">Cada nodo es un actor con ámbito, intereses, recursos, trabajo y decisiones. Cada línea es una relación con tipo, dirección y origen. La firma no es el poder: separamos la atribución formal de la influencia efectiva.</p>
+ <div class="netwrap">
+  <div class="netbar">
+   <div class="chips" id="stateChips"><button class="chip" data-s="hoy" aria-pressed="true">Hoy · diagnóstico</button><button class="chip" data-s="prop" aria-pressed="false">Propuesta heterárquica</button></div>
+   <div class="chips" id="kindChips"></div>
+  </div>
+  <svg id="net" role="img" aria-label="Red de interacciones con tipos de relación"></svg>
+  <aside class="netside" id="netside"></aside>
+ </div>
+ <div class="legend" id="netLegend"></div>
+ <div class="sub"><h3>Lectura crítica de la red</h3><span>Primero qué significan nodos y líneas; luego las medidas</span></div>
+ <div class="grid g2">
+  <div class="card"><span class="k">Cómo se mide</span><p id="metricExplain"></p></div>
+  <div class="card"><span class="k">Hoy frente a la propuesta</span><div class="metric" id="metrics"></div></div>
+ </div>
+ <div class="grid g3" style="margin-top:18px" id="readings"></div>
+</section>
+
+<!-- 3 -->
+<section class="mod" id="m3">
+ <p class="eyebrow">3 · Estructura organizativa y trayecto de una decisión</p>
+ <h2>El trayecto de una decisión</h2>
+ <p class="lede" id="decQ"></p>
+ <div class="chips" id="decState" style="margin-bottom:22px"><button class="chip" data-s="hoy" aria-pressed="false">Hoy</button><button class="chip" data-s="prop" aria-pressed="true">Propuesta heterárquica</button></div>
+ <div class="steps" id="steps"></div>
+ <p class="retro">Rectificar reabre el ciclo: el asunto vuelve a la agenda</p>
+ <div class="cmp" id="stepCmp"></div>
+ <div class="decide">
+  <div class="card"><span class="k">Decidir no es hacer</span><svg id="decideSvg" viewBox="0 0 620 250" style="width:100%;height:auto"></svg></div>
+  <div class="card"><span class="k">Escalas</span><svg id="scaleSvg" viewBox="0 0 320 250" style="width:100%;height:auto"></svg></div>
+ </div>
+</section>
+
+<!-- 4 -->
+<section class="mod" id="m4">
+ <p class="eyebrow">4 · Modelo dinámico-causal</p>
+ <h2>Cómo se reproduce y cómo cambia</h2>
+ <p class="lede">No repite la red: muestra variables que cambian en el tiempo y los mecanismos que las mueven. + mismo sentido, − sentido opuesto, ‖ retardo. R reproduce, B frena o transforma.</p>
+ <div class="cldwrap">
+  <svg id="cld" class="cld" viewBox="0 0 1000 640" role="img" aria-label="Diagrama causal con bucles"></svg>
+  <aside class="cldside" id="cldside"></aside>
+ </div>
+ <div class="chips" id="loopChips" style="margin-top:14px"></div>
+ <div class="sub"><h3>Prueba en el tiempo</h3><span>Estado inicial, decisión, efectos, perturbación y trayectorias</span></div>
+ <div class="timeline" id="timeline"></div>
+ <div class="sub"><h3>Trayectorias ilustrativas</h3><span>Muestran la lógica de los bucles; no están calibradas con datos y no predicen</span></div>
+ <div class="sim" id="sim"></div>
+ <p style="font:400 13.5px var(--sans);color:var(--mute);margin-top:10px" id="simNote"></p>
+</section>
+
+<!-- 5 -->
+<section class="mod" id="m5">
+ <p class="eyebrow">5 · Contradicciones y sostenibilidad</p>
+ <h2>Las contradicciones también se modelan</h2>
+ <p class="lede">La heterarquía no se sostiene por declararla. Depende de quién tiene el suelo, el permiso, el dinero y el tiempo.</p>
+ <div class="tens" id="tens"></div>
+ <div class="sub"><h3>Una contradicción, reconstruida</h3></div>
+ <div id="contra"></div>
+ <div class="sub"><h3>Dos escenarios</h3><span>Supuestos y límites explícitos; ninguno es un resultado demostrado</span></div>
+ <div class="grid g2" id="escen"></div>
+ <div class="grid g2" style="margin-top:18px">
+  <div class="card"><span class="k">Autoorganización</span><p id="auto"></p></div>
+  <div class="card"><span class="k">Quién representa al humedal</span><p id="nohum"></p></div>
+ </div>
+</section>
+
+<!-- 6 -->
+<section class="mod" id="m6">
+ <p class="eyebrow">6 · Síntesis territorial</p>
+ <h2>El efecto sobre un problema</h2>
+ <p class="lede">Problema del diagnóstico: los orgánicos y efluentes de Corabastos llegan al Humedal La Vaca. Si el núcleo de orgánicos funciona, el material deja de ir al humedal y al relleno y vuelve como compost a las huertas registradas en Kennedy.</p>
+ <div id="map" role="img" aria-label="Mapa de Kennedy con Corabastos, el Humedal La Vaca, huertas y comedores"></div>
+ <div class="maplegend"><span><i style="background:#E3A549"></i>Corabastos</span><span><i style="background:#6ea8d6"></i>Humedal La Vaca</span><span><i style="background:#8FC59A"></i>Huertas urbanas (IDECA)</span><span><i style="background:#F09A84"></i>Comedores comunitarios (IDECA)</span><span><i style="background:none;border:1.5px dashed #E3A549;border-radius:0;height:0;width:18px"></i>Flujo de compost propuesto</span></div>
+ <div class="sub"><h3>Efecto en cada enfoque</h3></div>
+ <div class="grid g4" id="efectos"></div>
+ <div class="sub"><h3>Qué falta investigar</h3></div>
+ <div class="card"><ul class="plain" id="pend"></ul></div>
+</section>
+
+<!-- 7 -->
+<section class="mod" id="m7">
+ <p class="eyebrow">7 · Registro de fuentes y supuestos</p>
+ <h2>Datos separados de hipótesis</h2>
+ <p class="lede">Cada relación de la red y del modelo causal lleva una marca: <span class="tag t-doc">documentada</span> con fuente, <span class="tag t-hip">hipótesis</span> por verificar en campo, o <span class="tag t-prop">propuesta</span> como decisión de diseño del grupo.</p>
+ <div class="tablewrap"><table id="fuentes"><thead><tr><th>Código</th><th>Tipo</th><th>Contenido</th><th>Enlace</th></tr></thead><tbody></tbody></table></div>
+ <div class="grid g3" style="margin-top:18px" id="conteos"></div>
+</section>
+</main>
+<footer>Modelamiento dinámico y simulaciones · Corte III · Kennedy, Bogotá. Las cifras marcadas como hipótesis o propuesta no son evidencia de ejecución.</footer>
+<div class="tip" id="tip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="corte3-data.js"></script>
+<script src="corte3.js"></script>
+</body>
+</html>
