@@ -130,8 +130,8 @@ function go(i){i=Math.max(0,Math.min(S.length-1,i));G.i=i;const st=S[i];
 const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX'];
 function panelHTML(){const st=S[G.i];const ns=(st.nodes||[]).map(id=>byId.get(id)).filter(Boolean);
  return `<section class="sec" style="padding:16px 18px">
-  <div style="font:600 10.5px 'JetBrains Mono',monospace;letter-spacing:.08em;color:#F2B53A;text-transform:uppercase">Guion · ${BL[st.b][1]}</div>
-  <p style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#e6e9f0">${esc2(st.n)}</p></section>
+  <div style="font:600 10.5px 'JetBrains Mono',monospace;letter-spacing:.08em;color:#F2B53A;text-transform:uppercase">${esc2(BL[st.b][0])} · ${BL[st.b][1]}</div>
+  <div style="margin:8px 0 0;font-size:17px;font-weight:700;line-height:1.3;color:#fff">${esc2(st.t)}</div></section>
   ${ns.length?`<section class="sec" style="padding:12px 18px 24px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin-bottom:10px">Actores en este momento (${ns.length})</div>
   <div style="display:flex;flex-direction:column;gap:6px">${ns.map(n=>{const hasLogo=!!REAL_LOGOS[n.id];const bg=n.id==='A01'?'#0e3820':(hasLogo?'#FFFFFF':'#141722');
    return `<button class="it" data-id="${n.id}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#0f1420;cursor:pointer;text-align:left">
