@@ -3554,6 +3554,7 @@ function placeLabels(){
      .attr('y', s[2])
      .attr('font-size', effectiveFu)
      .attr('stroke-width', strokeW)
+     .each(function(){ const big = isGuiaNode || isSelected; if(big){ this.style.setProperty('font-size', effectiveFu + 'px', 'important'); this.style.setProperty('stroke-width', strokeW + 'px', 'important'); } else { this.style.removeProperty('font-size'); this.style.removeProperty('stroke-width'); } })
      .attr('font-weight', (isGuiaNode || isSelected || REAL_LOGOS[n.id]) ? 700 : 500)
      .text(n.short);
   });
