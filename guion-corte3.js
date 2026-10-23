@@ -7,6 +7,9 @@ const O='#F2B53A',R='#E0623F',V='#9382E0';
 window.GUION = {
 jerarquia:[{t:'Una estructura jerárquica',s:'',n:''}],
 heterarquia2:[{t:'Heterarquía',s:'',n:''}],
+ambitos:[{t:'Cuatro ámbitos',s:'',n:''}],
+policentro:[{t:'Gobernanza policéntrica',s:'',n:''}],
+mandato:[{t:'Mandato',s:'',n:''}],
 apertura:[
  {t:'¿Cómo coordinar sin un único centro de decisión?',s:'La pregunta que orienta nuestro trabajo.',n:'Hola. Hoy presentamos una propuesta para comprender y organizar las relaciones sociales y políticas que intervienen en Kennedy. La pregunta que orienta nuestro trabajo es: ¿cómo podemos coordinar las decisiones, los recursos y el trabajo del territorio sin que toda la capacidad de influir dependa de un único centro de decisión?'},
  {t:'Kennedy como un sistema de relaciones',s:'Personas, organizaciones, instituciones, empresas y herramientas materiales.',n:'No entendemos a Kennedy solo como un espacio físico ni como una lista de problemas. Lo vemos como un sistema de relaciones entre personas, organizaciones, instituciones, empresas y herramientas materiales, como los camiones, que hacen posibles las actividades cotidianas.',

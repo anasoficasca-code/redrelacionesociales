@@ -383,6 +383,66 @@ function heterarquiaView(ctx){
  return sub=>{k=sub%AS.length;set(k)}
 }
 
+/* ---------- cuatro ámbitos de coordinación (no escalones) ---------- */
+function ambitosView(ctx){
+ const {svg,W,H,P}=svgIn(ctx.el);const df=svg.append('defs');mk(df,'am-a',OCH,10);
+ const C=[['Coordinación cotidiana','trabajadores, comerciantes, recicladores, docentes y operadores',['A13','A06','A27','A43','A28'],'#4FB98C'],
+  ['Espacios por asunto','educación ambiental · abastecimiento · residuos',['AMB02','AMB04','A70','A25','A57'],'#F2B53A'],
+  ['Coordinación local','juntas, ASOJUNTAS, Comisión Ambiental Local, Alcaldía y JAL',['A35','PJ02','AMB03','A34','N01'],'#9382E0'],
+  ['Competencias legales','entidades distritales y órganos de Corabastos',['A32','A33','A65','A02','A03'],'#4EAECF']];
+ txt(svg,W/2,P?22:30,'Cuatro ámbitos conectados, no escalones de mando',{a:'middle',fw:700,fs:P?14:20});
+ const top=P?40:58,gap=P?10:18,n=4;
+ const cw=P?W-24:(W-40-gap*3)/4,ch=P?(H-top-14-gap*3)/4:H-top-24;
+ C.forEach(([t,s,ids,col],i)=>{const x=P?12:20+i*(cw+gap),y=P?top+i*(ch+gap):top;const g=svg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);
+  g.transition().delay(reduce?0:i*350).duration(500).style('opacity',1);
+  g.append('rect').attr('width',cw).attr('height',ch).attr('rx',12).attr('fill','#16181c').attr('stroke',col).attr('stroke-opacity',.6);
+  txt(g,14,P?20:30,`${i+1}. ${t}`,{fw:700,fs:P?13:17,c:col});if(!P)txt(g,14,52,s,{fs:12.5,c:SOFT,wrap:Math.floor(cw/7)});
+  const r=P?13:Math.min(22,cw/9);
+  ids.forEach((id,j)=>{let ax,ay;if(P){ax=20+j*((cw-30)/ids.length)+r;ay=ch*.62}else{ax=24+r;ay=104+j*((ch-120)/ids.length)+r}
+   const ng=g.append('g').attr('class','node').attr('transform',`translate(${ax},${ay})`);actor(ng,id,r,{label:false});
+   if(P){if(j<5){const tt=txt(ng,0,r+12,'',{a:'middle',fs:9,c:INK});wrap(tt,ACT(id).short,11,10)}}else{const tt=txt(ng,r+10,-2,'',{fs:12.5,c:INK});wrap(tt,ACT(id).short,Math.max(14,Math.floor((cw-2*r-50)/6.6)),14)}});
+  if(i<3){const ag=svg.append('g').style('opacity',0);ag.transition().delay(reduce?0:i*350+400).style('opacity',1);
+   if(P){const yy=y+ch+gap/2;ag.append('path').attr('d',`M${W/2-14},${yy-4}V${yy+4}`).attr('stroke',OCH).attr('stroke-width',2);}
+   else{const xx=x+cw+gap/2,yy=top+ch/2;ag.append('path').attr('d',`M${xx},${yy-60}V${yy+60}`).attr('stroke',OCH).attr('stroke-width',2).attr('stroke-dasharray','5 5').attr('class','flowing');
+    ag.append('circle').attr('cx',xx).attr('cy',yy).attr('r',11).attr('fill','#16181c').attr('stroke',OCH);ag.append('path').attr('d',`M${xx-5},${yy}H${xx+5}M${xx-2},${yy-3}L${xx-5},${yy}L${xx-2},${yy+3}M${xx+2},${yy-3}L${xx+5},${yy}L${xx+2},${yy+3}`).attr('stroke',OCH).attr('fill','none').attr('stroke-width',1.6)}}});
+ if(!P)txt(svg,W/2,H-6,'Entre ámbitos circulan información y acuerdos en los dos sentidos',{a:'middle',fs:13,c:OCH});
+}
+/* ---------- mandato, cogestión y coaprendizaje ---------- */
+function mandatoView(ctx){
+ const {svg,W,H,P}=svgIn(ctx.el);const df=svg.append('defs');mk(df,'md-o',OCH,11);mk(df,'md-g','#4FB98C',11);
+ const R=P?26:Math.min(40,W/30);const y0=P?H*.2:H*.3;
+ const pts=P?[[W*.16,y0],[W*.5,y0],[W*.84,y0]]:[[W*.18,y0],[W*.5,y0],[W*.82,y0]];
+ const L=[['A25','La organización','decide el encargo'],['A36','Quien la representa','lleva el mandato'],['AMB03','Espacio de coordinación','donde se acuerda con otros']];
+ L.forEach(([id,t,s],i)=>{const g=svg.append('g').attr('class','node').attr('transform',`translate(${pts[i]})`);actor(g,id,R,{label:false});
+  if(P){const t1=txt(g,0,R+16,'',{a:'middle',fw:700,fs:11});wrap(t1,t,12,13);const t2=txt(g,0,R+44,'',{a:'middle',fs:9.5,c:SOFT});wrap(t2,s,14,11)}else{txt(g,0,R+22,t,{a:'middle',fw:700,fs:16});txt(g,0,R+42,s,{a:'middle',fs:13,c:SOFT})}});
+ const arc=(a,b,up,col,id)=>{const mx=(a[0]+b[0])/2,my=a[1]+(up?-1:1)*(up?(P?40:70):(P?150:270));svg.append('path').attr('id',id).attr('d',`M${a[0]+(b[0]>a[0]?R+6:-R-6)},${a[1]+(up?-8:8)}Q${mx},${my} ${b[0]+(b[0]>a[0]?-R-8:R+8)},${b[1]+(up?-8:8)}`).attr('fill','none').attr('stroke',col).attr('stroke-width',2.4).attr('stroke-dasharray','7 5').attr('class','flowing').attr('marker-end',`url(#${col===OCH?'md-o':'md-g'})`);return[mx,my]};
+ const m1=arc(pts[0],pts[1],true,OCH,'md1'),m2=arc(pts[1],pts[2],true,OCH,'md2'),m3=arc(pts[2],pts[0],false,'#4FB98C','md3');
+ txt(svg,m1[0],m1[1]-6,'mandato con límites',{a:'middle',fs:P?10.5:14,fw:600,c:OCH});txt(svg,m2[0],m2[1]-6,'acuerda con otros',{a:'middle',fs:P?10.5:14,fw:600,c:OCH});
+ txt(svg,(pts[0][0]+pts[2][0])/2,pts[0][1]+(P?98:158),'informa lo acordado y consulta si el asunto excede el mandato',{a:'middle',fs:P?10.5:14,fw:600,c:'#4FB98C',wrap:P?44:80});
+ const cy=P?H*.62:H*.72,cw=P?W-24:W*.36;
+ [['i-grupo','Cogestión','Comparte tareas sin borrar responsabilidades: cada uno sabe qué le toca.'],['i-ciclo','Coaprendizaje','Revisar resultados y ajustar las reglas cuando algo no funciona.']].forEach(([ic,t,s],i)=>{
+  const x=P?12:(i?W*.54:W*.1),y=P?cy+i*(H*.17):cy;const g=svg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);g.transition().delay(reduce?0:700+i*300).style('opacity',1);
+  g.append('rect').attr('width',cw).attr('height',P?H*.15:H*.2).attr('rx',12).attr('fill','#16181c').attr('stroke','#2b2d33');icon(g,ic,P?26:34,P?26:36,P?22:28,OCH);
+  txt(g,P?50:66,P?24:34,t,{fw:700,fs:P?13:17});txt(g,P?50:66,P?42:58,s,{fs:P?11:13.5,c:SOFT,wrap:P?40:Math.floor(cw/7.5)})});
+}
+
+/* ---------- varios centros de decisión ---------- */
+function policentroView(ctx){
+ const {svg,W,H,P}=svgIn(ctx.el);
+ const C=[['Una organización','resuelve sus asuntos internos',['A25','A26','A27'],'#4FB98C'],['Colegios y procesos ambientales','coordinan una actividad educativa',['C01','AMB02','AMB04'],'#F2B53A'],['Entidades y órganos de Corabastos','conservan sus decisiones legales',['A32','A33','A02','A03'],'#4EAECF']];
+ const c={x:W/2,y:P?H*.52:H*.56},RR=Math.min(W,H)*(P?.34:.36);
+ const pos=C.map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/3;return[c.x+Math.cos(a)*RR*(P?1:1.25),c.y+Math.sin(a)*RR*(P?1:.92)]});
+ const lg=svg.append('g');pos.forEach(p=>lg.append('path').attr('d',`M${p[0]},${p[1]}L${c.x},${c.y}`).attr('stroke',OCH).attr('stroke-width',2).attr('stroke-dasharray','6 6').attr('class','flowing').attr('opacity',0).transition().delay(reduce?0:1200).duration(500).attr('opacity',.8));
+ const cr=P?58:Math.min(95,W/13);
+ C.forEach(([t,s,ids,col],i)=>{const g=svg.append('g').attr('transform',`translate(${pos[i]})`).style('opacity',0);g.transition().delay(reduce?0:i*300).duration(500).style('opacity',1);
+  g.append('circle').attr('r',cr).attr('fill','#16181c').attr('stroke',col).attr('stroke-width',2.4);
+  const r=P?13:18;ids.forEach((id,j)=>{const a=-Math.PI/2+j*2*Math.PI/ids.length;const ng=g.append('g').attr('class','node').attr('transform',`translate(${Math.cos(a)*cr*.48},${Math.sin(a)*cr*.48})`);actor(ng,id,r,{label:false})});
+  const side=i===0,ax=side?cr+(P?10:18):0,an=side?'start':'middle';const ty=side?-(P?14:22):cr+(P?18:24);const tt=txt(g,ax,ty,'',{a:an,fw:700,fs:P?12.5:16,c:col});wrap(tt,t,P?(side?14:24):32,P?14:18);const sy=ty+(P?(t.length>(side?14:24)?30:16):(t.length>32?38:20));const st=txt(g,ax,sy,'',{a:an,fs:P?10.5:13,c:SOFT});wrap(st,s,P?(side?16:30):40,P?13:16);const nt=txt(g,ax,sy+(P?28:22),'',{a:an,fs:P?9.5:12,c:INK});wrap(nt,ids.map(id=>ACT(id).short).join(' · '),P?(side?18:34):44,P?12:15)});
+ const cg=svg.append('g').attr('transform',`translate(${c.x},${c.y})`).style('opacity',0);cg.transition().delay(reduce?0:1400).duration(500).style('opacity',1);
+ const bw=P?150:230,bh=P?78:104;cg.append('rect').attr('x',-bw/2).attr('y',-bh/2).attr('width',bw).attr('height',bh).attr('rx',12).attr('fill','#1d1a12').attr('stroke',OCH);
+ txt(cg,0,-bh/2+(P?18:24),'Si afecta a varios:',{a:'middle',fw:700,fs:P?11.5:14,c:OCH});
+ ['compartir información','acordar responsabilidades','revisar resultados'].forEach((t,k)=>txt(cg,0,-bh/2+(P?36:48)+k*(P?14:18),t,{a:'middle',fs:P?10.5:13}));
+}
 const SL=[
  /* I · Apertura */
  {b:0,key:'apertura',src:'Red de actores del grupo: 95 actores y 254 relaciones',draw(ctx){const v=redOrg(ctx);return()=>{}}},
@@ -482,7 +542,10 @@ const SL=[
  {b:9,key:'cierre',src:'Corte III · Kennedy',draw(ctx){const cs=statement(ctx,['La <span style="color:#F2B53A">heterarquía</span> distribuye la influencia; la <span style="color:#4EAECF">gobernanza policéntrica</span> coordina los centros; las <span style="color:#8EBF4C">reglas de mandato, seguimiento y rectificación</span> las hacen revisables.','¿Quién decide, qué recursos circulan y <span style="color:#F2B53A">quién puede corregir lo que no funciona</span>?']);
    return sub=>cs.style('opacity',(d,i)=>i<=sub?1:.15)}},
  {b:3,key:'jerarquia',src:'Red de actores del grupo',draw(ctx){jerarquiaView(ctx)}},
- {b:3,key:'heterarquia2',src:'Red de actores del grupo',draw(ctx){return heterarquiaView(ctx)}}
+ {b:3,key:'heterarquia2',src:'Red de actores del grupo',draw(ctx){return heterarquiaView(ctx)}},
+ {b:3,key:'policentro',src:'Guion del grupo',draw(ctx){policentroView(ctx)}},
+ {b:3,key:'ambitos',src:'Guion del grupo',draw(ctx){ambitosView(ctx)}},
+ {b:3,key:'mandato',src:'Guion del grupo',draw(ctx){mandatoView(ctx)}}
 ];
 
 
