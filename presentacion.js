@@ -443,6 +443,67 @@ function policentroView(ctx){
  txt(cg,0,-bh/2+(P?18:24),'Si afecta a varios:',{a:'middle',fw:700,fs:P?11.5:14,c:OCH});
  ['compartir información','acordar responsabilidades','revisar resultados'].forEach((t,k)=>txt(cg,0,-bh/2+(P?36:48)+k*(P?14:18),t,{a:'middle',fs:P?10.5:13}));
 }
+/* ---------- modelo dinámico-causal fiel al guion (estilo Vensim) ---------- */
+function causal2View(ctx){
+ ctx.el.classList.add('vensim');const {svg,W,H,P}=svgIn(ctx.el);
+ const BL='#1d3fd0',HL='#E0623F',TX='#111',FS=P?22:17;
+ const V=P?{INF:[120,90],COO:[390,190],ACU:[390,360],CON:[390,530],PAR:[120,420],CAR:[120,690],RET:[390,720],DIS:[120,880]}
+          :{INF:[150,110],COO:[460,70],ACU:[760,150],CON:[700,330],PAR:[330,330],CAR:[420,500],RET:[790,500],DIS:[120,520]};
+ const N={INF:'Acceso a la información',COO:'Coordinación de tareas',ACU:'Acuerdos cumplidos',CON:'Confianza basada en resultados',PAR:'Participación',CAR:'Carga de trabajo de las mismas personas',RET:'Retraso de las tareas',DIS:'Distribución de tareas (repartir y rotar)'};
+ const VB0=P?[0,20,520,950]:[0,20,1000,580],VB1=P?[-10,900,540,330]:[40,570,920,250];
+ svg.attr('viewBox',VB0.join(' ')).attr('preserveAspectRatio','xMidYMid meet');
+ const df=svg.append('defs');['b','h','g'].forEach((k,i)=>df.append('marker').attr('id','c2'+k).attr('viewBox','0 0 10 10').attr('refX',9).attr('refY',5).attr('markerWidth',P?14:11).attr('markerHeight',P?14:11).attr('orient','auto').attr('markerUnits','userSpaceOnUse').append('path').attr('d','M0 1L9 5L0 9z').attr('fill',[BL,HL,'#8a8f99'][i]));
+ const gl=svg.append('g'),gd=svg.append('g'),gv=svg.append('g'),gx=svg.append('g'),gs=svg.append('g');
+ const box={};const vs={};
+ Object.entries(V).forEach(([k,[x,y]])=>{const g=gv.append('g').attr('transform',`translate(${x},${y})`);const t=g.append('text').attr('text-anchor','middle').attr('font-family','Arial').attr('font-size',FS).attr('fill',TX);
+  const words=N[k].split(' ');const L=[];let c='';words.forEach(w=>{if((c+' '+w).trim().length>(P?16:20)&&c){L.push(c);c=w}else c=(c+' '+w).trim()});if(c)L.push(c);
+  L.forEach((l,i)=>t.append('tspan').attr('x',0).attr('dy',i?FS*1.15:-(L.length-1)*FS*.57+FS*.35).text(l));
+  const bw=Math.max(...L.map(l=>l.length))*FS*.52+14,bh=L.length*FS*1.15+10;box[k]=[x,y,bw/2,bh/2];vs[k]=g});
+ const edge=(a,b,sg,id,bend)=>{const [ax,ay,aw,ah]=box[a],[bx,by,bw,bh]=box[b];const dx=bx-ax,dy=by-ay;const mx=(ax+bx)/2-dy*(bend||.18),my=(ay+by)/2+dx*(bend||.18);
+  const clip=(x,y,w,h,tx,ty)=>{const ddx=tx-x,ddy=ty-y;const s=Math.min((w+4)/Math.abs(ddx||1e-6),(h+4)/Math.abs(ddy||1e-6));return[x+ddx*s,y+ddy*s]};
+  const p0=clip(ax,ay,aw,ah,mx,my),p1=clip(bx,by,bw,bh,mx,my);const q=t=>[(1-t)**2*p0[0]+2*(1-t)*t*mx+t*t*p1[0],(1-t)**2*p0[1]+2*(1-t)*t*my+t*t*p1[1]];
+  const path=gl.append('path').attr('id',id).attr('d',`M${p0}Q${mx},${my} ${p1}`).attr('fill','none').attr('stroke',BL).attr('stroke-width',P?2.6:2).attr('marker-end','url(#c2b)').style('opacity',0);
+  const sp=q(.82);const sgn=gx.append('text').attr('x',sp[0]+8).attr('y',sp[1]-8).attr('font-family','Arial').attr('font-weight',700).attr('font-size',FS+4).attr('fill',BL).text(sg).style('opacity',0);
+  return{path,sgn,id}};
+ const E={
+  r1:[edge('INF','COO','+','e1'),edge('COO','ACU','+','e2'),edge('ACU','CON','+','e3'),edge('CON','PAR','+','e4'),edge('PAR','INF','+','e5')],
+  r2:[edge('CAR','RET','+','e6',-.15),edge('RET','ACU','−','e7'),edge('PAR','CAR','−','e8',.2)],
+  dis:[edge('DIS','CAR','−','e9',-.2)]};
+ const loopMark=(id,x,y,lab,col)=>{const g=gx.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);g.append('path').attr('d','M-18 -6 A19 19 0 1 1 -6 18').attr('fill','none').attr('stroke',col).attr('stroke-width',2);g.append('text').attr('text-anchor','middle').attr('y',6).attr('font-family','Arial').attr('font-weight',700).attr('font-size',P?20:16).attr('fill',col).text(id);
+  const t=g.append('text').attr('text-anchor','middle').attr('y',P?44:40).attr('font-family','Arial').attr('font-size',P?16:13).attr('fill',col).text(lab);return g};
+ const L1=P?loopMark('R1',255,300,'fortalece',BL):loopMark('R1',470,230,'fortalece',BL);
+ const L2=P?loopMark('R2',255,620,'debilita',HL):loopMark('R2',600,420,'debilita',HL);
+ // existencias: material aprovechable sin recuperar
+ const sy=P?1100:720,sx=P?260:500;
+ const st=gs.append('g').style('opacity',0);
+ st.append('rect').attr('x',sx-(P?120:150)).attr('y',sy-40).attr('width',P?240:300).attr('height',80).attr('fill','#fff').attr('stroke',TX).attr('stroke-width',2.4);
+ const stt=st.append('text').attr('text-anchor','middle').attr('font-family','Arial').attr('font-weight',700).attr('font-size',FS).attr('fill',TX);
+ [['Material aprovechable'],['sin recuperar']].forEach((l,i)=>stt.append('tspan').attr('x',sx).attr('y',sy-6+i*FS*1.2).text(l[0]));
+ const pipe=(x1,x2,lab,ly)=>{st.append('path').attr('d',`M${x1},${sy}H${x2}`).attr('stroke',TX).attr('stroke-width',11);st.append('path').attr('d',`M${x1},${sy}H${x2}`).attr('stroke','#FBFAF6').attr('stroke-width',6.5);
+  const vx=(x1+x2)/2;st.append('path').attr('d',`M${vx-12} ${sy-10}L${vx+12} ${sy+10}V${sy-10}L${vx-12} ${sy+10}z`).attr('fill','#fff').attr('stroke',TX).attr('stroke-width',2);
+  const t=st.append('text').attr('text-anchor','middle').attr('font-family','Arial').attr('font-size',FS-2).attr('fill',TX);lab.forEach((l,i)=>t.append('tspan').attr('x',vx).attr('y',sy+34+i*FS).text(l));return vx};
+ const lx0=P?20:110,rx1=P?500:890;const cloud=x=>st.append('path').attr('transform',`translate(${x},${sy}) scale(1.6)`).attr('d','M-14 6c-6 0-8-8-2-10-1-7 8-9 11-4 3-5 12-3 11 3 6 1 6 11-1 11z').attr('fill','#fff').attr('stroke',TX).attr('stroke-width',1.4);
+ cloud(lx0);cloud(rx1);
+ const vin=pipe(lx0+22,sx-(P?120:150),['no se separa','ni se recoge'],sy+30);const vout=pipe(sx+(P?120:150),rx1-22,['se recupera','y se entrega'],sy+30);
+ st.append('path').attr('d',`M${sx+(P?110:140)},${sy}L${sx+(P?124:154)},${sy}`).attr('marker-end','url(#c2b)');
+ const coord=st.append('g').attr('transform',`translate(${vout},${sy-(P?130:120)})`);const ct=coord.append('text').attr('text-anchor','middle').attr('font-family','Arial').attr('font-size',FS-1).attr('fill',TX);
+ (P?['Coordinación entre hogares,','comercios, recicladores','y operadores']:['Coordinación entre hogares, comercios,','recicladores y operadores']).forEach((l,i)=>ct.append('tspan').attr('x',P?14:0).attr('dy',i?FS:0).text(l));if(P)ct.attr('text-anchor','end');
+ st.append('path').attr('d',`M${vout},${sy-(P?130:120)+FS*(P?2.2:1.4)}V${sy-16}`).attr('stroke',BL).attr('stroke-width',2).attr('marker-end','url(#c2b)');st.append('text').attr('x',vout+8).attr('y',sy-26).attr('font-family','Arial').attr('font-weight',700).attr('font-size',FS+4).attr('fill',BL).text('+');
+ st.append('text').attr('x',sx).attr('y',sy+(P?100:96)).attr('text-anchor','middle').attr('font-family','Arial').attr('font-size',FS-2).attr('fill','#b3261e').text('Hipótesis: requiere datos');
+ function show(list,hl){const on=new Set(list.flatMap(k=>E[k]));Object.values(E).flat().forEach(e=>{const vis=on.has(e);e.path.transition().duration(500).style('opacity',vis?(hl&&!hl.includes(e)?.25:1):0).attr('stroke',hl&&hl.includes(e)?HL:BL).attr('marker-end',hl&&hl.includes(e)?'url(#c2h)':'url(#c2b)');e.sgn.transition().duration(500).style('opacity',vis?1:0)})}
+ function dots(es){gd.selectAll('*').remove();es.forEach((e,j)=>{for(let k=0;k<2;k++){const c=gd.append('circle').attr('r',P?6:5).attr('fill',HL);c.append('animateMotion').attr('dur','1.8s').attr('repeatCount','indefinite').attr('begin',(k*.9+j*.12)+'s').append('mpath').attr('href','#'+e.id)}})}
+ function vars(keys,dim){Object.entries(vs).forEach(([k,g])=>g.transition().duration(500).style('opacity',keys.includes(k)?1:(dim?.25:0)))}
+ const zoom=vb=>{const cur=svg.attr('viewBox').split(' ').map(Number);svg.transition().duration(reduce?0:900).attrTween('viewBox',()=>{const i=d3.interpolate(cur,vb);return t=>i(t).join(' ')})};
+ return sub=>{
+  const r1v=['INF','COO','ACU','CON','PAR'],r2v=['CAR','RET','ACU','CON','PAR'];
+  st.transition().style('opacity',sub===4?1:0);zoom(sub===4?VB1:VB0);
+  if(sub===0){vars(['INF','ACU','PAR','DIS','CON'],false);show([]);dots([]);L1.style('opacity',0);L2.style('opacity',0)}
+  if(sub===1){vars(r1v,false);show(['r1'],E.r1);dots(E.r1);L1.transition().style('opacity',1);L2.style('opacity',0)}
+  if(sub===2){vars([...new Set([...r1v,...r2v])],false);show(['r1','r2'],[...E.r2,E.r1[2],E.r1[3]]);dots([...E.r2,E.r1[2],E.r1[3]]);L1.transition().style('opacity',.3);L2.transition().style('opacity',1)}
+  if(sub===3){vars([...new Set([...r1v,...r2v,'DIS'])],false);show(['r1','r2','dis'],E.dis);dots(E.dis);L1.transition().style('opacity',.3);L2.transition().style('opacity',.6)}
+  if(sub===4){vars(Object.keys(V),true);show(['r1','r2','dis']);gl.selectAll('path').transition().style('opacity',.15);gx.selectAll('text').transition().style('opacity',.15);dots([]);L1.style('opacity',.15);L2.style('opacity',.15)}
+ }}
+
 const SL=[
  /* I · Apertura */
  {b:0,key:'apertura',src:'Red de actores del grupo: 95 actores y 254 relaciones',draw(ctx){const v=redOrg(ctx);return()=>{}}},
@@ -543,6 +604,7 @@ const SL=[
    return sub=>cs.style('opacity',(d,i)=>i<=sub?1:.15)}},
  {b:3,key:'jerarquia',src:'Red de actores del grupo',draw(ctx){jerarquiaView(ctx)}},
  {b:3,key:'heterarquia2',src:'Red de actores del grupo',draw(ctx){return heterarquiaView(ctx)}},
+ {b:3,key:'causal2',src:'Guion del grupo · hipótesis por verificar',draw(ctx){return causal2View(ctx)}},
  {b:3,key:'policentro',src:'Guion del grupo',draw(ctx){policentroView(ctx)}},
  {b:3,key:'ambitos',src:'Guion del grupo',draw(ctx){ambitosView(ctx)}},
  {b:3,key:'mandato',src:'Guion del grupo',draw(ctx){mandatoView(ctx)}}

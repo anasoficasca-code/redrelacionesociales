@@ -9,6 +9,7 @@ jerarquia:[{t:'Una estructura jerárquica',s:'',n:''}],
 heterarquia2:[{t:'Heterarquía',s:'',n:''}],
 ambitos:[{t:'Cuatro ámbitos',s:'',n:''}],
 policentro:[{t:'Gobernanza policéntrica',s:'',n:''}],
+causal2:[{t:'1',s:'',n:''},{t:'2',s:'',n:''},{t:'3',s:'',n:''},{t:'4',s:'',n:''},{t:'5',s:'',n:''}],
 mandato:[{t:'Mandato',s:'',n:''}],
 apertura:[
  {t:'¿Cómo coordinar sin un único centro de decisión?',s:'La pregunta que orienta nuestro trabajo.',n:'Hola. Hoy presentamos una propuesta para comprender y organizar las relaciones sociales y políticas que intervienen en Kennedy. La pregunta que orienta nuestro trabajo es: ¿cómo podemos coordinar las decisiones, los recursos y el trabajo del territorio sin que toda la capacidad de influir dependa de un único centro de decisión?'},
