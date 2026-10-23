@@ -63,6 +63,9 @@ body.guia-on #guiaDock{display:flex}
 #guiaDock .gnav{display:flex;align-items:center;gap:8px;flex:none}
 #guiaDock button{border:1px solid #2b3142;background:none;color:#cbd2df;border-radius:8px;padding:7px 12px;font:600 12.5px 'Instrument Sans',system-ui,sans-serif;cursor:pointer}
 #guiaDock button.pri{background:#F3F0EA;color:#111;border-color:#F3F0EA}
+#guiaDock button.zoom-btn{background:linear-gradient(135deg,#0284c7,#2563eb);color:#fff;border-color:#38bdf8;font-weight:700;box-shadow:0 0 10px rgba(56,189,248,0.35)}
+#guiaDock button.zoom-btn:hover{filter:brightness(1.15)}
+#guiaDock button.pan-btn{background:rgba(255,255,255,0.06);color:#94a3b8}
 #guiaDock .gc{font:500 12px 'JetBrains Mono',monospace;color:#8b93a6;min-width:52px;text-align:center}
 #guiaProg{display:none;height:3px;background:#1b2030}#guiaProg i{display:block;height:100%;background:#F2B53A;width:0;transition:width .4s}
 body.guia-on #guiaProg{display:block}
@@ -72,7 +75,7 @@ body.guia-on.guia-ov #guiaOverlay{display:block}
 @media (max-width:760px){#guiaDock{flex-direction:column;align-items:stretch;padding:10px 12px;gap:10px}#guiaDock h2{font-size:17px}#guiaDock .gnav{justify-content:space-between}}
 @media (prefers-reduced-motion:reduce){#guiaDock h2,#guiaDock p{animation:none}}`;
 document.head.appendChild(css);
-const dock=document.createElement('div');dock.id='guiaDock';dock.innerHTML=`<div class="gtxt"><div class="gk" id="gK"></div><h2 id="gT"></h2><p id="gS"></p></div><div class="gnav"><button id="gPrev">Anterior</button><span class="gc" id="gC"></span><button class="pri" id="gNext">Siguiente</button><button id="gExit">Salir</button></div>`;
+const dock=document.createElement('div');dock.id='guiaDock';dock.innerHTML=`<div class="gtxt"><div class="gk" id="gK"></div><h2 id="gT"></h2><p id="gS"></p></div><div class="gnav"><button id="gPrev" title="Paso anterior (Flecha Izquierda)">Anterior</button><span class="gc" id="gC"></span><button class="pri" id="gNext" title="Siguiente paso (Flecha Derecha)">Siguiente</button><button id="gZoom" class="zoom-btn" title="Hacer zoom cercano (3.4x) al actor actual">Zoom 3.4x</button><button id="gPan" class="pan-btn" title="Ver panorama general">Panorama</button><button id="gExit">Salir</button></div>`;
 const prog=document.createElement('div');prog.id='guiaProg';prog.innerHTML='<i id="gBar"></i>';
 const stageEl=document.getElementById('stage');stageEl.parentNode.insertBefore(dock,stageEl);stageEl.parentNode.insertBefore(prog,stageEl);
 const ov=document.createElement('iframe');ov.id='guiaOverlay';ov.title='Diagramas del Corte III';stageEl.appendChild(ov);let ovReady=false,ovPend=null;
@@ -82,18 +85,37 @@ function showOverlay(o){document.body.classList.add('guia-ov');const msg={guia:1
 function hideOverlay(){document.body.classList.remove('guia-ov')}
 
 function targets(view,ids){const pm=VIEW_POS[view]||VIEW_POS.free;return ids.map(id=>byId.get(id)).filter(Boolean).map(n=>({x:(pm[n.id]||n).x,y:(pm[n.id]||n).y,r:n.r}))}
-function highlight(step){
+function highlight(step, forceCloseZoom = false){
  gP.selectAll('*').remove();state.sel=null;state.selLink=null;
- if(!step.nodes||!step.nodes.length){svg.classed('focus',false);nodeSel.classed('on',false);linkSel.classed('on',false).classed('sel-link',false);
-  setTimeout(()=>{if(G.on&&S[G.i]===step)fitTo(targets(step.v,nodes.map(n=>n.id)),800,1.15)},60);return}
+ if(!step.nodes||!step.nodes.length){
+  window.__guiaActiveNodes = null;
+  svg.classed('focus',false);nodeSel.classed('on',false);linkSel.classed('on',false).classed('sel-link',false);
+  setTimeout(()=>{if(G.on&&S[G.i]===step){ fitTo(targets(step.v,nodes.map(n=>n.id)),800,1.15); queue(); }},60);
+  return;
+ }
  const set=new Set(step.nodes);
  const ls=links.filter(l=>step.incident?(set.has(l.s)||set.has(l.t)):(set.has(l.s)&&set.has(l.t)));
  const lit=new Set(step.nodes);if(step.incident)ls.forEach(l=>{lit.add(l.s);lit.add(l.t)});
- svg.classed('focus',true);nodeSel.classed('on',d=>lit.has(d.id)).classed('sel',d=>set.has(d.id)&&step.incident);
+ window.__guiaActiveNodes = lit;
+
+ svg.classed('focus',true);
+ nodeSel.classed('on',d=>lit.has(d.id)).classed('sel',d=>set.has(d.id)&&step.incident);
  linkSel.classed('on',l=>ls.includes(l)).classed('sel-link',l=>ls.includes(l));
+
  if(!reduce)ls.slice(0,40).forEach((l,j)=>{for(let q=0;q<2;q++){const c=gP.append('circle').attr('class','particle').attr('r',MODE==='d'?3.2:3.6).attr('fill',CONV[l.c].c);
   c.append('animateMotion').attr('dur','1.9s').attr('repeatCount','indefinite').attr('begin',(q*.8+j*.15)+'s').append('mpath').attr('href','#p'+l.i)}});
- setTimeout(()=>{if(G.on&&S[G.i]===step)fitTo(targets(step.v,[...lit]),800,2)},60);
+
+ setTimeout(()=>{
+   if(G.on&&S[G.i]===step){
+     // Si son pocos nodos clave (1-4) o se solicita zoom cercano: zoom de aproximación fuerte (3.4x)
+     if (forceCloseZoom || step.nodes.length <= 4) {
+       fitTo(targets(step.v, step.nodes), 750, 3.4);
+     } else {
+       fitTo(targets(step.v, [...lit]), 750, 2.6);
+     }
+     queue();
+   }
+ }, 60);
 }
 function go(i){i=Math.max(0,Math.min(S.length-1,i));G.i=i;const st=S[i];
  document.querySelectorAll('.left').forEach(e=>e.scrollLeft=0);
@@ -119,9 +141,13 @@ function panelHTML(){const st=S[G.i];const ns=(st.nodes||[]).map(id=>byId.get(id
 const _render=renderPanel;
 renderPanel=function(){if(G.on){P.innerHTML=panelHTML();P.scrollTop=0;return}_render()};
 function start(){G.on=true;document.body.classList.add('guia-on');state.activeTour=null;go(0);dispatchEvent(new Event('resize'))}
-function stop(){G.on=false;document.body.classList.remove('guia-on','guia-ov');gP.selectAll('*').remove();svg.classed('focus',false);nodeSel.classed('on',false).classed('sel',false);linkSel.classed('on',false).classed('sel-link',false);
+function stop(){G.on=false;window.__guiaActiveNodes=null;document.body.classList.remove('guia-on','guia-ov');gP.selectAll('*').remove();svg.classed('focus',false);nodeSel.classed('on',false).classed('sel',false);linkSel.classed('on',false).classed('sel-link',false);
  switchView('free');renderPanel();dispatchEvent(new Event('resize'));setTimeout(()=>fitAll(),100)}
-document.getElementById('gPrev').onclick=()=>go(G.i-1);document.getElementById('gNext').onclick=()=>{if(G.i<S.length-1)go(G.i+1)};document.getElementById('gExit').onclick=stop;
+document.getElementById('gPrev').onclick=()=>go(G.i-1);
+document.getElementById('gNext').onclick=()=>{if(G.i<S.length-1)go(G.i+1)};
+document.getElementById('gExit').onclick=stop;
+const btnGZ=document.getElementById('gZoom');if(btnGZ)btnGZ.onclick=()=>{if(S[G.i])highlight(S[G.i],true);};
+const btnGP=document.getElementById('gPan');if(btnGP)btnGP.onclick=()=>{if(S[G.i]){const st=S[G.i];fitTo(targets(st.v,st.nodes||nodes.map(n=>n.id)),750,1.3);}};
 addEventListener('keydown',e=>{if(!G.on||e.target.closest('input,select,textarea'))return;if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();if(G.i<S.length-1)go(G.i+1)}else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(G.i-1)}else if(e.key==='Escape')stop()});
 const btn=document.getElementById('guiaBtn');if(btn)btn.addEventListener('click',()=>{setTimeout(start,0)});
 window.__guia={start,stop,go,S,get i(){return G.i}};

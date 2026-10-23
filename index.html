@@ -1136,6 +1136,47 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
 #map3d > :not(iframe){display:none!important}
 #map3d.active ~ .zoom,#map3d.active ~ .stage-hint,#map3d.active ~ .node-pop{display:none!important}
 #map3d iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#0b0d14}
+
+/* ============================================================
+   ESTILOS DE ALTA LEGIBILIDAD PARA EL GUIÓN Y CORTE III (SIN EMOJIS)
+   ============================================================ */
+.focus .node.on text {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  fill: #FFFFFF !important;
+  stroke: #070a14 !important;
+  stroke-width: 5px !important;
+  paint-order: stroke fill !important;
+}
+.node.sel text {
+  font-size: 16.5px !important;
+  font-weight: 800 !important;
+  fill: #38bdf8 !important;
+  stroke: #030712 !important;
+  stroke-width: 5.5px !important;
+  paint-order: stroke fill !important;
+}
+.btn-corte3-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.35) 0%, rgba(99, 102, 241, 0.35) 100%);
+  border: 1px solid #38bdf8;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFFFFF !important;
+  text-decoration: none;
+  transition: all .15s ease;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+.btn-corte3-link:hover {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.55) 0%, rgba(99, 102, 241, 0.55) 100%);
+  border-color: #60a5fa;
+  transform: translateY(-1px);
+}
+
 </style>
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
@@ -1212,6 +1253,7 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
     </div>
    </div>
    <div class="header-actions">
+    <a href="corte-3.html" class="btn-corte3-link" title="Abrir página dedicada al Guión Completo de Corte III"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Guión Corte III &rarr;</a>
     <button class="btn-how-to" id="btnHowTo">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       Como entender la red
@@ -3454,7 +3496,11 @@ function placeLabels(){
 
   meas.font = `500 ${fs}px "Instrument Sans", sans-serif`;
   const sel = state.sel;
-  const prio = n => (sel && (n === sel ? 6 : sel.nb.has(n.id) ? 4 : 0)) +
+  const guiaNodes = window.__guiaActiveNodes;
+  const isGuiaActive = guiaNodes && guiaNodes.size > 0;
+
+  const prio = n => (guiaNodes && guiaNodes.has(n.id) ? 16 : 0) +
+                    (sel && (n === sel ? 12 : sel.nb.has(n.id) ? 6 : 0)) +
                     (activeLink && (n === activeLink.source || n === activeLink.target) ? 8 : 0) +
                     (n === state.hov ? 5 : (state.hov && state.hov.nb.has(n.id) ? 3 : 0)) +
                     (REAL_LOGOS[n.id] ? 2 : 0) + (n.lv <= 2 ? 1 : 0);
@@ -3462,33 +3508,54 @@ function placeLabels(){
   const shown = new Map();
 
   order.forEach(n => {
-    const isPrio = n === sel || n === state.hov || (sel && sel.nb.has(n.id)) || (state.hov && state.hov.nb.has(n.id)) || (activeLink && (n === activeLink.source || n === activeLink.target));
-    const base = !sel && !state.hov && !activeLink && (n.lv <= 2 || REAL_LOGOS[n.id] || T.k > 1.1);
+    const isGuiaNode = guiaNodes && guiaNodes.has(n.id);
+    const isPrio = isGuiaNode || n === sel || n === state.hov || (sel && sel.nb.has(n.id)) || (state.hov && state.hov.nb.has(n.id)) || (activeLink && (n === activeLink.source || n === activeLink.target));
+    const base = !sel && !state.hov && !activeLink && !isGuiaActive && (n.lv <= 2 || REAL_LOGOS[n.id] || T.k > 1.1);
     if (!isPrio && !base) return;
 
+    // Escalar la fuente al hacer zoom para que no se vea chiquito
+    const effectiveFs = (isPrio || isGuiaNode) ? Math.min(18, Math.max(13.5, 13 * Math.pow(Math.max(1, T.k), 0.38))) : fs;
     const w = meas.measureText(n.short).width, r = n.r * u, x = sx(n), y = sy(n), g = 7;
     const cand = [
-      [x + r + g, y - fs/2 - 1, 'start', r + g, fs*.36],
-      [x - r - g - w, y - fs/2 - 1, 'end', -(r + g), fs*.36],
-      [x - w/2, y + r + g, 'middle', 0, r + g + fs*.85],
-      [x - w/2, y - r - g - fs, 'middle', 0, -(r + g) - fs*.25]
+      [x + r + g, y - effectiveFs/2 - 1, 'start', r + g, effectiveFs*.36],
+      [x - r - g - w, y - effectiveFs/2 - 1, 'end', -(r + g), effectiveFs*.36],
+      [x - w/2, y + r + g, 'middle', 0, r + g + effectiveFs*.85],
+      [x - w/2, y - r - g - effectiveFs, 'middle', 0, -(r + g) - effectiveFs*.25]
     ];
-    const soft = isPrio;
+    const soft = isPrio || isGuiaNode;
+    let placed = false;
     for(const [bx,by,anc,dx,dy] of cand){
-      const b = [bx - 3, by - 2, bx + w + 3, by + fs + 2];
+      const b = [bx - 3, by - 2, bx + w + 3, by + effectiveFs + 2];
       if(!hit(b, soft)){
         boxes.push(b);
-        shown.set(n, [anc, dx/u, dy/u]);
+        shown.set(n, [anc, dx/u, dy/u, effectiveFs]);
+        placed = true;
         break;
       }
+    }
+    // Si es nodo activo de la guía o seleccionado, forzar su aparición para que no se oculte
+    if (!placed && (isGuiaNode || n === sel)) {
+      const fallback = cand[0];
+      shown.set(n, [fallback[2], fallback[3]/u, fallback[4]/u, effectiveFs]);
     }
   });
 
   nodeSel.select('text').each(function(n){
     const s = shown.get(n), t = d3.select(this);
     if(!s){ t.style('display','none'); return; }
-    t.style('display', null).attr('text-anchor', s[0]).attr('x', s[1]).attr('y', s[2]).attr('font-size', fu)
-     .attr('stroke-width', 3.2/u).attr('font-weight', (n === sel || n === state.hov || (activeLink && (n === activeLink.source || n === activeLink.target)) || REAL_LOGOS[n.id]) ? 600 : 500).text(n.short);
+    const isGuiaNode = guiaNodes && guiaNodes.has(n.id);
+    const isSelected = n === sel;
+    const effectiveFu = (s[3] || fs) / u;
+    const strokeW = ((isGuiaNode || isSelected) ? 5.2 : 3.4) / u;
+
+    t.style('display', null)
+     .attr('text-anchor', s[0])
+     .attr('x', s[1])
+     .attr('y', s[2])
+     .attr('font-size', effectiveFu)
+     .attr('stroke-width', strokeW)
+     .attr('font-weight', (isGuiaNode || isSelected || REAL_LOGOS[n.id]) ? 700 : 500)
+     .text(n.short);
   });
 }
 let raf; const queue = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(placeLabels); };
@@ -3496,12 +3563,19 @@ let raf; const queue = () => { cancelAnimationFrame(raf); raf = requestAnimation
 const zoom = d3.zoom().scaleExtent([.5, 5]).on('zoom', e => { T = e.transform; root.attr('transform', T); queue(); });
 svg.call(zoom).on('dblclick.zoom', null);
 
-function fitTo(ns, dur = 700, maxK = 2.4){
+function fitTo(ns, dur = 700, maxK = 3.6){
   if (!ns || !ns.length) return;
-  const pad = MODE === 'd' ? 70 : 35, px = MODE === 'd' ? 90 : 45;
+  const isCloseFocus = ns.length <= 2;
+  const pad = MODE === 'd' ? (isCloseFocus ? 30 : 65) : 30;
+  const px = MODE === 'd' ? (isCloseFocus ? 35 : 80) : 35;
   const x0 = d3.min(ns, n => n.x - n.r) - px, x1 = d3.max(ns, n => n.x + n.r) + px,
-        y0 = d3.min(ns, n => n.y - n.r) - pad - 24, y1 = d3.max(ns, n => n.y + n.r) + pad + 24;
-  const k = Math.min(maxK, Math.max(0.4, Math.min(W / (x1 - x0), H / (y1 - y0))));
+        y0 = d3.min(ns, n => n.y - n.r) - pad - 20, y1 = d3.max(ns, n => n.y + n.r) + pad + 20;
+  
+  let targetK = Math.min(W / (x1 - x0), H / (y1 - y0));
+  if (isCloseFocus) {
+    targetK = Math.max(targetK, 3.2);
+  }
+  const k = Math.min(maxK, Math.max(0.4, targetK));
   const tx = W/2 - k*(x0 + x1)/2;
   const ty = H/2 - k*(y0 + y1)/2;
   const t = d3.zoomIdentity.translate(tx, ty).scale(k);
