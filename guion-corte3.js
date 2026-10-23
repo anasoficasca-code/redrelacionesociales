@@ -9,6 +9,8 @@ jerarquia:[{t:'Una estructura jerárquica',s:'',n:''}],
 heterarquia2:[{t:'Heterarquía',s:'',n:''}],
 ambitos:[{t:'Cuatro ámbitos',s:'',n:''}],
 policentro:[{t:'Gobernanza policéntrica',s:'',n:''},{t:'Coordinación',s:'',n:''}],
+mapa:[{t:'1',s:'',n:''},{t:'2',s:'',n:''},{t:'3',s:'',n:''},{t:'4',s:'',n:''}],
+vensim2:[{t:'1',s:'',n:''},{t:'2',s:'',n:'',tags:[['125','Participación','residentes que se reúnen y presentan solicitudes','#E0623F']]},{t:'3',s:'',n:'',tags:[['29','Las mismas personas','convocan y hacen seguimiento','#E0623F']]},{t:'4',s:'',n:'',tags:[['28','Repartir y rotar','entre juntas y residentes','#E0623F']]},{t:'5',s:'',n:'',tags:[['9','Comercios que generan residuos','el material que se debe recuperar','#E0623F'],['114','Recicladores independientes','recuperan y entregan','#E0623F']]}],
 causal2:[{t:'1',s:'',n:''},{t:'2',s:'',n:''},{t:'3',s:'',n:''},{t:'4',s:'',n:''},{t:'5',s:'',n:''}],
 mandato:[{t:'Mandato',s:'',n:''}],
 apertura:[

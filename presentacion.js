@@ -524,6 +524,33 @@ function causal2View(ctx){
   if(sub===4){vars(Object.keys(V),true);show(['r1','r2','dis']);gl.selectAll('path').transition().style('opacity',.15);gx.selectAll('text').transition().style('opacity',.15);dots([]);L1.style('opacity',.15);L2.style('opacity',.15)}
  }}
 
+/* ---------- plano de Kennedy: dónde están las comunidades ---------- */
+const MAPA_MODOS=[
+ {k:'jac',t:'Juntas de acción comunal',cats:{jac:['#9382E0',4.5]},mark:[['alcaldia','Alcaldía Local','#F2EFE8']],leg:[['#9382E0','188 juntas de acción comunal'],['#F2EFE8','Alcaldía Local']]},
+ {k:'huertas',t:'Huertas urbanas y comunitarias',cats:{huerta:['#8EBF4C',3]},mark:[],leg:[['#8EBF4C','811 huertas registradas']]},
+ {k:'colegios',t:'Colegios oficiales para la red de huertas escolares',cats:{huerta:['#8EBF4C',2,.35],colegio:['#F2B53A',6.5]},mark:[],leg:[['#F2B53A','79 colegios oficiales'],['#8EBF4C','huertas existentes']]},
+ {k:'abasto',t:'Corabastos y plazas de mercado',cats:{plaza:['#DE9F50',8]},mark:[['corabastos','Corabastos','#DE9F50'],['plaza','','#DE9F50']],leg:[['#DE9F50','Corabastos y plazas de mercado']]}];
+function mapaView(ctx){
+ const el=ctx.el;const P=size(el).W<760;d3.select(el).append('div').attr('id','mapC');
+ const map=new maplibregl.Map({container:'mapC',style:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',center:[-74.155,4.632],zoom:P?11.6:12.4,attributionControl:{compact:true},interactive:false});
+ ctx.onExit(()=>{try{map.remove()}catch(e){}});
+ const leg=d3.select(el).append('div').style('position','absolute').style('left','14px').style(P?'bottom':'top','14px').style('background','rgba(13,14,16,.92)').style('border','1px solid #2b2d33').style('border-radius','12px').style('padding',P?'10px 12px':'14px 16px').style('max-width',P?'70%':'340px').style('pointer-events','none');
+ let PT=null,K=null,ready=false,pend=null,markers=[];
+ map.on('load',()=>Promise.all(['assets/territorio_kennedy.geojson','assets/territorio_puntos.geojson'].map(u=>fetch(u).then(r=>r.json()))).then(([k,p])=>{K=k;PT=p.features;
+  map.addSource('k',{type:'geojson',data:K});map.addLayer({id:'k-fill',type:'fill',source:'k',paint:{'fill-color':'#F2EFE8','fill-opacity':.04}});map.addLayer({id:'k',type:'line',source:'k',paint:{'line-color':'#F2EFE8','line-width':1.6,'line-opacity':.7}});
+  map.addSource('p',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+  map.addLayer({id:'p',type:'circle',source:'p',paint:{'circle-radius':['get','r'],'circle-color':['get','col'],'circle-opacity':['get','o'],'circle-stroke-color':'#0d0e10','circle-stroke-width':['case',['>',['get','r'],5],1.5,0]}});
+  const b=d3.geoBounds(K);map.fitBounds([[b[0][0],b[0][1]],[b[1][0],b[1][1]]],{padding:P?20:{top:40,bottom:40,left:P?20:380,right:40},duration:0});
+  ready=true;if(pend!==null)set(pend)}));
+ function set(i){if(!ready){pend=i;return}const M=MAPA_MODOS[i];markers.forEach(m=>m.remove());markers=[];
+  const feats=PT.filter(f=>M.cats[f.properties.c]).map(f=>{const [col,r,o]=M.cats[f.properties.c];return{type:'Feature',geometry:f.geometry,properties:{col,r,o:o||.95,n:f.properties.n}}});
+  M.mark.forEach(([c,n,col])=>PT.filter(f=>f.properties.c===c).forEach(f=>{feats.push({type:'Feature',geometry:f.geometry,properties:{col,r:9,o:1}});
+   const e=document.createElement('div');e.style.cssText=`font:600 13px Instrument Sans,sans-serif;color:${col};text-shadow:0 1px 6px #000,0 0 3px #000;white-space:nowrap`;e.textContent=n||f.properties.n;markers.push(new maplibregl.Marker({element:e,offset:[0,-18]}).setLngLat(f.geometry.coordinates).addTo(map))}));
+  map.getSource('p').setData({type:'FeatureCollection',features:feats});
+  leg.html(`<div style="font:600 11px JetBrains Mono,monospace;letter-spacing:.08em;color:#F2B53A;text-transform:uppercase">Plano de Kennedy</div><div style="font:700 ${P?15:19}px Instrument Sans,sans-serif;color:#fff;margin:4px 0 8px">${M.t}</div>`+M.leg.map(([c,t])=>`<div style="display:flex;align-items:center;gap:8px;font:500 ${P?12:14}px Instrument Sans,sans-serif;color:#cfd3dc;margin-top:4px"><span style="width:11px;height:11px;border-radius:50%;background:${c};display:inline-block"></span>${t}</div>`).join('')+`<div style="font:400 11px JetBrains Mono,monospace;color:#77736b;margin-top:8px">Fuente: IDECA · Datos Abiertos Bogotá</div>`)}
+ return sub=>set(sub);
+}
+
 const SL=[
  /* I · Apertura */
  {b:0,key:'apertura',src:'Red de actores del grupo: 95 actores y 254 relaciones',draw(ctx){const v=redOrg(ctx);return()=>{}}},
@@ -624,6 +651,8 @@ const SL=[
    return sub=>cs.style('opacity',(d,i)=>i<=sub?1:.15)}},
  {b:3,key:'jerarquia',src:'Red de actores del grupo',draw(ctx){jerarquiaView(ctx)}},
  {b:3,key:'heterarquia2',src:'Red de actores del grupo',draw(ctx){return heterarquiaView(ctx)}},
+ {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
+ {b:3,key:'vensim2',slow:1300,src:'Modelo Vensim del grupo',draw(ctx){const v=vensim(ctx);const Z=[null,['12','28','29','125'],['28','29','125'],['12','28','29','125'],['9','10','11','26','27','91','94','95','112','113','114']];return sub=>v.zoom(Z[sub])}},
  {b:3,key:'causal2',src:'Guion del grupo · hipótesis por verificar',draw(ctx){return causal2View(ctx)}},
  {b:3,key:'policentro',src:'Guion del grupo',draw(ctx){return policentroView(ctx)}},
  {b:3,key:'ambitos',src:'Guion del grupo',draw(ctx){ambitosView(ctx)}},
