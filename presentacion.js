@@ -535,18 +535,30 @@ function mapaView(ctx){
  const map=new maplibregl.Map({container:'mapC',style:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',center:[-74.155,4.632],zoom:P?11.6:12.4,attributionControl:{compact:true},interactive:false});
  ctx.onExit(()=>{try{map.remove()}catch(e){}});
  const leg=d3.select(el).append('div').style('position','absolute').style('left','14px').style(P?'bottom':'top','14px').style('background','rgba(13,14,16,.92)').style('border','1px solid #2b2d33').style('border-radius','12px').style('padding',P?'10px 12px':'14px 16px').style('max-width',P?'70%':'340px').style('pointer-events','none');
- let PT=null,K=null,ready=false,pend=null,markers=[];
+ let PT=null,K=null,ready=false,pend=null,markers=[],BB=null,CEN=null,alive=true,raf1=0,raf2=0;
+ ctx.onExit(()=>{alive=false;cancelAnimationFrame(raf1);cancelAnimationFrame(raf2)});
  map.on('load',()=>Promise.all(['assets/territorio_kennedy.geojson','assets/territorio_puntos.geojson'].map(u=>fetch(u).then(r=>r.json()))).then(([k,p])=>{K=k;PT=p.features;
   map.addSource('k',{type:'geojson',data:K});map.addLayer({id:'k-fill',type:'fill',source:'k',paint:{'fill-color':'#F2EFE8','fill-opacity':.04}});map.addLayer({id:'k',type:'line',source:'k',paint:{'line-color':'#F2EFE8','line-width':1.6,'line-opacity':.7}});
   map.addSource('p',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+  map.addSource('h',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+  map.addLayer({id:'h',type:'circle',source:'h',paint:{'circle-radius':14,'circle-color':['get','col'],'circle-opacity':.25,'circle-blur':.4}});
   map.addLayer({id:'p',type:'circle',source:'p',paint:{'circle-radius':['get','r'],'circle-color':['get','col'],'circle-opacity':['get','o'],'circle-stroke-color':'#0d0e10','circle-stroke-width':['case',['>',['get','r'],5],1.5,0]}});
-  const b=d3.geoBounds(K);map.fitBounds([[b[0][0],b[0][1]],[b[1][0],b[1][1]]],{padding:P?20:{top:40,bottom:40,left:P?20:380,right:40},duration:0});
+  const b=d3.geoBounds(K);BB=[[b[0][0],b[0][1]],[b[1][0],b[1][1]]];CEN=d3.geoCentroid(K);map.fitBounds(BB,{padding:P?20:{top:40,bottom:40,left:380,right:40},duration:0});
+  let t0=performance.now();const pulse=()=>{if(!alive)return;const k=(Math.sin((performance.now()-t0)/420)+1)/2;try{map.setPaintProperty('h','circle-radius',12+k*14);map.setPaintProperty('h','circle-opacity',.35-k*.25)}catch(e){}raf2=requestAnimationFrame(pulse)};pulse();
   ready=true;if(pend!==null)set(pend)}));
  function set(i){if(!ready){pend=i;return}const M=MAPA_MODOS[i];markers.forEach(m=>m.remove());markers=[];
-  const feats=PT.filter(f=>M.cats[f.properties.c]).map(f=>{const [col,r,o]=M.cats[f.properties.c];return{type:'Feature',geometry:f.geometry,properties:{col,r,o:o||.95,n:f.properties.n}}});
-  M.mark.forEach(([c,n,col])=>PT.filter(f=>f.properties.c===c).forEach(f=>{feats.push({type:'Feature',geometry:f.geometry,properties:{col,r:9,o:1}});
+  const dist=f=>Math.hypot(f.geometry.coordinates[0]-CEN[0],f.geometry.coordinates[1]-CEN[1]);const sel=PT.filter(f=>M.cats[f.properties.c]);const dm=Math.max(...sel.map(dist),1e-6);
+  const feats=sel.map(f=>{const [col,r,o]=M.cats[f.properties.c];return{type:'Feature',geometry:f.geometry,properties:{col,r,o:o||.95,n:f.properties.n,d:dist(f)/dm*.92}}});const halos=[];
+  M.mark.forEach(([c,n,col])=>PT.filter(f=>f.properties.c===c).forEach(f=>{feats.push({type:'Feature',geometry:f.geometry,properties:{col,r:9,o:1,d:0}});halos.push({type:'Feature',geometry:f.geometry,properties:{col}});
    const e=document.createElement('div');e.style.cssText=`font:600 13px Instrument Sans,sans-serif;color:${col};text-shadow:0 1px 6px #000,0 0 3px #000;white-space:nowrap`;e.textContent=n||f.properties.n;markers.push(new maplibregl.Marker({element:e,offset:[0,-18]}).setLngLat(f.geometry.coordinates).addTo(map))}));
-  map.getSource('p').setData({type:'FeatureCollection',features:feats});
+  map.getSource('p').setData({type:'FeatureCollection',features:feats});map.getSource('h').setData({type:'FeatureCollection',features:halos});
+  markers.forEach(m=>{m.getElement().style.opacity=0;m.getElement().style.transition='opacity .6s .9s'});requestAnimationFrame(()=>markers.forEach(m=>m.getElement().style.opacity=1));
+  map.jumpTo({center:CEN,zoom:map.getZoom()-0.8,pitch:0,bearing:-8});map.fitBounds(BB,{padding:P?20:{top:40,bottom:40,left:380,right:40},duration:reduce?0:2200,pitch:P?20:32,bearing:0,essential:true});
+  cancelAnimationFrame(raf1);const st=performance.now(),dur=reduce?1:1800;
+  const grow=()=>{if(!alive)return;const rv=Math.min(1.1,(performance.now()-st)/dur*1.1);
+   try{map.setPaintProperty('p','circle-radius',['*',['get','r'],['interpolate',['linear'],['-',rv,['get','d']],0,0,0.05,1.6,0.12,1]]);
+    map.setPaintProperty('p','circle-opacity',['*',['get','o'],['interpolate',['linear'],['-',rv,['get','d']],0,0,0.05,1]])}catch(e){}
+   if(rv<1.1)raf1=requestAnimationFrame(grow)};grow();
   leg.html(`<div style="font:600 11px JetBrains Mono,monospace;letter-spacing:.08em;color:#F2B53A;text-transform:uppercase">Plano de Kennedy</div><div style="font:700 ${P?15:19}px Instrument Sans,sans-serif;color:#fff;margin:4px 0 8px">${M.t}</div>`+M.leg.map(([c,t])=>`<div style="display:flex;align-items:center;gap:8px;font:500 ${P?12:14}px Instrument Sans,sans-serif;color:#cfd3dc;margin-top:4px"><span style="width:11px;height:11px;border-radius:50%;background:${c};display:inline-block"></span>${t}</div>`).join('')+`<div style="font:400 11px JetBrains Mono,monospace;color:#77736b;margin-top:8px">Fuente: IDECA · Datos Abiertos Bogotá</div>`)}
  return sub=>set(sub);
 }
