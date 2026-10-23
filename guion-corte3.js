@@ -8,7 +8,7 @@ window.GUION = {
 jerarquia:[{t:'Una estructura jerárquica',s:'',n:''}],
 heterarquia2:[{t:'Heterarquía',s:'',n:''}],
 ambitos:[{t:'Cuatro ámbitos',s:'',n:''}],
-policentro:[{t:'Gobernanza policéntrica',s:'',n:''}],
+policentro:[{t:'Gobernanza policéntrica',s:'',n:''},{t:'Coordinación',s:'',n:''}],
 causal2:[{t:'1',s:'',n:''},{t:'2',s:'',n:''},{t:'3',s:'',n:''},{t:'4',s:'',n:''},{t:'5',s:'',n:''}],
 mandato:[{t:'Mandato',s:'',n:''}],
 apertura:[

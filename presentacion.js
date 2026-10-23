@@ -426,22 +426,42 @@ function mandatoView(ctx){
   txt(g,P?50:66,P?24:34,t,{fw:700,fs:P?13:17});txt(g,P?50:66,P?42:58,s,{fs:P?11:13.5,c:SOFT,wrap:P?40:Math.floor(cw/7.5)})});
 }
 
-/* ---------- varios centros de decisión ---------- */
+/* ---------- varios centros de decisión (con íconos) ---------- */
 function policentroView(ctx){
  const {svg,W,H,P}=svgIn(ctx.el);
- const C=[['Una organización','resuelve sus asuntos internos',['A25','A26','A27'],'#4FB98C'],['Colegios y procesos ambientales','coordinan una actividad educativa',['C01','AMB02','AMB04'],'#F2B53A'],['Entidades y órganos de Corabastos','conservan sus decisiones legales',['A32','A33','A02','A03'],'#4EAECF']];
- const c={x:W/2,y:P?H*.52:H*.56},RR=Math.min(W,H)*(P?.34:.36);
- const pos=C.map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/3;return[c.x+Math.cos(a)*RR*(P?1:1.25),c.y+Math.sin(a)*RR*(P?1:.92)]});
- const lg=svg.append('g');pos.forEach(p=>lg.append('path').attr('d',`M${p[0]},${p[1]}L${c.x},${c.y}`).attr('stroke',OCH).attr('stroke-width',2).attr('stroke-dasharray','6 6').attr('class','flowing').attr('opacity',0).transition().delay(reduce?0:1200).duration(500).attr('opacity',.8));
- const cr=P?58:Math.min(95,W/13);
- C.forEach(([t,s,ids,col],i)=>{const g=svg.append('g').attr('transform',`translate(${pos[i]})`).style('opacity',0);g.transition().delay(reduce?0:i*300).duration(500).style('opacity',1);
-  g.append('circle').attr('r',cr).attr('fill','#16181c').attr('stroke',col).attr('stroke-width',2.4);
-  const r=P?13:18;ids.forEach((id,j)=>{const a=-Math.PI/2+j*2*Math.PI/ids.length;const ng=g.append('g').attr('class','node').attr('transform',`translate(${Math.cos(a)*cr*.48},${Math.sin(a)*cr*.48})`);actor(ng,id,r,{label:false})});
-  const side=i===0,ax=side?cr+(P?10:18):0,an=side?'start':'middle';const ty=side?-(P?14:22):cr+(P?18:24);const tt=txt(g,ax,ty,'',{a:an,fw:700,fs:P?12.5:16,c:col});wrap(tt,t,P?(side?14:24):32,P?14:18);const sy=ty+(P?(t.length>(side?14:24)?30:16):(t.length>32?38:20));const st=txt(g,ax,sy,'',{a:an,fs:P?10.5:13,c:SOFT});wrap(st,s,P?(side?16:30):40,P?13:16);const nt=txt(g,ax,sy+(P?28:22),'',{a:an,fs:P?9.5:12,c:INK});wrap(nt,ids.map(id=>ACT(id).short).join(' · '),P?(side?18:34):44,P?12:15)});
- const cg=svg.append('g').attr('transform',`translate(${c.x},${c.y})`).style('opacity',0);cg.transition().delay(reduce?0:1400).duration(500).style('opacity',1);
- const bw=P?150:230,bh=P?78:104;cg.append('rect').attr('x',-bw/2).attr('y',-bh/2).attr('width',bw).attr('height',bh).attr('rx',12).attr('fill','#1d1a12').attr('stroke',OCH);
- txt(cg,0,-bh/2+(P?18:24),'Si afecta a varios:',{a:'middle',fw:700,fs:P?11.5:14,c:OCH});
- ['compartir información','acordar responsabilidades','revisar resultados'].forEach((t,k)=>txt(cg,0,-bh/2+(P?36:48)+k*(P?14:18),t,{a:'middle',fs:P?10.5:13}));
+ const C=[['i-grupo','Una organización','resuelve sus asuntos internos',['A25','A26','A27'],'#4FB98C'],
+  ['i-edu','Colegios y procesos ambientales','coordinan una actividad educativa',['C01','AMB02','AMB04'],'#F2B53A'],
+  ['i-mazo','Entidades y órganos de Corabastos','conservan sus decisiones legales',['A32','A33','A02','A03'],'#4EAECF']];
+ txt(svg,W/2,P?22:34,'Varios centros de decisión, cada uno con responsabilidades propias',{a:'middle',fw:700,fs:P?13:19,wrap:P?40:90});
+ const top=P?44:62,gap=P?10:22,cw=P?W-24:(W-48-gap*2)/3,ch=P?(H*.58-top)/3-gap*.6:H*.48;
+ const cards=C.map(([ic,t,v,ids,col],i)=>{const x=P?12:24+i*(cw+gap),y=P?top+i*(ch+gap*.6):top;const g=svg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);
+  g.transition().delay(reduce?0:i*350).duration(500).style('opacity',1);
+  g.append('rect').attr('width',cw).attr('height',ch).attr('rx',14).attr('fill','#16181c').attr('stroke',col).attr('stroke-width',1.6);
+  const ir=P?20:34,ix=P?16+ir:cw/2,iy=P?ch/2:24+ir;
+  g.append('circle').attr('cx',ix).attr('cy',iy).attr('r',ir).attr('fill',col);icon(g,ic,ix,iy,ir*1.15,'#111');
+  const tx=P?ix+ir+12:cw/2,an=P?'start':'middle';
+  const t1=txt(g,tx,P?20:iy+ir+30,'',{a:an,fw:700,fs:P?13:17,c:col});wrap(t1,t,P?28:30,P?15:20);
+  const vy=P?(t.length>28?52:38):iy+ir+(t.length>30?74:54);
+  const vg=g.append('g').attr('transform',`translate(${P?tx:cw/2},${vy})`);
+  icon(vg,'i-check',P?7:-(v.length*3.6)-10,-5,P?13:16,col);txt(vg,P?20:6,0,v,{a:P?'start':'middle',fs:P?11.5:14,c:INK});
+  const r=P?11:Math.min(26,cw/(ids.length*3.2)),ay=P?ch-18:vy+(ch-vy)*.45;
+  ids.forEach((id,j)=>{const ax=P?tx+10+j*(r*2+40):cw/2+(j-(ids.length-1)/2)*(cw/(ids.length+.3));const ng=g.append('g').attr('class','node').attr('transform',`translate(${ax},${ay})`);actor(ng,id,r,{label:false});
+   if(!P){const tt=txt(ng,0,r+17,'',{a:'middle',fs:12.5,c:INK});wrap(tt,ACT(id).short,13,14)}});
+  return{x,y,g}});
+ // coordinación cuando una decisión afecta a varios
+ const by=P?H*.64:top+ch+(H-top-ch)*.32,bh=P?H*.32:(H-top-ch)*.6,bx=P?12:W*.16,bw=P?W-24:W*.68;
+ const links=svg.insert('g','g');
+ const bot=svg.append('g').style('opacity',0);
+ cards.forEach((c,i)=>{const sx=P?W-30:c.x+cw/2,sy=P?c.y+ch/2:c.y+ch;const ex=P?W-30:bx+bw*(i+.5)/3,ey=by;
+  links.append('path').attr('d',P?`M${W-12},${c.y+ch/2}H${W-6}V${by+12}`:`M${sx},${sy}C${sx},${sy+40} ${ex},${ey-40} ${ex},${ey}`).attr('fill','none').attr('stroke',OCH).attr('stroke-width',2).attr('stroke-dasharray','6 6').attr('class','flowing').attr('opacity',0)});
+ bot.append('rect').attr('x',bx).attr('y',by).attr('width',bw).attr('height',bh).attr('rx',14).attr('fill','#1d1a12').attr('stroke',OCH).attr('stroke-width',1.6);
+ txt(bot,bx+bw/2,by+(P?22:30),'Si una decisión afecta a varios actores',{a:'middle',fw:700,fs:P?13:17,c:OCH});
+ const R=[['i-doc','Compartir información'],['i-check','Acordar responsabilidades'],['i-lupa','Revisar resultados']];
+ R.forEach(([ic,t],i)=>{const cx=bx+bw*(i+.5)/3,cy=by+bh*(P?.55:.56);const g=bot.append('g').attr('transform',`translate(${cx},${cy})`);
+  g.append('circle').attr('r',P?18:26).attr('fill','#141518').attr('stroke',OCH).attr('stroke-width',1.6);icon(g,ic,0,0,P?18:26,OCH);
+  const tt=txt(g,0,(P?18:26)+(P?15:22),'',{a:'middle',fw:600,fs:P?11:14});wrap(tt,t,P?12:22,P?13:17);
+  if(i<2)bot.append('path').attr('d',`M${cx+(P?24:34)},${cy}H${bx+bw*(i+1.5)/3-(P?24:34)}`).attr('stroke',OCH).attr('stroke-width',1.6).attr('marker-end',null).attr('stroke-dasharray','4 4')});
+ return sub=>{bot.transition().duration(500).style('opacity',sub?1:0);links.selectAll('path').transition().duration(500).attr('opacity',sub?.85:0)};
 }
 /* ---------- modelo dinámico-causal fiel al guion (estilo Vensim) ---------- */
 function causal2View(ctx){
@@ -605,7 +625,7 @@ const SL=[
  {b:3,key:'jerarquia',src:'Red de actores del grupo',draw(ctx){jerarquiaView(ctx)}},
  {b:3,key:'heterarquia2',src:'Red de actores del grupo',draw(ctx){return heterarquiaView(ctx)}},
  {b:3,key:'causal2',src:'Guion del grupo · hipótesis por verificar',draw(ctx){return causal2View(ctx)}},
- {b:3,key:'policentro',src:'Guion del grupo',draw(ctx){policentroView(ctx)}},
+ {b:3,key:'policentro',src:'Guion del grupo',draw(ctx){return policentroView(ctx)}},
  {b:3,key:'ambitos',src:'Guion del grupo',draw(ctx){ambitosView(ctx)}},
  {b:3,key:'mandato',src:'Guion del grupo',draw(ctx){mandatoView(ctx)}}
 ];
