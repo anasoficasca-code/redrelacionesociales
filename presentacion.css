@@ -79,4 +79,5 @@ body.show-guion .guion{display:block}
  .nav{justify-content:space-between}.nav button{flex:1}
  .src{white-space:normal}
  .cards{overflow-y:auto;align-content:start}
+ .hint{display:none}
 }

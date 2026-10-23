@@ -242,6 +242,91 @@ function cards(ctx,data,cols){const el=d3.select(ctx.el).append('div').attr('cla
 function statement(ctx,parts){const el=d3.select(ctx.el).append('div').attr('class','cards').style('grid-template-columns','1fr').style('padding','6% 9%');
  return el.selectAll('div').data(parts).join('div').attr('class','card').style('background','none').style('border','0').style('border-left','4px solid '+OCH).style('border-radius','0').html(p=>`<p style="font-size:clamp(18px,2.4vw,30px);line-height:1.35;color:#F2EFE8;font-weight:500">${p}</p>`)}
 
+/* ---------- macromodelo político al estilo del sitio de macromodelos ---------- */
+const MACRO_CARDS=[
+ {k:'het',n:'Heterarquía',num:'01',c:'#7FC4EC',ic:'i-org',d:'La influencia varía según el asunto, la función, los recursos y el conocimiento de cada actor.'},
+ {k:'pol',n:'Gobernanza policéntrica',num:'02',c:'#B3A6EE',ic:'i-grupo',d:'Varios centros de decisión autónomos que se coordinan cuando sus actividades se cruzan.'},
+ {k:'pro',n:'Propósito',num:'03',c:'#F2C76A',ic:'i-check',d:'Que quienes ejecutan y quienes reciben las consecuencias tengan capacidad real de incidir.'},
+ {k:'niv',n:'Niveles de coordinación',num:'04',c:'#EE9A7E',ic:'i-ins',d:'Cotidiano, núcleo por asunto, local y distrital. No son escalones de mando.'},
+ {k:'cog',n:'Cogestión',num:'05',c:'#A9D47A',ic:'i-doc',d:'Organizaciones e instituciones comparten la decisión y la ejecución con un acuerdo escrito.'},
+ {k:'coa',n:'Coaprendizaje',num:'06',c:'#E89BD2',ic:'i-ciclo',d:'Saber técnico y saber práctico revisan juntos y ajustan las reglas.'}];
+// paso del guion -> [tarjeta activa, chips de la tarjeta, estado del mapa]
+const MACRO_STEPS=[
+ ['het',['Hoy: un solo centro'],'hub'],
+ ['het',['Residuos: recicladores','Agua: colectivos'],'multi'],
+ ['pol',['Información','Responsabilidades','Desacuerdos','Revisión'],'centros'],
+ ['pol',['Mandato con límites','Revocable'],'centros2'],
+ ['pro',['Residuos aprovechables'],'proposito'],
+ ['niv',[],'kennedy'],
+ ['niv',['Cotidiano'],'cotidiano'],
+ ['niv',['Cotidiano','Núcleo por asunto'],'nucleo'],
+ ['niv',['Cotidiano','Núcleo por asunto','Local'],'local'],
+ ['niv',['Cotidiano','Núcleo por asunto','Local','Distrital'],'distrital'],
+ ['niv',['Cotidiano','Núcleo por asunto','Local','Distrital','Mandatos entre niveles'],'anillos'],
+ ['cog',['Competencia legal','Recursos','Conocimiento','Trabajo'],'cogestion'],
+ ['coa',['Registrar','Revisar','Discutir errores','Ajustar reglas'],'coaprendizaje']];
+function macroView(ctx){
+ const el=ctx.el;const P=size(el).W<760;el.style.background='#08090b';
+ const mapDiv=d3.select(el).append('div').attr('id','mapC').style('position','absolute').style('inset',P?'0 0 52% 0':'0');
+ const fade=d3.select(el).append('div').style('position','absolute').style('pointer-events','none').style('inset',P?'auto 0 0 0':'0 auto 0 0').style('width',P?'100%':'46%').style('height',P?'52%':'100%')
+  .style('background',P?'#08090b':'linear-gradient(90deg,rgba(8,9,11,.96) 55%,rgba(8,9,11,0))');
+ const stack=d3.select(el).append('div').attr('class','mstack').style('position','absolute').style('left',P?'10px':'22px').style('right',P?'10px':'auto').style('top',P?'50%':'22px').style('bottom',P?'8px':'auto')
+  .style('width',P?'auto':'min(390px,36%)').style('display','flex').style('flex-direction','column').style('gap','8px').style('overflow-y',P?'auto':'visible');
+ const tag=d3.select(el).append('div').style('display',P?'none':null).style('position','absolute').style('left',P?'10px':'22px').style('top',P?'8px':'auto').style('bottom',P?'auto':'60px').style('font','600 11px JetBrains Mono').style('letter-spacing','.12em').style('color','#B8B3A8');
+ const legend=d3.select(el).append('div').attr('class','leg').style('top','auto').style('bottom','58px').style('display',P?'none':'grid');
+ let map=null,ready=false,PT=null,K=null,markers=[];const queue=[];
+ map=new maplibregl.Map({container:mapDiv.node(),style:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',center:[-74.152,4.628],zoom:P?11.6:12.4,attributionControl:{compact:true},interactive:false});
+ ctx.onExit(()=>{try{map.remove()}catch(e){}});
+ const FC=f=>({type:'FeatureCollection',features:f});
+ map.on('load',()=>Promise.all(['assets/territorio_kennedy.geojson','assets/territorio_puntos.geojson'].map(u=>fetch(u).then(r=>r.json()))).then(([k,p])=>{K=k;PT=p.features;
+  map.addSource('k',{type:'geojson',data:K});map.addLayer({id:'k-glow',type:'line',source:'k',paint:{'line-color':'#7FC4EC','line-width':8,'line-blur':6,'line-opacity':0}});
+  map.addLayer({id:'k',type:'line',source:'k',paint:{'line-color':'#F2EFE8','line-width':1.2,'line-opacity':.55}});
+  ['rings','lines','pts'].forEach(s=>map.addSource(s,{type:'geojson',data:FC([])}));
+  map.addLayer({id:'rings',type:'line',source:'rings',paint:{'line-color':['get','c'],'line-width':1.6,'line-dasharray':[2,2],'line-opacity':.8}});
+  map.addLayer({id:'lines',type:'line',source:'lines',paint:{'line-color':['get','c'],'line-width':['coalesce',['get','w'],1.2],'line-opacity':['coalesce',['get','o'],.7]}});
+  map.addLayer({id:'pts',type:'circle',source:'pts',paint:{'circle-radius':['coalesce',['get','r'],3],'circle-color':['get','c'],'circle-opacity':.9,'circle-stroke-color':'#08090b','circle-stroke-width':['case',['>',['coalesce',['get','r'],3],6],2,0]}});
+  ready=true;queue.splice(0).forEach(f=>f())}));
+ const pts=c=>PT.filter(f=>f.properties.c===c);const g1=c=>PT.find(f=>f.properties.c===c)?.geometry.coordinates;
+ const near=(o,arr,n)=>[...arr].sort((a,b)=>Math.hypot(a.geometry.coordinates[0]-o[0],a.geometry.coordinates[1]-o[1])-Math.hypot(b.geometry.coordinates[0]-o[0],b.geometry.coordinates[1]-o[1])).slice(0,n);
+ const line=(a,b,c,w,o)=>({type:'Feature',geometry:{type:'LineString',coordinates:[a,b]},properties:{c,w,o}});
+ const pt=(xy,c,r)=>({type:'Feature',geometry:{type:'Point',coordinates:xy},properties:{c,r}});
+ const circle=(o,km,c)=>{const pts=d3.range(65).map(i=>{const a=i/64*2*Math.PI;return[o[0]+Math.cos(a)*km/111/Math.cos(o[1]*Math.PI/180),o[1]+Math.sin(a)*km/111]});return{type:'Feature',geometry:{type:'LineString',coordinates:pts},properties:{c}}};
+ const label=(xy,t,c,dy=-16)=>{const e=document.createElement('div');e.style.cssText=`font:600 11px JetBrains Mono;letter-spacing:.08em;color:${c};text-shadow:0 1px 6px #000;white-space:nowrap;text-transform:uppercase`;e.textContent=t;markers.push(new maplibregl.Marker({element:e,offset:[0,dy]}).setLngLat(xy).addTo(map))};
+ function mapState(s){if(!ready){queue.push(()=>mapState(s));return}
+  markers.forEach(m=>m.remove());markers=[];const ALC=g1('alcaldia'),COR=[-74.1590,4.6295],VACA=[-74.16198,4.62870],PLZ=g1('plaza')||[-74.147,4.62];
+  const jac=pts('jac'),hue=pts('huerta');let L=[],Pp=[],Rg=[],cam={center:[-74.152,4.628],zoom:P?11.6:12.4,pitch:0},glow=0;
+  if(s==='hub'){jac.forEach(f=>L.push(line(ALC,f.geometry.coordinates,'#9A958C',.6,.35)));Pp=[...jac.map(f=>pt(f.geometry.coordinates,'#B3A6EE',2.5)),pt(ALC,'#F2EFE8',9)];label(ALC,'Alcaldía Local','#F2EFE8')}
+  if(s==='multi'){near(COR,hue,30).forEach(f=>L.push(line(COR,f.geometry.coordinates,'#A9D47A',.9,.6)));near(VACA,jac,22).forEach(f=>L.push(line(VACA,f.geometry.coordinates,'#7FC4EC',.9,.6)));near(ALC,jac,12).forEach(f=>L.push(line(ALC,f.geometry.coordinates,'#9A958C',.6,.35)));
+   Pp=[...jac.map(f=>pt(f.geometry.coordinates,'#B3A6EE',2)),...hue.map(f=>pt(f.geometry.coordinates,'#A9D47A',1.6)),pt(COR,'#A9D47A',9),pt(VACA,'#7FC4EC',9),pt(ALC,'#F2EFE8',6)];label(COR,'Residuos','#A9D47A');label(VACA,'Agua','#7FC4EC',22)}
+  if(s==='centros'||s==='centros2'){const C=[[COR,'#A9D47A','Núcleo residuos'],[VACA,'#7FC4EC','Núcleo agua'],[PLZ,'#F2C76A','Núcleo abastecimiento'],[ALC,'#B3A6EE','Entidades']];
+   C.forEach((a,i)=>C.forEach((b,j)=>{if(j>i)L.push(line(a[0],b[0],'#F2B53A',s==='centros2'?2.4:1.4,.8))}));C.forEach(c=>{Pp.push(pt(c[0],c[1],10));label(c[0],c[2],c[1],c[0]===VACA?24:-18)});cam={center:[-74.152,4.627],zoom:P?12:13,pitch:0}}
+  if(s==='proposito'){near(COR,hue,40).forEach(f=>L.push(line(COR,f.geometry.coordinates,'#F2C76A',.8,.5)));Pp=[...hue.map(f=>pt(f.geometry.coordinates,'#A9D47A',2)),pt(COR,'#F2C76A',10)];label(COR,'Residuos aprovechables','#F2C76A');cam={center:COR,zoom:P?13.2:14,pitch:0}}
+  if(s==='kennedy'){glow=.5;Pp=jac.map(f=>pt(f.geometry.coordinates,'#B3A6EE',2.2))}
+  if(s==='cotidiano'){cam={center:[-74.1575,4.6355],zoom:P?15.6:16.4,pitch:45};Pp=[pt([-74.1575,4.6355],'#EE9A7E',9)];label([-74.1575,4.6355],'Calle · bodega · ruta','#EE9A7E')}
+  if(s==='nucleo'){cam={center:COR,zoom:P?13.6:14.4,pitch:30};Rg=[circle(COR,.9,'#EE9A7E')];Pp=[pt(COR,'#EE9A7E',10)];label(COR,'Núcleo de residuos','#EE9A7E')}
+  if(s==='local'){glow=.9;Pp=[pt(ALC,'#F2EFE8',9)];label(ALC,'Mesa de coordinación','#F2EFE8')}
+  if(s==='distrital'){cam={center:[-74.10,4.65],zoom:P?10.2:10.9,pitch:0};glow=.9;Pp=[pt([-74.0721,4.711],'#F2EFE8',8)];label([-74.0721,4.711],'Entidades distritales','#F2EFE8')}
+  if(s==='anillos'){cam={center:COR,zoom:P?10.8:11.6,pitch:0};Rg=[circle(COR,.35,'#EE9A7E'),circle(COR,1.3,'#F2C76A'),circle(COR,4.6,'#B3A6EE'),circle(COR,11,'#7FC4EC')];Pp=[pt(COR,'#EE9A7E',7)];
+   [[.35,'Cotidiano','#EE9A7E'],[1.3,'Núcleo','#F2C76A'],[4.6,'Local','#B3A6EE'],[11,'Distrital','#7FC4EC']].forEach(([km,t,c])=>label([COR[0],COR[1]+km/111],t,c,-8))}
+  if(s==='cogestion'){const J=near(ALC,jac,6);J.forEach(f=>L.push(line(ALC,f.geometry.coordinates,'#A9D47A',1.6,.8)));L.push(line(ALC,COR,'#A9D47A',2.4,.9));Pp=[...J.map(f=>pt(f.geometry.coordinates,'#A9D47A',5)),pt(ALC,'#B3A6EE',9),pt(COR,'#F2C76A',9)];label(ALC,'Instituciones','#B3A6EE');label(COR,'Organizaciones','#F2C76A',22);cam={center:[-74.152,4.627],zoom:P?12.4:13.2,pitch:0}}
+  if(s==='coaprendizaje'){Pp=[...jac.map(f=>pt(f.geometry.coordinates,'#E89BD2',3)),...hue.map(f=>pt(f.geometry.coordinates,'#A9D47A',1.5)),pt(ALC,'#B3A6EE',8)];label(ALC,'Saber técnico','#B3A6EE');label([-74.175,4.64],'Saber práctico','#E89BD2',0)}
+  map.getSource('lines').setData(FC(L));map.getSource('pts').setData(FC(Pp));map.getSource('rings').setData(FC(Rg));map.setPaintProperty('k-glow','line-opacity',glow);
+  map.flyTo({...cam,bearing:0,duration:reduce?0:1800,essential:true,padding:P?{top:10,bottom:10,left:10,right:10}:{left:Math.round(size(el).W*.36),top:20,bottom:20,right:20}});
+  legend.html(s==='hub'?'<span>Una sola relación de mando</span>':s==='multi'?'<span style="color:#A9D47A">Residuos</span><span style="color:#7FC4EC">Agua</span><span style="color:#9A958C">Entidades</span>':'')}
+ function render(i){const [k,chips,state]=MACRO_STEPS[i];const ai=MACRO_CARDS.findIndex(c=>c.k===k);
+  const data=P?[MACRO_CARDS[ai]]:MACRO_CARDS.slice(0,ai+1);
+  const cs=stack.selectAll('div.mc').data(data,d=>d.k).join(en=>{const d=en.append('div').attr('class','mc').style('opacity',0).style('transform','translateY(14px)');d.transition().duration(500).style('opacity',1).style('transform','none');return d});
+  cs.each(function(c,j){const on=c.k===k;const e=d3.select(this);
+   e.style('border-radius','14px').style('padding',on?'14px 16px':'8px 12px').style('background',on?c.c:'rgba(255,255,255,.06)').style('color',on?'#101113':'#B8B3A8').style('border',on?'0':'1px solid #25272c').style('transition','all .5s')
+    .html(`<div style="display:flex;gap:12px;align-items:${on?'flex-start':'center'}"><div style="flex:none;width:${on?44:26}px;height:${on?44:26}px;border-radius:10px;border:1.5px solid ${on?'rgba(16,17,19,.6)':'#3a3c42'};display:grid;place-items:center;color:${on?'#101113':c.c}"><svg width="${on?24:15}" height="${on?24:15}"><use href="#${c.ic}" width="${on?24:15}" height="${on?24:15}"/></svg></div>
+     <div style="min-width:0"><div style="font:600 10px JetBrains Mono;letter-spacing:.14em;opacity:.7">MACROMODELO POLÍTICO ${c.num}</div><div style="font-weight:700;font-size:${on?19:14}px;letter-spacing:-.01em;margin-top:2px">${c.n}</div>
+     ${on?`<div style="font-size:13.5px;line-height:1.4;margin-top:6px">${c.d}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">${chips.map((t,m)=>`<span style="font:600 10.5px JetBrains Mono;letter-spacing:.06em;text-transform:uppercase;border:1.3px solid rgba(16,17,19,.55);border-radius:6px;padding:3px 7px;animation:rise .45s ${m*.12}s both">${t}</span>`).join('')}</div>`:''}</div></div>`)});
+  stack.selectAll('div.arrow').remove();
+  tag.text(`${String(i+1).padStart(2,'0')} · ${MACRO_CARDS[ai].n.toUpperCase()}`);
+  mapState(state)}
+ return render;
+}
+
 const SL=[
  /* I · Apertura */
  {b:0,key:'apertura',src:'Red de actores del grupo: 95 actores y 254 relaciones',draw(ctx){const v=redOrg(ctx);return()=>{}}},
@@ -251,55 +336,7 @@ const SL=[
  /* III · Organización actual */
  {b:2,key:'organizacion',src:'Red de actores del grupo · clústeres y niveles de decisión',draw(ctx){const v=redOrg(ctx);return sub=>v.mode(['full','clusters','levels','flow'][sub])}},
  /* IV · Macromodelo político */
- {b:3,key:'hetero',slow:1000,src:'Crumley (1995) · actores de la red',draw(ctx){
-   
-   const {svg,W,H,P}=svgIn(ctx.el);const keys=Object.keys(R3.RANK);const A=R3.RANK.hoy.o;
-   const slot=(i,m)=>{if(m==='hoy')return P?{x:40+i*(W-200)/9,y:40+i*(H-80)/9.5,r:22-i*.7}:{x:W*.06+i*W*.095,y:H*.12+i*H*.075,r:Math.min(40,W/30)-i*1.5};
-    if(P){if(i===0)return{x:W/2,y:H*.14,r:42};if(i<3)return{x:i===1?W*.27:W*.73,y:H*.38,r:30};const j=i-3;return j<4?{x:W*(.14+j*.24),y:H*.62,r:22}:{x:W*(.26+(j-4)*.24),y:H*.84,r:22}}
-    if(i===0)return{x:W/2,y:H*.2,r:Math.min(58,W/20)};if(i<3)return{x:i===1?W*.32:W*.68,y:H*.4,r:Math.min(42,W/28)};const j=i-3;return{x:W*(.1+j*.133),y:H*.7,r:Math.min(30,W/38)}};
-   const gL=svg.append('g');const ns=svg.append('g').selectAll('g').data(A).join('g').attr('class','node');
-   ns.each(function(id){const g=d3.select(this);g.append('g').attr('class','body')});
-   const cap=txt(svg,P?14:W*.06,H-16,'',{c:SOFT,fs:13});
-   function set(k){const R=R3.RANK[k];cap.text('');
-    ns.each(function(id){const i=R.o.indexOf(id),s=slot(i,k),g=d3.select(this);anchor(id,s.x,s.y,s.r);const b=g.select('.body');b.selectAll('*').remove();actor(b,id,s.r,{fs:P?11:12.5,glow:k!=='hoy'&&i<3,wrap:P?13:16});
-     if(k==='hoy'&&P)b.select('text').attr('text-anchor','start').attr('y',4).selectAll('tspan').attr('x',s.r+8);
-     g.transition('p').duration(reduce?0:900).ease(d3.easeCubicInOut).attr('transform',`translate(${s.x},${s.y})`).style('opacity',k==='hoy'&&id==='GUAR'?.3:1)});
-    gL.selectAll('*').remove();if(k==='hoy'){gL.append('path').attr('d',d3.line()(A.map((_,i)=>{const s=slot(i,'hoy');return[s.x,s.y]}))).attr('fill','none').attr('stroke','#3a3c42').attr('stroke-dasharray','4 6')}
-    else{const s=slot(0,k);gL.append('circle').attr('cx',s.x).attr('cy',s.y).attr('r',s.r+34).attr('fill','none').attr('stroke',R.c).attr('stroke-opacity',.5).attr('stroke-dasharray','3 7').attr('class','flowing')}}
-   ns.attr('transform',(id,i)=>{const s=slot(i,'hoy');return`translate(${s.x},${s.y})`});
-   
-   return sub=>set(sub?'org':'hoy')}},
- {b:3,key:'poli',src:'Ostrom (2010)',draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const C=[['Núcleo de residuos','#8EBF4C',['A25','A27']],['Núcleo de agua','#4EAECF',['AMB04','AMB01']],['Núcleo de abastecimiento','#DE9F50',['A06','A13']],['Entidades','#9382E0',['A34','A32']]];
-   const c={x:W/2,y:H/2},R0=Math.min(W,H)*(P?.33:.32);const pts=C.map((_,i)=>{const a=-Math.PI/2+i*Math.PI/2+Math.PI/4;return[c.x+Math.cos(a)*R0*(P?1:1.35),c.y+Math.sin(a)*R0]});
-   const gl=svg.append('g');for(let i=0;i<4;i++)for(let j=i+1;j<4;j++)gl.append('path').attr('d',`M${pts[i]}L${pts[j]}`).attr('stroke','#55575d').attr('stroke-width',1.4).attr('stroke-dasharray','5 6').attr('class','flowing');
-   C.forEach(([n,col,ids],i)=>{const g=svg.append('g').attr('transform',`translate(${pts[i]})`);g.append('circle').attr('r',P?44:62).attr('fill','#17191d').attr('stroke',col).attr('stroke-width',2.5);
-    ids.forEach((id,j)=>actor(g.append('g').attr('class','node').attr('transform',`translate(${(j-.5)*(P?36:50)},${-6})`),id,P?14:19,{label:false}));txt(g,0,(P?44:62)+18,n,{a:'middle',fw:700,fs:P?12:14,c:col})});
-   const rules=['Compartir información','Definir responsabilidades','Tratar desacuerdos','Revisar resultados'];
-   const gr=svg.append('g');rules.forEach((r,i)=>{const y=c.y-(P?60:66)+i*(P?30:34);gr.append('rect').attr('x',c.x-(P?78:104)).attr('y',y-13).attr('width',P?156:208).attr('height',26).attr('rx',13).attr('fill','#1d1a12').attr('stroke',OCH);txt(gr,c.x,y+5,r,{a:'middle',fs:P?11:13,fw:600})});
-   const gm=svg.append('g').style('opacity',0);gm.append('path').attr('d',`M${pts[0][0]},${pts[0][1]+(P?50:70)}Q${c.x},${H-20} ${pts[1][0]},${pts[1][1]+(P?50:70)}`).attr('fill','none').attr('stroke',OCH).attr('stroke-width',2.4).attr('stroke-dasharray','7 5').attr('class','flowing');
-   const kg=gm.append('g').attr('transform',`translate(${c.x},${H-(P?60:52)})`);kg.append('circle').attr('r',14).attr('fill','#141518').attr('stroke',RED);icon(kg,'i-key',0,0,18,RED);txt(kg,22,5,'mandato con límites y revocable',{fs:13,fw:600});
-   return sub=>gm.transition().style('opacity',sub?1:0)}},
- {b:3,key:'proposito',src:'Decisión de diseño del grupo',draw(ctx){statement(ctx,['Coordinar las decisiones, los recursos y el trabajo del territorio para que <span style="color:#F2B53A">quienes ejecutan y quienes reciben las consecuencias</span> tengan capacidad real de incidir.','Empezando por la <span style="color:#8EBF4C">recuperación de residuos aprovechables</span>.'])}},
- {b:3,key:'niveles',src:'Decisión de diseño del grupo · actores de la red',draw(ctx){const v=bands(ctx);
-   return sub=>{if(sub===0){v.show(4);v.arrows([])}else if(sub<5){v.showBands([4-sub]);v.arrows([])}else{v.show(4);v.arrows([['VOC','MESA'],['MESA','A32'],['A25','NRES'],['NRES','VOC']])}}}},
- {b:3,key:'cogestion',src:'Decisión de diseño del grupo',draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const r=P?18:26;const L=P?{x:W*.22,y:H*.25}:{x:W*.16,y:H*.45},Rr=P?{x:W*.78,y:H*.25}:{x:W*.84,y:H*.45},C=P?{x:W/2,y:H*.66}:{x:W/2,y:H*.45};
-   [['A32','A34'],['A25','A27']].forEach((ids,s)=>{const o=s?Rr:L;ids.forEach((id,j)=>actor(svg.append('g').attr('class','node').attr('transform',`translate(${o.x},${o.y-50+j*100*(P?.7:1)})`),id,r,{fs:11,wrap:14}));
-    txt(svg,o.x,o.y-(P?90:110),s?'Organizaciones':'Instituciones',{a:'middle',fw:700,fs:15,c:s?'#4FB98C':'#9382E0'});
-    (s?['conocimiento práctico','trabajo']:['competencia legal','recursos']).forEach((t,k)=>txt(svg,o.x,o.y+(P?95:120)+k*18,t,{a:'middle',c:SOFT,fs:12.5}))});
-   const doc=svg.append('g').attr('transform',`translate(${C.x},${C.y})`);doc.append('rect').attr('x',-(P?90:120)).attr('y',-80).attr('width',P?180:240).attr('height',160).attr('rx',10).attr('fill','#1d1a12').attr('stroke',OCH).attr('stroke-width',2);
-   icon(doc,'i-doc',0,-52,30,OCH);['Quién hace qué','Con qué recursos','En qué plazo','Cómo se revisa'].forEach((t,i)=>txt(doc,0,-14+i*24,t,{a:'middle',fs:P?12.5:14,fw:600}));
-   [[L,C],[Rr,C]].forEach(([a,b],i)=>svg.insert('path','g').attr('d',`M${a.x},${a.y}L${b.x},${b.y}`).attr('stroke',i?'#4FB98C':'#9382E0').attr('stroke-width',2).attr('stroke-dasharray','6 5').attr('class','flowing'))}},
- {b:3,key:'coaprendizaje',src:'Decisión de diseño del grupo',draw(ctx){
-   const {svg,W,H,P}=svgIn(ctx.el);const c={x:W/2,y:H/2},R0=Math.min(W,H)*.34;const S=['Registrar','Revisar','Discutir errores','Ajustar reglas'];
-   svg.append('circle').attr('id','cyc').attr('cx',c.x).attr('cy',c.y).attr('r',R0).attr('fill','none').attr('stroke','#3a3c42').attr('stroke-width',2).attr('stroke-dasharray','4 6');
-   const p=svg.append('path').attr('id','cycp').attr('d',`M${c.x},${c.y-R0}A${R0},${R0} 0 1 1 ${c.x-.01},${c.y-R0}`).attr('fill','none');
-   S.forEach((s,i)=>{const a=-Math.PI/2+i*Math.PI/2;const g=svg.append('g').attr('transform',`translate(${c.x+Math.cos(a)*R0},${c.y+Math.sin(a)*R0})`);g.append('circle').attr('r',P?24:30).attr('fill','#141518').attr('stroke',OCH).attr('stroke-width',2.4);txt(g,0,6,String(i+1),{a:'middle',fw:700,fs:16,c:OCH});
-    txt(g,(i===1?1:i===3?-1:0)*(P?30:40),i===0?-(P?32:40):i===2?(P?44:52):6,s,{a:i===1?'start':i===3?'end':'middle',fw:700,fs:P?12.5:15})});
-   const dot=svg.append('circle').attr('r',7).attr('fill',OCH);dot.append('animateMotion').attr('dur','6s').attr('repeatCount','indefinite').append('mpath').attr('href','#cycp');
-   actor(svg.append('g').attr('class','node').attr('transform',`translate(${c.x-(P?34:46)},${c.y-6})`),'A32',P?18:24,{label:false});actor(svg.append('g').attr('class','node').attr('transform',`translate(${c.x+(P?34:46)},${c.y-6})`),'A27',P?18:24,{label:false});
-   txt(svg,c.x-(P?34:46),c.y+(P?36:44),'saber técnico',{a:'middle',c:'#9382E0',fs:12,fw:600});txt(svg,c.x+(P?34:46),c.y+(P?36:44),'saber práctico',{a:'middle',c:'#4FB98C',fs:12,fw:600})}},
+ {b:3,keys:['hetero','poli','proposito','niveles','cogestion','coaprendizaje'],src:'Macromodelos del grupo · Crumley (1995) · Ostrom (2010) · capas IDECA',draw(ctx){return macroView(ctx)}},
  /* V · Red de actores */
  {b:4,key:'red1',src:'Relaciones documentadas: S2, S3, S5 · el resto son hipótesis por verificar',draw(ctx){const v=influence(ctx,'hoy');const chain=new Set(['A06','A13','LOG01','A10','A01','A66','A70','A04']);
    return sub=>v.focus(sub===0?e=>chain.has(e.s)&&chain.has(e.t):e=>['A02','A04','A70'].includes(e.s)||['A02','A04','A70'].includes(e.t))}},
@@ -392,7 +429,7 @@ const SL=[
 
 
 /* ================= motor de la presentación ================= */
-SL.forEach(S=>{S.g=window.GUION[S.key].slice(S.from||0,S.to);S.subs=S.g.length});
+SL.forEach(S=>{S.g=S.keys?S.keys.flatMap(k=>window.GUION[k]):window.GUION[S.key].slice(S.from||0,S.to);S.subs=S.g.length});
 const OFF=[];let tot=0;SL.forEach(S=>{OFF.push(tot);tot+=S.subs});
 const stage=$('#stage'),below=$('#below');let cur=-1,sub=0,upd=null,exits=[],ctxNow=null,tagT=[];
 $('#blocks').innerHTML=B.map((n,i)=>`<button data-b="${i}">${ROM[i]}<span class="nm"> ${n}</span></button>`).join('');
@@ -438,7 +475,7 @@ function next(){const S=SL[cur];if(sub<S.subs-1){sub++;CUR_CTX=ctxNow;upd&&upd(s
 function prev(){if(sub>0){sub--;CUR_CTX=ctxNow;upd&&upd(sub);CUR_CTX=null;header();drawTags()}else if(cur>0)go(cur-1,SL[cur-1].subs-1)}
 $('#next').onclick=e=>{e.stopPropagation();next()};$('#prev').onclick=e=>{e.stopPropagation();prev()};
 $('#gbtn').onclick=e=>{e.stopPropagation();document.body.classList.toggle('show-guion');$('#gbtn').setAttribute('aria-pressed',document.body.classList.contains('show-guion'))};
-stage.addEventListener('click',e=>{if(e.target.closest('.chip,a,button,.maplibregl-ctrl,#mapC'))return;const r=stage.getBoundingClientRect();if(e.clientX-r.left<r.width*.12)prev();else next()});
+stage.addEventListener('click',e=>{if(e.target.closest('.chip,a,button,.maplibregl-ctrl'))return;if(e.target.closest('#mapC')&&SL[cur].key==='sintesis')return;const r=stage.getBoundingClientRect();if(e.clientX-r.left<r.width*.12)prev();else next()});
 addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();next()}else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev()}
  else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}else if(e.key==='n'||e.key==='N'){$('#gbtn').click()}});
 let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>go(cur,sub),250)});
