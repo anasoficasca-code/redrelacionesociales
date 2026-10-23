@@ -81,3 +81,7 @@ body.show-guion .guion{display:block}
  .cards{overflow-y:auto;align-content:start}
  .hint{display:none}
 }
+
+body.solo{grid-template-rows:1fr!important;padding:0}
+body.solo .bar,body.solo .head,body.solo .foot,body.solo .below,body.solo .guion,body.solo .hint{display:none!important}
+body.solo .stage{margin:0;border:0;border-radius:0;cursor:default;height:100vh;order:0}

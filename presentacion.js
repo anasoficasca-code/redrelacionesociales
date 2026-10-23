@@ -364,13 +364,13 @@ const SL=[
  {b:6,key:'bucles',src:'Hipótesis del grupo',draw(ctx){const v=bucles(ctx);const ids=[null,'R1','B1','B2'];return sub=>{v.loop(ids[sub])}}},
  {b:6,key:'prueba',src:'Supuestos del grupo; ilustrativo, no predice',draw(ctx){
    
-   const {svg,W,H,P}=svgIn(ctx.el);const T=[{t:'Estado inicial',d:'Recorridos y pagos dependen de pocos actores; quien recupera el material no decide.'},{t:'Decisión concreta',d:'Acordar entre organizaciones horarios y puntos de entrega del material.'},{t:'Perturbación',d:'Se retrasa un pago o se cierra una bodega.'}];const tg=svg.append('g');const th=P?H*.34:H*.3;
+   const {svg,W,H,P}=svgIn(ctx.el);const T=[{t:'Estado inicial',d:'La red actual: entregas que dependen de pocos contactos.'},{t:'Decisión',d:'Mejorar la coordinación de las entregas de materiales.'},{t:'Dificultad',d:'Cambia el horario de un comprador o se interrumpe un punto de recepción.'}];const tg=svg.append('g');const th=P?H*.34:H*.3;
    T.forEach((t,i)=>{const x=P?14:W*(.04+i*.32),y=P?14+i*th/3:20,w=P?W-28:W*.29;const g=tg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);g.transition().delay(reduce?0:i*200).style('opacity',1);
     g.append('rect').attr('width',w).attr('height',P?th/3-6:th-10).attr('rx',8).attr('fill','#17191d').attr('stroke',i===2?RED:'#25272c');txt(g,10,18,t.t,{c:i===2?RED:OCH,fs:P?11:12,fw:600,mono:1});if(!P)txt(g,10,38,t.d.split('.')[0]+'.',{c:SOFT,fs:12,wrap:Math.floor(w/6.4)})});
    function sim(sc){let Pp=.35,C=.3,D=0,O=.05,F=0,Hh=1;const out=[];for(let m=0;m<=36;m++){if(sc==='hoy'){out.push({m,P:.15,H:1});continue}
     const ext=m>=18?2.2:1,Td=.2+.9*O,rot=sc==='rot'?Math.min(1,D*2.5):0,CAR=Td/Math.max(Pp,.05)*(1-.7*rot);D=Math.max(0,Math.min(1,D+.08*(CAR-1)-(CAR<1?.05*D:0)));
     const DEP=sc==='rot'?1-F:1,cum=Math.min(1,Pp/Td),ACU=Math.max(0,Math.min(1,.25+.65*cum-.18*DEP*ext));C+=.12*(ACU-C);Pp=Math.max(.03,Math.min(1,Pp+.1*(C-Pp)-.07*D+.03*rot));O+=.08*(cum*.85*(m>=1)-O);if(sc==='rot')F+=.05*(O-F);Hh+=.12*((1-.8*O)-Hh);out.push({m,P:Pp,H:Hh})}return out}
-   const S=[['hoy','Hoy sin cambios','#77736b'],['rot','Con rotación y recursos propios',OCH],['sin','Sin rotación ni recursos propios',RED]].map(s=>({k:s[0],n:s[1],c:s[2],d:sim(s[0])}));
+   const S=[['hoy','Hoy sin cambios','#77736b'],['rot','Información compartida y tareas repartidas',OCH],['sin','Todo depende de un solo contacto',RED]].map(s=>({k:s[0],n:s[1],c:s[2],d:sim(s[0])}));
    const cg=svg.append('g').style('opacity',0);const cy=P?th+30:th+30,ch=H-cy-30;
    [['P','Participación efectiva'],['H','Carga sobre La Vaca (1 = hoy)']].forEach(([k,n],i)=>{const x0=P?40:W*(.06+i*.48),w=P?W-60:W*.42,y0=P?cy+i*(ch/2+10):cy,h=P?ch/2-20:ch;
     const x=d3.scaleLinear([0,36],[x0,x0+w]),y=d3.scaleLinear([0,1.05],[y0+h,y0+16]);txt(cg,x0,y0+6,n,{fw:700,fs:14});
@@ -475,7 +475,9 @@ function next(){const S=SL[cur];if(sub<S.subs-1){sub++;CUR_CTX=ctxNow;upd&&upd(s
 function prev(){if(sub>0){sub--;CUR_CTX=ctxNow;upd&&upd(sub);CUR_CTX=null;header();drawTags()}else if(cur>0)go(cur-1,SL[cur-1].subs-1)}
 $('#next').onclick=e=>{e.stopPropagation();next()};$('#prev').onclick=e=>{e.stopPropagation();prev()};
 $('#gbtn').onclick=e=>{e.stopPropagation();document.body.classList.toggle('show-guion');$('#gbtn').setAttribute('aria-pressed',document.body.classList.contains('show-guion'))};
-stage.addEventListener('click',e=>{if(e.target.closest('.chip,a,button,.maplibregl-ctrl'))return;if(e.target.closest('#mapC')&&SL[cur].key==='sintesis')return;const r=stage.getBoundingClientRect();if(e.clientX-r.left<r.width*.12)prev();else next()});
+const SOLO=new URLSearchParams(location.search).has('solo');if(SOLO)document.body.classList.add('solo');
+addEventListener('message',e=>{const d=e.data||{};if(!d.guia)return;const si=SL.findIndex(S=>S.key===d.key||(S.keys&&S.keys.includes(d.key)));if(si<0)return;let off=0;if(SL[si].keys){for(const k of SL[si].keys){if(k===d.key)break;off+=window.GUION[k].length}}const t=off+(d.sub||0);if(si===cur){sub=t;CUR_CTX=ctxNow;upd&&upd(sub);CUR_CTX=null;header();drawTags()}else go(si,t)});
+stage.addEventListener('click',e=>{if(SOLO)return;if(e.target.closest('.chip,a,button,.maplibregl-ctrl'))return;if(e.target.closest('#mapC')&&SL[cur].key==='sintesis')return;const r=stage.getBoundingClientRect();if(e.clientX-r.left<r.width*.12)prev();else next()});
 addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();next()}else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev()}
  else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}else if(e.key==='n'||e.key==='N'){$('#gbtn').click()}});
 let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>go(cur,sub),250)});
