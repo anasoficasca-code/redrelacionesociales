@@ -3475,7 +3475,8 @@ function placeLabels(){
   const vis = nodes.filter(n => !n.hidden);
   
   const activeLink = state.selLink || state.hovLink;
-  vis.filter(n => !state.sel && !activeLink || n === state.sel || (state.sel && state.sel.nb.has(n.id)) || (activeLink && (n === activeLink.source || n === activeLink.target))).forEach(n => {
+  const gA0 = window.__guiaActiveNodes;
+  vis.filter(n => (gA0 && gA0.size) ? gA0.has(n.id) : (!state.sel && !activeLink || n === state.sel || (state.sel && state.sel.nb.has(n.id)) || (activeLink && (n === activeLink.source || n === activeLink.target)))).forEach(n => {
     const r = n.r * u, x = sx(n), y = sy(n);
     nb.push([x-r, y-r, x+r, y+r]);
   });
@@ -3514,15 +3515,21 @@ function placeLabels(){
     if (!isPrio && !base) return;
 
     // Escalar la fuente al hacer zoom para que no se vea chiquito
-    const effectiveFs = (isPrio || isGuiaNode) ? Math.min(18, Math.max(13.5, 13 * Math.pow(Math.max(1, T.k), 0.38))) : fs;
+    const effectiveFs = isGuiaNode ? (mobile() ? 12 : 13.5) : (isPrio ? (mobile() ? 11.5 : 12.5) : fs);
+    meas.font = `${isGuiaNode ? 600 : 500} ${effectiveFs}px "Instrument Sans", sans-serif`;
     const w = meas.measureText(n.short).width, r = n.r * u, x = sx(n), y = sy(n), g = 7;
     const cand = [
       [x + r + g, y - effectiveFs/2 - 1, 'start', r + g, effectiveFs*.36],
       [x - r - g - w, y - effectiveFs/2 - 1, 'end', -(r + g), effectiveFs*.36],
       [x - w/2, y + r + g, 'middle', 0, r + g + effectiveFs*.85],
       [x - w/2, y - r - g - effectiveFs, 'middle', 0, -(r + g) - effectiveFs*.25]
+,
+      [x + r*.7 + g, y + r*.7, 'start', r*.7 + g, r*.7 + effectiveFs*.8],
+      [x - r*.7 - g - w, y + r*.7, 'end', -(r*.7 + g), r*.7 + effectiveFs*.8],
+      [x + r*.7 + g, y - r*.7 - effectiveFs, 'start', r*.7 + g, -(r*.7) - effectiveFs*.2],
+      [x - r*.7 - g - w, y - r*.7 - effectiveFs, 'end', -(r*.7 + g), -(r*.7) - effectiveFs*.2]
     ];
-    const soft = isPrio || isGuiaNode;
+    const soft = isPrio && !isGuiaNode;
     let placed = false;
     for(const [bx,by,anc,dx,dy] of cand){
       const b = [bx - 3, by - 2, bx + w + 3, by + effectiveFs + 2];
@@ -3534,7 +3541,7 @@ function placeLabels(){
       }
     }
     // Si es nodo activo de la guía o seleccionado, forzar su aparición para que no se oculte
-    if (!placed && (isGuiaNode || n === sel)) {
+    if (!placed && n === sel) {
       const fallback = cand[0];
       shown.set(n, [fallback[2], fallback[3]/u, fallback[4]/u, effectiveFs]);
     }
