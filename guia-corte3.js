@@ -5,7 +5,7 @@ const ABAST=['A06','A07','A08','A09','A10','A11','LOG01','A13','A14','A15','A16'
 const RESID=['A23','A24','A26','A27','A56','A25','A57','A28','A29','A31','RES01','A32'];
 const S=[
  // I · Apertura
- {b:0,v:'free',t:'La red de actores de Kennedy',s:'95 actores y 254 relaciones entre personas, organizaciones, instituciones e instrumentos.',n:''},
+ {b:0,v:'free',t:'La red de actores de Kennedy',s:'',n:''},
  {b:0,v:'free',nodes:['A06','A13','A11','LOG01','A15'],t:'Una actividad cotidiana conecta a muchos actores',s:'La llegada de alimentos a una tienda.',n:'En Kennedy, una actividad cotidiana puede conectar a muchos actores. La llegada de alimentos a una tienda relaciona a comerciantes mayoristas, coteros, transportadores y tenderos.'},
  {b:0,v:'free',nodes:['AMB04','C01','AMB03','A33','AMB01','AMB02'],t:'Una jornada ambiental',s:'Colectivos, colegios, la Comisión Ambiental Local y entidades públicas.',n:'Una jornada ambiental puede vincular colectivos comunitarios, colegios, la Comisión Ambiental Local y entidades públicas.'},
  {b:0,v:'free',nodes:['A35','A36','A37','A34','N01'],t:'Una solicitud barrial',s:'Una junta de acción comunal y las instancias que deben responderla.',n:'Y una solicitud barrial conecta a una junta de acción comunal con las instancias que deben responderla.'},
@@ -71,6 +71,8 @@ body.guia-on #guiaDock{display:flex}
 body.guia-on #guiaProg{display:block}
 #guiaOverlay{position:absolute;inset:0;border:0;width:100%;height:100%;display:none;z-index:60;background:#0d0e10}
 body.guia-on.guia-ov #guiaOverlay{display:block}
+body.modo-corte3 #controlStrip{display:none!important}
+#guiaDock p:empty{display:none}
 @keyframes grise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (max-width:760px){#guiaDock{flex-direction:column;align-items:stretch;padding:10px 12px;gap:10px}#guiaDock h2{font-size:17px}#guiaDock .gnav{justify-content:space-between;flex-wrap:wrap;row-gap:6px}}
 @media (prefers-reduced-motion:reduce){#guiaDock h2,#guiaDock p{animation:none}}`;
