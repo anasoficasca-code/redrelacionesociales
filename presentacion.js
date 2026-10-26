@@ -1095,7 +1095,7 @@ function barrioView(ctx){
  const compost=g=>{g.append('path').attr('d','M-26,-20H26L20,26H-20Z').attr('fill','#3a2a1c').attr('stroke','#0d0e10').attr('stroke-width',2);R(g,-30,-28,60,10,'#4a3624',{rx:3,s:'#0d0e10',sw:2});g.append('use').attr('href','#e-compost').attr('x',-14).attr('y',-14).attr('width',28).attr('height',28).style('color',AM)};
  const tag=(x,y,t,col,ic,delay)=>{const w=t.length*6.9+(ic?44:26);const g=svg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);g.append('rect').attr('x',-w/2).attr('y',-14).attr('width',w).attr('height',28).attr('rx',14).attr('fill','#101310').attr('stroke',col).attr('stroke-width',1.8);
   if(ic)g.append('use').attr('href',ic).attr('x',-w/2+8).attr('y',-9).attr('width',18).attr('height',18).style('color',col);g.append('text').attr('x',ic?-w/2+32:0).attr('y',4.5).attr('text-anchor',ic?'start':'middle').attr('font-size',12.5).attr('font-weight',700).attr('fill','#F2EFE8').attr('font-family',FONT).text(t);K.show(g,delay);return g};
- K.badge(svg,600,26,'LA PROPUESTA EN KENNEDY: ASÍ SE VERÍA',GN);
+ 
  K.show(ground,0);
  /* lugares */
  place(170,598,400,pond);place(950,175,500,bodega);
@@ -1124,6 +1124,53 @@ function barrioView(ctx){
  K.show(f,8000);
  K.run(t=>{M.forEach(m=>{if(!m.on)return;const u=reduce?.5:((t*m.sp+m.ph)%1);const p=m.n.getPointAtLength(u*m.L);m.g.attr('transform',`translate(${p.x},${p.y})`)});
   const k=(t*.5)%1;svg.selectAll('.pond-r').attr('rx',30+k*70).attr('ry',12+k*26).attr('stroke-opacity',.6*(1-k))});
+ return()=>{}}
+
+/* ===== Escena única: soberanía alimentaria explicada paso a paso ===== */
+function soberaniaFullView(ctx){
+ const K=conceptKit(ctx,740),{svg,FONT}=K;
+ const GN='#8EBF4C',LG='#B6E27A',OR='#DE9F50',AM='#F2B53A',PK='#CF7ABB',BL='#4EAECF',RD='#E0623F',PU='#9382E0';
+ svg.append('style').text('@keyframes glw{0%,100%{stroke-opacity:.35}50%{stroke-opacity:1}}.glow{animation:glw 2s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.glow{animation:none}}');
+ const gHead=svg.append('g').style('opacity',0),gCards=svg.append('g').style('opacity',0),gRing=svg.append('g').style('opacity',0),gTop=svg.append('g').style('opacity',0),gBars=svg.append('g').style('opacity',0);
+ K.badge(gHead,600,12,'SOBERANÍA ALIMENTARIA',GN);
+ /* tarjetas: seguridad vs soberanía */
+ const card=(x,col,icon,title,l1,l2,q,glow)=>{const g=gCards.append('g').attr('transform',`translate(${x},58)`);
+  g.append('rect').attr('width',540).attr('height',140).attr('rx',18).attr('fill','#15171a').attr('stroke',col).attr('stroke-width',glow?3:2).attr('class',glow?'glow':null);
+  g.append('circle').attr('cx',70).attr('cy',70).attr('r',36).attr('fill','#101310').attr('stroke',col).attr('stroke-width',3);g.append('use').attr('href',icon).attr('x',50).attr('y',50).attr('width',40).attr('height',40).style('color','#F2EFE8');
+  K.text(g,130,52,title,{a:'start',fs:21,fw:700,c:col});K.text(g,130,80,l1,{a:'start',fs:14.5,fw:500,c:'#D9D5CB'});K.text(g,130,100,l2,{a:'start',fs:14.5,fw:500,c:'#D9D5CB'});
+  const w=q.length*7.4+30;g.append('rect').attr('x',130).attr('y',110).attr('width',w).attr('height',22).attr('rx',11).attr('fill',col).attr('fill-opacity',.18).attr('stroke',col);K.text(g,130+w/2,125,q,{fs:12.5,fw:700,c:col})};
+ card(40,BL,'#e-comedor','Seguridad alimentaria','Acceso a alimentos suficientes,','inocuos y nutritivos','¿Llega el alimento?');
+ card(620,GN,'#s-decide','Soberanía alimentaria','Capacidad de decidir cómo se producen','y se distribuyen los alimentos','¿Quién decide?  ← lo que trabaja la propuesta',true);
+ /* red local de pares */
+ const C=[330,398],rx=215,ry=128;const A=[['#e-huerta',GN,'Productores'],['#e-recicla',AM,'Recicladores'],['#e-camion',RD,'Transportadores'],['#e-comedor',PK,'Comedores'],['#s-hogar',BL,'Hogares'],['#e-colegio',AM,'Colegios'],['#e-tienda',PK,'Tenderos'],['#e-central',OR,'Corabastos']];
+ const P=A.map((_,i)=>{const a=(-90+i*45)*Math.PI/180;return[C[0]+Math.cos(a)*rx,C[1]+Math.sin(a)*ry]});
+ const E=[];for(let i=0;i<8;i++)E.push([i,(i+1)%8]);[[0,2],[2,4],[4,6],[6,0],[1,3],[3,5],[5,7]].forEach(e=>E.push(e));
+ const L=E.map(([i,j])=>{const l=gRing.append('line').attr('x1',P[i][0]).attr('y1',P[i][1]).attr('x2',P[j][0]).attr('y2',P[j][1]).attr('stroke','#8C877E').attr('stroke-width',1.8).attr('stroke-opacity',.35);K.dot(gRing,P[i],P[j],'#8C877E',.14,Math.random());return{l,i,j}});
+ K.text(gRing,C[0],C[1]-4,'Red local de pares',{fs:15,fw:700,c:'#fff'});K.text(gRing,C[0],C[1]+16,'nadie decide solo',{fs:12.5,fw:500,c:'#9a958c'});
+ const N=A.map(([ic,col,lab],i)=>{const g=gRing.append('g').attr('transform',`translate(${P[i][0]},${P[i][1]})`);const r=i===7?22:27;const ring=g.append('circle').attr('r',r+8).attr('fill','none').attr('stroke',col).attr('stroke-width',3).style('opacity',0);
+  const inner=g.append('g');inner.append('circle').attr('r',r).attr('fill','#15171a').attr('stroke',col).attr('stroke-width',2.6);inner.append('use').attr('href',ic).attr('x',-r*.58).attr('y',-r*.58).attr('width',r*1.16).attr('height',r*1.16).style('color','#F2EFE8');
+  g.append('text').attr('y',r+17).attr('text-anchor','middle').attr('font-size',12.5).attr('font-weight',600).attr('fill','#E7E3DA').attr('font-family',FONT).attr('stroke','#111315').attr('stroke-width',4).attr('paint-order','stroke').text(lab);return{g,inner,ring,col}});
+ /* temas que se deciden y quién lidera cada uno */
+ const T=[['Qué se produce','#e-huerta',GN,[0],'Lideran los productores'],['Cómo se distribuye','#e-camion',RD,[2],'Lideran los transportadores'],['Precios e información','#s-precio',AM,[6],'Lideran los tenderos'],['Qué se compra en conjunto','#c-monedas',PK,[3,5],'Lideran comedores y colegios']];
+ K.text(gTop,970,250,'LO QUE SE DECIDE, Y QUIÉN LIDERA CADA TEMA',{fs:11.5,fw:700,c:'#8C877E',ls:'.08em'});
+ const rows=T.map(([t,ic,col,lead,sub],i)=>{const g=gTop.append('g').attr('transform',`translate(760,${272+i*72})`);const bx=g.append('rect').attr('width',400).attr('height',60).attr('rx',14).attr('fill','#15171a').attr('stroke','#2b2d33').attr('stroke-width',2);
+  g.append('circle').attr('cx',34).attr('cy',30).attr('r',22).attr('fill','#101310').attr('stroke',col).attr('stroke-width',2.4);g.append('use').attr('href',ic).attr('x',20).attr('y',16).attr('width',28).attr('height',28).style('color',col);
+  K.text(g,70,26,t,{a:'start',fs:15.5,fw:700,c:'#fff'});K.text(g,70,46,sub,{a:'start',fs:12.5,fw:500,c:'#9a958c'});return{bx,col,lead}});
+ /* barras: dependencia */
+ const bar=(y,label)=>{K.text(gBars,40,y-8,label,{a:'start',fs:13.5,fw:700,c:'#fff'});gBars.append('rect').attr('x',40).attr('y',y).attr('width',1120).attr('height',26).attr('rx',8).attr('fill','#1b1d21').attr('stroke','#2b2d33')};
+ bar(612,'Hoy: el abasto local depende de un único nodo');gBars.append('rect').attr('x',40).attr('y',612).attr('width',1120).attr('height',26).attr('rx',8).attr('fill',OR).attr('fill-opacity',.85);K.text(gBars,56,630,'Corabastos',{a:'start',fs:12.5,fw:700,c:'#2a1d0c'});
+ bar(668,'Con la propuesta: una parte por circuitos cortos y el resto sigue en Corabastos');
+ gBars.append('rect').attr('x',600).attr('y',668).attr('width',560).attr('height',26).attr('fill',OR).attr('fill-opacity',.85);K.text(gBars,616,686,'Corabastos sigue siendo parte del abasto',{a:'start',fs:12.5,fw:700,c:'#2a1d0c'});
+ const gr=gBars.append('rect').attr('class','sob2-g').attr('x',40).attr('y',668).attr('width',0).attr('height',26).attr('rx',8).attr('fill',GN);
+ K.text(gBars,56,686,'Circuitos cortos',{a:'start',fs:12.5,fw:700,c:'#10200a'}).attr('class','sob2-t').style('opacity',0);
+ K.text(gBars,600,722,'Ilustrativo: la proporción no es una meta ni un dato · Las huertas no reemplazan el volumen ni la variedad de Corabastos',{fs:12,fw:500,c:'#77736b'});
+ K.show(gHead,100);K.show(gCards,500);K.show(gRing,3200);K.show(gTop,4600);K.show(gBars,9000);
+ K.timers.push(setTimeout(()=>{gr.transition().duration(reduce?0:1500).attr('width',560);svg.select('.sob2-t').transition().delay(900).style('opacity',1)},reduce?0:9600));
+ let t0=null;K.timers.push(setTimeout(()=>{t0=performance.now()},reduce?0:5200));
+ K.run(t=>{if(t0===null)return;const s=(performance.now()-t0)/1000,idx=Math.floor(s/2.8)%4,r=rows[idx],k=(s%2.8)/2.8;
+  rows.forEach((w,i)=>w.bx.attr('stroke',i===idx?w.col:'#2b2d33').attr('stroke-width',i===idx?3:2).attr('fill',i===idx?'#1c211a':'#15171a'));
+  N.forEach((n,i)=>{const on=r.lead.includes(i);n.ring.style('opacity',on?1:0).attr('r',(i===7?22:27)+8+(on?Math.sin(s*5)*3:0)).attr('stroke',r.col);n.inner.attr('transform',`scale(${on?1.18:1})`)});
+  L.forEach(({l,i,j})=>{const on=r.lead.includes(i)||r.lead.includes(j);l.attr('stroke',on?r.col:'#8C877E').attr('stroke-width',on?3:1.8).attr('stroke-opacity',on?.95:.3)})});
  return()=>{}}
 
 const CV={
@@ -1272,6 +1319,7 @@ const SL=[
  {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
  {b:3,key:'propuesta',src:'Propuesta del grupo sobre capas IDECA · Datos Abiertos Bogotá · ilustrativo',draw(ctx){return propuestaView(ctx)}},
  {b:3,key:'escena',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return escenaView(ctx)}},
+ {b:3,key:'soberania2',src:'Guion del grupo · ilustrativo: la proporción no es una meta ni un dato',draw(ctx){return soberaniaFullView(ctx)}},
  {b:3,key:'barrio',src:'Ilustración de la propuesta del grupo · no representa obras existentes',draw(ctx){return barrioView(ctx)}},
  {b:3,key:'conceptos',src:'Guion del grupo · gobierno, gobernanza y autogobierno',draw(ctx){return conceptosView(ctx)}},
  {b:3,key:'etapas',src:'Guion del grupo · cinco etapas de decisión',draw(ctx){return etapasView(ctx)}},
