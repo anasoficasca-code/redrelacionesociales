@@ -352,12 +352,11 @@ function jerarquiaView(ctx){
 }
 function heterarquiaView(ctx){
  const {svg,W,H,P}=svgIn(ctx.el);
- const A=['A34','A32','A04','A35','C01','A06','A25','AMB04','COM_HUE'];
- const HOY=['A34','A32','A04','A35','C01','A06','A25','AMB04','COM_HUE'];
- const AS=[{n:'Residuos aprovechables',c:'#8EBF4C',o:['A25','AMB04','A32','A35','A34','COM_HUE','A06','C01','A04']},
-  {n:'Educación ambiental',c:'#4EAECF',o:['AMB04','C01','COM_HUE','A35','A32','A34','A25','A04','A06']},
-  {n:'Abastecimiento',c:'#DE9F50',o:['A06','A04','A35','A34','COM_HUE','A25','A32','AMB04','C01']},
-  {n:'Huertas comunitarias',c:'#CF7ABB',o:['COM_HUE','AMB04','A35','C01','A34','A25','A32','A06','A04']}];
+ const A=['A34','A32','A04','A06','A10','A25','A13','AMB04','A37'];
+ const HOY=['A34','A32','A04','A06','A10','A25','A13','AMB04','A37'];
+ const AS=[{n:'Gestión de residuos',c:'#8EBF4C',o:['A25','A13','A06','A32','A34','A04','A10','AMB04','A37']},
+  {n:'Horarios de carga',c:'#DE9F50',o:['A10','A13','A37','A06','A04','A34','A32','A25','AMB04']},
+  {n:'Cuidado del humedal',c:'#4EAECF',o:['AMB04','A37','A32','A34','A25','A13','A10','A06','A04']}];
  const top=P?84:96,rh=(H-top-(P?16:24))/A.length,lx=P?30:W*.26,rx=P?W*.42:W*.66,R=Math.max(12,Math.min(P?14:20,rh*.36));
  const yy=i=>top+i*rh+rh/2;
  txt(svg,P?12:lx,P?24:38,P?'Hoy: un solo orden':'Hoy: jerarquía',{a:P?'start':'middle',fw:700,fs:P?13:22,c:'#9382E0'});if(!P)txt(svg,lx,62,'un solo orden para todo',{a:'middle',fs:14,c:SOFT});
@@ -529,6 +528,8 @@ const MAPA_MODOS=[
  {k:'jac',t:'Juntas de acción comunal',cats:{jac:['#9382E0',4.5]},mark:[['alcaldia','Alcaldía Local','#F2EFE8']],leg:[['#9382E0','188 juntas de acción comunal'],['#F2EFE8','Alcaldía Local']]},
  {k:'huertas',t:'Huertas urbanas y comunitarias',cats:{huerta:['#8EBF4C',3]},mark:[],leg:[['#8EBF4C','811 huertas registradas']]},
  {k:'colegios',t:'Colegios oficiales para la red de huertas escolares',cats:{huerta:['#8EBF4C',2,.35],colegio:['#F2B53A',6.5]},mark:[],leg:[['#F2B53A','79 colegios oficiales'],['#8EBF4C','huertas existentes']]},
+ {k:'presion',t:'Corabastos y los humedales bajo presión',cats:{},mark:[['corabastos','Corabastos','#DE9F50'],['hum','','#4EAECF']],leg:[['#DE9F50','Corabastos: flujo comercial y de carga'],['#4EAECF','Humedales El Burro, Techo y La Vaca']]},
+ {k:'circuitos',t:'Huertas, colegios y comedores para circuitos cortos',cats:{huerta:['#8EBF4C',2.6,.8],colegio:['#F2B53A',5.5],comedor:['#CF7ABB',7]},mark:[],leg:[['#8EBF4C','811 huertas'],['#F2B53A','79 colegios oficiales'],['#CF7ABB','11 comedores comunitarios']]},
  {k:'abasto',t:'Corabastos y plazas de mercado',cats:{plaza:['#DE9F50',8]},mark:[['corabastos','Corabastos','#DE9F50'],['plaza','','#DE9F50']],leg:[['#DE9F50','Corabastos y plazas de mercado']]}];
 function mapaView(ctx){
  const el=ctx.el;const P=size(el).W<760;d3.select(el).append('div').attr('id','mapC');
@@ -547,10 +548,10 @@ function mapaView(ctx){
   let t0=performance.now();const pulse=()=>{if(!alive)return;const k=(Math.sin((performance.now()-t0)/420)+1)/2;try{map.setPaintProperty('h','circle-radius',12+k*14);map.setPaintProperty('h','circle-opacity',.35-k*.25)}catch(e){}raf2=requestAnimationFrame(pulse)};pulse();
   ready=true;if(pend!==null)set(pend)}));
  function set(i){if(!ready){pend=i;return}const M=MAPA_MODOS[i];markers.forEach(m=>m.remove());markers=[];
-  const dist=f=>Math.hypot(f.geometry.coordinates[0]-CEN[0],f.geometry.coordinates[1]-CEN[1]);const sel=PT.filter(f=>M.cats[f.properties.c]);const dm=Math.max(...sel.map(dist),1e-6);
-  const feats=sel.map(f=>{const [col,r,o]=M.cats[f.properties.c];return{type:'Feature',geometry:f.geometry,properties:{col,r,o:o||.95,n:f.properties.n,d:dist(f)/dm*.92}}});const halos=[];
+  const dist=f=>Math.hypot(f.geometry.coordinates[0]-CEN[0],f.geometry.coordinates[1]-CEN[1]);const catOf=f=>(f.properties.c==='sdis'&&/^Comedor/.test(f.properties.n||''))?'comedor':f.properties.c;const sel=PT.filter(f=>M.cats[catOf(f)]);const dm=Math.max(...sel.map(dist),1e-6);
+  const feats=sel.map(f=>{const [col,r,o]=M.cats[catOf(f)];return{type:'Feature',geometry:f.geometry,properties:{col,r,o:o||.95,n:f.properties.n,d:dist(f)/dm*.92}}});const halos=[];
   M.mark.forEach(([c,n,col])=>PT.filter(f=>f.properties.c===c).forEach(f=>{feats.push({type:'Feature',geometry:f.geometry,properties:{col,r:9,o:1,d:0}});halos.push({type:'Feature',geometry:f.geometry,properties:{col}});
-   const e=document.createElement('div');e.style.cssText=`font:600 13px Instrument Sans,sans-serif;color:${col};text-shadow:0 1px 6px #000,0 0 3px #000;white-space:nowrap`;e.textContent=n||f.properties.n;markers.push(new maplibregl.Marker({element:e,offset:[0,-18]}).setLngLat(f.geometry.coordinates).addTo(map))}));
+   const e=document.createElement('div');e.style.cssText=`font:600 13px Instrument Sans,sans-serif;color:${col};text-shadow:0 1px 6px #000,0 0 3px #000;white-space:nowrap`;e.textContent=n||f.properties.n;markers.push(new maplibregl.Marker({element:e,offset:[0,c==='hum'?20:-18]}).setLngLat(f.geometry.coordinates).addTo(map))}));
   map.getSource('p').setData({type:'FeatureCollection',features:feats});map.getSource('h').setData({type:'FeatureCollection',features:halos});
   markers.forEach(m=>{m.getElement().style.opacity=0;m.getElement().style.transition='opacity .6s .9s'});requestAnimationFrame(()=>markers.forEach(m=>m.getElement().style.opacity=1));
   map.jumpTo({center:CEN,zoom:map.getZoom()-0.8,pitch:0,bearing:-8});map.fitBounds(BB,{padding:P?20:{top:40,bottom:40,left:380,right:40},duration:reduce?0:2200,pitch:P?20:32,bearing:0,essential:true});
@@ -562,6 +563,68 @@ function mapaView(ctx){
   leg.html(`<div style="font:600 11px JetBrains Mono,monospace;letter-spacing:.08em;color:#F2B53A;text-transform:uppercase">Plano de Kennedy</div><div style="font:700 ${P?15:19}px Instrument Sans,sans-serif;color:#fff;margin:4px 0 8px">${M.t}</div>`+M.leg.map(([c,t])=>`<div style="display:flex;align-items:center;gap:8px;font:500 ${P?12:14}px Instrument Sans,sans-serif;color:#cfd3dc;margin-top:4px"><span style="width:11px;height:11px;border-radius:50%;background:${c};display:inline-block"></span>${t}</div>`).join('')+`<div style="font:400 11px JetBrains Mono,monospace;color:#77736b;margin-top:8px">Fuente: IDECA · Datos Abiertos Bogotá</div>`)}
  return sub=>set(sub);
 }
+
+/* ---------- vista genérica de tarjetas con íconos y actores ---------- */
+function cardsView(ctx,cfg){
+ const {svg,W,H,P}=svgIn(ctx.el);const df=svg.append('defs');mk(df,'cv-a',OCH,11);
+ const items=cfg.items,n=items.length;const cols=P?(cfg.pcols||1):(cfg.cols||n);const rows=Math.ceil(n/cols);
+ const top=cfg.title?(P?46:66):16,bot=cfg.footer?(P?54:66):16,gap=P?10:(cfg.arrows?44:18);
+ if(cfg.title){const t=txt(svg,W/2,P?22:34,'',{a:'middle',fw:700,fs:P?14:20});wrap(t,cfg.title,P?44:110,P?16:24)}
+ const cw=(W-24-gap*(cols-1))/cols;let ch=(H-top-bot-(rows-1)*(P?10:18))/rows;const avail=H-top-bot;const chMax=cfg.maxh||(P?240:340);let top2=top;if(ch>chMax){ch=chMax;top2=top+(avail-(rows*ch+(rows-1)*(P?10:18)))/2}
+ const G=items.map((it,i)=>{const c=i%cols,r=Math.floor(i/cols);const x=12+c*(cw+gap),y=top2+r*(ch+(P?10:18));
+  const g=svg.append('g').attr('transform',`translate(${x},${y})`).style('opacity',0);
+  const col=it.col||OCH,dim=it.dim;
+  g.transition().delay(reduce?0:(cfg.stagger??280)*i).duration(500).style('opacity',dim?.32:1);
+  g.append('rect').attr('width',cw).attr('height',ch).attr('rx',14).attr('fill',it.hl?'#1d1a12':'#16181c').attr('stroke',col).attr('stroke-width',it.hl?2.4:1.4).attr('stroke-opacity',dim?.4:.9);
+  const small=P||ch<150;const ir=small?18:Math.min(30,ch*.14);
+  const ix=small?14+ir:cw/2,iy=small?Math.min(ch/2,14+ir):18+ir;
+  g.append('circle').attr('cx',ix).attr('cy',iy).attr('r',ir).attr('fill',col);icon(g,it.ic,ix,iy,ir*1.15,'#111');
+  const tx=small?ix+ir+12:cw/2,an=small?'start':'middle',tw=small?Math.floor((cw-tx-10)/7.2):Math.floor(cw/8.6);
+  const t1=txt(g,tx,small?(iy-ir+14):iy+ir+28,'',{a:an,fw:700,fs:small?14:17,c:col});wrap(t1,it.t,tw,small?16:20);
+  const tl=Math.ceil(it.t.length/tw);let yy=small?(iy-ir+14)+tl*16+4:iy+ir+28+tl*20+4;
+  if(it.d){const t2=txt(g,tx,yy,'',{a:an,fs:small?12:14,c:SOFT});wrap(t2,it.d,small?Math.floor((cw-tx-10)/6.4):Math.floor(cw/7.4),small?15:18);yy+=Math.ceil(it.d.length/(small?Math.floor((cw-tx-10)/6.4):Math.floor(cw/7.4)))*(small?15:18)+6}
+  if(it.ids&&it.ids.length){const ar=small?12:Math.min(20,cw/(it.ids.length*3.4));const ay=small?Math.max(yy+ar+4,ch-ar-14):Math.min(ch-ar-34,yy+ar+18+(ch-yy-ar*2-52)*.35);
+   it.ids.forEach((id,j)=>{const ax=small?tx+ar+j*(ar*2+10):cw/2+(j-(it.ids.length-1)/2)*(cw/(it.ids.length+.4));const ng=g.append('g').attr('class','node').attr('transform',`translate(${ax},${ay})`);actor(ng,id,ar,{label:false});
+    if(!small){const tt=txt(ng,0,ar+15,'',{a:'middle',fs:11.5,c:INK});wrap(tt,ACT(id).short,13,13)}})}
+  return{x,y,g}});
+ if(cfg.arrows&&!P)G.slice(0,-1).forEach((g,i)=>{if(i%cols===cols-1)return;const x1=g.x+cw+4,x2=g.x+cw+gap-6,y=g.y+ch/2;svg.append('path').attr('d',`M${x1},${y}H${x2}`).attr('stroke',OCH).attr('stroke-width',2.2).attr('stroke-dasharray','6 5').attr('class','flowing').attr('marker-end','url(#cv-a)').style('opacity',0).transition().delay(reduce?0:280*(i+1)).style('opacity',1)});
+ if(cfg.loop&&!P){const a=G[0],b=G[G.length-1];svg.append('path').attr('d',`M${b.x+cw/2},${b.y+ch+6}C${b.x+cw/2},${H-bot+40} ${a.x+cw/2},${H-bot+40} ${a.x+cw/2},${a.y+ch+8}`).attr('fill','none').attr('stroke',RED).attr('stroke-width',2).attr('stroke-dasharray','6 6').attr('class','flowing').attr('marker-end','url(#cv-a)')}
+ if(cfg.footer){const ft=txt(svg,W/2,H-(P?30:28),'',{a:'middle',fw:600,fs:P?12.5:15,c:OCH});wrap(ft,cfg.footer,P?46:120,P?15:19)}
+}
+const CV={
+ macros:{title:'Diez macromodelos; seis actúan directamente sobre esta problemática',cols:5,pcols:2,stagger:120,maxh:210,items:[
+  {ic:'i-moneda',t:'Comercio ecológico y autonomía territorial',col:'#DE9F50',hl:1},{ic:'i-ciclo',t:'Circularidad',col:'#8EBF4C',hl:1},{ic:'i-gota',t:'Hidrocéntrico',col:'#4EAECF',hl:1},{ic:'i-alerta',t:'Límites ecológicos',col:'#E0623F',hl:1},{ic:'i-grupo',t:'Organización comunitaria',col:'#F2B53A',hl:1},
+  {ic:'i-org',t:'Gobernanza heterárquica',col:'#9382E0',hl:1},{ic:'i-hoja',t:'Ecocéntrico',col:'#B8B3A8',dim:1},{ic:'i-hoja',t:'Regenerativo',col:'#B8B3A8',dim:1},{ic:'i-hoja',t:'Biocéntrico',col:'#B8B3A8',dim:1},{ic:'i-hog',t:'Redes de cuidado',col:'#B8B3A8',dim:1}]},
+ tres:{title:'Tres conceptos distintos',cols:3,items:[
+  {ic:'i-pub',t:'Gobierno',d:'Autoridades con competencias legales.',ids:['A34','A32','A33'],col:'#4EAECF'},
+  {ic:'i-delib',t:'Gobernanza',d:'Coordinación entre actores públicos y no estatales.',ids:['A34','A35','A25'],col:'#9382E0'},
+  {ic:'i-grupo',t:'Autogobierno',d:'Quienes comparten un recurso establecen sus propias reglas.',ids:['A25','A13','A15'],col:'#F2B53A',hl:1}],
+  footer:'Proponemos autogobierno sobre flujos concretos, que coexiste con las instituciones y necesita su reconocimiento.'},
+ comunes:{title:'Recursos comunes alrededor de Corabastos, coordinados con reglas compartidas',cols:4,pcols:1,items:[
+  {ic:'i-reloj',t:'Horarios de cargue',ids:['A10','A13','A37'],col:'#DE9F50'},{ic:'i-ciclo',t:'Residuos orgánicos',ids:['A25','A26','A27'],col:'#8EBF4C'},
+  {ic:'i-doc',t:'Información de precios',ids:['A06','A15','A08'],col:'#4EAECF'},{ic:'i-moneda',t:'Recursos para el abastecimiento',ids:['A15','INF03','COM_HUE'],col:'#F2B53A'}],
+  footer:'No sustituye las competencias institucionales: distribuye la capacidad de decisión y coordina a los actores.'},
+ soberania:{title:'Seguridad alimentaria y soberanía alimentaria',cols:2,items:[
+  {ic:'i-check',t:'Seguridad alimentaria',d:'Acceso a alimentos suficientes, inocuos y nutritivos.',col:'#B8B3A8',dim:1},
+  {ic:'i-mazo',t:'Soberanía alimentaria',d:'Capacidad de decidir cómo se producen y distribuyen los alimentos.',ids:['A08','A15','INF03','COM_HUE'],col:'#8EBF4C',hl:1}],
+  footer:'Nuestra propuesta trabaja sobre la soberanía: circuitos organizados por sus propios participantes.'},
+ etapas:{title:'Cinco etapas para tomar una decisión',cols:5,pcols:1,arrows:true,loop:true,stagger:350,items:[
+  {ic:'i-agenda',t:'1. Agenda',d:'Se identifica un problema y entra a la agenda local.',col:'#E0623F'},{ic:'i-delib',t:'2. Deliberación',d:'Mesas donde cada actor presenta necesidades, datos e intereses.',col:'#E0623F'},
+  {ic:'i-mazo',t:'3. Resolución',d:'Reglas acordadas previamente.',col:'#E0623F'},{ic:'i-campana',t:'4. Ejecución',d:'Se asignan recursos y se actúa.',col:'#E0623F'},{ic:'i-lupa',t:'5. Seguimiento',d:'Se revisan resultados y se corrige.',col:'#E0623F'}],
+  footer:'Corregir reabre el ciclo.'},
+ fondo:{title:'Ejemplo: Fondo Común de Abastecimiento (propuesta)',cols:4,pcols:1,arrows:true,stagger:400,items:[
+  {ic:'i-agenda',t:'Proponen',d:'Tenderos, comedores y huertas.',ids:['A15','INF03','COM_HUE'],col:'#F2B53A'},
+  {ic:'i-delib',t:'Discuten las condiciones',d:'Productores, transportadores y comerciantes.',ids:['A08','A10','A06'],col:'#DE9F50'},
+  {ic:'i-mazo',t:'Núcleo de abastecimiento',d:'Define aportes, compras y reglas de decisión.',col:'#9382E0'},
+  {ic:'i-moneda',t:'Fondo común',d:'Administración rotativa, informes públicos y vocerías revocables.',col:'#8EBF4C',hl:1}]},
+ indicadores:{title:'Indicadores para medir los resultados',cols:5,pcols:1,stagger:220,items:[
+  {ic:'i-casa',t:'Abastecimiento local por circuitos cortos',d:'porcentaje',col:'#8EBF4C'},{ic:'i-cadena',t:'Dependencia de Corabastos',d:'proporción de compras',col:'#DE9F50'},
+  {ic:'i-obj',t:'Viajes de carga en horas de congestión',d:'número de viajes',col:'#E0623F'},{ic:'i-doc',t:'Información disponible sobre precios',d:'acceso y frecuencia',col:'#4EAECF'},
+  {ic:'i-ciclo',t:'Residuos orgánicos aprovechados',d:'toneladas',col:'#8EBF4C'}]},
+ flujos:{title:'Tres flujos en los que quienes viven y trabajan en el territorio participan',cols:3,items:[
+  {ic:'i-reloj',t:'Horarios de carga',ids:['A10','A13','A37'],col:'#DE9F50'},{ic:'i-ciclo',t:'Residuos orgánicos',ids:['A25','A26','A23'],col:'#8EBF4C'},{ic:'i-moneda',t:'Compras de alimentos',ids:['A15','INF03','COM_HUE'],col:'#F2B53A'}],
+  footer:'Reglas claras, recursos, capacidad de decisión y seguimiento.'}
+};
 
 const SL=[
  /* I · Apertura */
@@ -663,8 +726,16 @@ const SL=[
    return sub=>cs.style('opacity',(d,i)=>i<=sub?1:.15)}},
  {b:3,key:'jerarquia',src:'Red de actores del grupo',draw(ctx){jerarquiaView(ctx)}},
  {b:3,key:'heterarquia2',src:'Red de actores del grupo',draw(ctx){return heterarquiaView(ctx)}},
+ {b:3,key:'cv_macros',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.macros)}},
+ {b:3,key:'cv_tres',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.tres)}},
+ {b:3,key:'cv_comunes',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.comunes)}},
+ {b:3,key:'cv_soberania',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.soberania)}},
+ {b:3,key:'cv_etapas',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.etapas)}},
+ {b:3,key:'cv_fondo',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.fondo)}},
+ {b:3,key:'cv_indicadores',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.indicadores)}},
+ {b:3,key:'cv_flujos',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.flujos)}},
  {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
- {b:3,key:'vensim2',slow:1300,src:'Modelo Vensim del grupo',draw(ctx){const v=vensim(ctx);const Z=[null,['12','28','29','125'],['28','29','125'],['12','28','29','125'],['9','10','11','26','27','91','94','95','112','113','114']];return sub=>v.zoom(Z[sub])}},
+ {b:3,key:'vensim2',slow:1300,src:'Modelo Vensim del grupo',draw(ctx){const v=vensim(ctx);const Z=[null,['12','28','29','125'],['28','29','125'],['12','28','29','125'],['9','10','11','26','27','91','94','95','112','113','114'],['1','2','3','5','6','7','50','168']];return sub=>v.zoom(Z[sub])}},
  {b:3,key:'causal2',src:'Guion del grupo · hipótesis por verificar',draw(ctx){return causal2View(ctx)}},
  {b:3,key:'policentro',src:'Guion del grupo',draw(ctx){return policentroView(ctx)}},
  {b:3,key:'ambitos',src:'Guion del grupo',draw(ctx){ambitosView(ctx)}},
