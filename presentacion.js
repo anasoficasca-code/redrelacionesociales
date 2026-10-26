@@ -1173,6 +1173,93 @@ function soberaniaFullView(ctx){
   L.forEach(({l,i,j})=>{const on=r.lead.includes(i)||r.lead.includes(j);l.attr('stroke',on?r.col:'#8C877E').attr('stroke-width',on?3:1.8).attr('stroke-opacity',on?.95:.3)})});
  return()=>{}}
 
+/* ===== Axonometría de Kennedy: dónde estaría cada pieza de la propuesta ===== */
+function axoView(ctx){
+ const K=conceptKit(ctx,740),{svg,FONT}=K;
+ const BLUE='#2a35ff',GN='#8EBF4C',LG='#B6E27A',OR='#DE9F50',AM='#F2B53A',PK='#CF7ABB',BL='#4EAECF',PU='#9382E0',RD='#E0623F';
+ svg.append('style').text('@keyframes axp{0%,100%{opacity:.5}50%{opacity:.85}}.axp{animation:axp 2.6s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.axp{animation:none}}');
+ const gBase=svg.append('g').style('opacity',0),gZ=svg.append('g'),gRoute=svg.append('g'),gCall=svg.append('g');
+ /* panel izquierdo, como la referencia */
+ const gL=svg.append('g').style('opacity',0);
+ gL.append('rect').attr('x',20).attr('y',300).attr('width',230).attr('height',34).attr('fill',BLUE);K.text(gL,238,323,'propuesta',{a:'end',fs:19,fw:600,c:'#fff'});
+ const lines=[[['en esta red, ',0],['las huertas',1],[' no son',0]],[['solo cultivos: son ',0],['nodos de',1]],[['abastecimiento',1],[' que conectan',0]],[['tiendas, comedores y',0]],[['colegios y reducen la',0]],[['dependencia',1],[' de un solo centro.',0]]];
+ lines.forEach((ln,i)=>{const t=gL.append('text').attr('x',22).attr('y',362+i*20).attr('font-size',14.5).attr('fill','#E7E3DA').attr('font-family',FONT);ln.forEach(([s,b])=>t.append('tspan').attr('font-weight',b?800:500).attr('fill',b?'#fff':'#C9C5BB').text(s))});
+ K.timers.push(setTimeout(()=>gL.transition().duration(600).style('opacity',1),200));
+ const ready=Promise.all(['assets/territorio_kennedy.geojson','assets/territorio_puntos.geojson'].map(u=>fetch(u).then(r=>r.json())));
+ ready.then(([Kg,Pg])=>{
+  const ring=Kg.features[0].geometry.coordinates[0];const LON0=-74.152,LAT0=4.63,KX=110960,KY=110574;
+  const AZ=38*Math.PI/180,ca=Math.cos(AZ),sa=Math.sin(AZ);
+  const G=(lon,lat)=>{const mx=(lon-LON0)*KX,my=-(lat-LAT0)*KY;return[mx*ca-my*sa,mx*sa+my*ca]};
+  const raw=(gx,gy,z)=>[(gx-gy)*.866,(gx+gy)*.6-z*1.5];
+  const ringG=ring.map(([a,b])=>G(a,b));
+  const rs=ringG.map(([x,y])=>raw(x,y,0));const minX=Math.min(...rs.map(p=>p[0])),maxX=Math.max(...rs.map(p=>p[0])),minY=Math.min(...rs.map(p=>p[1])),maxY=Math.max(...rs.map(p=>p[1]));
+  const AX0=275,AX1=1185,AY0=170,AY1=700,S=Math.min((AX1-AX0)/(maxX-minX),(AY1-AY0)/(maxY-minY)),OX=AX0-minX*S+((AX1-AX0)-(maxX-minX)*S)/2,OY=AY0-minY*S+((AY1-AY0)-(maxY-minY)*S)/2;
+  const PJ=(gx,gy,z=0)=>{const r=raw(gx,gy,z);return[OX+r[0]*S,OY+r[1]*S]};
+  const PL=(lon,lat,z=0)=>{const g=G(lon,lat);return PJ(g[0],g[1],z)};
+  const pstr=pts=>pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  /* losa de Kennedy con espesor */
+  const slab=ringG.map(([x,y])=>PJ(x,y,0)),slab2=ringG.map(([x,y])=>PJ(x,y,-26));
+  gBase.append('polygon').attr('points',pstr(slab2)).attr('fill','#0a0a0a').attr('stroke','#3a3a3a');
+  for(let i=0;i<ringG.length;i++){const j=(i+1)%ringG.length;const q=[slab[i],slab[j],slab2[j],slab2[i]];gBase.append('polygon').attr('points',pstr(q)).attr('fill','#161616').attr('stroke','#161616').attr('stroke-width',.6)}
+  gBase.append('polygon').attr('points',pstr(slab)).attr('fill','#262626').attr('stroke','#6a6a6a').attr('stroke-width',1.4);
+  /* tejido urbano: manzanas en grises */
+  let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+  const inside=(x,y)=>d3.polygonContains(ringG,[x,y]);
+  const xs=ringG.map(p=>p[0]),ys=ringG.map(p=>p[1]);const bx0=Math.min(...xs),bx1=Math.max(...xs),by0=Math.min(...ys),by1=Math.max(...ys);
+  const blocks=[];const STEP=230,SZ=150;for(let x=bx0;x<bx1;x+=STEP)for(let y=by0;y<by1;y+=STEP){const cx=x+STEP/2,cy=y+STEP/2;if(!inside(cx,cy)||!inside(cx+SZ/2,cy+SZ/2)||!inside(cx-SZ/2,cy-SZ/2)||!inside(cx+SZ/2,cy-SZ/2)||!inside(cx-SZ/2,cy+SZ/2))continue;if(rnd()<.1)continue;blocks.push({x0:cx-SZ/2*(.7+rnd()*.3),y0:cy-SZ/2*(.7+rnd()*.3),x1:cx+SZ/2*(.7+rnd()*.3),y1:cy+SZ/2*(.7+rnd()*.3),h:10+rnd()*rnd()*80})}
+  const drawBlock=(g,b,top,l,r)=>{const T=[[b.x0,b.y0],[b.x1,b.y0],[b.x1,b.y1],[b.x0,b.y1]].map(([x,y])=>PJ(x,y,b.h));const B1=[PJ(b.x1,b.y0,0),PJ(b.x1,b.y1,0)],B2=[PJ(b.x1,b.y1,0),PJ(b.x0,b.y1,0)];
+   g.append('polygon').attr('points',pstr([T[1],T[2],B1[1],B1[0]])).attr('fill',r);g.append('polygon').attr('points',pstr([T[2],T[3],B2[1],B2[0]])).attr('fill',l);g.append('polygon').attr('points',pstr(T)).attr('fill',top)};
+  blocks.sort((a,b)=>(a.x0+a.y0)-(b.x0+b.y0));
+  const gB=gBase.append('g');blocks.forEach(b=>{const sh=Math.round(96+b.h*1.2+rnd()*14);drawBlock(gB,b,`rgb(${sh},${sh},${sh})`,`rgb(${sh-58},${sh-58},${sh-58})`,`rgb(${sh-88},${sh-88},${sh-88})`)});
+  /* piezas reales */
+  const by=c=>Pg.features.filter(f=>f.properties.c===c).map(f=>f.geometry.coordinates);
+  const hue=by('huerta'),jac=by('jac'),colg=by('colegio');const com=Pg.features.filter(f=>f.properties.c==='sdis'&&/^Comedor/.test(f.properties.n||'')).map(f=>f.geometry.coordinates);
+  const gP=gBase.append('g');
+  jac.forEach(c=>{const p=PL(c[0],c[1],2);gP.append('circle').attr('cx',p[0]).attr('cy',p[1]).attr('r',2.2).attr('fill',PU).attr('opacity',.85)});
+  const cell=new Set();hue.forEach(c=>{const k=Math.round(c[0]/.004)+'_'+Math.round(c[1]/.004);if(cell.has(k))return;cell.add(k);const p=PL(c[0],c[1],3);gP.append('path').attr('d',`M${p[0]},${p[1]}v-9m0,4c-5,0 -6,-6 -6,-6 5,0 6,3 6,6m0,-3c5,0 6,-7 6,-7 -5,0 -6,4 -6,7`).attr('fill','none').attr('stroke',LG).attr('stroke-width',1.7).attr('stroke-linecap','round')});
+  com.forEach(c=>{const p=PL(c[0],c[1],4);gP.append('circle').attr('cx',p[0]).attr('cy',p[1]).attr('r',3.4).attr('fill',PK).attr('stroke','#111').attr('stroke-width',1)});
+  /* humedales */
+  const HUM=[[-74.16198,4.6287,'La Vaca'],[-74.14958,4.64142,'El Burro'],[-74.14165,4.64518,'Techo']];
+  const ellipse=(cx,cy,a,b,z,n=40)=>Array.from({length:n},(_,i)=>{const t=i/n*Math.PI*2;return PJ(cx+Math.cos(t)*a,cy+Math.sin(t)*b,z)});
+  const hw=[];HUM.forEach(([lo,la])=>{const g=G(lo,la);const e=ellipse(g[0],g[1],420,260,1);gBase.append('polygon').attr('points',pstr(e)).attr('fill','#1c4a7a').attr('stroke','#5aa9ff').attr('stroke-width',1.6);const rp=gBase.append('polygon').attr('fill','none').attr('stroke','#9fd0ff').attr('stroke-width',1.4);hw.push({rp,g})});
+  /* corabastos */
+  const cg=G(-74.159,4.6295);const COR={x0:cg[0]-420,y0:cg[1]-300,x1:cg[0]+420,y1:cg[1]+300,h:70};drawBlock(gBase,COR,'#E8B26A','#A9722F','#7e531f');
+  /* zonas azules (prismas translúcidos, como en la referencia) */
+  const hN=hue.filter(c=>c[1]>4.64),hc=[d3.mean(hN,c=>c[0]),d3.mean(hN,c=>c[1])];
+  const Z=[{id:'huertas',c:G(hc[0],hc[1]),a:1250,b:800,h:110},{id:'circuito',c:G(-74.1535,4.6275),a:900,b:620,h:110},{id:'recicla',c:G(-74.1735,4.6245),a:800,b:560,h:110}];
+  const prism=(z)=>{const n=36,bot=Array.from({length:n},(_,i)=>{const t=i/n*Math.PI*2;return[z.c[0]+Math.cos(t)*z.a,z.c[1]+Math.sin(t)*z.b]});const g=gZ.append('g').style('opacity',0);
+   const order=bot.map((p,i)=>i).sort((i,j)=>(bot[i][0]+bot[i][1])-(bot[j][0]+bot[j][1]));
+   order.forEach(i=>{const j=(i+1)%n;const q=[PJ(bot[i][0],bot[i][1],0),PJ(bot[j][0],bot[j][1],0),PJ(bot[j][0],bot[j][1],z.h),PJ(bot[i][0],bot[i][1],z.h)];g.append('polygon').attr('points',pstr(q)).attr('fill',BLUE).attr('fill-opacity',.5)});
+   g.append('polygon').attr('points',pstr(bot.map(p=>PJ(p[0],p[1],z.h)))).attr('fill',BLUE).attr('fill-opacity',.55).attr('stroke','#9aa0ff').attr('stroke-width',1.4).attr('class','axp');z.g=g;z.top=PJ(z.c[0],z.c[1],z.h)};
+  Z.forEach(prism);
+  /* ruta del circuito (línea punteada blanca) */
+  const rpts=[Z[0].c,Z[1].c,cg,Z[2].c].map(c=>PJ(c[0],c[1],4));const rd='M'+rpts.map(p=>p.join(',')).join('L');
+  gRoute.append('path').attr('d',rd).attr('fill','none').attr('stroke','#fff').attr('stroke-width',3.2).attr('stroke-dasharray','3 8').attr('stroke-linecap','round').attr('class','flowing').style('opacity',0).transition().delay(reduce?0:9000).duration(600).style('opacity',1);
+  const rpath=gRoute.append('path').attr('d',rd).attr('fill','none').attr('stroke','none').node(),RL=rpath.getTotalLength();
+  const dots=[0,.33,.66].map(()=>gRoute.append('rect').attr('width',10).attr('height',8).attr('rx',2).attr('fill',LG).attr('stroke','#0d0e10').attr('x',-5).attr('y',-4).style('opacity',0));
+  K.timers.push(setTimeout(()=>dots.forEach(d=>d.transition().duration(400).style('opacity',1)),reduce?0:9300));
+  /* llamadas con ícono */
+  const call=(anchor,card,ic,col,title,sub,delay)=>{const g=gCall.append('g').style('opacity',0);const w=Math.max(title.length*7.8,(sub||'').length*6.3)+26;const up=card[1]<anchor[1];const ey=up?card[1]+52+(sub?24:12):card[1]-34;
+   g.append('line').attr('x1',anchor[0]).attr('y1',anchor[1]).attr('x2',card[0]).attr('y2',ey).attr('stroke','#fff').attr('stroke-width',1.6);g.append('circle').attr('cx',anchor[0]).attr('cy',anchor[1]).attr('r',5).attr('fill','#fff').attr('stroke',BLUE).attr('stroke-width',2);
+   const cd=g.append('g').attr('transform',`translate(${card[0]},${card[1]})`);cd.append('rect').attr('x',-34).attr('y',-34).attr('width',68).attr('height',68).attr('rx',16).attr('fill','#F4F2EC').attr('stroke',col).attr('stroke-width',3);
+   cd.append('use').attr('href',ic).attr('x',-22).attr('y',-22).attr('width',44).attr('height',44).style('color',col==='#F2B53A'?'#B27D00':col);
+   const t=cd.append('g').attr('transform','translate(0,52)');t.append('rect').attr('x',-w/2).attr('y',-14).attr('width',w).attr('height',sub?38:24).attr('rx',10).attr('fill','#0d0e10').attr('fill-opacity',.88).attr('stroke','#444');
+   K.text(t,0,2,title,{fs:13,fw:700,c:'#fff'});if(sub)K.text(t,0,19,sub,{fs:11,fw:500,c:'#B8B3A8'});K.show(g,delay);return g};
+  Z.forEach((z,i)=>K.timers.push(setTimeout(()=>z.g.transition().duration(reduce?0:900).style('opacity',1),reduce?0:2200+i*500)));
+  const T=(z,dx,dy)=>[z.top[0]+dx,z.top[1]+dy];
+  const corTop=PJ(cg[0],cg[1],70),humP=HUM.map(([lo,la])=>PL(lo,la,0));
+  call(Z[2].top,[395,98],'#e-recicla',AM,'Recicladores y compost','residuos que vuelven',5400);
+  call(Z[1].top,[575,98],'#e-tienda',PK,'Circuitos cortos','tiendas, comedores, colegios',4300);
+  call(corTop,[765,98],'#e-central',OR,'Corabastos','un nodo más del circuito',6500);
+  call(humP[1],[950,98],'#e-humedal',BL,'Humedales','con menos carga',7600);
+  call(Z[0].top,[1115,98],'#e-huerta',GN,'Huertas comunitarias','nodos de abastecimiento',3200);
+  const jp=PL(-74.1405,4.6125,4);call(jp,[jp[0]+95,jp[1]+20],'#s-grupo',PU,'Juntas de Acción Comunal','mesas locales',8300);
+  K.timers.push(setTimeout(()=>gBase.transition().duration(500).style('opacity',1),50));
+  K.run(t=>{dots.forEach((d,i)=>{const u=reduce?.5:((t*.06+i/3)%1);const p=rpath.getPointAtLength(u*RL);d.attr('transform',`translate(${p.x},${p.y})`)});
+   hw.forEach(({rp,g},i)=>{const k=((t*.4+i*.33)%1);const e=ellipse(g[0],g[1],420+k*380,260+k*230,1);rp.attr('points',pstr(e)).attr('stroke-opacity',.9*(1-k))})});
+ });
+ return()=>{}}
+
 const CV={
  macros:{title:'Diez macromodelos; seis actúan directamente sobre esta problemática',cols:5,pcols:2,stagger:120,maxh:210,items:[
   {ic:'i-moneda',t:'Comercio ecológico y autonomía territorial',col:'#DE9F50',hl:1},{ic:'i-ciclo',t:'Circularidad',col:'#8EBF4C',hl:1},{ic:'i-gota',t:'Hidrocéntrico',col:'#4EAECF',hl:1},{ic:'i-alerta',t:'Límites ecológicos',col:'#E0623F',hl:1},{ic:'i-grupo',t:'Organización comunitaria',col:'#F2B53A',hl:1},
@@ -1319,6 +1406,7 @@ const SL=[
  {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
  {b:3,key:'propuesta',src:'Propuesta del grupo sobre capas IDECA · Datos Abiertos Bogotá · ilustrativo',draw(ctx){return propuestaView(ctx)}},
  {b:3,key:'escena',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return escenaView(ctx)}},
+ {b:3,key:'axo',src:'Axonometría esquemática de Kennedy · límites y puntos IDECA · zonas y manzanas ilustrativas',draw(ctx){return axoView(ctx)}},
  {b:3,key:'soberania2',src:'Guion del grupo · ilustrativo: la proporción no es una meta ni un dato',draw(ctx){return soberaniaFullView(ctx)}},
  {b:3,key:'barrio',src:'Ilustración de la propuesta del grupo · no representa obras existentes',draw(ctx){return barrioView(ctx)}},
  {b:3,key:'conceptos',src:'Guion del grupo · gobierno, gobernanza y autogobierno',draw(ctx){return conceptosView(ctx)}},

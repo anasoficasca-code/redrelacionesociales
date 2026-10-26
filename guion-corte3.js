@@ -12,6 +12,7 @@ policentro:[{t:'Gobernanza policéntrica',s:'',n:''},{t:'Coordinación',s:'',n:'
 cv_macros:[{t:'1',s:'',n:''}],
 cv_tres:[{t:'1',s:'',n:''}],
 cv_comunes:[{t:'1',s:'',n:''}],
+axo:[{t:'1',s:'',n:''}],
 soberania2:[{t:'1',s:'',n:''}],
 barrio:[{t:'1',s:'',n:''}],
 conceptos:[{t:'1',s:'',n:''}],
