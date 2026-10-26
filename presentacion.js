@@ -1244,11 +1244,6 @@ function axoView(ctx){
    L.draw(g,L.lx,L.ly);
    const m=g.append('g').attr('transform',`translate(${e[0]},${e[1]})`);m.append('circle').attr('r',9).attr('fill',L.col).attr('stroke','#0d0e10').attr('stroke-width',2);m.append('circle').attr('r',15).attr('fill','none').attr('stroke',L.col).attr('stroke-opacity',.6).attr('stroke-width',2);
    K.show(g,1800+i*1100)});
-  /* ave */
-  const bird=gBirdO.append('g').attr('class','bird').append('g').attr('transform','translate(560,610) scale(.8)');
-  const bp=(d,fill)=>bird.append('path').attr('d',d).attr('fill',fill).attr('stroke','rgba(255,255,255,.75)').attr('stroke-width',1.3).attr('stroke-linejoin','round');
-  bp('M150,78C120,86 80,96 40,112C70,112 100,108 128,100Z','#16171b');bp('M146,70C120,40 76,18 18,22C52,34 80,52 102,84Z','#16171b');bp('M166,68C190,34 236,12 292,12C256,30 226,50 204,80Z','#16171b');bp('M104,88C122,70 170,64 206,74C216,78 216,92 204,96C170,108 128,106 104,88Z','#16171b');bp('M200,74C206,60 224,58 232,68C236,74 232,82 224,84C214,86 204,84 200,74Z','#16171b');bp('M231,68L262,74L231,78Z','#f7d98a');
-  bird.append('circle').attr('cx',222).attr('cy',68).attr('r',2.2).attr('fill','#fff');gBirdO.style('opacity',0);K.timers.push(setTimeout(()=>gBirdO.transition().duration(800).style('opacity',1),reduce?0:6500));
   K.run(t=>{dots.forEach((d,i)=>{const u=reduce?.5:((t*.05+i/5)%1);const p=rpath.getPointAtLength(u*RL);d.attr('transform',`translate(${p.x},${p.y})`)})});
  });
  return()=>{}}
