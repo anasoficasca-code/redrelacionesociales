@@ -809,47 +809,46 @@ function redesView(ctx){
  svg.append('defs').html(ESC_SYM);
  const FONT='Instrument Sans,sans-serif',RD='#E0623F',GN='#8EBF4C',LG='#B6E27A',OR='#DE9F50',PK='#CF7ABB',AM='#F2B53A';
  const COL={tienda:PK,comedor:PK,colegio:AM,huerta:GN};
- /* mismos actores en las dos redes, posiciones relativas al centro de cada panel */
- const CL=[[-165,-130],[165,-130],[-165,130],[165,130]];
- const nodes=[];
- CL.forEach(([cx,cy],c)=>{nodes.push({id:nodes.length,t:'huerta',c,x:cx,y:cy,hub:1});
-  const T=['huerta','tienda','comedor','colegio'];for(let k=0;k<4;k++){const a=(45+k*90)*Math.PI/180;nodes.push({id:nodes.length,t:T[(k+c)%4],c,x:cx+Math.cos(a)*82,y:cy+Math.sin(a)*82})}});
- const cons=nodes.filter(n=>n.t!=='huerta'),hue=nodes.filter(n=>n.t==='huerta');
- const byC=c=>nodes.filter(n=>n.c===c);
- const PANEL=[[300,405],[900,405]];
- const gP=PANEL.map(([x,y])=>svg.append('g').attr('transform',`translate(${x},${y})`));
- const L=gP[0],R=gP[1];
- const sty=(p,col,w,op,dash)=>p.attr('stroke',col).attr('stroke-width',w).attr('stroke-opacity',op).attr('fill','none').attr('stroke-linecap','round').attr('stroke-dasharray',dash||null);
- const line=(g,a,b,col,w,op,dash)=>sty(g.append('line').attr('x1',a.x).attr('y1',a.y).attr('x2',b.x).attr('y2',b.y),col,w,op,dash);
- const COR={x:0,y:0};
- /* panel izquierdo: estrella */
- const spokes=cons.map(n=>line(L.insert('g',':first-child'),COR,n,RD,2.4,.55));
- /* panel derecho: enlaces locales + puentes entre grupos + pocos hacia Corabastos */
- const localLinks=[],bridges=[],corLinks=[];
- CL.forEach((_,c)=>{const g=byC(c),h0=g[0];g.slice(1).forEach(n=>localLinks.push([h0,n]));[[1,2],[2,3],[3,4],[4,1]].forEach(([i,j])=>localLinks.push([g[i],g[j]]))});
- const COR2={x:0,y:-130};[[1,3],[3,2],[2,0]].forEach(([a,b])=>bridges.push([byC(a)[0],byC(b)[0]]));corLinks.push([byC(0)[0],COR2],[COR2,byC(1)[0]]);
- const rl=localLinks.map(([a,b])=>line(R.insert('g',':first-child'),a,b,LG,2,.7));
- const rb=bridges.map(([a,b])=>line(R.insert('g',':first-child'),a,b,GN,3,.85));
- const rc=corLinks.map(([a,b])=>line(R.insert('g',':first-child'),a,b,OR,3.2,.9));
- /* nodos */
- const drawN=(g,dim)=>nodes.map(n=>{const k=g.append('g').attr('transform',`translate(${n.x},${n.y})`);const r=n.t==='huerta'?18:16;
-  k.append('circle').attr('r',r).attr('fill','#15171a').attr('stroke',COL[n.t]).attr('stroke-width',2.4);
-  k.append('use').attr('href','#e-'+n.t).attr('x',-r*.6).attr('y',-r*.6).attr('width',r*1.2).attr('height',r*1.2).style('color',n.t==='huerta'?LG:'#F2EFE8');return k});
- const nl=drawN(L),nr=drawN(R);nl.forEach((k,i)=>{if(nodes[i].t==='huerta')k.attr('opacity',.55)});
- const hubs=PANEL.map((_,i)=>{const g=gP[i].append('g');if(i)g.attr('transform','translate(0,-130)');g.append('circle').attr('r',i?32:46).attr('fill','#2a1d0c').attr('stroke',OR).attr('stroke-width',i?3:5);
-  const s=i?28:40;g.append('use').attr('href','#e-central').attr('x',-s/2).attr('y',-s/2-(i?0:6)).attr('width',s).attr('height',s).style('color','#F2EFE8');
-  g.append('text').attr('y',i?-42:62).attr('text-anchor','middle').attr('font-size',i?13:14).attr('font-weight',700).attr('fill','#F2EFE8').attr('font-family',FONT).attr('stroke','#111315').attr('stroke-width',4).attr('paint-order','stroke').text('Corabastos');return g});
- const ringL=L.insert('circle',':first-child').attr('r',60).attr('fill','none').attr('stroke',RD).attr('stroke-width',3);
- /* partículas */
- const P=[];const mover=(g,a,b,col,sp,ph,showOn)=>{const c=g.append('circle').attr('r',4.5).attr('fill',col).attr('stroke','#0d0e10');P.push({c,a,b,sp,ph,showOn});return c};
- cons.forEach((n,i)=>{const d=Math.hypot(n.x,n.y),o={x:n.x/d*48,y:n.y/d*48};[0,.5].forEach(f=>mover(L,o,n,RD,.16,(i*.09+f)%1,0))});
- localLinks.forEach(([a,b],i)=>mover(R,a,b,LG,.2,(i*.13)%1,1));bridges.forEach(([a,b],i)=>[0,.5].forEach(f=>mover(R,a,b,GN,.2,(i*.2+f)%1,1)));
- corLinks.forEach(([a,b],i)=>[0,.5].forEach(f=>mover(R,a,b,OR,.18,(i*.3+f)%1,1)));
+  /* mismos 20 actores en las dos redes; cambia solo cómo se conectan */
+  const NT=['huerta','tienda','huerta','comedor','colegio'];
+  const base=Array.from({length:20},(_,i)=>({id:i,t:NT[i%5]}));
+  const nodesL=base.map((n,i)=>{const r=118+Math.sqrt((i+.5)/20)*128,a=i*137.508*Math.PI/180;return{...n,x:Math.cos(a)*r*1.03,y:Math.sin(a)*r*.8}});
+  /* derecha: malla sin centro (cada actor con 3-4 vecinos), Corabastos es un nodo más */
+  const allR=Array.from({length:21},(_,i)=>{const r=Math.sqrt((i+.5)/21)*235,a=(i*137.508+40)*Math.PI/180;return{id:i,t:'x',x:Math.cos(a)*r*1.12,y:Math.sin(a)*r*.95}});
+  const CORR=allR[13];{let k=0;allR.forEach(n=>{if(n!==CORR){n.t=NT[k%5];k++}else n.t='cor'})}
+  const nodesR=allR.filter(n=>n!==CORR);
+  const lk=[];{const del=d3.Delaunay.from(allR,n=>n.x,n=>n.y),T=del.triangles,seen=new Set(),E=[];
+   for(let i=0;i<T.length;i+=3)[[0,1],[1,2],[2,0]].forEach(([u,v])=>{const a=Math.min(T[i+u],T[i+v]),b=Math.max(T[i+u],T[i+v]),k=a+'_'+b;if(!seen.has(k)){seen.add(k);E.push([a,b,Math.hypot(allR[a].x-allR[b].x,allR[a].y-allR[b].y)])}});
+   const med=E.map(e=>e[2]).sort((x,y)=>x-y)[Math.floor(E.length/2)];const deg=allR.map(()=>0);E.forEach(e=>{deg[e[0]]++;deg[e[1]]++});
+   E.sort((x,y)=>y[2]-x[2]).forEach(e=>{if((e[2]>med*1.7||(deg[e[0]]>3&&deg[e[1]]>3))&&deg[e[0]]>2&&deg[e[1]]>2){deg[e[0]]--;deg[e[1]]--;e.dead=1}});
+   E.filter(e=>!e.dead).forEach(([a,b])=>lk.push({source:allR[a],target:allR[b],kind:(allR[a]===CORR||allR[b]===CORR)?'c':'l'}))}
+  {const sim=d3.forceSimulation(allR).force('link',d3.forceLink(lk).distance(88).strength(.5)).force('charge',d3.forceManyBody().strength(-300)).force('x',d3.forceX(0).strength(.06)).force('y',d3.forceY(0).strength(.07)).force('col',d3.forceCollide(34)).stop();
+   for(let i=0;i<400;i++)sim.tick();allR.forEach(n=>{n.x=Math.max(-262,Math.min(262,n.x));n.y=Math.max(-232,Math.min(232,n.y))})}
+  const consL=nodesL.filter(n=>n.t!=='huerta');
+  const PANEL=[[300,405],[900,405]];
+  const gP=PANEL.map(([x,y])=>svg.append('g').attr('transform',`translate(${x},${y})`));
+  const L=gP[0],R=gP[1];
+  const sty=(p,col,w,op,dash)=>p.attr('stroke',col).attr('stroke-width',w).attr('stroke-opacity',op).attr('fill','none').attr('stroke-linecap','round').attr('stroke-dasharray',dash||null);
+  const line=(g,a,b,col,w,op,dash)=>sty(g.append('line').attr('x1',a.x).attr('y1',a.y).attr('x2',b.x).attr('y2',b.y),col,w,op,dash);
+  const COR={x:0,y:0};
+  const spokes=consL.map(n=>line(L.insert('g',':first-child'),COR,n,RD,2.4,.55));
+  const rl=[],rb=[],rc=[];lk.forEach(l=>{const g=R.insert('g',':first-child');(l.kind==='c'?rc:rl).push(l.kind==='c'?line(g,l.source,l.target,OR,3,.9):line(g,l.source,l.target,LG,2.2,.8))});
+  const drawN=(g,arr)=>arr.map(n=>{const k=g.append('g').attr('transform',`translate(${n.x},${n.y})`);const r=n.t==='huerta'?18:16;
+   k.append('circle').attr('r',r).attr('fill','#15171a').attr('stroke',COL[n.t]).attr('stroke-width',2.4);
+   k.append('use').attr('href','#e-'+n.t).attr('x',-r*.6).attr('y',-r*.6).attr('width',r*1.2).attr('height',r*1.2).style('color',n.t==='huerta'?LG:'#F2EFE8');return k});
+  const nl=drawN(L,nodesL),nr=drawN(R,nodesR);nl.forEach((k,i)=>{if(nodesL[i].t==='huerta')k.attr('opacity',.55)});
+  const hubs=PANEL.map((_,i)=>{const g=gP[i].append('g');if(i)g.attr('transform',`translate(${CORR.x},${CORR.y})`);g.append('circle').attr('r',i?24:46).attr('fill','#2a1d0c').attr('stroke',OR).attr('stroke-width',i?3:5);
+   const s=i?22:40;g.append('use').attr('href','#e-central').attr('x',-s/2).attr('y',-s/2-(i?0:6)).attr('width',s).attr('height',s).style('color','#F2EFE8');
+   g.append('text').attr('y',i?-32:62).attr('text-anchor','middle').attr('font-size',i?13:14).attr('font-weight',700).attr('fill','#F2EFE8').attr('font-family',FONT).attr('stroke','#111315').attr('stroke-width',4).attr('paint-order','stroke').text('Corabastos');return g});
+  const ringL=L.insert('circle',':first-child').attr('r',60).attr('fill','none').attr('stroke',RD).attr('stroke-width',3);
+  const P=[];const mover=(g,a,b,col,sp,ph,showOn)=>{const c=g.append('circle').attr('r',4.5).attr('fill',col).attr('stroke','#0d0e10');P.push({c,a,b,sp,ph,showOn});return c};
+  consL.forEach((n,i)=>{const d=Math.hypot(n.x,n.y),o={x:n.x/d*48,y:n.y/d*48};[0,.5].forEach(f=>mover(L,o,n,RD,.16,(i*.09+f)%1,0))});
+  lk.forEach((l,i)=>{const col=l.kind==='c'?OR:LG;[0,.5].forEach(f=>mover(R,l.source,l.target,col,.18,(i*.137+f)%1,1))});
  /* títulos */
  const head=(g,x,txt,col)=>{const w=txt.length*9.2+32;const b=svg.append('g').attr('transform',`translate(${x-w/2},58)`);b.append('rect').attr('width',w).attr('height',32).attr('rx',16).attr('fill',col);b.append('text').attr('x',w/2).attr('y',21).attr('text-anchor','middle').attr('font-size',13.5).attr('font-weight',700).attr('letter-spacing','.08em').attr('fill','#0d0e10').attr('font-family',FONT).text(txt);return b};
  const hL=head(L,300,'HOY · RED CENTRALIZADA',RD),hR=head(R,900,'PROPUESTA · RED DISTRIBUIDA',GN);
  const cap=(x,l1,l2,col)=>{const g=svg.append('g');[[l1,16,700,'#fff'],[l2,13,500,'#9a958c']].forEach(([t,fs,fw,c],i)=>g.append('text').attr('x',x).attr('y',655+i*22).attr('text-anchor','middle').attr('font-size',fs).attr('font-weight',fw).attr('fill',c).attr('font-family',FONT).text(t));return g};
- const cL=cap(300,'Todo converge en un solo nodo','Camiones, residuos y decisiones pasan por Corabastos'),cR=cap(900,'Grupos locales y Corabastos, conectados como pares','Corabastos pasa a ser un nodo más del circuito: ya no es el centro ni el único camino');
+ const cL=cap(300,'Todo converge en un solo nodo','Camiones, residuos y decisiones pasan por Corabastos'),cR=cap(900,'Una red sin centro: cada actor con varios vecinos','Corabastos es un nodo más del circuito; ningún actor concentra las conexiones');
  svg.append('path').attr('d','M600,110V620').attr('stroke','#2b2d33').attr('stroke-width',2).attr('stroke-dasharray','6 6');
  /* leyenda */
  const lg=svg.append('g').attr('transform','translate(0,712)');[['tienda','Tienda',PK],['comedor','Comedor',PK],['colegio','Colegio',AM],['huerta','Huerta',GN]].forEach(([id,t,c],i)=>{const x=420+i*120;lg.append('use').attr('href','#e-'+id).attr('x',x).attr('y',-10).attr('width',20).attr('height',20).style('color',c);lg.append('text').attr('x',x+26).attr('y',5).attr('font-size',13).attr('font-weight',600).attr('fill','#B8B3A8').attr('font-family',FONT).text(t)});
