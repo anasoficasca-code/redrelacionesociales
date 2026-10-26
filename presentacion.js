@@ -591,6 +591,83 @@ function cardsView(ctx,cfg){
  if(cfg.loop&&!P){const a=G[0],b=G[G.length-1];svg.append('path').attr('d',`M${b.x+cw/2},${b.y+ch+6}C${b.x+cw/2},${H-bot+40} ${a.x+cw/2},${H-bot+40} ${a.x+cw/2},${a.y+ch+8}`).attr('fill','none').attr('stroke',RED).attr('stroke-width',2).attr('stroke-dasharray','6 6').attr('class','flowing').attr('marker-end','url(#cv-a)')}
  if(cfg.footer){const ft=txt(svg,W/2,H-(P?30:28),'',{a:'middle',fw:600,fs:P?12.5:15,c:OCH});wrap(ft,cfg.footer,P?46:120,P?15:19)}
 }
+/* ===== Propuesta sobre el plano de Kennedy: cómo se vería ===== */
+const PROP_COR=[-74.1590,4.6295],PROP_VACA=[-74.16198,4.6287],PROP_BURRO=[-74.14958,4.64142],PROP_TECHO=[-74.14165,4.64518],PROP_ALC=[-74.157422,4.619505];
+const PROP_MODOS=[
+ {t:'Circuitos cortos entre huertas, colegios y comedores',s:'Propuesta: conexiones locales que no pasan por la central',leg:[['#8EBF4C','Huertas (muestra)'],['#F2B53A','Colegios oficiales con huerta escolar'],['#CF7ABB','Comedores comunitarios'],['#DE9F50','Corabastos'],['#B6E27A','Circuito corto propuesto']]},
+ {t:'Una parte del abasto es local; el resto sigue en la central',s:'Se reduce la dependencia de un único nodo, no se elimina',leg:[['#B6E27A','Circuito corto local (propuesta)'],['#DE9F50','Abasto que sigue llegando desde Corabastos'],['#CF7ABB','Comedores comunitarios'],['#F2B53A','Colegios oficiales']]},
+ {t:'Núcleos de autogobierno sobre tres flujos',s:'Reconocidos por la Alcaldía Local, las JAC y la JAL',leg:[['#DE9F50','Núcleo de abastecimiento y horarios de carga'],['#8EBF4C','Núcleo de residuos orgánicos'],['#4EAECF','Núcleo del agua y los humedales'],['#9382E0','Juntas de acción comunal (188)'],['#F2EFE8','Reconocimiento institucional (Alcaldía Local)']]},
+ {t:'Tres flujos que se reorganizan en Kennedy',s:'Horarios de carga · residuos orgánicos · compras de alimentos',leg:[['#E0623F','1 · Horarios de carga alrededor de Corabastos'],['#F2B53A','2 · Residuos orgánicos aprovechados (compost a huertas)'],['#B6E27A','3 · Compras locales organizadas'],['#4EAECF','Humedales con menos presión']]},
+ {t:'Cómo sabríamos si funciona',s:'Indicadores ubicados donde ocurre cada flujo',leg:[['#B6E27A','% de abastecimiento local por circuitos cortos'],['#DE9F50','Dependencia de Corabastos'],['#E0623F','Viajes de carga en horas de congestión'],['#F2B53A','Toneladas de orgánicos aprovechadas'],['#8DB3D9','Información de precios y volúmenes']]}];
+function propuestaView(ctx){
+ const el=ctx.el;const P=size(el).W<760;d3.select(el).append('div').attr('id','mapC');
+ const map=new maplibregl.Map({container:'mapC',style:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',center:[-74.155,4.632],zoom:P?11.6:12.4,attributionControl:{compact:true},interactive:false});
+ let alive=true,raf=0,ready=false,pend=null,markers=[],DOTS=[],DATA=null,BB=null,CEN=null;
+ ctx.onExit(()=>{alive=false;cancelAnimationFrame(raf);try{map.remove()}catch(e){}});
+ const leg=d3.select(el).append('div').style('position','absolute').style('left','14px').style(P?'bottom':'top','14px').style('background','rgba(13,14,16,.92)').style('border','1px solid #2b2d33').style('border-radius','12px').style('padding',P?'10px 12px':'14px 16px').style('max-width',P?'70%':'360px').style('pointer-events','none');
+ const FCo=f=>({type:'FeatureCollection',features:f});
+ const dist=(a,b)=>Math.hypot((a[0]-b[0])*Math.cos(4.63*Math.PI/180),a[1]-b[1]);
+ const near=(o,arr,n)=>[...arr].sort((a,b)=>dist(o,a.geometry.coordinates)-dist(o,b.geometry.coordinates)).slice(0,n);
+ const arc=(a,b,bend=.22)=>{const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1];const c=[mx-dy*bend,my+dx*bend];return Array.from({length:29},(_,i)=>{const t=i/28;return[(1-t)**2*a[0]+2*(1-t)*t*c[0]+t*t*b[0],(1-t)**2*a[1]+2*(1-t)*t*c[1]+t*t*b[1]]})};
+ const circle=(c,rm)=>{const k=Math.cos(c[1]*Math.PI/180);return Array.from({length:65},(_,i)=>{const a=i/64*Math.PI*2;return[c[0]+Math.cos(a)*rm/111320/k,c[1]+Math.sin(a)*rm/111320]})};
+ map.on('load',()=>Promise.all(['assets/territorio_kennedy.geojson','assets/territorio_puntos.geojson'].map(u=>fetch(u).then(r=>r.json()))).then(([K,pt])=>{
+  const PT=pt.features,by=c=>PT.filter(f=>f.properties.c===c);
+  const comedores=PT.filter(f=>f.properties.c==='sdis'&&/^Comedor/.test(f.properties.n||'')),colegios=by('colegio'),huertas=by('huerta'),jac=by('jac');
+  /* muestra de huertas repartida por el territorio (una por celda) */
+  const cell=new Map();huertas.forEach(f=>{const [x,y]=f.geometry.coordinates;const k=Math.round(x/.006)+'_'+Math.round(y/.006);if(!cell.has(k))cell.set(k,f)});const hs=[...cell.values()];
+  const cs=colegios.filter((_,i)=>i%2===0);
+  const circ=[];comedores.forEach(c=>near(c.geometry.coordinates,hs,4).forEach(h=>circ.push([h.geometry.coordinates,c.geometry.coordinates])));
+  cs.forEach(c=>near(c.geometry.coordinates,hs,2).forEach(h=>circ.push([h.geometry.coordinates,c.geometry.coordinates])));
+  DATA={K,jac,comedores,colegios:cs,hs,circ};
+  map.addSource('k',{type:'geojson',data:K});map.addLayer({id:'k-fill',type:'fill',source:'k',paint:{'fill-color':'#F2EFE8','fill-opacity':.04}});map.addLayer({id:'k',type:'line',source:'k',paint:{'line-color':'#F2EFE8','line-width':1.6,'line-opacity':.7}});
+  ['z','arcs','h','p','dots'].forEach(s=>map.addSource(s,{type:'geojson',data:FCo([])}));
+  map.addLayer({id:'z-fill',type:'fill',source:'z',paint:{'fill-color':['get','col'],'fill-opacity':.13}});
+  map.addLayer({id:'z-line',type:'line',source:'z',paint:{'line-color':['get','col'],'line-width':2,'line-dasharray':[3,2],'line-opacity':.9}});
+  map.addLayer({id:'arcs',type:'line',source:'arcs',paint:{'line-color':['get','col'],'line-width':['get','w'],'line-opacity':['get','o'],'line-dasharray':[2,1.4]}});
+  map.addLayer({id:'h',type:'circle',source:'h',paint:{'circle-radius':16,'circle-color':['get','col'],'circle-opacity':.25,'circle-blur':.4}});
+  map.addLayer({id:'p',type:'circle',source:'p',paint:{'circle-radius':['get','r'],'circle-color':['get','col'],'circle-opacity':['get','o'],'circle-stroke-color':'#0d0e10','circle-stroke-width':['case',['>',['get','r'],5],1.5,0]}});
+  map.addLayer({id:'dots',type:'circle',source:'dots',paint:{'circle-radius':3,'circle-color':['get','col'],'circle-stroke-width':1,'circle-stroke-color':'#0d0e10'}});
+  const b=d3.geoBounds(K);BB=[[b[0][0],b[0][1]],[b[1][0],b[1][1]]];CEN=d3.geoCentroid(K);map.fitBounds(BB,{padding:P?20:{top:40,bottom:40,left:400,right:40},duration:0});
+  const t0=performance.now();const tick=()=>{if(!alive)return;const t=(performance.now()-t0)/1000,k=(Math.sin(t*2.4)+1)/2;
+   try{map.setPaintProperty('h','circle-radius',12+k*16);map.setPaintProperty('h','circle-opacity',.4-k*.28);
+    if(DOTS.length)map.getSource('dots').setData(FCo(DOTS.map((d,i)=>{const u=reduce?.5:((t*.22+d.ph)%1),j=Math.min(27,Math.floor(u*28));return{type:'Feature',geometry:{type:'Point',coordinates:d.line[j]},properties:{col:d.col}}})))}catch(e){}
+   raf=requestAnimationFrame(tick)};tick();
+  ready=true;if(pend!==null)set(pend)}));
+ function set(i){if(!ready){pend=i;return}const M=PROP_MODOS[i],D=DATA;markers.forEach(m=>m.remove());markers=[];
+  const pts=[],arcs=[],zones=[],halos=[],marks=[];DOTS=[];
+  const dot=(c,r,col,o=.95)=>pts.push({type:'Feature',geometry:{type:'Point',coordinates:c},properties:{col,r,o}});
+  const link=(a,b,col,w=1.6,o=.75,bend=.22,flow=true)=>{const line=arc(a,b,bend);arcs.push({type:'Feature',geometry:{type:'LineString',coordinates:line},properties:{col,w,o}});if(flow)DOTS.push({line,col,ph:Math.random()})};
+  const mark=(c,txt,col,dy=-18)=>marks.push([c,txt,col,dy]);
+  const hal=(c,col)=>halos.push({type:'Feature',geometry:{type:'Point',coordinates:c},properties:{col}});
+  const base=()=>{D.hs.forEach(f=>dot(f.geometry.coordinates,2.6,'#8EBF4C',.8));D.colegios.forEach(f=>dot(f.geometry.coordinates,5.5,'#F2B53A'));D.comedores.forEach(f=>dot(f.geometry.coordinates,7,'#CF7ABB'))};
+  const cora=()=>{dot(PROP_COR,9,'#DE9F50',1);hal(PROP_COR,'#DE9F50');mark(PROP_COR,'Corabastos','#DE9F50',-20)};
+  const tinZone=[-74.158,4.648];
+  if(i===0){base();D.circ.forEach(([a,b])=>link(a,b,'#B6E27A',2.2,.9));cora();mark(tinZone,'Huertas del Tintal','#B6E27A',-10);D.comedores.slice(0,1).forEach(c=>mark(c.geometry.coordinates,'Comedores','#CF7ABB',16))}
+  else if(i===1){base();D.circ.forEach(([a,b])=>link(a,b,'#B6E27A',1.5,.6,.22,false));D.circ.forEach(([a,b])=>DOTS.push({line:arc(a,b,.22),col:'#B6E27A',ph:Math.random()}));
+   D.comedores.forEach(c=>link(PROP_COR,c.geometry.coordinates,'#DE9F50',2.2,.7,-.18));D.colegios.slice(0,12).forEach(c=>link(PROP_COR,c.geometry.coordinates,'#DE9F50',1.4,.4,-.18,false));cora()}
+  else if(i===2){D.jac.forEach(f=>dot(f.geometry.coordinates,3.6,'#9382E0',.85));D.comedores.forEach(f=>dot(f.geometry.coordinates,3,'#CF7ABB',.6));
+   const hum=[PROP_BURRO[0]*.5+PROP_TECHO[0]*.5,PROP_BURRO[1]*.5+PROP_TECHO[1]*.5];
+   const Z=[[[-74.1545,4.6335],'#DE9F50','Núcleo de abastecimiento',900],[[-74.1725,4.6245],'#8EBF4C','Núcleo de residuos orgánicos',950],[hum,'#4EAECF','Núcleo del agua',1300]];
+   Z.forEach(([c,col,n,r])=>{zones.push({type:'Feature',geometry:{type:'Polygon',coordinates:[circle(c,r)]},properties:{col}});mark(c,n+' (propuesto)',col,-6);link(c,PROP_ALC,'#F2EFE8',1.6,.8,.15,true);dot(c,6,col,1)});
+   dot(PROP_ALC,9,'#F2EFE8',1);hal(PROP_ALC,'#F2EFE8');mark(PROP_ALC,'Alcaldía Local · JAL','#F2EFE8',20);dot(PROP_COR,0,'#DE9F50',0)}
+  else if(i===3){D.hs.forEach(f=>dot(f.geometry.coordinates,2.4,'#8EBF4C',.7));D.comedores.forEach(f=>dot(f.geometry.coordinates,6,'#CF7ABB'));
+   D.circ.forEach(([a,b])=>link(a,b,'#B6E27A',1.3,.55));
+   [[-74.1465,4.6265],[-74.1735,4.6225],[-74.1555,4.6055],[-74.1405,4.6335]].forEach(c=>link(PROP_COR,c,'#E0623F',2.4,.8,.25));
+   near(PROP_COR,D.hs,9).forEach(h=>link(PROP_COR,h.geometry.coordinates,'#F2B53A',2.4,.85,-.2));
+   link(PROP_COR,PROP_VACA,'#E0623F',1.2,.4,.1,false);dot(PROP_VACA,7,'#4EAECF',1);hal(PROP_VACA,'#4EAECF');[PROP_BURRO,PROP_TECHO].forEach(c=>{dot(c,7,'#4EAECF',1);hal(c,'#4EAECF')});
+   mark(PROP_VACA,'La Vaca','#4EAECF',20);mark(PROP_BURRO,'El Burro','#4EAECF',20);mark(PROP_TECHO,'Techo','#4EAECF',20);
+   dot(PROP_COR,9,'#DE9F50',1);hal(PROP_COR,'#DE9F50');mark(PROP_COR,'Corabastos','#DE9F50');mark([-74.1465,4.6265],'1 · Carga en otros horarios','#E0623F',-8);mark([-74.1625,4.6395],'2 · Orgánicos → compost → huertas','#F2B53A',-8);mark([-74.1735,4.6335],'3 · Compras locales','#B6E27A',-10)}
+  else{D.hs.forEach(f=>dot(f.geometry.coordinates,2.2,'#8EBF4C',.55));D.comedores.forEach(f=>dot(f.geometry.coordinates,5,'#CF7ABB',.8));D.circ.forEach(([a,b])=>link(a,b,'#B6E27A',1.2,.4,.22,false));
+   dot(PROP_COR,9,'#DE9F50',1);hal(PROP_COR,'#DE9F50');[PROP_VACA,PROP_BURRO,PROP_TECHO].forEach(c=>dot(c,6,'#4EAECF',1));
+   mark(tinZone,'% abastecimiento local','#B6E27A',-10);mark(PROP_COR,'Dependencia de Corabastos','#DE9F50',-22);mark([-74.1465,4.6265],'Viajes de carga en hora pico','#E0623F',-8);mark([PROP_VACA[0]-.002,PROP_VACA[1]-.0125],'Toneladas de orgánicos aprovechadas','#F2B53A',0);mark([-74.1603,4.6194],'Información de precios','#8DB3D9',18)}
+  map.getSource('z').setData(FCo(zones));map.getSource('arcs').setData(FCo(arcs));map.getSource('p').setData(FCo(pts));map.getSource('h').setData(FCo(halos));
+  marks.forEach(([c,txt,col,dy])=>{const e=document.createElement('div');e.style.cssText=`font:700 ${P?11:13}px Instrument Sans,sans-serif;color:${col};text-shadow:0 1px 6px #000,0 0 3px #000,0 0 8px #000;white-space:nowrap;opacity:0;transition:opacity .6s .5s`;e.textContent=txt;markers.push(new maplibregl.Marker({element:e,offset:[0,dy]}).setLngLat(c).addTo(map))});
+  requestAnimationFrame(()=>markers.forEach(m=>m.getElement().style.opacity=1));
+  map.jumpTo({center:CEN,zoom:map.getZoom()-0.6,pitch:0,bearing:-6});map.fitBounds(BB,{padding:P?20:{top:40,bottom:40,left:400,right:40},duration:reduce?0:1800,pitch:P?20:28,bearing:0,essential:true});
+  leg.html(`<div style="font:600 11px JetBrains Mono,monospace;letter-spacing:.08em;color:#F2B53A;text-transform:uppercase">Propuesta sobre el plano de Kennedy</div><div style="font:700 ${P?15:19}px Instrument Sans,sans-serif;color:#fff;margin:4px 0 2px">${M.t}</div><div style="font:400 ${P?11:12.5}px Instrument Sans,sans-serif;color:#9a958c;margin-bottom:8px">${M.s}</div>`+M.leg.map(([c,t])=>`<div style="display:flex;align-items:center;gap:8px;font:500 ${P?12:13.5}px Instrument Sans,sans-serif;color:#cfd3dc;margin-top:4px"><span style="width:11px;height:11px;border-radius:50%;background:${c};display:inline-block;flex:none"></span>${t}</div>`).join('')+`<div style="font:400 11px JetBrains Mono,monospace;color:#77736b;margin-top:8px">Ilustración de la propuesta, no una obra existente · datos: IDECA</div>`)}
+ return sub=>set(sub);
+}
+
 const CV={
  macros:{title:'Diez macromodelos; seis actúan directamente sobre esta problemática',cols:5,pcols:2,stagger:120,maxh:210,items:[
   {ic:'i-moneda',t:'Comercio ecológico y autonomía territorial',col:'#DE9F50',hl:1},{ic:'i-ciclo',t:'Circularidad',col:'#8EBF4C',hl:1},{ic:'i-gota',t:'Hidrocéntrico',col:'#4EAECF',hl:1},{ic:'i-alerta',t:'Límites ecológicos',col:'#E0623F',hl:1},{ic:'i-grupo',t:'Organización comunitaria',col:'#F2B53A',hl:1},
@@ -735,6 +812,7 @@ const SL=[
  {b:3,key:'cv_indicadores',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.indicadores)}},
  {b:3,key:'cv_flujos',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.flujos)}},
  {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
+ {b:3,key:'propuesta',src:'Propuesta del grupo sobre capas IDECA · Datos Abiertos Bogotá · ilustrativo',draw(ctx){return propuestaView(ctx)}},
  {b:3,key:'vensim2',slow:1300,src:'Modelo Vensim del grupo',draw(ctx){const v=vensim(ctx);const Z=[null,['12','28','29','125'],['28','29','125'],['12','28','29','125'],['9','10','11','26','27','91','94','95','112','113','114'],['1','2','3','5','6','7','50','168']];return sub=>v.zoom(Z[sub])}},
  {b:3,key:'causal2',src:'Guion del grupo · hipótesis por verificar',draw(ctx){return causal2View(ctx)}},
  {b:3,key:'policentro',src:'Guion del grupo',draw(ctx){return policentroView(ctx)}},
