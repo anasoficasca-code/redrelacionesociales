@@ -827,30 +827,29 @@ function redesView(ctx){
  /* panel derecho: enlaces locales + puentes entre grupos + pocos hacia Corabastos */
  const localLinks=[],bridges=[],corLinks=[];
  CL.forEach((_,c)=>{const g=byC(c),h0=g[0];g.slice(1).forEach(n=>localLinks.push([h0,n]));[[1,2],[2,3],[3,4],[4,1]].forEach(([i,j])=>localLinks.push([g[i],g[j]]))});
- [[0,1],[1,3],[3,2],[2,0]].forEach(([a,b])=>bridges.push([byC(a)[0],byC(b)[0]]));
- CL.forEach((_,c)=>{const g=byC(c).slice(1);g.sort((p,q)=>Math.hypot(p.x,p.y)-Math.hypot(q.x,q.y));corLinks.push([COR,g[0]])});
+ const COR2={x:0,y:-130};[[1,3],[3,2],[2,0]].forEach(([a,b])=>bridges.push([byC(a)[0],byC(b)[0]]));corLinks.push([byC(0)[0],COR2],[COR2,byC(1)[0]]);
  const rl=localLinks.map(([a,b])=>line(R.insert('g',':first-child'),a,b,LG,2,.7));
  const rb=bridges.map(([a,b])=>line(R.insert('g',':first-child'),a,b,GN,3,.85));
- const rc=corLinks.map(([a,b])=>line(R.insert('g',':first-child'),a,b,OR,1.6,.5,'4 5'));
+ const rc=corLinks.map(([a,b])=>line(R.insert('g',':first-child'),a,b,OR,3.2,.9));
  /* nodos */
  const drawN=(g,dim)=>nodes.map(n=>{const k=g.append('g').attr('transform',`translate(${n.x},${n.y})`);const r=n.t==='huerta'?18:16;
   k.append('circle').attr('r',r).attr('fill','#15171a').attr('stroke',COL[n.t]).attr('stroke-width',2.4);
   k.append('use').attr('href','#e-'+n.t).attr('x',-r*.6).attr('y',-r*.6).attr('width',r*1.2).attr('height',r*1.2).style('color',n.t==='huerta'?LG:'#F2EFE8');return k});
  const nl=drawN(L),nr=drawN(R);nl.forEach((k,i)=>{if(nodes[i].t==='huerta')k.attr('opacity',.55)});
- const hubs=PANEL.map((_,i)=>{const g=gP[i].append('g');g.append('circle').attr('r',i?30:46).attr('fill','#2a1d0c').attr('stroke',OR).attr('stroke-width',i?3:5);
-  const s=i?26:40;g.append('use').attr('href','#e-central').attr('x',-s/2).attr('y',-s/2-(i?0:6)).attr('width',s).attr('height',s).style('color','#F2EFE8');
-  g.append('text').attr('y',i?46:62).attr('text-anchor','middle').attr('font-size',i?12:14).attr('font-weight',700).attr('fill','#F2EFE8').attr('font-family',FONT).attr('stroke','#111315').attr('stroke-width',4).attr('paint-order','stroke').text('Corabastos');return g});
+ const hubs=PANEL.map((_,i)=>{const g=gP[i].append('g');if(i)g.attr('transform','translate(0,-130)');g.append('circle').attr('r',i?32:46).attr('fill','#2a1d0c').attr('stroke',OR).attr('stroke-width',i?3:5);
+  const s=i?28:40;g.append('use').attr('href','#e-central').attr('x',-s/2).attr('y',-s/2-(i?0:6)).attr('width',s).attr('height',s).style('color','#F2EFE8');
+  g.append('text').attr('y',i?-42:62).attr('text-anchor','middle').attr('font-size',i?13:14).attr('font-weight',700).attr('fill','#F2EFE8').attr('font-family',FONT).attr('stroke','#111315').attr('stroke-width',4).attr('paint-order','stroke').text('Corabastos');return g});
  const ringL=L.insert('circle',':first-child').attr('r',60).attr('fill','none').attr('stroke',RD).attr('stroke-width',3);
  /* partículas */
  const P=[];const mover=(g,a,b,col,sp,ph,showOn)=>{const c=g.append('circle').attr('r',4.5).attr('fill',col).attr('stroke','#0d0e10');P.push({c,a,b,sp,ph,showOn});return c};
  cons.forEach((n,i)=>{const d=Math.hypot(n.x,n.y),o={x:n.x/d*48,y:n.y/d*48};[0,.5].forEach(f=>mover(L,o,n,RD,.16,(i*.09+f)%1,0))});
  localLinks.forEach(([a,b],i)=>mover(R,a,b,LG,.2,(i*.13)%1,1));bridges.forEach(([a,b],i)=>[0,.5].forEach(f=>mover(R,a,b,GN,.2,(i*.2+f)%1,1)));
- corLinks.forEach(([a,b],i)=>mover(R,b,a,OR,.14,i*.25,1));
+ corLinks.forEach(([a,b],i)=>[0,.5].forEach(f=>mover(R,a,b,OR,.18,(i*.3+f)%1,1)));
  /* títulos */
  const head=(g,x,txt,col)=>{const w=txt.length*9.2+32;const b=svg.append('g').attr('transform',`translate(${x-w/2},58)`);b.append('rect').attr('width',w).attr('height',32).attr('rx',16).attr('fill',col);b.append('text').attr('x',w/2).attr('y',21).attr('text-anchor','middle').attr('font-size',13.5).attr('font-weight',700).attr('letter-spacing','.08em').attr('fill','#0d0e10').attr('font-family',FONT).text(txt);return b};
  const hL=head(L,300,'HOY · RED CENTRALIZADA',RD),hR=head(R,900,'PROPUESTA · RED DISTRIBUIDA',GN);
  const cap=(x,l1,l2,col)=>{const g=svg.append('g');[[l1,16,700,'#fff'],[l2,13,500,'#9a958c']].forEach(([t,fs,fw,c],i)=>g.append('text').attr('x',x).attr('y',655+i*22).attr('text-anchor','middle').attr('font-size',fs).attr('font-weight',fw).attr('fill',c).attr('font-family',FONT).text(t));return g};
- const cL=cap(300,'Todo converge en un solo nodo','Camiones, residuos y decisiones pasan por Corabastos'),cR=cap(900,'Varios grupos locales conectados entre sí','Las huertas abastecen a su vecindario; Corabastos sigue, pero deja de ser el único camino');
+ const cL=cap(300,'Todo converge en un solo nodo','Camiones, residuos y decisiones pasan por Corabastos'),cR=cap(900,'Grupos locales y Corabastos, conectados como pares','Corabastos pasa a ser un nodo más del circuito: ya no es el centro ni el único camino');
  svg.append('path').attr('d','M600,110V620').attr('stroke','#2b2d33').attr('stroke-width',2).attr('stroke-dasharray','6 6');
  /* leyenda */
  const lg=svg.append('g').attr('transform','translate(0,712)');[['tienda','Tienda',PK],['comedor','Comedor',PK],['colegio','Colegio',AM],['huerta','Huerta',GN]].forEach(([id,t,c],i)=>{const x=420+i*120;lg.append('use').attr('href','#e-'+id).attr('x',x).attr('y',-10).attr('width',20).attr('height',20).style('color',c);lg.append('text').attr('x',x+26).attr('y',5).attr('font-size',13).attr('font-weight',600).attr('fill','#B8B3A8').attr('font-family',FONT).text(t)});
@@ -866,6 +865,85 @@ function redesView(ctx){
   P.forEach(p=>p.c.transition().duration(300).style('opacity',(p.showOn===0||on)?1:0));
   T(L,on?.4:1,600);T(hL,on?.45:1,400);T(cL,on?.45:1,400);T(hR,on?1:.35,500);T(cR,on?1:.0,600,on?800:0);T(hubs[1],1,10);
   ringL.attr('display',on?'none':null)}}
+
+/* ===== Escena animada: seguridad vs soberanía alimentaria y reducción de la dependencia ===== */
+const SOB_SYM=`<symbol id="s-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="s-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V11M10 20V4M16 20v-7M22 20H2"/></symbol>
+<symbol id="s-decide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 14h17v6.5h-17zM7.5 14 6 9.5h12L16.5 14M12 3.5v6M9 6.5l3 3 3-3"/></symbol>
+<symbol id="s-hogar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3.5 21 11M5.5 9.5V20.5h13V9.5M10 20.5v-5h4v5"/></symbol>
+<symbol id="s-grupo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.4"/><path d="M2.5 20c0-3.5 2.7-6 6-6s6 2.5 6 6M15 14.3c.5-.2 1-.3 1.5-.3 2.8 0 5 2 5 5"/></symbol>
+<symbol id="s-precio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12.5V4h8.5l9 9-8.5 8.5zM7.5 8.5h.01"/></symbol>`;
+const SOB_T=[
+ {badge:'SEGURIDAD ALIMENTARIA',col:'#4EAECF',head:'Acceso a alimentos suficientes, inocuos y nutritivos'},
+ {badge:'SOBERANÍA ALIMENTARIA',col:'#8EBF4C',head:'Capacidad de decidir cómo se producen y se distribuyen'},
+ {badge:'EL CAMINO',col:'#F2B53A',head:'Reducir la dependencia de un único nodo, sin eliminar la central'}];
+function soberaniaView(ctx){
+ const el=ctx.el;const svg=d3.select(el).append('svg').attr('class','full').attr('viewBox','0 0 1200 740').attr('preserveAspectRatio','xMidYMid meet');
+ svg.append('defs').html(ESC_SYM+SOB_SYM);
+ const FONT='Instrument Sans,sans-serif',OR='#DE9F50',GN='#8EBF4C',LG='#B6E27A',PK='#CF7ABB',AM='#F2B53A',TL='#4EAECF',RD='#E0623F',PU='#9382E0';
+ const G=[0,1,2].map(()=>svg.append('g').style('opacity',0));const gHead=svg.append('g');
+ const P=[];const mover=(g,a,b,col,sp,ph,sub,k=0)=>{const c=g.append('circle').attr('r',5).attr('fill',col).attr('stroke','#0d0e10');P.push({c,a,b,sp,ph,sub,k})};
+ const ctrl=(a,b,k)=>[(a[0]+b[0])/2-(b[1]-a[1])*k,(a[1]+b[1])/2+(b[0]-a[0])*k];
+ const link=(g,a,b,col,w=2.4,op=.8,dash=null,k=0)=>{const c=ctrl(a,b,k);return g.insert('path',':first-child').attr('d',`M${a[0]},${a[1]}Q${c[0]},${c[1]} ${b[0]},${b[1]}`).attr('fill','none').attr('stroke',col).attr('stroke-width',w).attr('stroke-opacity',op).attr('stroke-dasharray',dash).attr('stroke-linecap','round')};
+ const node=(g,p,id,col,r,label,o={})=>{const n=g.append('g').attr('transform',`translate(${p[0]},${p[1]})`);n.append('circle').attr('r',r).attr('fill',o.fill||'#15171a').attr('stroke',col).attr('stroke-width',o.sw||2.6);
+  n.append('use').attr('href',id).attr('x',-r*.58).attr('y',-r*.58).attr('width',r*1.16).attr('height',r*1.16).style('color',o.ic||'#F2EFE8');
+  if(label)n.append('text').attr('y',r+(o.dy||18)).attr('text-anchor','middle').attr('font-size',o.fs||13).attr('font-weight',600).attr('fill',o.tc||col).attr('font-family',FONT).text(label);return n};
+ const pill=(g,x,y,w,txt,col,icon,fs=14)=>{const n=g.append('g').attr('transform',`translate(${x},${y})`);n.append('rect').attr('x',-w/2).attr('y',-21).attr('width',w).attr('height',42).attr('rx',21).attr('fill','#15171a').attr('stroke',col).attr('stroke-width',2);
+  let tx=0,anchor='middle';if(icon){n.append('use').attr('href',icon).attr('x',-w/2+14).attr('y',-11).attr('width',22).attr('height',22).style('color',col);tx=-w/2+46;anchor='start'}
+  n.append('text').attr('x',tx).attr('y',5).attr('text-anchor',anchor).attr('font-size',fs).attr('font-weight',600).attr('fill','#F2EFE8').attr('font-family',FONT).text(txt);return n};
+ /* ---- sub 0: seguridad ---- */
+ {const g=G[0];const Y=360,X=[170,430,720,1010];
+  const ch=[[X[0],Y],[X[1],Y],[X[2],Y],[X[3],Y]];
+  for(let i=0;i<3;i++){link(g,ch[i],ch[i+1],TL,3,.7,'7 7');[0,.5].forEach(f=>mover(g,ch[i],ch[i+1],TL,.16,(i*.3+f)%1,0))}
+  node(g,ch[0],'#e-huerta',GN,34,'Productores',{ic:LG});node(g,ch[1],'#e-central',OR,46,'Corabastos');node(g,ch[2],'#e-tienda',PK,34,'Tienda de barrio');node(g,ch[3],'#s-hogar',TL,38,'Hogar');
+  const ck=g.append('g').attr('transform',`translate(${X[3]},235)`);ck.append('circle').attr('r',26).attr('fill','#10281f').attr('stroke',GN).attr('stroke-width',3);ck.append('use').attr('href','#s-check').attr('x',-14).attr('y',-14).attr('width',28).attr('height',28).style('color',LG);
+  g.append('text').attr('x',X[3]).attr('y',285).attr('text-anchor','middle').attr('font-size',13).attr('font-weight',700).attr('fill',LG).attr('font-family',FONT).text('Hay acceso');
+  const dc=g.append('g').attr('transform',`translate(${X[1]},235)`);dc.append('circle').attr('r',26).attr('fill','#2a210a').attr('stroke',AM).attr('stroke-width',3);dc.append('use').attr('href','#s-decide').attr('x',-14).attr('y',-14).attr('width',28).attr('height',28).style('color',AM);
+  g.append('text').attr('x',X[1]).attr('y',285).attr('text-anchor','middle').attr('font-size',13).attr('font-weight',700).attr('fill',AM).attr('font-family',FONT).text('Un solo nodo decide');
+  pill(g,360,560,560,'Responde: ¿llega alimento suficiente, inocuo y nutritivo?',TL,'#s-check');
+  pill(g,840,630,620,'No responde: ¿quién decide cómo se produce y se distribuye?',RD,null);
+  g.append('text').attr('x',840-300+22).attr('y',636).attr('font-size',20).attr('font-weight',800).attr('fill',RD).attr('font-family',FONT).text('?');}
+ /* ---- sub 1: soberanía ---- */
+ {const g=G[1];const N={H1:[250,330],H2:[520,250],H3:[400,490],T1:[390,350],C1:[690,370],K1:[560,470],T2:[800,250],M2:[760,500],G1:[230,490],G2:[900,400],COR:[1020,290]};
+  const E=[['H1','T1'],['H1','G1'],['H1','H3'],['H2','T1'],['H2','T2'],['H2','C1'],['H3','T1'],['H3','K1'],['H3','G1'],['C1','K1'],['C1','T2'],['C1','M2'],['K1','M2'],['T2','COR'],['M2','G2'],['G2','COR'],['T2','G2']];
+  E.forEach(([a,b],i)=>{const hot=a==='COR'||b==='COR';link(g,N[a],N[b],hot?OR:LG,2.4,.75,hot?'5 5':null);[0,.5].forEach(f=>mover(g,N[a],N[b],hot?OR:LG,.16,(i*.11+f)%1,1))});
+  [['H1','#e-huerta',GN,'Huerta'],['H2','#e-huerta',GN,'Huerta'],['H3','#e-huerta',GN,'Huerta'],['T1','#e-tienda',PK,'Tienda'],['T2','#e-tienda',PK,'Tienda'],['C1','#e-comedor',PK,'Comedor'],['M2','#e-comedor',PK,'Comedor'],['K1','#e-colegio',AM,'Colegio'],['G1','#s-hogar',TL,'Hogar'],['G2','#s-hogar',TL,'Hogar']].forEach(([k,id,c,l])=>node(g,N[k],id,c,25,l,{ic:id==='#e-huerta'?LG:'#F2EFE8',fs:12}));
+  node(g,N.COR,'#e-central',OR,32,'Corabastos: parte del circuito',{fs:12.5});
+  const D=[[300,150,'#e-huerta',GN,'Qué se produce'],[600,150,'#e-camion',RD,'Cómo se distribuye'],[900,150,'#s-precio',AM,'Con qué condiciones e información']];
+  D.forEach(([x,y,id,c,t],i)=>{const b=g.append('g').attr('transform',`translate(${x},${y})`);b.append('circle').attr('r',27).attr('fill','#15171a').attr('stroke',c).attr('stroke-width',3);b.append('use').attr('href',id).attr('x',-15).attr('y',-15).attr('width',30).attr('height',30).style('color',c);b.append('text').attr('y',50).attr('text-anchor','middle').attr('font-size',14).attr('font-weight',700).attr('fill','#fff').attr('font-family',FONT).text(t);
+   link(g,[x,y+66],[[N.H1,N.H2,N.C1][i][0],[N.H1,N.H2,N.C1][i][1]-28],c,2,.6,'4 5',0)});
+  pill(g,600,620,760,'Autogobierno sobre flujos concretos, junto a las instituciones',GN,'#s-grupo');
+  g.__rip=N.H2}
+ /* ---- sub 2: dependencia ---- */
+ {const g=G[2];const X0=170,W=860;
+  const bar=(y,label,icon,col)=>{g.append('text').attr('x',X0).attr('y',y-18).attr('font-size',15).attr('font-weight',700).attr('fill','#fff').attr('font-family',FONT).text(label);g.append('rect').attr('x',X0).attr('y',y).attr('width',W).attr('height',54).attr('rx',12).attr('fill','#1b1d21').attr('stroke','#2b2d33')};
+  bar(210,'Hoy: el abasto local depende de un único nodo');
+  g.append('rect').attr('x',X0).attr('y',210).attr('width',W).attr('height',54).attr('rx',12).attr('fill',OR).attr('fill-opacity',.85);
+  g.append('use').attr('href','#e-central').attr('x',X0+16).attr('y',222).attr('width',30).attr('height',30).style('color','#2a1d0c');g.append('text').attr('x',X0+56).attr('y',244).attr('font-size',15).attr('font-weight',700).attr('fill','#2a1d0c').attr('font-family',FONT).text('Corabastos');
+  bar(350,'Con la propuesta: una parte por circuitos cortos, el resto sigue');
+  const wl=W*.3;
+  const orange=g.append('rect').attr('x',X0+wl).attr('y',350).attr('width',W-wl).attr('height',54).attr('fill',OR).attr('fill-opacity',.85);
+  const green=g.append('rect').attr('class','sob-green').attr('x',X0).attr('y',350).attr('width',wl).attr('height',54).attr('rx',12).attr('fill',GN);
+  g.append('use').attr('href','#e-huerta').attr('x',X0+14).attr('y',362).attr('width',30).attr('height',30).style('color','#10200a');g.append('text').attr('x',X0+52).attr('y',384).attr('font-size',14).attr('font-weight',700).attr('fill','#10200a').attr('font-family',FONT).text('Circuitos cortos');
+  g.append('use').attr('href','#e-central').attr('x',X0+wl+16).attr('y',362).attr('width',30).attr('height',30).style('color','#2a1d0c');g.append('text').attr('x',X0+wl+56).attr('y',384).attr('font-size',15).attr('font-weight',700).attr('fill','#2a1d0c').attr('font-family',FONT).text('Corabastos sigue siendo parte del abasto');
+  g.append('text').attr('x',X0+W).attr('y',432).attr('text-anchor','end').attr('font-size',11.5).attr('fill','#77736b').attr('font-family',FONT).text('Ilustrativo: la proporción no es una meta ni un dato');
+  const M=[[300,'#e-tienda',PK,'Compras locales organizadas'],[600,'#s-grupo',GN,'Acuerdos entre productores y consumidores'],[900,'#s-info',TL,'Información de precios y volúmenes']];
+  M.forEach(([x,id,c,t],i)=>{const a=[x,560];const b=[X0+wl/2+i*(wl/4)-wl/4,410];link(g,[x,530],b,c,2.4,.8,'6 6',i===1?0:(i===0?-.06:.08));mover(g,[x,530],b,c,.2,i*.3,2);mover(g,[x,530],b,c,.2,i*.3+.5,2);
+   const n=g.append('g').attr('transform',`translate(${x},${560})`);n.append('circle').attr('r',30).attr('fill','#15171a').attr('stroke',c).attr('stroke-width',3);n.append('use').attr('href',id).attr('x',-17).attr('y',-17).attr('width',34).attr('height',34).style('color',c);n.append('text').attr('y',54).attr('text-anchor','middle').attr('font-size',13.5).attr('font-weight',700).attr('fill','#fff').attr('font-family',FONT).text(t)});
+  pill(g,600,690,900,'Las huertas no reemplazan el volumen ni la variedad de Corabastos',OR,'#e-central',14)}
+ /* encabezado */
+ const bd=gHead.append('rect').attr('rx',14).attr('height',28).attr('y',12),bt=gHead.append('text').attr('y',31).attr('font-size',13).attr('font-weight',700).attr('letter-spacing','.1em').attr('fill','#0d0e10').attr('font-family',FONT);
+ const head=gHead.append('text').attr('x',600).attr('y',68).attr('text-anchor','middle').attr('font-size',22).attr('font-weight',700).attr('fill','#fff').attr('font-family',FONT);
+ let alive=true,raf,S=0,t0=performance.now();ctx.onExit(()=>{alive=false;cancelAnimationFrame(raf)});
+ const ripples=[0,1,2].map(i=>G[1].append('circle').attr('fill','none').attr('stroke',GN).attr('stroke-width',2.5));
+ const tick=now=>{if(!alive)return;const t=(now-t0)/1000;
+  P.forEach(p=>{if(p.sub!==S)return;const u=reduce?.5:((t*p.sp+p.ph)%1);p.c.attr('cx',p.a[0]+(p.b[0]-p.a[0])*u).attr('cy',p.a[1]+(p.b[1]-p.a[1])*u)});
+  if(S===1){const c=G[1].__rip;ripples.forEach((r,i)=>{const u=((t*.45+i/3)%1);r.attr('cx',c[0]).attr('cy',c[1]).attr('r',26+u*190).attr('stroke-opacity',(1-u)*.5)})}
+  raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);
+ return sub=>{S=sub;const T=SOB_T[sub];G.forEach((g,i)=>g.transition().duration(reduce?0:500).delay(i===sub&&!reduce?250:0).style('opacity',i===sub?1:0));
+  P.forEach(p=>p.c.style('opacity',p.sub===sub?1:0));ripples.forEach(r=>r.style('display',sub===1?null:'none'));
+  bd.attr('fill',T.col);bt.text(T.badge).attr('x',14);const w=(bt.node().getComputedTextLength?bt.node().getComputedTextLength():200)+28;bd.attr('width',w);bt.attr('x',14);gHead.select('rect').attr('x',600-w/2);bt.attr('x',600-w/2+14);head.text(T.head);
+  if(sub===2){const gr=G[2].select('.sob-green');gr.attr('width',0).transition().delay(reduce?0:600).duration(reduce?0:1400).attr('width',860*.3)}}}
 
 const CV={
  macros:{title:'Diez macromodelos; seis actúan directamente sobre esta problemática',cols:5,pcols:2,stagger:120,maxh:210,items:[
@@ -1013,6 +1091,7 @@ const SL=[
  {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
  {b:3,key:'propuesta',src:'Propuesta del grupo sobre capas IDECA · Datos Abiertos Bogotá · ilustrativo',draw(ctx){return propuestaView(ctx)}},
  {b:3,key:'escena',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return escenaView(ctx)}},
+ {b:3,key:'soberania',src:'Guion del grupo · ilustrativo: la proporción no es una meta ni un dato',draw(ctx){return soberaniaView(ctx)}},
  {b:3,key:'redes',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return redesView(ctx)}},
  {b:3,key:'fondoanim',src:'Ilustración animada de la propuesta del grupo · es una propuesta, no una estructura existente',draw(ctx){return fondoView(ctx)}},
  {b:3,key:'vensim2',slow:1300,src:'Modelo Vensim del grupo',draw(ctx){const v=vensim(ctx);const Z=[null,['12','28','29','125'],['28','29','125'],['12','28','29','125'],['9','10','11','26','27','91','94','95','112','113','114'],['1','2','3','5','6','7','50','168']];return sub=>v.zoom(Z[sub])}},
