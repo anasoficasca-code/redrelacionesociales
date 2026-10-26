@@ -920,7 +920,7 @@ function soberaniaView(ctx){
   g.append('rect').attr('x',X0).attr('y',210).attr('width',W).attr('height',54).attr('rx',12).attr('fill',OR).attr('fill-opacity',.85);
   g.append('use').attr('href','#e-central').attr('x',X0+16).attr('y',222).attr('width',30).attr('height',30).style('color','#2a1d0c');g.append('text').attr('x',X0+56).attr('y',244).attr('font-size',15).attr('font-weight',700).attr('fill','#2a1d0c').attr('font-family',FONT).text('Corabastos');
   bar(350,'Con la propuesta: una parte por circuitos cortos, el resto sigue');
-  const wl=W*.3;
+  const wl=W*.5;
   const orange=g.append('rect').attr('x',X0+wl).attr('y',350).attr('width',W-wl).attr('height',54).attr('fill',OR).attr('fill-opacity',.85);
   const green=g.append('rect').attr('class','sob-green').attr('x',X0).attr('y',350).attr('width',wl).attr('height',54).attr('rx',12).attr('fill',GN);
   g.append('use').attr('href','#e-huerta').attr('x',X0+14).attr('y',362).attr('width',30).attr('height',30).style('color','#10200a');g.append('text').attr('x',X0+52).attr('y',384).attr('font-size',14).attr('font-weight',700).attr('fill','#10200a').attr('font-family',FONT).text('Circuitos cortos');
@@ -942,7 +942,7 @@ function soberaniaView(ctx){
  return sub=>{S=sub;const T=SOB_T[sub];G.forEach((g,i)=>g.transition().duration(reduce?0:500).delay(i===sub&&!reduce?250:0).style('opacity',i===sub?1:0));
   P.forEach(p=>p.c.style('opacity',p.sub===sub?1:0));ripples.forEach(r=>r.style('display',sub===1?null:'none'));
   bd.attr('fill',T.col);bt.text(T.badge).attr('x',14);const w=(bt.node().getComputedTextLength?bt.node().getComputedTextLength():200)+28;bd.attr('width',w);bt.attr('x',14);gHead.select('rect').attr('x',600-w/2);bt.attr('x',600-w/2+14);head.text(T.head);
-  if(sub===2){const gr=G[2].select('.sob-green');gr.attr('width',0).transition().delay(reduce?0:600).duration(reduce?0:1400).attr('width',860*.3)}}}
+  if(sub===2){const gr=G[2].select('.sob-green');gr.attr('width',0).transition().delay(reduce?0:600).duration(reduce?0:1400).attr("width",860*.5)}}}
 
 const CV={
  macros:{title:'Diez macromodelos; seis actúan directamente sobre esta problemática',cols:5,pcols:2,stagger:120,maxh:210,items:[
