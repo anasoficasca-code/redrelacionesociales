@@ -1263,10 +1263,13 @@ function axoView(ctx){
    if(L.k==='hum'){const cp=[L.lx,L.ly];const a1=gA.append('g');K.node(a1,cp,'#e-camion',RD,17,null,{sw:3,fill:'#2a1414'});const b1=gP.append('g');K.node(b1,cp,'#s-check',GN,17,null,{ic:LG,sw:3,fill:'#10261a'})}
    K.node(gN,hub,'#e-central',OR,L.k==='cor'?15:12,null,{sw:2.6,fill:'#2a1d0c'});
    g.append('circle').attr('cx',L.lx).attr('cy',L.ly).attr('r',RL).attr('fill','none').attr('stroke',L.col).attr('stroke-width',3.6);
-   const ind=g.append('g').attr('transform',`translate(${L.lx},${L.ly+RL-14})`);const dA=ind.append('circle').attr('cx',-14).attr('r',5).attr('fill',RD).attr('stroke','#0d0e10').attr('stroke-width',1.2),dB=ind.append('circle').attr('cx',14).attr('r',5).attr('fill',GN).attr('stroke','#0d0e10').attr('stroke-width',1.2);
+   const TX_={rec:['Recicladores y compost','Todo converge en Corabastos','Orgánicos a compost y huertas'],cor:['Corabastos','Todo converge aquí','Un nodo más de la red'],huerta:['Huertas del Tintal','Dependen de un solo nodo','Huertas abastecen al barrio'],hum:['Humedales','Presión de carga','Menos carga, más cuidado'],circ:['Circuitos cortos','Sin conexión local','Vecinos conectados entre sí']}[L.k];
+   const tw=TX_[0].length*7.4+28;const tt=g.append('g').attr('transform',`translate(${L.lx},${L.ly-RL+20})`);tt.append('rect').attr('x',-tw/2).attr('y',-12).attr('width',tw).attr('height',24).attr('rx',12).attr('fill','#0d0e10').attr('fill-opacity',.88).attr('stroke',L.col).attr('stroke-width',1.6);tt.append('text').attr('y',4.5).attr('text-anchor','middle').attr('font-size',12.5).attr('font-weight',800).attr('fill','#fff').attr('font-family',FONT).text(TX_[0]);
+   const cw=Math.max(TX_[1].length,TX_[2].length)*6.5+38;const cp=g.append('g').attr('transform',`translate(${L.lx},${L.ly+RL-18})`);const cr=cp.append('rect').attr('x',-cw/2).attr('y',-13).attr('width',cw).attr('height',26).attr('rx',13).attr('fill','#0d0e10').attr('fill-opacity',.92).attr('stroke',RD).attr('stroke-width',1.8);
+   const cd=cp.append('circle').attr('cx',-cw/2+14).attr('r',5).attr('fill',RD);const ct=cp.append('text').attr('x',-cw/2+26).attr('y',4.5).attr('font-size',11.5).attr('font-weight',700).attr('fill','#fff').attr('font-family',FONT).text(TX_[1]);
    const m=g.append('g').attr('transform',`translate(${e[0]},${e[1]})`);m.append('circle').attr('r',9).attr('fill',L.col).attr('stroke','#0d0e10').attr('stroke-width',2);m.append('circle').attr('r',15).attr('fill','none').attr('stroke',L.col).attr('stroke-opacity',.6).attr('stroke-width',2);
-   K.show(g,900+i*900);return{gA,gP,dA,dB}});
-  let ph=0;const setPh=()=>{bubs.forEach(({gA,gP,dA,dB})=>{gA.transition().duration(500).style('opacity',ph?0:1);gP.transition().duration(500).style('opacity',ph?1:0);dA.transition().duration(300).attr('r',ph?4:7);dB.transition().duration(300).attr('r',ph?7:4)})};
+   K.show(g,900+i*900);return{gA,gP,cr,cd,ct,TX_}});
+  let ph=0;const setPh=()=>{bubs.forEach(({gA,gP,cr,cd,ct,TX_})=>{gA.transition().duration(500).style('opacity',ph?0:1);gP.transition().duration(500).style('opacity',ph?1:0);const col=ph?GN:RD;cr.transition().duration(300).attr('stroke',col);cd.transition().duration(300).attr('fill',col);ct.text(TX_[ph?2:1])})};
   const iv=setInterval(()=>{ph=1-ph;setPh()},3800);ctx.onExit(()=>clearInterval(iv));setPh();
   /* ---------- red que conecta lugares y huertas ---------- */
   const px=(g,z=0)=>PJ(g[0],g[1],z);
@@ -1286,6 +1289,14 @@ function axoView(ctx){
    K.timers.push(setTimeout(()=>ln.style('opacity',1).transition().duration(reduce?0:700).ease(d3.easeCubicOut).attr('stroke-dashoffset',0),reduce?0:T0+i*(3800/Math.max(1,edges.length))))});
   V.forEach(n=>{const r=n.t==='s'?0:n.t==='h'?3.2:3.8;if(!r)return;const col=n.t==='h'?LG:n.t==='c'?PK:n.t==='e'?AM:PK;const d=gNet.append('circle').attr('cx',n.p[0]).attr('cy',n.p[1]).attr('r',0).attr('fill',col).attr('stroke','#0d0e10').attr('stroke-width',1);K.timers.push(setTimeout(()=>d.transition().duration(400).attr('r',r),reduce?0:T0-300+Math.random()*3000))});
   edges.filter((_,i)=>i%5===0).slice(0,70).forEach((e,i)=>{const d=gNet.append('circle').attr('r',2.8).attr('fill','#fff').attr('opacity',.9);const P=K.P;const c2={c:d,a:e.a.p,b:e.b.p,sp:.17+(i%5)*.03,ph:(i*.137)%1};K.timers.push(setTimeout(()=>P.push(c2),reduce?0:T0+4200))});
+  /* leyenda con palabras clave */
+  const lg=svg.append('g').style('opacity',0);const items=[['#e-huerta',GN,'Huertas'],['#e-comedor',PK,'Comedores'],['#e-colegio',AM,'Colegios'],['#e-tienda',PK,'Tiendas y plazas'],['#e-central',OR,'Corabastos']];
+  let lx=190;lg.append('rect').attr('x',166).attr('y',705).attr('width',880).attr('height',30).attr('rx',15).attr('fill','#0d0e10').attr('fill-opacity',.88).attr('stroke','#2b2d33');
+  items.forEach(([id,col,t])=>{lg.append('circle').attr('cx',lx+9).attr('cy',720).attr('r',9).attr('fill','#101214').attr('stroke',col).attr('stroke-width',1.8);lg.append('use').attr('href',id).attr('x',lx+3).attr('y',714).attr('width',12).attr('height',12).style('color',col===GN?LG:col===OR?'#F2EFE8':'#F2EFE8');lg.append('text').attr('x',lx+24).attr('y',724).attr('font-size',11.5).attr('font-weight',600).attr('fill','#D9D5CB').attr('font-family',FONT).text(t);lx+=t.length*6.3+50});
+  lg.append('line').attr('x1',lx+4).attr('y1',720).attr('x2',lx+26).attr('y2',720).attr('stroke',RD).attr('stroke-width',2.4);lg.append('text').attr('x',lx+32).attr('y',724).attr('font-size',11.5).attr('font-weight',600).attr('fill','#D9D5CB').attr('font-family',FONT).text('Depende de Corabastos');
+  lg.append('line').attr('x1',lx+168).attr('y1',720).attr('x2',lx+190).attr('y2',720).attr('stroke',LG).attr('stroke-width',2.4);lg.append('text').attr('x',lx+196).attr('y',724).attr('font-size',11.5).attr('font-weight',600).attr('fill','#D9D5CB').attr('font-family',FONT).text('Conexión local');
+  K.show(lg,2500);
+  const nc=svg.append('g').attr('transform','translate(600,686)').style('opacity',0);nc.append('rect').attr('x',-170).attr('y',-14).attr('width',340).attr('height',28).attr('rx',14).attr('fill','#0d0e10').attr('fill-opacity',.9).attr('stroke',LG).attr('stroke-width',1.8);nc.append('text').attr('y',5).attr('text-anchor','middle').attr('font-size',13).attr('font-weight',800).attr('fill','#fff').attr('font-family',FONT).text('Red que conecta huertas y lugares');K.show(nc,8200);
   K.run();
  });
  return()=>{}}
