@@ -944,6 +944,109 @@ function soberaniaView(ctx){
   bd.attr('fill',T.col);bt.text(T.badge).attr('x',14);const w=(bt.node().getComputedTextLength?bt.node().getComputedTextLength():200)+28;bd.attr('width',w);bt.attr('x',14);gHead.select('rect').attr('x',600-w/2);bt.attr('x',600-w/2+14);head.text(T.head);
   if(sub===2){const gr=G[2].select('.sob-green');gr.attr('width',0).transition().delay(reduce?0:600).duration(reduce?0:1400).attr("width",860*.5)}}}
 
+/* ===== Escenas con iconos: conceptos, etapas de decisión y recursos comunes ===== */
+const CON_SYM=`<symbol id="c-persona" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></symbol>
+<symbol id="c-mega" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h3.5L14 18.5v-13L6.5 10zM17.5 9a4 4 0 0 1 0 6"/></symbol>
+<symbol id="c-charla" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 4.5h12v8.5H9l-4 3.5V13H3.5zM18 9h2.5v8.5h-1v3l-3-3H11"/></symbol>
+<symbol id="c-mazo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3.5l4.5 4.5-5 5L8 8.5zM10.5 11 4 17.5M3.5 21h10"/></symbol>
+<symbol id="c-lupa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></symbol>
+<symbol id="c-reloj" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12M7.5 3v3.5l4.5 5.5-4.5 5.5V21M16.5 3v3.5L12 12l4.5 5.5V21"/></symbol>
+<symbol id="c-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6"/></symbol>
+<symbol id="c-templo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 10 12 3.5 21.5 10zM3.5 21h17M5.5 10.5V18M10 10.5V18M14 10.5V18M18.5 10.5V18"/></symbol>
+<symbol id="c-monedas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6.5" rx="8" ry="3"/><path d="M4 6.5v11c0 1.7 3.6 3 8 3s8-1.3 8-3v-11M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>`;
+/* utilidades comunes de las tres escenas */
+function conceptKit(ctx,vh){
+ const el=ctx.el;const svg=d3.select(el).append('svg').attr('class','full').attr('viewBox',`0 0 1200 ${vh||740}`).attr('preserveAspectRatio','xMidYMid meet');
+ svg.append('defs').html(ESC_SYM+SOB_SYM+CON_SYM);
+ const FONT='Instrument Sans,sans-serif';const P=[];
+ const kit={svg,FONT,P,timers:[]};
+ kit.ctrl=(a,b,k)=>[(a[0]+b[0])/2-(b[1]-a[1])*k,(a[1]+b[1])/2+(b[0]-a[0])*k];
+ kit.link=(g,a,b,col,w=2.4,op=.8,dash=null)=>g.insert('line',':first-child').attr('x1',a[0]).attr('y1',a[1]).attr('x2',b[0]).attr('y2',b[1]).attr('stroke',col).attr('stroke-width',w).attr('stroke-opacity',op).attr('stroke-dasharray',dash).attr('stroke-linecap','round');
+ kit.dot=(g,a,b,col,sp,ph)=>{const c=g.append('circle').attr('r',4.6).attr('fill',col).attr('stroke','#0d0e10');P.push({c,a,b,sp,ph})};
+ kit.node=(g,p,id,col,r,label,o={})=>{const n=g.append('g').attr('transform',`translate(${p[0]},${p[1]})`);n.append('circle').attr('r',r).attr('fill',o.fill||'#15171a').attr('stroke',col).attr('stroke-width',o.sw||2.6).attr('stroke-dasharray',o.dash||null);
+  n.append('use').attr('href',id).attr('x',-r*.58).attr('y',-r*.58).attr('width',r*1.16).attr('height',r*1.16).style('color',o.ic||'#F2EFE8');
+  if(label){String(label).split('|').forEach((l,i)=>n.append('text').attr('y',r+17+i*15).attr('text-anchor','middle').attr('font-size',o.fs||12.5).attr('font-weight',600).attr('fill',o.tc||'#E7E3DA').attr('font-family',FONT).attr('stroke','#131518').attr('stroke-width',4).attr('paint-order','stroke').text(l))}return n};
+ kit.text=(g,x,y,t,o={})=>g.append('text').attr('x',x).attr('y',y).attr('text-anchor',o.a||'middle').attr('font-size',o.fs||14).attr('font-weight',o.fw||600).attr('fill',o.c||'#E7E3DA').attr('font-family',FONT).attr('letter-spacing',o.ls||null).text(t);
+ kit.badge=(g,x,y,t,col)=>{const w=t.length*9+30;const b=g.append('g').attr('transform',`translate(${x-w/2},${y})`);b.append('rect').attr('width',w).attr('height',30).attr('rx',15).attr('fill',col);b.append('text').attr('x',w/2).attr('y',20).attr('text-anchor','middle').attr('font-size',13).attr('font-weight',700).attr('letter-spacing','.1em').attr('fill','#0d0e10').attr('font-family',FONT).text(t);return b};
+ kit.pill=(g,x,y,w,t,col)=>{const n=g.append('g').attr('transform',`translate(${x},${y})`);n.append('rect').attr('x',-w/2).attr('y',-20).attr('width',w).attr('height',40).attr('rx',20).attr('fill','#15171a').attr('stroke',col).attr('stroke-width',2);n.append('text').attr('y',5).attr('text-anchor','middle').attr('font-size',13.5).attr('font-weight',600).attr('fill','#F2EFE8').attr('font-family',FONT).text(t);return n};
+ kit.show=(g,d)=>kit.timers.push(setTimeout(()=>g.transition().duration(reduce?0:600).style('opacity',1),reduce?0:d));
+ kit.run=(extra)=>{let alive=true,raf,t0=performance.now();ctx.onExit(()=>{alive=false;cancelAnimationFrame(raf);kit.timers.forEach(clearTimeout)});
+  const tick=now=>{if(!alive)return;const t=(now-t0)/1000;P.forEach(p=>{const u=reduce?.5:((t*p.sp+p.ph)%1);p.c.attr('cx',p.a[0]+(p.b[0]-p.a[0])*u).attr('cy',p.a[1]+(p.b[1]-p.a[1])*u)});if(extra)extra(t);raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)};
+ return kit}
+/* ---- Gobierno / gobernanza / autogobierno ---- */
+function conceptosView(ctx){
+ const K=conceptKit(ctx),{svg}=K,BL='#4EAECF',PU='#9382E0',AM='#F2B53A',GN='#8EBF4C',PK='#CF7ABB',OR='#DE9F50';
+ const cols=[200,600,1000].map(x=>svg.append('g').style('opacity',0));
+ const [g1,g2,g3]=cols;const bg=svg.append('g').style('opacity',0);
+ /* gobierno: autoridad arriba, decisiones hacia abajo */
+ K.badge(g1,200,70,'GOBIERNO',BL);
+ const top=[200,215];K.node(g1,top,'#c-templo',BL,40,'Alcaldía · UAESP|Secretaría de Ambiente',{tc:BL});
+ [90,200,310].forEach((x,i)=>{const b=[x,440];K.link(g1,[200,258+22],[x,b[1]-34],BL,2.4,.75);K.dot(g1,[200,300],[x,b[1]-34],BL,.2,i*.3);K.dot(g1,[200,300],[x,b[1]-34],BL,.2,i*.3+.5);K.node(g1,b,'#c-persona','#8C877E',26,['Actor','Actor','Actor'][i],{tc:'#9a958c'})});
+ K.text(g1,200,570,'Autoridades con competencias legales',{fs:15,fw:700,c:'#fff'});K.text(g1,200,592,'La decisión baja desde la autoridad',{fs:13,fw:500,c:'#9a958c'});
+ /* gobernanza: público y no estatal en malla */
+ K.badge(g2,600,70,'GOBERNANZA',PU);
+ const N2={a:[600,215],b:[455,400],c:[745,400],d:[600,470]};
+ const E2=[['a','b'],['a','c'],['b','c'],['b','d'],['c','d'],['a','d']];
+ E2.forEach(([p,q],i)=>{K.link(g2,N2[p],N2[q],PU,2.4,.75);K.dot(g2,N2[p],N2[q],PU,.2,i*.17);K.dot(g2,N2[q],N2[p],PU,.2,i*.17+.3)});
+ K.node(g2,N2.a,'#c-templo',PU,34,'Entidad pública',{tc:PU});K.node(g2,N2.b,'#s-grupo',GN,30,'Juntas de|Acción Comunal',{tc:GN});K.node(g2,N2.c,'#e-recicla',AM,30,'Organizaciones|de recicladores',{tc:AM});K.node(g2,N2.d,'#e-tienda',PK,26,'Tenderos',{tc:PK});
+ K.text(g2,600,570,'Coordinación entre actores públicos y no estatales',{fs:15,fw:700,c:'#fff'});K.text(g2,600,592,'Se decide en conjunto, en ambos sentidos',{fs:13,fw:500,c:'#9a958c'});
+ /* autogobierno: pares alrededor de un recurso compartido */
+ K.badge(g3,1000,70,'AUTOGOBIERNO',AM);
+ const C3=[1000,340],ang=[-90,30,150];const peers=[['#e-recicla',GN,'Recicladores'],['#c-persona',BL,'Coteros'],['#e-tienda',PK,'Tenderos']];
+ const pp=ang.map(a=>[C3[0]+Math.cos(a*Math.PI/180)*135,C3[1]+Math.sin(a*Math.PI/180)*135]);
+ [[0,1],[1,2],[2,0]].forEach(([i,j],k)=>{K.link(g3,pp[i],pp[j],AM,2,.5,'5 5');K.dot(g3,pp[i],pp[j],AM,.18,k*.3)});
+ pp.forEach((p,i)=>{K.link(g3,C3,p,AM,2.4,.8);K.dot(g3,p,C3,peers[i][1],.2,i*.25);K.node(g3,p,peers[i][0],peers[i][1],27,peers[i][2],{tc:peers[i][1]})});
+ K.node(g3,C3,'#c-doc',AM,34,null,{fill:'#2a210a',ic:AM,sw:3});K.text(g3,C3[0],C3[1]+52,'Reglas propias',{fs:12,fw:700,c:AM});
+ K.text(g3,1000,570,'Quienes comparten un recurso fijan sus reglas',{fs:15,fw:700,c:'#fff'});K.text(g3,1000,592,'Sobre flujos concretos, no sobre todo',{fs:13,fw:500,c:'#9a958c'});
+ /* reconocimiento institucional */
+ const inst=[1135,150];K.node(bg,inst,'#c-templo',BL,24,'Reconocimiento|institucional',{tc:BL,fs:11.5});K.link(bg,[1120,172],[1030,236],BL,2.2,.9,'5 5');
+ K.pill(bg,600,672,1000,'Autogobierno sobre flujos concretos: coexiste con las instituciones y necesita su reconocimiento',AM);
+ K.show(g1,200);K.show(g2,2600);K.show(g3,5000);K.show(bg,7600);K.run();return()=>{}}
+/* ---- Cinco etapas para decidir ---- */
+function etapasView(ctx){
+ const K=conceptKit(ctx),{svg}=K,RD='#E0623F',AM='#F2B53A',GN='#8EBF4C',BL='#4EAECF',PK='#CF7ABB',OR='#DE9F50';
+ K.badge(svg,600,22,'CINCO ETAPAS PARA TOMAR UNA DECISIÓN',RD);
+ const X=[140,370,600,830,1060],Y=190,S=[
+  ['Agenda','Se identifica un problema|y entra a la agenda local','#c-mega'],['Deliberación','Mesas donde cada actor presenta|necesidades, datos e intereses','#c-charla'],['Resolución','Reglas acordadas|previamente','#c-mazo'],['Ejecución','Se asignan recursos|y se actúa','#c-monedas'],['Seguimiento','Se revisan resultados|y se corrige','#c-lupa']];
+ const d=`M${X[0]},${Y}L${X[4]},${Y}L1130,${Y}Q1160,${Y} 1160,${Y+30}L1160,570Q1160,600 1130,600L70,600Q40,600 40,570L40,${Y+30}Q40,${Y} 70,${Y}Z`;
+ const path=svg.append('path').attr('d',d).attr('fill','none').attr('stroke','#2b2d33').attr('stroke-width',3).attr('stroke-dasharray','8 8');
+ const L=path.node().getTotalLength();
+ /* mini-escenas bajo cada etapa */
+ const mini=(i,g)=>{const x=X[i],y=330;
+  if(i===0){K.node(g,[x-45,y],'#e-tienda',PK,24,'Tendero',{fs:11.5});K.node(g,[x+45,y],'#c-doc',AM,24,'Agenda local',{fs:11.5});K.link(g,[x-20,y],[x+20,y],AM,2.2,.8,'4 4');K.dot(g,[x-20,y],[x+20,y],RD,.3,.0)}
+  if(i===1){[[x-55,y+10],[x,y-24],[x+55,y+10]].forEach(([a,b],k)=>K.node(g,[a,b],'#c-persona',[GN,BL,PK][k],19,null));K.node(g,[x,y+20],'#c-charla',AM,17,null,{ic:AM});[[x-55,y+10],[x,y-24],[x+55,y+10]].forEach((a,k)=>K.link(g,a,[x,y+20],'#8C877E',1.4,.7,'3 4'))}
+  if(i===2){K.node(g,[x-45,y],'#c-mazo',AM,25,null,{ic:AM});K.node(g,[x+45,y],'#c-doc',GN,25,'Reglas',{fs:11.5,ic:GN});K.link(g,[x-20,y],[x+20,y],GN,2.2,.8);K.dot(g,[x-20,y],[x+20,y],GN,.3,.2)}
+  if(i===3){K.node(g,[x-45,y],'#c-monedas',AM,25,null,{ic:AM});K.node(g,[x+45,y],'#e-camion',RD,25,null);K.link(g,[x-20,y],[x+20,y],AM,2.2,.8);K.dot(g,[x-20,y],[x+20,y],AM,.3,.4)}
+  if(i===4){K.node(g,[x-45,y],'#c-lupa',BL,25,null,{ic:BL});K.node(g,[x+45,y],'#s-info',GN,25,null,{ic:GN});K.link(g,[x-20,y],[x+20,y],BL,2.2,.8);K.dot(g,[x-20,y],[x+20,y],BL,.3,.6)}};
+ const nodes=S.map(([t,c,ic],i)=>{const g=svg.append('g').attr('transform',`translate(${X[i]},${Y})`);const ring=g.append('circle').attr('r',46).attr('fill','none').attr('stroke',RD).attr('stroke-width',3).style('opacity',0);
+  const inner=g.append('g');inner.append('circle').attr('r',38).attr('fill','#15171a').attr('stroke',RD).attr('stroke-width',3);inner.append('use').attr('href',ic).attr('x',-19).attr('y',-19).attr('width',38).attr('height',38).style('color','#F2EFE8');
+  g.append('text').attr('y',-58).attr('text-anchor','middle').attr('font-size',13).attr('font-weight',700).attr('fill',RD).attr('font-family',K.FONT).text(String(i+1));
+  const lab=svg.append('g');K.text(lab,X[i],Y+70,t,{fs:16,fw:700,c:'#fff'});mini(i,svg.append('g'));c.split('|').forEach((l,k)=>K.text(svg,X[i],400+k*17,l,{fs:12.5,fw:500,c:'#B8B3A8'}));return{inner,ring}});
+ K.text(svg,600,652,'Corregir reabre el ciclo',{fs:16,fw:700,c:AM});K.node(svg,[600,600],'#e-recicla',AM,22,null,{ic:AM});
+ const token=svg.append('g');token.append('circle').attr('r',13).attr('fill',AM).attr('stroke','#0d0e10').attr('stroke-width',2);token.append('use').attr('href','#c-doc').attr('x',-8).attr('y',-8).attr('width',16).attr('height',16).style('color','#0d0e10');
+ K.run(t=>{const len=(reduce?.3:((t*.07)%1))*L;const p=path.node().getPointAtLength(len);token.attr('transform',`translate(${p.x},${p.y})`);
+  const seg=(X[4]-X[0])/4,act=len<=X[4]-X[0]+8?Math.min(4,Math.round(len/seg)):4;nodes.forEach((n,i)=>{const on=i===act;n.ring.style('opacity',on?1:0).attr('r',46+(on?Math.sin(t*5)*4:0));n.inner.attr('transform',`scale(${on?1.1:1})`)})});
+ return()=>{}}
+/* ---- Recursos comunes alrededor de Corabastos ---- */
+function comunesView(ctx){
+ const K=conceptKit(ctx,760),{svg}=K,AM='#F2B53A',GN='#8EBF4C',BL='#4EAECF',OR='#DE9F50',PK='#CF7ABB',RD='#E0623F';
+ K.text(svg,600,34,'Recursos comunes alrededor de Corabastos, coordinados con reglas compartidas',{fs:19,fw:700,c:'#fff'});
+ const R=[
+  {c:[340,225],col:OR,id:'#c-reloj',t:'Horarios de cargue',a:[['#e-camion','Empresas|transportadoras'],['#c-persona','Coteros'],['#s-hogar','Vecinos|y líderes']]},
+  {c:[860,225],col:GN,id:'#e-recicla',t:'Residuos orgánicos',a:[['#s-grupo','Organizaciones|de recicladores'],['#c-persona','Recicladores|asociados'],['#c-persona','Recicladores|independientes']]},
+  {c:[340,545],col:BL,id:'#s-info',t:'Información de precios',a:[['#e-central','Mayoristas de|frutas y hortalizas'],['#e-tienda','Tenderos'],['#e-huerta','Productores|agrícolas']]},
+  {c:[860,545],col:AM,id:'#c-monedas',t:'Recursos para el abastecimiento',a:[['#e-tienda','Tenderos'],['#e-comedor','Comedores|comunitarios'],['#e-huerta','Huertas|comunitarias']]}];
+ R.forEach((r,k)=>{const g=svg.append('g').style('opacity',0);const [cx,cy]=r.c;
+  K.text(g,cx,cy-118,r.t,{fs:17,fw:700,c:r.col});
+  const pts=[-150,-30,90].map(a=>[cx+Math.cos(a*Math.PI/180)*104,cy+Math.sin(a*Math.PI/180)*86+8]);
+  [[0,1],[1,2],[2,0]].forEach(([i,j],m)=>{K.link(g,pts[i],pts[j],r.col,1.8,.45,'4 5');K.dot(g,pts[i],pts[j],r.col,.16,m*.3+k*.1)});
+  pts.forEach((p,i)=>{K.link(g,[cx,cy+8],p,r.col,2.2,.8);K.dot(g,p,[cx,cy+8],r.col,.2,i*.25+k*.07);K.dot(g,[cx,cy+8],p,'#F2EFE8',.2,i*.25+.5+k*.07)});
+  pts.forEach((p,i)=>K.node(g,p,r.a[i][0],r.col,23,r.a[i][1],{tc:'#E7E3DA',fs:11.5}));
+  K.node(g,[cx,cy+8],r.id,r.col,32,null,{fill:'#1b1d21',ic:r.col,sw:3.2});
+  K.show(g,300+k*1400)});
+ const f=svg.append('g').style('opacity',0);K.pill(f,600,728,980,'No sustituye las competencias institucionales: distribuye la capacidad de decisión y coordina a los actores',AM);K.show(f,6200);
+ K.run();return()=>{}}
+
 const CV={
  macros:{title:'Diez macromodelos; seis actúan directamente sobre esta problemática',cols:5,pcols:2,stagger:120,maxh:210,items:[
   {ic:'i-moneda',t:'Comercio ecológico y autonomía territorial',col:'#DE9F50',hl:1},{ic:'i-ciclo',t:'Circularidad',col:'#8EBF4C',hl:1},{ic:'i-gota',t:'Hidrocéntrico',col:'#4EAECF',hl:1},{ic:'i-alerta',t:'Límites ecológicos',col:'#E0623F',hl:1},{ic:'i-grupo',t:'Organización comunitaria',col:'#F2B53A',hl:1},
@@ -1090,6 +1193,9 @@ const SL=[
  {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
  {b:3,key:'propuesta',src:'Propuesta del grupo sobre capas IDECA · Datos Abiertos Bogotá · ilustrativo',draw(ctx){return propuestaView(ctx)}},
  {b:3,key:'escena',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return escenaView(ctx)}},
+ {b:3,key:'conceptos',src:'Guion del grupo · gobierno, gobernanza y autogobierno',draw(ctx){return conceptosView(ctx)}},
+ {b:3,key:'etapas',src:'Guion del grupo · cinco etapas de decisión',draw(ctx){return etapasView(ctx)}},
+ {b:3,key:'comunes',src:'Guion del grupo · recursos comunes (Ostrom)',draw(ctx){return comunesView(ctx)}},
  {b:3,key:'soberania',src:'Guion del grupo · ilustrativo: la proporción no es una meta ni un dato',draw(ctx){return soberaniaView(ctx)}},
  {b:3,key:'redes',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return redesView(ctx)}},
  {b:3,key:'fondoanim',src:'Ilustración animada de la propuesta del grupo · es una propuesta, no una estructura existente',draw(ctx){return fondoView(ctx)}},
