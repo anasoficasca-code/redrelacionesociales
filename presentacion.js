@@ -668,6 +668,10 @@ function propuestaView(ctx){
  return sub=>set(sub);
 }
 
+const ILUS=['assets/img/hoy-vs-propuesta.svg','assets/img/metabolismo-circular.svg','assets/img/fondo-comun.svg'];
+function ilustraView(ctx){const w=d3.select(ctx.el).append('div').style('position','absolute').style('inset','0').style('display','grid').style('place-items','center').style('padding','10px');
+ const im=w.append('img').attr('alt','Ilustración de la propuesta').style('max-width','100%').style('max-height','100%').style('border-radius','14px').style('border','1px solid #2b2d33').style('transition','opacity .35s');
+ return sub=>{im.style('opacity',0);setTimeout(()=>{im.attr('src',ILUS[sub]).on('load',()=>im.style('opacity',1))},reduce?0:200)}}
 const CV={
  macros:{title:'Diez macromodelos; seis actúan directamente sobre esta problemática',cols:5,pcols:2,stagger:120,maxh:210,items:[
   {ic:'i-moneda',t:'Comercio ecológico y autonomía territorial',col:'#DE9F50',hl:1},{ic:'i-ciclo',t:'Circularidad',col:'#8EBF4C',hl:1},{ic:'i-gota',t:'Hidrocéntrico',col:'#4EAECF',hl:1},{ic:'i-alerta',t:'Límites ecológicos',col:'#E0623F',hl:1},{ic:'i-grupo',t:'Organización comunitaria',col:'#F2B53A',hl:1},
@@ -813,6 +817,7 @@ const SL=[
  {b:3,key:'cv_flujos',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.flujos)}},
  {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
  {b:3,key:'propuesta',src:'Propuesta del grupo sobre capas IDECA · Datos Abiertos Bogotá · ilustrativo',draw(ctx){return propuestaView(ctx)}},
+ {b:3,key:'ilustra',src:'Ilustraciones de la propuesta del grupo · no representan obras existentes',draw(ctx){return ilustraView(ctx)}},
  {b:3,key:'vensim2',slow:1300,src:'Modelo Vensim del grupo',draw(ctx){const v=vensim(ctx);const Z=[null,['12','28','29','125'],['28','29','125'],['12','28','29','125'],['9','10','11','26','27','91','94','95','112','113','114'],['1','2','3','5','6','7','50','168']];return sub=>v.zoom(Z[sub])}},
  {b:3,key:'causal2',src:'Guion del grupo · hipótesis por verificar',draw(ctx){return causal2View(ctx)}},
  {b:3,key:'policentro',src:'Guion del grupo',draw(ctx){return policentroView(ctx)}},
