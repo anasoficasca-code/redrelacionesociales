@@ -803,10 +803,70 @@ function fondoView(ctx){
   movers.forEach(m=>m.g.transition().duration(reduce?0:400).style('opacity',m.st[sub]?1:0));
   bd.attr('fill',T.col);bt.text(T.badge);const w=(bt.node().getComputedTextLength?bt.node().getComputedTextLength():120)+28;bd.attr('width',w).attr('y',0);bt.attr('y',19);badge.attr('transform',`translate(${CX-w/2},8)`);head.text(T.head)}}
 
-const ILUS=['assets/img/hoy-vs-propuesta.svg','assets/img/metabolismo-circular.svg','assets/img/fondo-comun.svg'];
-function ilustraView(ctx){const w=d3.select(ctx.el).append('div').style('position','absolute').style('inset','0').style('display','grid').style('place-items','center').style('padding','10px');
- const im=w.append('img').attr('alt','Ilustración de la propuesta').style('max-width','100%').style('max-height','100%').style('border-radius','14px').style('border','1px solid #2b2d33').style('transition','opacity .35s');
- return sub=>{im.style('opacity',0);setTimeout(()=>{im.attr('src',ILUS[sub]).on('load',()=>im.style('opacity',1))},reduce?0:200)}}
+/* ===== Comparación de dos redes: centralizada (hoy) vs distribuida (propuesta) ===== */
+function redesView(ctx){
+ const el=ctx.el;const svg=d3.select(el).append('svg').attr('class','full').attr('viewBox','0 0 1200 740').attr('preserveAspectRatio','xMidYMid meet');
+ svg.append('defs').html(ESC_SYM);
+ const FONT='Instrument Sans,sans-serif',RD='#E0623F',GN='#8EBF4C',LG='#B6E27A',OR='#DE9F50',PK='#CF7ABB',AM='#F2B53A';
+ const COL={tienda:PK,comedor:PK,colegio:AM,huerta:GN};
+ /* mismos actores en las dos redes, posiciones relativas al centro de cada panel */
+ const CL=[[-165,-130],[165,-130],[-165,130],[165,130]];
+ const nodes=[];
+ CL.forEach(([cx,cy],c)=>{nodes.push({id:nodes.length,t:'huerta',c,x:cx,y:cy,hub:1});
+  const T=['huerta','tienda','comedor','colegio'];for(let k=0;k<4;k++){const a=(45+k*90)*Math.PI/180;nodes.push({id:nodes.length,t:T[(k+c)%4],c,x:cx+Math.cos(a)*82,y:cy+Math.sin(a)*82})}});
+ const cons=nodes.filter(n=>n.t!=='huerta'),hue=nodes.filter(n=>n.t==='huerta');
+ const byC=c=>nodes.filter(n=>n.c===c);
+ const PANEL=[[300,405],[900,405]];
+ const gP=PANEL.map(([x,y])=>svg.append('g').attr('transform',`translate(${x},${y})`));
+ const L=gP[0],R=gP[1];
+ const sty=(p,col,w,op,dash)=>p.attr('stroke',col).attr('stroke-width',w).attr('stroke-opacity',op).attr('fill','none').attr('stroke-linecap','round').attr('stroke-dasharray',dash||null);
+ const line=(g,a,b,col,w,op,dash)=>sty(g.append('line').attr('x1',a.x).attr('y1',a.y).attr('x2',b.x).attr('y2',b.y),col,w,op,dash);
+ const COR={x:0,y:0};
+ /* panel izquierdo: estrella */
+ const spokes=cons.map(n=>line(L.insert('g',':first-child'),COR,n,RD,2.4,.55));
+ /* panel derecho: enlaces locales + puentes entre grupos + pocos hacia Corabastos */
+ const localLinks=[],bridges=[],corLinks=[];
+ CL.forEach((_,c)=>{const g=byC(c),h0=g[0];g.slice(1).forEach(n=>localLinks.push([h0,n]));[[1,2],[2,3],[3,4],[4,1]].forEach(([i,j])=>localLinks.push([g[i],g[j]]))});
+ [[0,1],[1,3],[3,2],[2,0]].forEach(([a,b])=>bridges.push([byC(a)[0],byC(b)[0]]));
+ CL.forEach((_,c)=>{const g=byC(c).slice(1);g.sort((p,q)=>Math.hypot(p.x,p.y)-Math.hypot(q.x,q.y));corLinks.push([COR,g[0]])});
+ const rl=localLinks.map(([a,b])=>line(R.insert('g',':first-child'),a,b,LG,2,.7));
+ const rb=bridges.map(([a,b])=>line(R.insert('g',':first-child'),a,b,GN,3,.85));
+ const rc=corLinks.map(([a,b])=>line(R.insert('g',':first-child'),a,b,OR,1.6,.5,'4 5'));
+ /* nodos */
+ const drawN=(g,dim)=>nodes.map(n=>{const k=g.append('g').attr('transform',`translate(${n.x},${n.y})`);const r=n.t==='huerta'?18:16;
+  k.append('circle').attr('r',r).attr('fill','#15171a').attr('stroke',COL[n.t]).attr('stroke-width',2.4);
+  k.append('use').attr('href','#e-'+n.t).attr('x',-r*.6).attr('y',-r*.6).attr('width',r*1.2).attr('height',r*1.2).style('color',n.t==='huerta'?LG:'#F2EFE8');return k});
+ const nl=drawN(L),nr=drawN(R);nl.forEach((k,i)=>{if(nodes[i].t==='huerta')k.attr('opacity',.55)});
+ const hubs=PANEL.map((_,i)=>{const g=gP[i].append('g');g.append('circle').attr('r',i?30:46).attr('fill','#2a1d0c').attr('stroke',OR).attr('stroke-width',i?3:5);
+  const s=i?26:40;g.append('use').attr('href','#e-central').attr('x',-s/2).attr('y',-s/2-(i?0:6)).attr('width',s).attr('height',s).style('color','#F2EFE8');
+  g.append('text').attr('y',i?46:62).attr('text-anchor','middle').attr('font-size',i?12:14).attr('font-weight',700).attr('fill','#F2EFE8').attr('font-family',FONT).attr('stroke','#111315').attr('stroke-width',4).attr('paint-order','stroke').text('Corabastos');return g});
+ const ringL=L.insert('circle',':first-child').attr('r',60).attr('fill','none').attr('stroke',RD).attr('stroke-width',3);
+ /* partículas */
+ const P=[];const mover=(g,a,b,col,sp,ph,showOn)=>{const c=g.append('circle').attr('r',4.5).attr('fill',col).attr('stroke','#0d0e10');P.push({c,a,b,sp,ph,showOn});return c};
+ cons.forEach((n,i)=>{const d=Math.hypot(n.x,n.y),o={x:n.x/d*48,y:n.y/d*48};[0,.5].forEach(f=>mover(L,o,n,RD,.16,(i*.09+f)%1,0))});
+ localLinks.forEach(([a,b],i)=>mover(R,a,b,LG,.2,(i*.13)%1,1));bridges.forEach(([a,b],i)=>[0,.5].forEach(f=>mover(R,a,b,GN,.2,(i*.2+f)%1,1)));
+ corLinks.forEach(([a,b],i)=>mover(R,b,a,OR,.14,i*.25,1));
+ /* títulos */
+ const head=(g,x,txt,col)=>{const w=txt.length*9.2+32;const b=svg.append('g').attr('transform',`translate(${x-w/2},58)`);b.append('rect').attr('width',w).attr('height',32).attr('rx',16).attr('fill',col);b.append('text').attr('x',w/2).attr('y',21).attr('text-anchor','middle').attr('font-size',13.5).attr('font-weight',700).attr('letter-spacing','.08em').attr('fill','#0d0e10').attr('font-family',FONT).text(txt);return b};
+ const hL=head(L,300,'HOY · RED CENTRALIZADA',RD),hR=head(R,900,'PROPUESTA · RED DISTRIBUIDA',GN);
+ const cap=(x,l1,l2,col)=>{const g=svg.append('g');[[l1,16,700,'#fff'],[l2,13,500,'#9a958c']].forEach(([t,fs,fw,c],i)=>g.append('text').attr('x',x).attr('y',655+i*22).attr('text-anchor','middle').attr('font-size',fs).attr('font-weight',fw).attr('fill',c).attr('font-family',FONT).text(t));return g};
+ const cL=cap(300,'Todo converge en un solo nodo','Camiones, residuos y decisiones pasan por Corabastos'),cR=cap(900,'Varios grupos locales conectados entre sí','Las huertas abastecen a su vecindario; Corabastos sigue, pero deja de ser el único camino');
+ svg.append('path').attr('d','M600,110V620').attr('stroke','#2b2d33').attr('stroke-width',2).attr('stroke-dasharray','6 6');
+ /* leyenda */
+ const lg=svg.append('g').attr('transform','translate(0,712)');[['tienda','Tienda',PK],['comedor','Comedor',PK],['colegio','Colegio',AM],['huerta','Huerta',GN]].forEach(([id,t,c],i)=>{const x=420+i*120;lg.append('use').attr('href','#e-'+id).attr('x',x).attr('y',-10).attr('width',20).attr('height',20).style('color',c);lg.append('text').attr('x',x+26).attr('y',5).attr('font-size',13).attr('font-weight',600).attr('fill','#B8B3A8').attr('font-family',FONT).text(t)});
+ let alive=true,raf,S=0,t0=performance.now();ctx.onExit(()=>{alive=false;cancelAnimationFrame(raf)});
+ const tick=now=>{if(!alive)return;const t=(now-t0)/1000;
+  P.forEach(p=>{const on=p.showOn===0?true:S>=1;if(!on)return;const u=reduce?.5:((t*p.sp+p.ph)%1);p.c.attr('cx',p.a.x+(p.b.x-p.a.x)*u).attr('cy',p.a.y+(p.b.y-p.a.y)*u)});
+  const k=(Math.sin(t*3.2)+1)/2;ringL.attr('r',56+k*16).attr('stroke-opacity',.7-k*.5);raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);
+ const T=(s,o,d=600,delay=0)=>s.transition().delay(reduce?0:delay).duration(reduce?0:d).style('opacity',o);
+ return sub=>{S=sub;const on=sub>=1;
+  T(R,on?1:.28,500);T(R.selectAll('line'),on?1:0,600);
+  rl.forEach((l,i)=>T(l,on?1:0,500,on?500+i*40:0));rb.forEach((l,i)=>T(l,on?1:0,600,on?1100+i*150:0));rc.forEach(l=>T(l,on?1:0,500,on?1500:0));
+  nr.forEach((k,i)=>{k.transition().delay(reduce?0:(on?150+i*40:0)).duration(reduce?0:450).style('opacity',on?1:.9)});
+  P.forEach(p=>p.c.transition().duration(300).style('opacity',(p.showOn===0||on)?1:0));
+  T(L,on?.4:1,600);T(hL,on?.45:1,400);T(cL,on?.45:1,400);T(hR,on?1:.35,500);T(cR,on?1:.0,600,on?800:0);T(hubs[1],1,10);
+  ringL.attr('display',on?'none':null)}}
+
 const CV={
  macros:{title:'Diez macromodelos; seis actúan directamente sobre esta problemática',cols:5,pcols:2,stagger:120,maxh:210,items:[
   {ic:'i-moneda',t:'Comercio ecológico y autonomía territorial',col:'#DE9F50',hl:1},{ic:'i-ciclo',t:'Circularidad',col:'#8EBF4C',hl:1},{ic:'i-gota',t:'Hidrocéntrico',col:'#4EAECF',hl:1},{ic:'i-alerta',t:'Límites ecológicos',col:'#E0623F',hl:1},{ic:'i-grupo',t:'Organización comunitaria',col:'#F2B53A',hl:1},
@@ -953,8 +1013,8 @@ const SL=[
  {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
  {b:3,key:'propuesta',src:'Propuesta del grupo sobre capas IDECA · Datos Abiertos Bogotá · ilustrativo',draw(ctx){return propuestaView(ctx)}},
  {b:3,key:'escena',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return escenaView(ctx)}},
+ {b:3,key:'redes',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return redesView(ctx)}},
  {b:3,key:'fondoanim',src:'Ilustración animada de la propuesta del grupo · es una propuesta, no una estructura existente',draw(ctx){return fondoView(ctx)}},
- {b:3,key:'ilustra',src:'Ilustraciones de la propuesta del grupo · no representan obras existentes',draw(ctx){return ilustraView(ctx)}},
  {b:3,key:'vensim2',slow:1300,src:'Modelo Vensim del grupo',draw(ctx){const v=vensim(ctx);const Z=[null,['12','28','29','125'],['28','29','125'],['12','28','29','125'],['9','10','11','26','27','91','94','95','112','113','114'],['1','2','3','5','6','7','50','168']];return sub=>v.zoom(Z[sub])}},
  {b:3,key:'causal2',src:'Guion del grupo · hipótesis por verificar',draw(ctx){return causal2View(ctx)}},
  {b:3,key:'policentro',src:'Guion del grupo',draw(ctx){return policentroView(ctx)}},
