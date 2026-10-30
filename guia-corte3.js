@@ -7,6 +7,7 @@ const S=[
  {b:0,v:'free',t:'La red de actores de Kennedy',s:'',n:''},
  // 1 · Problemática territorial
  {b:0,v:'free',nodes:['A01'],incident:true,t:'La hiperconcentración del mercado mayorista',s:'Corabastos como problema central de este corte.',n:'Buenas tardes. En las entregas anteriores identificamos que la localidad de Kennedy funciona como un sistema complejo en el que las dinámicas comerciales, logísticas y ambientales generan fragmentación territorial. Para este tercer corte, concentramos nuestra propuesta en un problema central: la hiperconcentración del mercado mayorista en Corabastos.'},
+ {b:0,pg:['corabastos',0],t:'Cómo funciona hoy Corabastos',s:'Axonometría del PRM con las dinámicas actuales de carga, compra y residuos.',n:''},
  {b:0,ov:['mapa',3],t:'Una misma estructura territorial',s:'Flujo comercial, carga, poder de decisión y costos ambientales sobre los humedales.',n:'Esta concentración se expresa en cuatro dimensiones: el flujo comercial de alimentos, los desplazamientos de carga, el poder de decisión y los costos ambientales asociados a la actividad. Como consecuencia, se presentan congestión vial, contaminación atmosférica, acumulación de residuos y presión sobre la estructura ecológica principal, especialmente sobre los humedales El Burro, Techo y La Vaca. Por eso, no abordamos estas consecuencias como problemas aislados, sino como manifestaciones de una misma estructura territorial.'},
  // 2 · Pregunta y conceptos
  {b:1,v:'free',nodes:['A15','A17','A13','A10','A37','A26','A27','A08','A06'],t:'La pregunta que orienta el modelo',s:'Coordinar colectivamente una parte de los flujos, sin que Corabastos ni las instituciones desaparezcan.',n:'La pregunta que orienta nuestro modelo es: ¿cómo pueden quienes participan en el abastecimiento y soportan sus impactos coordinar colectivamente una parte de estos flujos, sin suponer que Corabastos o las instituciones deben desaparecer?'},
@@ -28,6 +29,7 @@ const S=[
  {b:3,v:'federacion',fedTab:'sociobiotica',t:'¿Para qué atraemos la red biótica a las huertas?',s:'Cerrar ciclos ecológicos, sanar el agua y nutrir a los barrios.',n:'¿Para qué atraemos estas relaciones bióticas? Para reducir la dependencia de Corabastos, evitar que los residuos orgánicos terminen en el vertedero o en los canales de agua, restaurar la conectividad del Humedal El Burro hacia los barrios y asegurar que comedores comunitarios y escuelas tengan comida fresca, sana y rica en nutrientes cosechada por sus propios vecinos.'},
  // 5 · Soberanía alimentaria
  {b:4,ov:['soberania2',0],t:'Seguridad y soberanía alimentaria',s:'Decidir cómo se producen y distribuyen los alimentos.',n:'En este punto debemos distinguir la seguridad alimentaria de la soberanía alimentaria. La seguridad alimentaria se refiere al acceso a alimentos suficientes, inocuos y nutritivos. La soberanía alimentaria, en cambio, se relaciona con la capacidad de decidir cómo se producen y distribuyen. Nuestra propuesta trabaja sobre esta segunda dimensión, buscando que una parte del abastecimiento local dependa de circuitos organizados por sus propios participantes y no exclusivamente de un único centro comercial.'},
+ {b:4,pg:['corabastos',1],t:'Corabastos cede el 20 % al humedal',s:'Salen bodegas completas del lado del humedal La Vaca y en el borde nuevo aparecen otras dinámicas.',n:''},
  {b:4,v:'federacion',fedTab:'metropolitano',t:'Plano Metropolitano: Fontibón y Kennedy',s:'Localización estratégica en la interfaz metropolitana de Bogotá.',n:'Mostramos el Plano Metropolitano de Bogotá: el proyecto se implanta estratégicamente cerca de Fontibón (sobre el corredor de carga de la Calle 13 / Av. Centenario) y al lado de Kennedy (inmediato a Corabastos y al Humedal El Burro), separados por el Río Fucha. Esta ubicación permite capturar directamente las toneladas de rastrojo y tubérculos de la central mayorista, conectarse con la red industrial de Fontibón y restaurar el sistema hídrico sin congestionar la malla barrial.'},
  {b:4,v:'federacion',fedTab:'metropolitano',t:'Corredor Ecológico e Interfaz Urbano-Industrial',s:'Conexión Río Fucha, humedales Capellanía y El Burro, y ejes viales.',n:'La implantación en este punto bisagra entre Fontibón y Kennedy conecta dos localidades clave de Bogotá: Kennedy aporta la masa de comercialización de alimentos y las comunidades de huerteros del Humedal El Burro; Fontibón aporta la conectividad con la sabana y el nodo logístico de carga pesada. El complejo de 9.000 m² actúa como un amortiguador biotecnológico que sanea el Río Fucha y regenera los suelos degradados.'},
  {b:4,v:'federacion',fedTab:'fases',t:'Programa Arquitectónico: Biorrefinería & Complejo Urbano (9.000 m²)',s:'Zonificación funcional, cuadro de áreas y corte espacial bioclimático.',n:'Traducimos la propuesta a un Programa Arquitectónico concreto de 9.000 m² cubiertos sobre el borde entre Corabastos y el Humedal El Burro. Se zonifica en cinco paquetes: Zona A de Biorrefinería y descarga mecatrónica (2.800 m²); Zona B de bóvedas de micoproteína y setas Pleurotus (2.200 m²); Zona C de silos tecnificados de la Canasta Familiar (1.800 m²); Zona D del centro de transición y aulas técnicas para los trabajadores (800 m²); y Zona E con el comedor comunitario cívico y mercado barrial (1.400 m²).'},
@@ -76,6 +78,8 @@ body.guia-on #guiaDock{display:flex}
 body.guia-on #guiaProg{display:block}
 #guiaOverlay{position:absolute;inset:0;border:0;width:100%;height:100%;display:none;z-index:60;background:#0d0e10}
 body.guia-on.guia-ov #guiaOverlay{display:block}
+#guiaPage{position:absolute;inset:0;border:0;width:100%;height:100%;display:none;z-index:61;background:#F4F2EC}
+body.guia-on.guia-pg #guiaPage{display:block}
 body.modo-corte3 #controlStrip{display:none!important}
 #guiaDock p:empty{display:none}
 @keyframes grise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -89,7 +93,11 @@ const ov=document.createElement('iframe');ov.id='guiaOverlay';ov.title='Diagrama
 ov.addEventListener('load',()=>{ovReady=true;if(ovPend){ov.contentWindow.postMessage(ovPend,'*');ovPend=null}});
 function showOverlay(o){document.body.classList.add('guia-ov');const msg={guia:1,key:o[0],sub:o[1]};
  if(!ov.src){ov.src='presentacion.html?solo=1';ovPend=msg}else if(ovReady)ov.contentWindow.postMessage(msg,'*');else ovPend=msg}
-function hideOverlay(){document.body.classList.remove('guia-ov')}
+function hideOverlay(){document.body.classList.remove('guia-ov','guia-pg')}
+const pgf=document.createElement('iframe');pgf.id='guiaPage';pgf.title='Corabastos';stageEl.appendChild(pgf);let pgReady=false,pgPend=null;
+pgf.addEventListener('load',()=>{pgReady=true;if(pgPend!==null){pgf.contentWindow.postMessage({coraSlide:pgPend},'*');pgPend=null}});
+function showPage(p){document.body.classList.remove('guia-ov');document.body.classList.add('guia-pg');
+ if(!pgf.src){pgf.src=p[0]+'.html?solo=1#'+(p[1]+1);pgPend=p[1]}else if(pgReady)pgf.contentWindow.postMessage({coraSlide:p[1]},'*');else pgPend=p[1]}
 
 function targets(view,ids){const pm=VIEW_POS[view]||VIEW_POS.free;return ids.map(id=>byId.get(id)).filter(Boolean).map(n=>({x:(pm[n.id]||n).x,y:(pm[n.id]||n).y,r:n.r+(ids.length<=12?75:25)}))}
 function highlight(step, forceCloseZoom = false){
@@ -131,7 +139,7 @@ function go(i){i=Math.max(0,Math.min(S.length-1,i));G.i=i;const st=S[i];
  document.getElementById('gT').textContent=st.t;document.getElementById('gS').textContent=st.s;
  document.getElementById('gC').textContent=`${i+1} / ${S.length}`;document.getElementById('gBar').style.width=((i+1)/S.length*100)+'%';
  document.getElementById('gNext').textContent=i===S.length-1?'Fin':'Siguiente';
- if(st.ov){showOverlay(st.ov)}else{hideOverlay();
+ if(st.pg){showPage(st.pg)}else if(st.ov){document.body.classList.remove('guia-pg');showOverlay(st.ov)}else{hideOverlay();
   if(st.v==='map3d'){switchView('map3d')}
   else if(st.v==='federacion'){
     switchView('federacion', true);

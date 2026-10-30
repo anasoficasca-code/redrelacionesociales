@@ -4,7 +4,8 @@ const svg=d3.select('#st');
 const C={truck:'#C8322B',buy:'#B9771E',cargo:'#7A5C2E',res:'#6B4F2A',hum:'#3E8FB0',org:'#2E8B57',bio:'#6A4FB3',fauna:'#2F6F8F',acopio:'#B9771E'};
 // --- geometría trazada sobre la axonometría del PRM (coordenadas de la imagen) ---
 const CENTRAL=[[85,296],[565,184],[850,282],[1100,350],[1185,380],[1192,420],[1180,470],[1130,515],[1060,545],[660,688],[470,648],[300,620],[268,608],[240,520],[195,450],[150,390],[110,320]];
-const OESTE=[[311,243],[85,296],[110,320],[150,390],[195,450],[240,520],[268,608],[300,620],[452,645]]; // 20 % del área, lado del humedal
+// recorte por calles y conectores: salen bodegas completas (20,8 % del área de la central, lado del humedal)
+const OESTE=[[300,246],[322,275],[395,298],[386,318],[371,339],[344,372],[478,405],[472,425],[443,466],[413,508],[390,550],[334,586],[330,617],[300,620],[268,608],[240,520],[195,450],[150,390],[110,320],[85,296]];
 const HUMEDAL=[[38,302],[85,296],[110,320],[150,390],[195,450],[240,520],[268,608],[250,655],[205,645],[160,565],[115,480],[75,405],[42,345]];
 const pts=a=>'M'+a.map(p=>p.join(',')).join('L')+'Z';
 const defs=svg.append('defs');
@@ -50,31 +51,31 @@ lab(g1,700,170,'Congestión en Gran Bodega\ny Bodega Reina',{c:C.truck,fs:17});
 
 /* ================= LÁMINA 2 · PROPUESTA ================= */
 const west=g2.append('g');
-west.append('path').attr('d',pts(OESTE)).attr('fill','#F4F2EC').attr('opacity',.86);
+west.append('path').attr('d',pts(OESTE)).attr('fill','#F4F2EC').attr('opacity',.9);
 west.append('path').attr('d',pts(OESTE)).attr('fill','url(#humg)').attr('opacity',.85).attr('clip-path','url(#grow)');
 west.append('path').attr('d',pts(OESTE)).attr('fill','none').attr('stroke',C.hum).attr('stroke-width',1.4);
-g2.append('path').attr('d','M311,243L452,645').attr('stroke','#141414').attr('stroke-width',2.2).attr('stroke-dasharray','8 5');
+g2.append('path').attr('d','M'+OESTE.slice(0,13).map(p=>p.join(',')).join('L')).attr('fill','none').attr('stroke','#141414').attr('stroke-width',2.2).attr('stroke-dasharray','8 5');
 // plantas y aves que regresan
 const BIRD='M-9 1c3-6 9-8 14-5l4-3-1 5c2 3 0 7-4 8l-10 1c-2 0-4-2-3-6z';
 [[150,330],[205,395],[175,470],[245,520],[300,480],[260,360],[95,360]].forEach(([x,y],i)=>{const b=g2.append('path').attr('d',BIRD).attr('fill',C.fauna).attr('transform',`translate(${x},${y}) scale(1.1)`).attr('data-k','fauna');
  if(!reduce)b.append('animateTransform').attr('attributeName','transform').attr('type','translate').attr('values',`${x},${y};${x+6},${y-5};${x},${y}`).attr('dur',(2+i*.3)+'s').attr('repeatCount','indefinite')});
 ['M10,240 C60,260 110,300 150,330','M20,470 C70,470 120,470 170,470'].forEach(d=>flow(g2,d,C.fauna,'fauna',2,'3 6'));
 // proyectos que propician las nuevas dinámicas
-const PJ=[{x:395,y:505,n:'Compostaje y semillero',c:C.org,k:'org'},{x:430,y:292,n:'Distrito agro-biotecnológico',c:C.bio,k:'bio'},{x:705,y:655,n:'Punto de acopio y circuito corto',c:C.acopio,k:'acopio'},{x:228,y:500,n:'Huerta y restauración de la ronda',c:C.org,k:'org'},{x:150,y:410,n:'Aula y sendero de custodios',c:C.fauna,k:'fauna'}];
+const PJ=[{x:445,y:528,n:'Compostaje y semillero',c:C.org,k:'org'},{x:430,y:292,n:'Distrito agro-biotecnológico',c:C.bio,k:'bio'},{x:705,y:655,n:'Punto de acopio y circuito corto',c:C.acopio,k:'acopio'},{x:228,y:500,n:'Huerta y restauración de la ronda',c:C.org,k:'org'},{x:150,y:410,n:'Aula y sendero de custodios',c:C.fauna,k:'fauna'}];
 // flujos nuevos
-flow(g2,'M560,402 C520,440 460,470 410,497',C.org,'org',2.6);flow(g2,'M495,488 C470,495 440,500 410,503',C.org,'org',2.6);
-flow(g2,'M382,512 C340,515 290,510 244,503',C.org,'org',2.6);
+flow(g2,'M590,420 C560,460 500,500 460,520',C.org,'org',2.6);flow(g2,'M540,500 C510,510 480,518 462,524',C.org,'org',2.6);
+flow(g2,'M430,532 C360,530 290,515 244,503',C.org,'org',2.6);
 flow(g2,'M520,330 C490,318 465,305 446,298',C.bio,'bio',2.6);
 flow(g2,'M440,306 C520,420 640,560 696,644',C.bio,'bio',2.6);
 flow(g2,'M714,668 C700,720 660,770 610,800',C.acopio,'acopio',2.6,'4 6');flow(g2,'M720,664 C800,710 880,760 940,800',C.acopio,'acopio',2.6,'4 6');
-mover(g2,'M560,402 C520,440 460,470 410,497',C.org,'org',5,4200,2);mover(g2,'M440,306 C520,420 640,560 696,644',C.bio,'bio',5,5200,2);
+mover(g2,'M590,420 C560,460 500,500 460,520',C.org,'org',5,4200,2);mover(g2,'M440,306 C520,420 640,560 696,644',C.bio,'bio',5,5200,2);
 // menos camiones (dos rutas, más delgadas)
 [T[0],T[1]].forEach(d=>{flow(g2,d,C.truck,'truck',1.6);mover(g2,d,C.truck,'truck',6,7000,1)});
 PJ.forEach(p=>{const g=g2.append('g').attr('transform',`translate(${p.x},${p.y})`).attr('data-k',p.k);
  g.append('circle').attr('r',15).attr('fill','#fff').attr('stroke',p.c).attr('stroke-width',3);g.append('circle').attr('r',6).attr('fill',p.c)});
-lab(g2,250,640,'8,4 ha liberadas\npara el humedal',{c:'#1f5f7a',fs:19});
+lab(g2,240,650,'8,7 ha liberadas\npara el humedal',{c:'#1f5f7a',fs:19});
 lab(g2,30,200,'El humedal La Vaca\nrecupera el borde',{c:'#1f5f7a',fs:16,fw:600});
-[[395,505,'Compostaje\ny semillero',22,-4,'start'],[430,292,'Distrito agro-\nbiotecnológico',-22,-30,'end'],[705,655,'Punto de acopio\ny circuito corto',24,4,'start'],[228,500,'Huerta y restauración\nde la ronda',-24,36,'start'],[150,410,'Aula y sendero\nde custodios',-22,-30,'start']].forEach(([x,y,t,dx,dy,a])=>lab(g2,x+dx,y+dy,t,{fs:17,c:'#141414',a}));
+[[445,528,'Compostaje\ny semillero',22,-4,'start'],[430,292,'Distrito agro-\nbiotecnológico',-22,-30,'end'],[705,655,'Punto de acopio\ny circuito corto',24,4,'start'],[228,500,'Huerta y restauración\nde la ronda',-24,36,'start'],[150,410,'Aula y sendero\nde custodios',-22,-30,'start']].forEach(([x,y,t,dx,dy,a])=>lab(g2,x+dx,y+dy,t,{fs:17,c:'#141414',a}));
 
 /* ---------- textos del panel ---------- */
 const DY=[
@@ -83,18 +84,18 @@ const DY=[
   {k:'cargo',c:C.cargo,t:'Cargue y descargue',d:'Coteros y comerciantes mueven la mercancía en cada nave.'},
   {k:'buy',c:C.buy,t:'Compradores',d:'Tenderos y restaurantes salen hacia los barrios con lo que compran.'},
   {k:'res',c:C.res,t:'Residuos y vertimientos',d:'El mal manejo de residuos sólidos y vertimientos presiona el humedal La Vaca, que ha perdido área.'}],
- [{k:'fauna',c:C.fauna,t:'El humedal se reactiva',d:'Corabastos cede el 20 % de su área del lado del humedal; el borde se restaura y regresan aves y fauna.'},
+ [{k:'fauna',c:C.fauna,t:'El humedal se reactiva',d:'Corabastos cede cerca del 20 % de su área del lado del humedal. El recorte sigue las calles internas: salen bodegas completas, ninguna queda partida.'},
   {k:'org',c:C.org,t:'Orgánicos que vuelven a la tierra',d:'Los orgánicos de las bodegas van a la estación de compostaje; el abono alimenta las huertas de la ronda.'},
   {k:'bio',c:C.bio,t:'Proteína de hongos',d:'El distrito agro-biotecnológico cultiva hongos con sustratos de las bodegas y los lleva al punto de acopio.'},
   {k:'acopio',c:C.acopio,t:'Circuito corto',d:'Del punto de acopio salen alimentos hacia comedores y tiendas de barrio.'},
   {k:'truck',c:C.truck,t:'Menos carga concentrada',d:'Al reducirse el área y diversificarse el abastecimiento, baja la carga que entra a la central.'}]];
 const SIDE=[
  {h:'La dinámica actual',p:'Axonometría del Plan de Regularización y Manejo de Corabastos con los flujos que hoy la hacen funcionar y la presión que ejerce sobre el humedal La Vaca.',kpi:[['42 ha','área de la central'],['266,8 ha','área de influencia'],['126.600 m²','ocupación actual'],['207.752','personas por semana']]},
- {h:'Corabastos cede el 20 % al humedal',p:'La central se reduce un 20 % del lado del humedal para que se reactive y vuelva a crecer. En el borde nuevo se ubican proyectos que generan dinámicas distintas a la carga y la descarga.',kpi:[['33,6 ha','central propuesta'],['8,4 ha','vuelven al humedal'],['20 %','de las 42 ha'],['5','proyectos en el borde']]}];
+ {h:'Corabastos cede el 20 % al humedal',p:'La central se reduce cerca de un 20 % del lado del humedal para que se reactive y vuelva a crecer. El corte va por las calles y los conectores entre naves, así que salen bodegas enteras. En el borde nuevo se ubican proyectos que generan dinámicas distintas a la carga y la descarga.',kpi:[['33,3 ha','central propuesta'],['8,7 ha','vuelven al humedal'],['20,8 %','de las 42 ha'],['7','naves completas que salen']]}];
 let cur=0,sel=null;
 function side(){const s=SIDE[cur];document.getElementById('side').innerHTML=`<h2>${s.h}</h2><p>${s.p}</p><div class="kpi">${s.kpi.map(([b,t])=>`<div><b>${b}</b><span>${t}</span></div>`).join('')}</div>`+
  DY[cur].map(d=>`<button class="dyn${sel===d.k?' on':''}" data-k="${d.k}"><span class="sw" style="background:${d.c}"></span><span><b>${d.t}</b><span>${d.d}</span></span></button>`).join('')+
- `<div class="src">Base: axonometría del documento «Diagnóstico y propuesta para la formulación del PRM» de Corabastos (2019), sin sus anotaciones. Cifras del mismo documento. El trazo del 20 % y la ubicación de los proyectos son propuesta del grupo.</div>`;
+ `<div class="src">Base: axonometría del documento «Diagnóstico y propuesta para la formulación del PRM» de Corabastos (2019), sin sus anotaciones. Cifras del mismo documento. El recorte (20,8 % medido sobre el contorno dibujado) y la ubicación de los proyectos son propuesta del grupo.</div>`;
  document.querySelectorAll('.dyn').forEach(b=>b.onclick=()=>{sel=sel===b.dataset.k?null:b.dataset.k;hl();side()})}
 function hl(){const g=cur?g2:g1;g.selectAll('[data-k]').attr('opacity',function(){const k=this.getAttribute('data-k');return !sel||k===sel?null:.12})}
 function go(i){cur=i;sel=null;d3.selectAll('.nav button').attr('aria-pressed',function(){return +this.dataset.s===i});
@@ -106,6 +107,8 @@ function go(i){cur=i;sel=null;d3.selectAll('.nav button').attr('aria-pressed',fu
  g1.selectAll('[data-k]').attr('opacity',null);g2.selectAll('[data-k]').attr('opacity',null);side()}
 d3.selectAll('.nav button').on('click',function(){go(+this.dataset.s)});
 addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(0)});
+if(/solo/.test(location.search))document.body.classList.add('solo');
+addEventListener('message',e=>{if(e.data&&e.data.coraSlide!==undefined)go(+e.data.coraSlide)});
 g2.style('opacity',0);go(location.hash==='#2'?1:0);
 setTimeout(()=>{const m=document.querySelector('main');if(m.scrollWidth>m.clientWidth)m.scrollLeft=(m.scrollWidth-m.clientWidth)*.25},200);
 })();
