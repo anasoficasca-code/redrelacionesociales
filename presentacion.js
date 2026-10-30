@@ -353,32 +353,282 @@ function heterarquiaView(ctx){
  const {svg,W,H,P}=svgIn(ctx.el);
  const A=['A34','A32','A04','A06','A10','A25','A13','AMB04','A37'];
  const HOY=['A34','A32','A04','A06','A10','A25','A13','AMB04','A37'];
- const AS=[{n:'Gestión de residuos',c:'#8EBF4C',o:['A25','A13','A06','A32','A34','A04','A10','AMB04','A37']},
-  {n:'Horarios de carga',c:'#DE9F50',o:['A10','A13','A37','A06','A04','A34','A32','A25','AMB04']},
-  {n:'Cuidado del humedal',c:'#4EAECF',o:['AMB04','A37','A32','A34','A25','A13','A10','A06','A04']}];
- const top=P?84:96,rh=(H-top-(P?16:24))/A.length,lx=P?30:W*.26,rx=P?W*.42:W*.66,R=Math.max(12,Math.min(P?14:20,rh*.36));
+ const ROLES={
+  A34:'Soporte legal y presupuesto',
+  A32:'Normatividad técnica sin mando',
+  A04:'Articulación logística mayorista',
+  A06:'Comercio justo sin especulación',
+  A10:'Rutas programadas de carga',
+  A25:'Operación mecatrónica de reciclaje',
+  A13:'Operación de tolvas y cintas (sin bultos)',
+  AMB04:'Custodia biocultural Humedal El Burro',
+  A37:'Comensalidad y veeduría barrial'
+ };
+ const PACTOS=[
+  {n:'Federación General',c:'#F2B53A',d:'9 actores en red horizontal policéntrica · Cero líderes centrales',focus:null},
+  {n:'Pacto Residuos & Mecatrónica',c:'#8EBF4C',d:'Operación automatizada sin trabajo degradante · Fin de bultos a lomo',focus:new Set(['A25','A13','A32','A06'])},
+  {n:'Pacto Canasta & Abasto Justo',c:'#DE9F50',d:'Circuito corto a 150 tiendas barriales sin intermediación',focus:new Set(['A06','A10','A37','A34'])},
+  {n:'Pacto Custodia Biocultural',c:'#4EAECF',d:'Restauración del Humedal El Burro y agua limpia sin lixiviados',focus:new Set(['AMB04','A37','A32','A34'])}
+ ];
+
+ const top=P?84:96,rh=(H-top-(P?20:28))/A.length,lx=P?24:W*.22,R=Math.max(11,Math.min(P?13:18,rh*.36));
  const yy=i=>top+i*rh+rh/2;
- txt(svg,P?12:lx,P?24:38,P?'Hoy: un solo orden':'Hoy: jerarquía',{a:P?'start':'middle',fw:700,fs:P?13:22,c:'#9382E0'});if(!P)txt(svg,lx,62,'un solo orden para todo',{a:'middle',fs:14,c:SOFT});
- const tR=txt(svg,P?12:rx,P?48:38,'',{a:P?'start':'middle',fw:700,fs:P?14:22});const sR=txt(svg,P?12:rx,P?66:62,'',{a:P?'start':'middle',fs:P?11.5:14,c:SOFT});
- if(!P)svg.append('text').attr('x',W*.06).attr('y',yy(0)+5).attr('fill',MUTE).attr('font-size',P?10:12).attr('font-family','JetBrains Mono').text('ARRIBA');
- if(!P)svg.append('text').attr('x',W*.06).attr('y',yy(A.length-1)+5).attr('fill',MUTE).attr('font-size',P?10:12).attr('font-family','JetBrains Mono').text('ABAJO');
+
+ // Encabezados
+ txt(svg,P?12:lx,P?24:36,P?'Hoy: jerarquía':'Hoy: jerarquía piramidal',{a:P?'start':'middle',fw:700,fs:P?13:21,c:'#9382E0'});
+ if(!P)txt(svg,lx,58,'un solo orden de mando vertical',{a:'middle',fs:13.5,c:SOFT});
+
+ const cx=P?W*.72:W*.68,cy=(top+H-(P?24:36))/2;
+ const R_ring=Math.min(W*(P?.24:.21),(H-top-(P?40:60))*.42);
+
+ const tR=txt(svg,P?12:cx,P?48:36,'',{a:P?'start':'middle',fw:700,fs:P?13:21});
+ const sR=txt(svg,P?12:cx,P?66:58,'',{a:P?'start':'middle',fs:P?11:13.5,c:SOFT});
+
+ if(!P)svg.append('text').attr('x',W*.05).attr('y',yy(0)+5).attr('fill',MUTE).attr('font-size',11.5).attr('font-family','JetBrains Mono').text('ARRIBA');
+ if(!P)svg.append('text').attr('x',W*.05).attr('y',yy(A.length-1)+5).attr('fill',MUTE).attr('font-size',11.5).attr('font-family','JetBrains Mono').text('ABAJO');
+
+ // Grupo líneas y nodos
  const gl=svg.append('g'),gn=svg.append('g');
- const lines=A.map(id=>gl.append('path').attr('fill','none').attr('stroke-width',2.2).attr('stroke-opacity',.55));
- A.forEach(id=>{const g=gn.append('g').attr('class','node').attr('transform',`translate(${lx},${yy(HOY.indexOf(id))})`);actor(g,id,R,{label:false});
-  if(!P)txt(g,-R-10,5,ACT(id).short,{a:'end',fs:14,c:INK})});
- const right=A.map(id=>{const g=gn.append('g').attr('class','node');actor(g,id,R,{label:false});const t=txt(g,R+10,5,ACT(id).short,{fs:P?10.5:14,c:INK});const tag=txt(g,R+10,-R+2,'',{fs:P?9.5:11.5,fw:700,mono:1});return{g,t,tag}});
- const lead=gn.insert('rect',':first-child').attr('rx',10).attr('fill-opacity',.14);
+
+ // Nodos columna izquierda (Jerarquía actual)
+ A.forEach(id=>{
+  const g=gn.append('g').attr('class','node').attr('transform',`translate(${lx},${yy(HOY.indexOf(id))})`);
+  actor(g,id,R,{label:false});
+  if(!P)txt(g,-R-10,4.5,ACT(id).short,{a:'end',fs:13,c:INK});
+ });
+
+ // Nodos derecha: Red Horizontal Policéntrica (Anillo circular sin líder)
+ const ringCoords=A.map((id,j)=>{
+  const ang=-Math.PI/2+j*(2*Math.PI/A.length);
+  return {id,x:cx+R_ring*Math.cos(ang),y:cy+R_ring*Math.sin(ang),ang};
+ });
+
+ // Anillo sutil de coordinación horizontal entre pares
+ const gRing=svg.append('g').style('opacity',.45);
+ const ringPathD=ringCoords.map((pt,idx)=>(idx===0?'M':'L')+`${pt.x},${pt.y}`).join(' ')+' Z';
+ gRing.append('path').attr('d',ringPathD).attr('fill','rgba(242,181,58,0.03)').attr('stroke','#F2B53A')
+   .attr('stroke-width',1.5).attr('stroke-dasharray','5 4').attr('class','flowing');
+
+ // Centro de la federación: MESA DE COORDINACIÓN (Sin Líder)
+ const gCent=svg.append('g').attr('transform',`translate(${cx},${cy})`);
+ gCent.append('circle').attr('r',P?26:38).attr('fill','#141518').attr('stroke','#F2B53A').attr('stroke-width',1.8)
+   .attr('stroke-dasharray','4 3');
+ txt(gCent,0,P?-5:-7,'MESA FEDERADA',{a:'middle',fw:700,fs:P?8.5:11,c:'#F2B53A'});
+ txt(gCent,0,P?7:8,'Vocerías rotativas',{a:'middle',fs:P?7.5:9.5,c:SOFT});
+ txt(gCent,0,P?18:22,'SIN MANDO',{a:'middle',fw:700,fs:P?7:8.5,c:'#8EBF4C'});
+
+ // Conexiones Bézier desde la columna de la izquierda hacia el anillo federativo
+ const lines=A.map(id=>gl.append('path').attr('fill','none').attr('stroke-width',2).attr('stroke-opacity',.5));
+
+ // Nodos en el anillo federativo
+ const right=ringCoords.map(pt=>{
+  const g=gn.append('g').attr('class','node').attr('transform',`translate(${pt.x},${pt.y})`);
+  actor(g,pt.id,R,{label:false});
+  const isRight=Math.cos(pt.ang)>=-0.2;
+  const t=txt(g,isRight?R+8:-R-8,4.5,ACT(pt.id).short,{a:isRight?'start':'end',fs:P?9.5:12,c:INK,fw:600});
+  const role=txt(g,isRight?R+8:-R-8,P?15:18,ROLES[pt.id]||'',{a:isRight?'start':'end',fs:P?8:9.5,c:SOFT});
+  return {g,t,role,pt};
+ });
+
+ // Barra inferior: regla fundacional
+ const bBar=svg.append('g').attr('transform',`translate(${cx},${H-(P?10:14)})`);
+ bBar.append('rect').attr('x',P?-W*.45:-260).attr('y',-12).attr('width',P?W*.9:520).attr('height',24).attr('rx',12)
+   .attr('fill','rgba(142,191,76,0.12)').attr('stroke','#8EBF4C').attr('stroke-width',1.2);
+ txt(bBar,0,4,'✓ CERO LÍDERES CENTRALES · MANDATO ROTATIVO (1 A 3 MESES) · COGESTIÓN',{a:'middle',fw:700,fs:P?8:10,c:'#8EBF4C'});
+
  let k=0,first=true;
- function set(i){const s=AS[i];tR.text(`Heterarquía: ${s.n}`).attr('fill',s.c);sR.text('encabeza quien conoce y hace la actividad');
-  const d=reduce||first?0:1100;first=false;
-  lead.transition().duration(d).attr('x',rx-R-10).attr('y',yy(0)-rh/2+3).attr('width',(P?W-rx-4:W*.3)+R).attr('height',rh-6).attr('fill',s.c);
-  A.forEach((id,j)=>{const ri=s.o.indexOf(id),li=HOY.indexOf(id);const o=right[j];
-   o.g.transition().duration(d).ease(d3.easeCubicInOut).attr('transform',`translate(${rx},${yy(ri)})`);
-   o.tag.text(ri===0?'ENCABEZA':'').attr('fill',s.c);o.t.attr('font-weight',ri===0?700:500);
-   const up=ri<li,c=ri===0?s.c:up?'#4FB98C':ri>li?'#77736b':'#3a3c42';
-   lines[j].transition().duration(d).attr('d',`M${lx+R+4},${yy(li)} C${(lx+rx)/2},${yy(li)} ${(lx+rx)/2},${yy(ri)} ${rx-R-4},${yy(ri)}`).attr('stroke',c).attr('stroke-width',ri===0?4:2.2).attr('stroke-opacity',ri===0?1:.5)})}
- set(0);const iv=setInterval(()=>{k=(k+1)%AS.length;set(k)},4200);ctx.onExit(()=>clearInterval(iv));
- return sub=>{k=sub%AS.length;set(k)}
+ function set(i){
+  const pacto=PACTOS[i];
+  tR.text(pacto.n).attr('fill',pacto.c);
+  sR.text(pacto.d);
+  const d=reduce||first?0:900;first=false;
+
+  A.forEach((id,j)=>{
+   const li=HOY.indexOf(id);
+   const pt=ringCoords[j];
+   const onFocus=!pacto.focus||pacto.focus.has(id);
+   const o=right[j];
+
+   o.g.transition().duration(d).style('opacity',onFocus?1:.25);
+   o.t.attr('fill',onFocus?INK:MUTE).attr('font-weight',onFocus?700:500);
+   o.role.style('opacity',onFocus?1:0);
+
+   const strokeCol=onFocus?pacto.c:'#3a3c42';
+   const strokeW=onFocus?2.4:1;
+   const strokeOp=onFocus?.75:.15;
+
+   lines[j].transition().duration(d)
+     .attr('d',`M${lx+R+4},${yy(li)} C${(lx+pt.x)/2},${yy(li)} ${(lx+pt.x)/2},${pt.y} ${pt.x-R-2},${pt.y}`)
+     .attr('stroke',strokeCol).attr('stroke-width',strokeW).attr('stroke-opacity',strokeOp);
+  });
+ }
+
+ set(0);
+ const iv=setInterval(()=>{k=(k+1)%PACTOS.length;set(k)},4500);
+ ctx.onExit(()=>clearInterval(iv));
+ return sub=>{k=sub%PACTOS.length;set(k)};
+}
+
+function programaArqView(ctx){
+ const {svg,W,H,P}=svgIn(ctx.el);
+ const OCH='#F2B53A',GRN='#4ADE80',BLU='#38BDF8',PUR='#C084FC',ORA='#FB923C';
+
+ txt(svg,W/2,P?20:26,'Programa Arquitectónico: Biorrefinería & Complejo (9.000 m²)',{a:'middle',fw:700,fs:P?13:20,c:OCH});
+ txt(svg,W/2,P?36:44,'Zonificación en 5 paquetes y corte bioclimático en el borde Corabastos - Humedal El Burro',{a:'middle',fs:P?10:12.5,c:SOFT});
+
+ const ZONAS=[
+  {c:ORA,n:'A. Biorrefinería & Descarga',m2:'2.800 m²',pct:'31%',d:'Tolvas mecatrónicas y cintas continuas: fin de sacos a lomo para coteros y recicladores.'},
+  {c:BLU,n:'B. Bóvedas de Micoproteína',m2:'2.200 m²',pct:'24%',d:'Cámaras oscuras de Pleurotus: 40 ton/mes de proteína limpia sobre rastrojo orgánico.'},
+  {c:OCH,n:'C. Silos Tecnificados Canasta',m2:'1.800 m²',pct:'20%',d:'Acopio vertical con ventilación pasiva cruzada para papa y tubérculos andinos.'},
+  {c:PUR,n:'D. Aulas de Reconversión',m2:'800 m²',pct:'9%',d:'Formación técnica: 320 coteros y recicladores contratados como operadores mecatrónicos.'},
+  {c:GRN,n:'E. Comedor Cívico & Mercado',m2:'1.400 m²',pct:'16%',d:'500 raciones diarias, plaza de comercio barrial y biofiltros hacia el Humedal El Burro.'}
+ ];
+
+ // Mitad superior: 5 paquetes funcionales
+ const topZ=P?48:58,hZ=P?110:95,nZ=5;
+ const wZ=P?(W-20)/2:(W-40-(nZ-1)*10)/nZ;
+
+ ZONAS.forEach((z,i)=>{
+  const col=i%2,row=Math.floor(i/2);
+  const x=P?10+col*(wZ+8):20+i*(wZ+10);
+  const y=P?topZ+row*(hZ+8):topZ;
+  if(P&&i===4){
+   // En mobile la quinta zona ocupa el ancho completo
+  }
+  const gz=svg.append('g').attr('transform',`translate(${x},${y})`);
+  gz.append('rect').attr('width',P&&i===4?W-20:wZ).attr('height',hZ).attr('rx',8)
+    .attr('fill','#14171f').attr('stroke',z.c).attr('stroke-opacity',.5).attr('stroke-width',1.2);
+  txt(gz,10,16,z.n,{fw:700,fs:P?10:11.5,c:z.c});
+  txt(gz,10,32,`${z.m2} · ${z.pct}`,{fw:700,fs:P?11:13,c:INK});
+  const td=txt(gz,10,48,z.d,{fs:P?8.5:9.5,c:SOFT});
+  wrap(td,z.d,P?24:Math.max(16,Math.floor(wZ/6.8)),P?10.5:11.5);
+ });
+
+ // Mitad inferior: Sección Bioclimática Transversal (Corte Arquitectónico)
+ const topS=P?topZ+3*hZ+20:topZ+hZ+24;
+ const hS=H-topS-(P?16:24);
+ const gSec=svg.append('g').attr('transform',`translate(20,${topS})`);
+
+ gSec.append('rect').attr('width',W-40).attr('height',hS).attr('rx',10)
+   .attr('fill','#0e1117').attr('stroke','#2d3748').attr('stroke-width',1.2);
+
+ txt(gSec,16,20,'CORTE BIOCLIMÁTICO TRANSVERSAL: NORTE (CORABASTOS) → SUR (HUMEDAL EL BURRO)',{fw:700,fs:P?9:11,c:OCH,mono:1});
+
+ const wSec=W-40;
+ const yBase=hS-28;
+
+ // Terreno y talud
+ gSec.append('path').attr('d',`M 10,${yBase} L ${wSec*.7},${yBase} Q ${wSec*.85},${yBase+4} ${wSec-10},${yBase+16}`)
+   .attr('stroke','#4b5563').attr('stroke-width',2).attr('fill','none');
+
+ // Nave 1: Muelle mecatrónico (Norte - Corabastos)
+ const xMuelle=20,wMuelle=wSec*.24;
+ gSec.append('rect').attr('x',xMuelle).attr('y',yBase-hS*.48).attr('width',wMuelle).attr('height',hS*.48)
+   .attr('fill','#1a1f2c').attr('stroke',ORA).attr('stroke-width',1.5);
+ txt(gSec,xMuelle+8,yBase-hS*.48+16,'MUELLE MECATRÓNICO',{fw:700,fs:P?8:10,c:ORA});
+ txt(gSec,xMuelle+8,yBase-hS*.48+30,'±0.00m · Cintas y tolvas',{fs:P?7.5:9,c:SOFT});
+ txt(gSec,xMuelle+8,yBase-10,'Cero bultos a lomo',{fw:600,fs:P?7.5:9,c:'#86efac'});
+
+ // Nave 2: Bóvedas de Micoproteína y Silos (Centro)
+ const xCentro=xMuelle+wMuelle+12,wCentro=wSec*.38;
+ gSec.append('rect').attr('x',xCentro).attr('y',yBase-hS*.75).attr('width',wCentro).attr('height',hS*.75)
+   .attr('fill','#141b2b').attr('stroke',BLU).attr('stroke-width',1.5);
+ txt(gSec,xCentro+10,yBase-hS*.75+18,'BÓVEDAS & SILOS TECNIFICADOS',{fw:700,fs:P?8:10,c:BLU});
+ txt(gSec,xCentro+10,yBase-hS*.75+32,'+4.50m / +9.00m · Aislamiento térmico pasivo',{fs:P?7.5:9,c:SOFT});
+ txt(gSec,xCentro+10,yBase-hS*.75+46,'Pleurotus: 40 t/mes proteína limpia',{fs:P?7.5:9,c:'#93c5fd'});
+
+ // Cubierta productiva sobre el centro
+ gSec.append('path').attr('d',`M ${xCentro},${yBase-hS*.75} L ${xCentro+wCentro/2},${yBase-hS*.88} L ${xCentro+wCentro},${yBase-hS*.75}`)
+   .attr('stroke',GRN).attr('stroke-width',2).attr('fill','none');
+ txt(gSec,xCentro+wCentro/2,yBase-hS*.88-6,'Cubierta verde + Captación pluvial',{a:'middle',fs:P?7.5:8.5,c:GRN});
+
+ // Nave 3: Comedor Cívico & Borde Ecológico (Sur - Humedal)
+ const xCiv=xCentro+wCentro+12,wCiv=wSec-xCiv-20;
+ gSec.append('rect').attr('x',xCiv).attr('y',yBase-hS*.38).attr('width',wCiv).attr('height',hS*.38)
+   .attr('fill','#16231a').attr('stroke',GRN).attr('stroke-width',1.5);
+ txt(gSec,xCiv+8,yBase-hS*.38+16,'BORDE CÍVICO & COMEDOR',{fw:700,fs:P?8:10,c:GRN});
+ txt(gSec,xCiv+8,yBase-hS*.38+30,'500 raciones · Fitodepuración',{fs:P?7.5:9,c:SOFT});
+ txt(gSec,xCiv+8,yBase-8,'Conexión Humedal El Burro',{fw:600,fs:P?7:8.5,c:'#86efac'});
+
+ // Flechas bioclimáticas (flujo de aire fresco y recirculación)
+ const gFl=gSec.append('g').style('opacity',.75);
+ gFl.append('path').attr('d',`M ${wSec-30},${yBase-15} Q ${xCentro+wCentro},${yBase-40} ${xCentro+20},${yBase-hS*.6}`)
+   .attr('fill','none').attr('stroke','#38bdf8').attr('stroke-width',2).attr('stroke-dasharray','5 4').attr('class','flowing');
+ txt(gFl,wSec-35,yBase-30,'Brisa fresca del humedal',{a:'end',fs:8,c:'#38bdf8'});
+
+ return sub=>{};
+}
+
+function canastaFasesView(ctx){
+ const {svg,W,H,P}=svgIn(ctx.el);
+ const OCH='#F2B53A',GRN='#4ADE80',BLU='#38BDF8',ORA='#FB923C';
+
+ txt(svg,W/2,P?20:26,'Arquitectura de la Canasta Familiar & Fases Constructivas',{a:'middle',fw:700,fs:P?13:20,c:GRN});
+ txt(svg,W/2,P?36:44,'Espacialización nutricional popular (Proteínas, Carbohidratos, Vegetales) y 3 fases de obra',{a:'middle',fs:P?10:12.5,c:SOFT});
+
+ // Mitad superior: 3 módulos de la canasta familiar + comercio directo
+ const CANASTA=[
+  {c:'#38bdf8',tit:'1. MÓDULO PROTEICO',sub:'Setas Pleurotus ostreatus (2.200 m²)',
+   items:['22% proteína vegetal bioasimilable en 21 días','Cultivo sobre rastrojos orgánicos de Corabastos','Costo 40% menor que carne industrial de res/pollo','Destino: 150 tiendas barriales y comedores']},
+  {c:'#facc15',tit:'2. MÓDULO CARBOHIDRATOS',sub:'Papa & Tubérculos Andinos (1.800 m²)',
+   items:['Silos ventilados con HR al 85% y temp 8-10°C','Papa pastusa, criolla, arracacha y plátano','Regulación de precios sin especulación mayorista','Canastas barriales a precio justo de acopio']},
+  {c:'#4ade80',tit:'3. MÓDULO VEGETAL',sub:'Huertas & Cubiertas Vivas (1.500 m²)',
+   items:['Hortalizas frescas (lechuga, espinaca, acelga)','Cero pesticidas: biofertilizadas con compost local','Polinización activa por abejas del Humedal El Burro','Cosecha matutina directa al comedor y tiendas']}
+ ];
+
+ const topC=P?48:58,hC=P?130:115;
+ const wC=P?W-20:(W-40-20)/3;
+
+ CANASTA.forEach((can,i)=>{
+  const x=P?10:20+i*(wC+10);
+  const y=P?topC+i*(hC+8):topC;
+  const gc=svg.append('g').attr('transform',`translate(${x},${y})`);
+
+  gc.append('rect').attr('width',wC).attr('height',hC).attr('rx',8)
+    .attr('fill','#121722').attr('stroke',can.c).attr('stroke-opacity',.5).attr('stroke-width',1.2);
+
+  txt(gc,12,18,can.tit,{fw:700,fs:P?10.5:12,c:can.c});
+  txt(gc,12,32,can.sub,{fs:P?9:10,c:SOFT});
+
+  can.items.forEach((it,idx)=>{
+   gc.append('circle').attr('cx',16).attr('cy',48+idx*16).attr('r',2.5).attr('fill',can.c);
+   txt(gc,24,51+idx*16,it,{fs:P?8.5:9.5,c:'#e2e8f0'});
+  });
+ });
+
+ // Mitad inferior: Fases Constructivas (Plan Maestro en 3 Fases)
+ const topF=P?topC+3*(hC+8)+16:topC+hC+20;
+ const hF=H-topF-(P?16:24);
+ const wF=P?W-20:(W-40-20)/3;
+
+ const FASES=[
+  {c:ORA,fase:'FASE 1 (Meses 1–12)',tit:'Nave Mecatrónica & Aulas Técnicas',m2:'3.000 m² construidos',
+   desc:'Montaje de nave modular de acero, instalación de tolvas mecánicas y cintas de descarga. Apertura de aulas de capacitación para coteros y recicladores.'},
+  {c:BLU,fase:'FASE 2 (Meses 13–24)',tit:'Bóvedas de Micelio & Silos Canasta',m2:'3.500 m² construidos',
+   desc:'Construcción de cámaras climatizadas para Pleurotus y silos de papa. Línea automatizada de empaque de canastas barriales. Cero bultos a lomo.'},
+  {c:GRN,fase:'FASE 3 (Meses 25–48)',tit:'Borde Cívico & Comedor del Humedal',m2:'2.500 m² construidos',
+   desc:'Comedor popular para 500 raciones diarias, plaza de mercado de cercanía y taludes de fitodepuración que protegen el agua del Humedal El Burro.'}
+ ];
+
+ FASES.forEach((fa,i)=>{
+  const x=P?10:20+i*(wF+10);
+  const y=P?topF+i*80:topF;
+  const gf=svg.append('g').attr('transform',`translate(${x},${y})`);
+
+  gf.append('rect').attr('width',wF).attr('height',P?74:hF).attr('rx',8)
+    .attr('fill','#0f141d').attr('stroke',fa.c).attr('stroke-opacity',.5).attr('stroke-width',1.2);
+
+  txt(gf,12,18,fa.fase,{fw:700,fs:P?9.5:11,c:fa.c});
+  txt(gf,12,32,fa.tit,{fw:700,fs:P?10.5:12,c:INK});
+  txt(gf,12,46,fa.m2,{fw:600,fs:P?8.5:9.5,c:fa.c});
+
+  if(!P){
+   const td=txt(gf,12,64,fa.desc,{fs:9.5,c:SOFT});
+   wrap(td,fa.desc,Math.max(18,Math.floor(wF/6.6)),13);
+  }
+ });
+
+ return sub=>{};
 }
 
 /* ---------- cuatro ámbitos de coordinación (no escalones) ---------- */
@@ -1426,7 +1676,9 @@ const SL=[
  {b:9,key:'cierre',src:'Corte III · Kennedy',draw(ctx){const cs=statement(ctx,['La <span style="color:#F2B53A">heterarquía</span> distribuye la influencia; la <span style="color:#4EAECF">gobernanza policéntrica</span> coordina los centros; las <span style="color:#8EBF4C">reglas de mandato, seguimiento y rectificación</span> las hacen revisables.','¿Quién decide, qué recursos circulan y <span style="color:#F2B53A">quién puede corregir lo que no funciona</span>?']);
    return sub=>cs.style('opacity',(d,i)=>i<=sub?1:.15)}},
  {b:3,key:'jerarquia',src:'Red de actores del grupo',draw(ctx){jerarquiaView(ctx)}},
- {b:3,key:'heterarquia2',src:'Red de actores del grupo',draw(ctx){return heterarquiaView(ctx)}},
+ {b:3,key:'heterarquia2',src:'Propuesta del grupo · Federación policéntrica sin líder central',draw(ctx){return heterarquiaView(ctx)}},
+ {b:3,key:'programa_arq',src:'Propuesta de diseño espacial y programa arquitectónico · Biorrefinería 9.000 m²',draw(ctx){return programaArqView(ctx)}},
+ {b:3,key:'canasta_fases',src:'Propuesta de espacialización de la canasta familiar y fases constructivas',draw(ctx){return canastaFasesView(ctx)}},
  {b:3,key:'cv_macros',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.macros)}},
  {b:3,key:'cv_tres',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.tres)}},
  {b:3,key:'cv_comunes',src:'Guion del grupo',draw(ctx){cardsView(ctx,CV.comunes)}},

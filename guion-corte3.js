@@ -6,7 +6,42 @@ window.TIMES = ['00:00–01:15','01:15–02:30','02:30–04:00','04:00–06:00',
 const O='#F2B53A',R='#E0623F',V='#9382E0';
 window.GUION = {
 jerarquia:[{t:'Una estructura jerárquica',s:'',n:''}],
-heterarquia2:[{t:'Heterarquía',s:'',n:''}],
+heterarquia2:[
+  {
+    t:'Federación Territorial Policéntrica: Sin Líder Central',
+    s:'Coordinación horizontal entre nodos autónomos: NO HAY LÍDER CENTRAL.',
+    n:'A diferencia de la jerarquía tradicional —donde las entidades y Corabastos mandan arriba mientras recicladores y vecinos quedan subordinados abajo—, en la federación NO HAY LÍDER CENTRAL ni escalafón de mando superior. No se trata de cambiar de amo ni de coronar a un nuevo líder: cada núcleo temático (residuos y circularidad, alimentos y huertas, humedal y agua, comercio barrial) tiene plena autonomía funcional y se articula en igualdad horizontal mediante vocerías rotativas (1 a 3 meses) y pactos de cogestión con las entidades públicas, quienes aportan presupuesto participativo y soporte legal sin mandar sobre la comunidad.',
+    tags:[['MESA','Mesa Federada','Vocerías rotativas sin mando','#F2B53A'],['A25','Recicladores','Autonomía operativa','#8EBF4C'],['A13','Coteros','Mesa de cogestión','#FB923C']]
+  }
+],
+programa_arq:[
+  {
+    t:'Programa Arquitectónico: Biorrefinería & Complejo Ecosocial (9.000 m²)',
+    s:'Zonificación en 5 paquetes funcionales sobre el borde Corabastos - Humedal El Burro.',
+    n:'La propuesta espacializa la federación en un Complejo Biotecnológico Urbano de 9.000 m² cubiertos sobre el borde de amortiguación entre Corabastos y el Humedal El Burro. Se zonifica en cinco paquetes funcionales: Zona A de Biorrefinería y tolvas mecatrónicas (2.800 m²), que sustituye el cargue manual en la espalda; Zona B de bóvedas de micoproteína (2.200 m²) para cultivo de setas Pleurotus sobre rastrojos orgánicos; Zona C de silos tecnificados de la Canasta Familiar (1.800 m²) para acopio de carbohidratos andinos con ventilación pasiva cruzada; Zona D del Centro de Reconversión Laboral (800 m²), con aulas técnicas y laboratorios para que coteros y recicladores se formen como operadores mecatrónicos y laboratoristas; y Zona E (1.400 m²) con el comedor comunitario cívico para 500 raciones diarias y biofiltros hacia el humedal.',
+    tags:[['A25','Recicladores','Operadores mecatrónicos','#8EBF4C'],['A13','Coteros','Fin del trabajo a lomo','#FB923C']]
+  },
+  {
+    t:'Corte Bioclimático y Segregación Radical de Flujos',
+    s:'Muelle mecatrónico hacia Corabastos y umbral cívico-ecológico hacia el Humedal El Burro.',
+    n:'El corte arquitectónico resuelve la transición territorial: la fachada norte a cota ±0.00m recibe los residuos y alimentos de Corabastos mediante tolvas mecánicas y cintas transportadoras mecanizadas, eliminando para siempre los bultos de 60 kg a lomo. En niveles superiores (+4.50m a +13.50m) se apilan las bóvedas fúngicas con aislamiento térmico pasivo y cubiertas productivas. Y la fachada sur se abre como un espacio cívico aterrazado con comedor y taludes de fitodepuración que protegen el agua del Humedal El Burro sin verter lixiviados.',
+    tags:[['LOG01','Mecatrónica','Cintas y tolvas','#FB923C'],['AMB04','Humedal El Burro','Fitodepuración cero vertimiento','#4ADE80']]
+  }
+],
+canasta_fases:[
+  {
+    t:'Arquitectura de la Canasta Familiar: Proteínas, Carbohidratos y Vegetales',
+    s:'Espacialización nutricional popular y nuevo circuito comercial hacia 150 tiendas barriales.',
+    n:'El programa responde a la Canasta Familiar Colombiana (DANE / ENSIN) mediante tres módulos productivos: el Módulo Proteico produce 40 toneladas mensuales de micoproteína de setas Pleurotus, aportando un 22% de proteína bioasimilable a un costo 40% menor que la carne; el Módulo de Carbohidratos almacena papa y tubérculos andinos en silos tecnificados que frenan la especulación mayorista; y el Módulo Vegetal aporta hortalizas frescas de huertas barriales. Este paquete se distribuye directamente a 150 tiendas barriales y comedores escolares de Kennedy, reduciendo el gasto alimentario de los hogares en un 30%.',
+    tags:[['A15','Tiendas barriales','Circuito corto directo','#F2B53A'],['INF03','Comedores comunitarios','500 raciones diarias','#4ADE80']]
+  },
+  {
+    t:'Plan Maestro de Implantación Física en 3 Fases Constructivas',
+    s:'De la nave piloto mecatrónica a la consolidación del complejo cívico y restauración ecológica.',
+    n:'La implantación constructiva se programa en tres fases: Fase 1 (Meses 1 a 12 | 3.000 m²), montaje de la nave de acero modular, instalación de tolvas mecánicas y apertura de aulas técnicas de reconversión; Fase 2 (Meses 13 a 24 | 3.500 m²), construcción de las bóvedas de micoproteína y silos tecnificados, erradicando el cargue manual a lomo; y Fase 3 (Meses 25 a 48 | 2.500 m²), construcción del comedor comunitario, plaza de mercado barrial y taludes de fitodepuración que conectan con el Humedal El Burro.',
+    tags:[['A34','Alcaldía Local','Presupuesto participativo','#9382E0'],['MESA','Mesa Federada','Cogestión comunitaria','#F2B53A']]
+  }
+],
 ambitos:[{t:'Cuatro ámbitos',s:'',n:''}],
 policentro:[{t:'Gobernanza policéntrica',s:'',n:''},{t:'Coordinación',s:'',n:''}],
 cv_macros:[{t:'1',s:'',n:''}],

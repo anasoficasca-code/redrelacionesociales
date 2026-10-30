@@ -1276,7 +1276,7 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
        <button class="strip-tab active" data-view="free">Red libre</button>
        <button class="strip-tab" data-view="clusters">Clústeres</button>
        <button class="strip-tab" data-view="concentric">Anillos de poder</button>
-       <button class="strip-tab" data-view="federacion" id="tabFederacion">Federación y Red Biótica</button>
+       <button class="strip-tab" data-view="federacion" id="tabFederacion" style="color:#fde047;border-color:rgba(250,204,21,0.5);font-weight:700;">Programa Arq. & Federación</button>
        <button class="strip-tab" data-view="map3d">Territorio 3D</button>
        <button class="strip-tab" data-view="free" id="guiaBtn">Corte III · Guion</button>
      </div>
@@ -3357,7 +3357,21 @@ function switchView(viewName){
   if (currentView === viewName) return;
   currentView = viewName;
 
-  document.querySelectorAll('.strip-tab').forEach(btn => {
+  // Soporte para abrir vista desde URL (?view=federacion o #federacion o #programa)
+const urlParams = new URLSearchParams(window.location.search);
+const initView = urlParams.get('view') || (window.location.hash ? window.location.hash.slice(1) : null);
+if (initView === 'federacion' || initView === 'programa') {
+  setTimeout(() => {
+    switchView('federacion');
+    const fedBtn = document.getElementById('tabFederacion');
+    if (fedBtn) {
+      document.querySelectorAll('.strip-tab').forEach(b => b.classList.remove('active'));
+      fedBtn.classList.add('active');
+    }
+  }, 100);
+}
+
+document.querySelectorAll('.strip-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === viewName);
   });
 
