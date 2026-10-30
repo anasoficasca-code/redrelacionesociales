@@ -1782,7 +1782,7 @@ function axoView(ctx){
   const PLOTS={huerta:[-90,-60,90,60],circ:[-120,-28,120,28],cor:[-100,-55,100,55],rec:[-90,-50,90,50]};
   const rect=k=>{const c=SITES[k],r=PLOTS[k];return[c[0]+r[0],c[1]+r[1],c[0]+r[2],c[1]+r[3]]};
   /* lote del proyecto arquitectónico: borde del Río Bogotá (ubicación ilustrativa) */
-  const YE='#F2C14E',PROY=G(-74.1825,4.6450),PR=[PROY[0]-85,PROY[1]-60,PROY[0]+85,PROY[1]+60];
+  const YE='#F2C14E',PROY=G(-74.1645,4.6550),PR=[PROY[0]-85,PROY[1]-60,PROY[0]+85,PROY[1]+60];
   const inProy=b=>b.gx>PR[0]-12&&b.gx<PR[2]+12&&b.gy>PR[1]-12&&b.gy<PR[3]+12;
   const inClear=b=>inProy(b)||Object.keys(PLOTS).some(k=>{const r=rect(k);return b.gx>r[0]-8&&b.gx<r[2]+8&&b.gy>r[1]-8&&b.gy<r[3]+8});
   /* ---------- lienzo negro ---------- */
@@ -1927,7 +1927,7 @@ function conectoView(ctx){
   const PLOTS={};
   const rect=k=>{const c=SITES[k],r=PLOTS[k];return[c[0]+r[0],c[1]+r[1],c[0]+r[2],c[1]+r[3]]};
   /* lote del proyecto arquitectónico: borde del Río Bogotá (ubicación ilustrativa) */
-  const YE='#F2C14E',PROY=G(-74.1825,4.6450),PR=[PROY[0]-85,PROY[1]-60,PROY[0]+85,PROY[1]+60];
+  const YE='#F2C14E',PROY=G(-74.1645,4.6550),PR=[PROY[0]-85,PROY[1]-60,PROY[0]+85,PROY[1]+60];
   const inProy=b=>b.gx>PR[0]-12&&b.gx<PR[2]+12&&b.gy>PR[1]-12&&b.gy<PR[3]+12;
   const inClear=b=>inProy(b)||Object.keys(PLOTS).some(k=>{const r=rect(k);return b.gx>r[0]-8&&b.gx<r[2]+8&&b.gy>r[1]-8&&b.gy<r[3]+8});
   /* ---------- lienzo negro ---------- */
@@ -1980,7 +1980,7 @@ function conectoView(ctx){
   Object.entries(MV.roads).forEach(([nm,segs])=>{let best=null;segs.forEach(s=>{const q=s.map(p=>P0(p[0],p[1]));lineP(LY.vias,q,'#ffffff',1.6,.32);if(!best||s.length>best.length)best=s});
    if(best){const m=best[Math.floor(best.length/2)];const q=P0(m[0],m[1]);if(inView(q))tag(LY.vias,[q[0],q[1]-6],nm,'#cfcac0',{fs:10,fw:600})}});
   /* --- Río Bogotá --- */
-  const rq=MV.river.map(p=>P0(p[0],p[1]));lineP(LY.eco,rq,'#2f86d6',9,.55);lineP(LY.eco,rq,'#6fb7ff',2.5,.9);
+  const rq=MV.river.map(p=>P0(p[0],p[1]));(MV.riverAll||[MV.river]).forEach(sg=>{const q=sg.map(p=>P0(p[0],p[1]));lineP(LY.eco,q,'#2f86d6',9,.55);lineP(LY.eco,q,'#6fb7ff',2.5,.9)});
   {const m=rq[Math.floor(rq.length/2)];tag(LY.lab,[m[0]-14,m[1]-14],'Río Bogotá','#8cc8ff',{fs:13,a:'end'})}
 
   /* --- lugares y actores reales (puntos del grupo) --- */
@@ -2005,7 +2005,7 @@ function conectoView(ctx){
   /* --- relaciones ECOLÓGICAS --- */
   hums.forEach(h=>{const hp=P0(...h.geometry.coordinates,2);nearest(hp,HU,4,120).forEach(o=>{curve(LY.eco,hp,o.p,ECO,1.6,.75,'2 4',.12)})});
   {const [a,b,c]=hums.map(h=>P0(...h.geometry.coordinates,2));curve(LY.eco,b,c,ECO,2.4,.85,'6 5',.15);curve(LY.eco,a,b,ECO,2,.7,'6 5',-.15)}
-  {const rm=rq[Math.floor(rq.length*.75)]||rq[0];curve(LY.eco,proyP,rm,ECO,2.6,.9,'6 5',.1)}
+  {const rm=rq.reduce((b,q)=>Math.hypot(q[0]-proyP[0],q[1]-proyP[1])<Math.hypot(b[0]-proyP[0],b[1]-proyP[1])?q:b,rq[0]);curve(LY.eco,proyP,rm,ECO,2.6,.9,'6 5',.1)}
 
   /* --- GOBERNANZA y decisiones --- */
   const alcP=P0(...HUB.alc,4),corP=P0(...HUB.cor,8),jusP=P0(...HUB.just,4);
@@ -2032,7 +2032,7 @@ function conectoView(ctx){
   /* conexiones propuestas al proyecto */
   const e1=mtV[0],e2=mtV[1],portal=P0(MV.tm[0][1],MV.tm[0][2],1),bander=P0(MV.tm[6][1],MV.tm[6][2],1);
   [[e1,proyP,'pasarela peatonal y carga liviana'],[portal,proyP,'ruta alimentadora y ciclorruta']].forEach(([a,b,t],i)=>{curve(LY.mov,a,b,PRO,3,.95,'8 6',i?-.18:.18);K.dot(LY.mov,a,b,PRO,.2,i*.4);K.dot(LY.mov,b,a,PRO,.2,i*.4+.5);
-   const u=i?.3:.5,m=[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u];tag(LY.lab,i?[m[0]-10,m[1]+14]:[m[0]-22,m[1]+2],t,PRO,{fs:10.5,a:'end'})});
+   const u=i?.42:.55,m=[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u];tag(LY.lab,[m[0],m[1]+(i?16:-8)],t,PRO,{fs:10.5})});
   curve(LY.mov,bander,corP,TMc,2,.8,'4 4',.2);
 
   /* --- NODOS con íconos --- */
@@ -2094,6 +2094,665 @@ function conectoView(ctx){
  });
  return()=>{}}
 
+
+
+
+
+function coraHoyView(ctx){
+ const K=conceptKit(ctx,740),{svg,FONT}=K;
+ const GN='#8EBF4C',LG='#B6E27A',OR='#DE9F50',AM='#9382E0',TE='#3CC8B4',PK='#CF7ABB',BL='#4EAECF',RD='#e5484d',GR='#8C877E';
+ const gImg=svg.append('g'),gNet=svg.append('g'),gB=svg.append('g');
+ const load=svg.append('text').attr('x',600).attr('y',380).attr('text-anchor','middle').attr('font-size',15).attr('fill','#77736b').attr('font-family',FONT).text('…');
+ const J=u=>fetch(u).then(r=>r.json()),Bf=u=>fetch(u).then(r=>r.arrayBuffer());
+ Promise.all([J('assets/territorio_kennedy.geojson'),J('assets/territorio_puntos.geojson'),J('assets/k3d/meta.json'),Bf('assets/k3d/bld.bin'),J('assets/k3d/manz.json'),Bf('assets/k3d/trees.bin'),J('assets/k3d/parques.json'),J('assets/k3d/agua.json'),J('assets/corabastos_bodegas.json')]).then(([Kg,Pg,M,bld,manz,trees,parq,agua,CB])=>{
+  const ring=Kg.features[0].geometry.coordinates[0];const {tx:TX,ty:TY,lon0:LON0,lat0:LAT0,kx:KX,ky:KY}=M;
+  const AZ=38*Math.PI/180,ca=Math.cos(AZ),sa=Math.sin(AZ);
+  const toG=(E,N)=>{const mx=E,my=-N;return[mx*ca-my*sa,mx*sa+my*ca]};
+  const G=(lon,lat)=>toG((lon-LON0)*KX,(lat-LAT0)*KY),GR_=(x,y)=>toG(x+TX,y+TY);
+  const raw=(gx,gy,z)=>[(gx-gy)*.866,(gx+gy)*.6-z*1.5];
+  const ringG=ring.map(([a,b])=>G(a,b));const rs=ringG.map(([x,y])=>raw(x,y,0));
+  const minX=Math.min(...rs.map(p=>p[0])),maxX=Math.max(...rs.map(p=>p[0])),minY=Math.min(...rs.map(p=>p[1])),maxY=Math.max(...rs.map(p=>p[1]));
+  const _rp=[...CB.bodegas.map(o=>[o.e,o.no]),...Object.values(CB.pts)].map(([e,n])=>{const g=toG(e,n);return raw(g[0],g[1],0)});const _x0=Math.min(..._rp.map(p=>p[0])),_x1=Math.max(..._rp.map(p=>p[0])),_y0=Math.min(..._rp.map(p=>p[1])),_y1=Math.max(..._rp.map(p=>p[1]));const S=Math.min(800/(_x1-_x0),590/(_y1-_y0));
+  /* sitios de la propuesta */
+  const by=k=>Pg.features.filter(f=>f.properties.c===k).map(f=>f.geometry.coordinates);const hue=by('huerta');
+  const hN=hue.filter(p=>p[1]>4.64),hc=G(d3.mean(hN,p=>p[0]),d3.mean(hN,p=>p[1]));
+  const cenW=n=>{const a=agua.filter(w=>w.n===n),q=[];a.forEach(w=>{for(let i=0;i<w.p.length;i+=2)q.push([w.p[i],w.p[i+1]])});return GR_(d3.mean(q,p=>p[0]),d3.mean(q,p=>p[1]))};
+  const corG=G(-74.159,4.6295);
+  const SITES={huerta:hc,hum:cenW('Humedal El Burro'),circ:G(-74.1535,4.6275),cor:corG,rec:G(-74.1735,4.6245)};
+  const COLS={huerta:GN,hum:BL,circ:PK,cor:OR,rec:TE};
+  const sr=Object.values(SITES).map(q=>raw(q[0],q[1],0));const rcx=d3.mean(sr,p=>p[0]),rcy=d3.mean(sr,p=>p[1]);
+  const OX=440-(_x0+_x1)/2*S,OY=335-(_y0+_y1)/2*S;
+  const PJ=(gx,gy,z=0)=>{const r=raw(gx,gy,z);return[OX+r[0]*S,OY+r[1]*S]};
+  const vis=p=>p[0]>-60&&p[0]<1260&&p[1]>-60&&p[1]<800;
+  const PLOTS={};
+  const rect=k=>{const c=SITES[k],r=PLOTS[k];return[c[0]+r[0],c[1]+r[1],c[0]+r[2],c[1]+r[3]]};
+  /* lote del proyecto arquitectónico: borde del Río Bogotá (ubicación ilustrativa) */
+  const YE='#F2C14E',PROY=G(-74.1645,4.6550),PR=[PROY[0]-85,PROY[1]-60,PROY[0]+85,PROY[1]+60];
+  const inProy=b=>b.gx>PR[0]-12&&b.gx<PR[2]+12&&b.gy>PR[1]-12&&b.gy<PR[3]+12;
+  const inClear=b=>!!b.bod;
+  /* ---------- lienzo negro ---------- */
+  const bv=new DataView(bld);let o=0;const B=[];while(o<bv.byteLength){const h=bv.getUint8(o)/2,n=bv.getUint8(o+1);o+=2;const pts=[];let sx=0,sy=0;for(let i=0;i<n;i++){const x=bv.getUint16(o,true),y=bv.getUint16(o+2,true);o+=4;pts.push(GR_(x,y));sx+=x;sy+=y}const gg=GR_(sx/n,sy/n);if(vis(PJ(gg[0],gg[1],0)))B.push({h,g:pts,gx:gg[0],gy:gg[1]})}
+  B.sort((a,b)=>(a.gx+a.gy)-(b.gx+b.gy));
+  const BODE=CB.bodegas.map(o=>({...o,g:toG(o.e,o.no)}));const aG=g=>{let a=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;a+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}return Math.abs(a)/2};
+  BODE.forEach(o=>{let best=null,bd=45;B.forEach(b=>{if(b.bod)return;const d=Math.hypot(b.gx-o.g[0],b.gy-o.g[1]);if(d<bd&&aG(b.g)>600){bd=d;best=b}});if(best)best.bod=o});
+  const SC=2,cv=document.createElement('canvas');cv.width=1200*SC;cv.height=740*SC;const c=cv.getContext('2d');c.scale(SC,SC);c.lineJoin='round';c.lineCap='round';
+  const path=pts=>{c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath()};
+  const slab=ringG.map(([x,y])=>PJ(x,y,0)),s2=ringG.map(([x,y])=>PJ(x,y,-24));
+  path(s2);c.fillStyle='#050506';c.fill();path(slab);c.fillStyle='#121216';c.fill();c.strokeStyle='rgba(255,255,255,.3)';c.lineWidth=1.2;c.stroke();
+  c.save();path(slab);c.clip();
+  const gp=a=>{const q=[];for(let i=0;i<a.length;i+=2)q.push(GR_(a[i],a[i+1]));return q};
+  c.fillStyle='#1a1a21';c.strokeStyle='rgba(255,255,255,.07)';c.lineWidth=.3;manz.forEach(m=>{const q=gp(m);if(!vis(PJ(q[0][0],q[0][1])))return;path(q.map(p=>PJ(p[0],p[1])));c.fill();c.stroke()});
+  c.fillStyle='#143a1f';parq.forEach(p=>{const q=gp(p.p);if(!vis(PJ(q[0][0],q[0][1])))return;path(q.map(a=>PJ(a[0],a[1])));c.fill()});
+  agua.forEach(w=>{const q=gp(w.p);if(w.t==='Canal'||w.t==='Quebrada'){c.beginPath();q.forEach((a,i)=>{const p=PJ(a[0],a[1]);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])});c.strokeStyle='#2c6fb0';c.lineWidth=1.4;c.stroke()}else{path(q.map(a=>PJ(a[0],a[1])));c.fillStyle='#1c63a8';c.fill();c.strokeStyle='#7cc0ff';c.lineWidth=1;c.stroke()}});
+  const tv=new DataView(trees);const nt=tv.byteLength/5;c.fillStyle='#2f6b34';for(let i=0;i<nt;i++){const x=tv.getUint16(i*5,true)-1000,y=tv.getUint16(i*5+2,true)-1000,h=Math.min(tv.getUint8(i*5+4)/4,12);const g=GR_(x,y);const p=PJ(g[0],g[1],h);if(!vis(p))continue;c.beginPath();c.arc(p[0],p[1],1.5,0,6.3);c.fill()}
+  c.restore();
+  Object.keys(PLOTS).forEach(k=>{const r=rect(k);path([[r[0],r[1]],[r[2],r[1]],[r[2],r[3]],[r[0],r[3]]].map(p=>PJ(p[0],p[1],0)));c.fillStyle=COLS[k]+'66';c.fill();c.strokeStyle=COLS[k];c.lineWidth=1.6;c.stroke()});
+  B.forEach(b=>{if(inClear(b))return;const cor=false;const hh=Math.min(b.h,120);const g=b.g;let ar=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;ar+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}const sg=ar>0?1:-1;
+   for(let i=0;i<g.length;i++){const j=(i+1)%g.length;const dx=g[j][0]-g[i][0],dy=g[j][1]-g[i][1];const nx=dy*sg,ny=-dx*sg;if(nx+ny<=0)continue;path([PJ(g[i][0],g[i][1],0),PJ(g[j][0],g[j][1],0),PJ(g[j][0],g[j][1],hh),PJ(g[i][0],g[i][1],hh)]);c.fillStyle=cor?(nx>ny?'#6a4524':'#85582d'):(nx>ny?'#202028':'#2d2d38');c.fill()}
+   path(g.map(p=>PJ(p[0],p[1],hh)));const lum=Math.min(hh,40);c.fillStyle=cor?'#c98a47':`rgb(${54+lum*1.3|0},${54+lum*1.3|0},${66+lum*1.5|0})`;c.fill();c.strokeStyle=cor?'rgba(255,220,170,.5)':'rgba(255,255,255,.22)';c.lineWidth=.3;c.stroke()});
+  cv.toBlob(bl=>{const url=URL.createObjectURL(bl);load.remove();ctx.onExit(()=>URL.revokeObjectURL(url));gImg.append('image').attr('href',url).attr('x',0).attr('y',0).attr('width',1200).attr('height',740).style('opacity',0).transition().duration(reduce?0:900).style('opacity',1)});
+  /* ================= CORABASTOS sobre los edificios reales (IDECA) y el plano oficial de bodegas ================= */
+  const MODE='hoy';
+  const P2=(E,N,z=0)=>{const g=toG(E,N);return PJ(g[0],g[1],z)};
+  const CAT={grano:['#D6B24C','Granos y procesados'],papa:['#B9875A','Papa'],verdura:['#7FC35A','Verduras y hortalizas'],trop:['#E0A33A','Yuca, plátano y arracacha'],fruta:['#E8705C','Frutas'],varios:['#A08CD8','Varios (detallistas)'],mayorista:['#C9C3B6','Bodega Popular (mayorista)'],frio:['#5FB7E8','Red de fríos y cárnicos'],otro:['#7C7A74','Otros usos']};
+  const PROP={'25':'gone','24':'gone','23':'gone','26':'gone','12':'acopio','29':'banco','55':'carne','55b':'carne','55c':'carne'};
+  const PCOL={acopio:['#9BE15D','Acopio de huertas urbanas y mercado campesino'],banco:['#3CC8B4','Banco de alimentos y cocina de aprovechamiento'],carne:['#E5484D','Cárnicos y pescados con cadena de frío']};
+  const colOf=bd=>{if(MODE==='prop'&&PROP[bd.n]&&PROP[bd.n]!=='gone')return PCOL[PROP[bd.n]][0];return CAT[bd.c][0]};
+  const area=g=>{let a=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;a+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}return Math.abs(a)/2};
+  const gBod=svg.append('g'),gFlow=svg.append('g'),gLab=svg.append('g'),gUI=svg.append('g');
+  const BB=B.filter(b=>b.bod);const byN={};BB.forEach(b=>{(byN[b.bod.n]=byN[b.bod.n]||[]).push(b)});
+  const roofC=b=>{const h=Math.max(b.h,8);const g=b.g;return PJ(d3.mean(g,p=>p[0]),d3.mean(g,p=>p[1]),h)};
+  const ctrOf=n=>{const L=byN[n];if(!L)return null;const g=L.flatMap(b=>b.g);return PJ(d3.mean(g,p=>p[0]),d3.mean(g,p=>p[1]),0)};
+  /* prismas de bodegas */
+  const prism=(g,hh,col,o={})=>{const G2=gBod.append('g');let ar=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;ar+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}const sg=ar>0?1:-1;
+   const c=d3.color(col);for(let i=0;i<g.length;i++){const j=(i+1)%g.length;const dx=g[j][0]-g[i][0],dy=g[j][1]-g[i][1];const nx=dy*sg,ny=-dx*sg;if(nx+ny<=0)continue;
+    const q=[PJ(g[i][0],g[i][1],0),PJ(g[j][0],g[j][1],0),PJ(g[j][0],g[j][1],hh),PJ(g[i][0],g[i][1],hh)];G2.append('path').attr('d','M'+q.join('L')+'Z').attr('fill',(nx>ny?c.darker(1.1):c.darker(.6)).formatHex()).attr('stroke',o.dash?col:'none').attr('stroke-dasharray',o.dash||null)}
+   G2.append('path').attr('d','M'+g.map(p=>PJ(p[0],p[1],hh)).join('L')+'Z').attr('fill',col).attr('fill-opacity',o.op||1).attr('stroke',o.dash?'#fff':'rgba(255,255,255,.55)').attr('stroke-width',o.dash?1.4:.8).attr('stroke-dasharray',o.dash||null);return G2};
+  const EL={};
+  BB.forEach(b=>{const bd=b.bod;const hh=Math.max(b.h,8);
+   if(MODE==='prop'&&PROP[bd.n]==='gone'){const q=b.g.map(p=>PJ(p[0],p[1],0));gBod.append('path').attr('d','M'+q.join('L')+'Z').attr('fill','none').attr('stroke','#B6E27A').attr('stroke-width',1.2).attr('stroke-dasharray','4 3').attr('opacity',.85);return}
+   const el=prism(b.g,hh,colOf(bd));(EL[bd.n]=EL[bd.n]||[]).push(el)});
+  /* números de bodega sobre la cubierta */
+  Object.entries(byN).forEach(([n,L])=>{if(/b$|c$/.test(n))return;if(MODE==='prop'&&PROP[n]==='gone')return;const g=L.flatMap(b=>b.g),h=Math.max(...L.map(b=>b.h),8);const p=PJ(d3.mean(g,q=>q[0]),d3.mean(g,q=>q[1]),h);
+   gLab.append('text').attr('x',p[0]).attr('y',p[1]+4).attr('text-anchor','middle').attr('font-size',11).attr('font-weight',800).attr('fill','#111').attr('font-family',FONT).attr('stroke','rgba(255,255,255,.85)').attr('stroke-width',2.6).attr('paint-order','stroke').text(n)});
+  const tag=(p,t,col,o={})=>gLab.append('text').attr('x',p[0]+(o.dx||0)).attr('y',p[1]+(o.dy||0)).attr('text-anchor',o.a||'middle').attr('font-size',o.fs||11.5).attr('font-weight',o.fw||700).attr('fill',col).attr('font-family',FONT).attr('stroke','#0d0e10').attr('stroke-width',3.4).attr('paint-order','stroke').text(t);
+  const PT=k=>P2(CB.pts[k][0],CB.pts[k][1],0);
+  /* puertas (plano oficial) */
+  const GATES=['P1','P2','P3','P4','P5','P6','P7','P8','P9'];
+  const outward=k=>{const c=P2(CB.center[0],CB.center[1]),p=PT(k);const v=[p[0]-c[0],p[1]-c[1]],L=Math.hypot(...v);return[p[0]+v[0]/L*70,p[1]+v[1]/L*70]};
+  GATES.forEach(k=>{const p=PT(k);const closed=MODE==='prop'&&k==='P6';
+   gLab.append('rect').attr('x',p[0]-12).attr('y',p[1]-9).attr('width',24).attr('height',18).attr('rx',5).attr('fill',closed?'#B6E27A':'#e5484d').attr('stroke','#0d0e10').attr('stroke-width',1.5);
+   gLab.append('text').attr('x',p[0]).attr('y',p[1]+4).attr('text-anchor','middle').attr('font-size',10).attr('font-weight',800).attr('fill','#0d0e10').attr('font-family',FONT).text(k)});
+  tag(PT('Plaza de las Flores'),'Plaza de las Flores · pescados','#9fd6ef',{fs:11});
+  tag(PT('Humedal La Vaca (oeste)'),'Humedal La Vaca','#8cc8ff',{fs:13});
+  tag(PT('Humedal La Vaca (sur)'),'Humedal La Vaca','#8cc8ff',{fs:11,dx:30});
+  tag([PT('P1')[0]+20,PT('P1')[1]-26],'Av. Carrera 80','#cfcac0',{fs:11,a:'start',fw:600});
+  /* ---------- flujos ---------- */
+  const flows=[];const dot=(a,b,col,sp,ph,r=3.6)=>{const c=gFlow.append('circle').attr('r',r).attr('fill',col).attr('stroke','#0d0e10').attr('stroke-width',.8);flows.push({c,a,b,sp,ph})};
+  const seg=(a,b,col,w,dash,op=.85)=>gFlow.append('path').attr('d',`M${a[0]},${a[1]}L${b[0]},${b[1]}`).attr('stroke',col).attr('stroke-width',w).attr('stroke-dasharray',dash||null).attr('stroke-opacity',op).attr('fill','none');
+  const nearestGate=(p,list)=>list.map(k=>({k,d:Math.hypot(PT(k)[0]-p[0],PT(k)[1]-p[1])})).sort((x,y)=>x.d-y.d)[0].k;
+  const RED='#e5484d',ORA='#F2B53A',BRN='#A0703A',GRN='#9BE15D',TEAL='#3CC8B4',SKY='#7cc7ff';
+  if(MODE==='hoy'){
+   /* horarios oficiales de comercialización (corabastos.com.co/horarios) */
+   const T=[['4:00 a. m.','Granos y procesados venden desde las 4:00; entra la carga de frutas.',['1','2','3','4','5','6','7','8','9','10','16','17','35','29','29b','30','81','82']],
+            ['12:00 m.','Frutas, granos, yuca y plátano (11), tomate (12) y descargue de 21, 23 y 24.',['1','2','3','4','5','6','7','8','9','10','16','17','29','29b','30','81','82','11','12','21','23','24']],
+            ['8:00 p. m.','Papa (13, 14, 15, 18, 19, 20) de 8:00 p. m. a 3:00 a. m.; hortalizas (26) y cebolla (25).',['13','14','15','18','19','20','26','25','29','29b','30','81','82']]];
+   const truckG=['P1','P2','P3','P4','P5','P6','P7','P8','P9'],buyG=['P7','P8','P1','P2'];
+   let st=0;const draw=()=>{gFlow.selectAll('*').remove();flows.length=0;const act=new Set(T[st][2]);
+    Object.entries(EL).forEach(([n,a])=>a.forEach(e=>e.transition().duration(400).style('opacity',act.has(n)?1:.28)));
+    T[st][2].forEach((n,i)=>{const c=ctrOf(n);if(!c)return;const g=nearestGate(c,truckG),gp=PT(g),o=outward(g);
+     seg(o,gp,RED,1.6,'5 4',.6);seg(gp,c,RED,1.4,'5 4',.45);dot(o,gp,RED,.35,i*.13,4.2);dot(gp,c,RED,.3,i*.13+.3,4.2);
+     const bgt=nearestGate(c,buyG),bp=PT(bgt),bo=outward(bgt);if(i%2===0){dot(c,bp,ORA,.22,i*.11,3.4);dot(bp,bo,ORA,.3,i*.11+.4,3.4)}
+     const q=[c[0]+(i%2?14:-14),c[1]+8];dot(c,q,'#ffe08a',.9,i*.2,2.2)});
+    tBtns.forEach((b,i)=>{b.select('rect').attr('fill',i===st?'#F2EFE8':'#1b1c20');b.select('text').attr('fill',i===st?'#111':'#F2EFE8')});tNote.text(T[st][1])};
+   /* presión sobre el borde del humedal */
+   const edge=['25','24','23','26'].map(n=>ctrOf(n)).filter(Boolean);if(edge.length){const w=PT('Humedal La Vaca (oeste)');edge.forEach(p=>{seg(p,[(p[0]+w[0])/2,(p[1]+w[1])/2],BRN,2,'2 4',.9)});}
+   /* panel de horarios */
+   var tBtns=[],tNote;const tp=gUI.append('g').attr('transform','translate(20,662)');
+   tp.append('rect').attr('width',560).attr('height',62).attr('rx',12).attr('fill','#0d0e10').attr('fill-opacity',.9).attr('stroke','rgba(255,255,255,.18)');
+   tp.append('text').attr('x',14).attr('y',22).attr('font-size',12).attr('font-weight',800).attr('fill','#F2EFE8').attr('font-family',FONT).text('Dinámica según la hora (horarios oficiales)');
+   T.forEach((t,i)=>{const b=tp.append('g').attr('transform',`translate(${300+i*86},8)`).style('cursor','pointer');b.append('rect').attr('width',80).attr('height',22).attr('rx',11);b.append('text').attr('x',40).attr('y',15).attr('text-anchor','middle').attr('font-size',11).attr('font-weight',700).attr('font-family',FONT).text(t[0]);b.on('click',()=>{st=i;auto=false;draw()});tBtns.push(b)});
+   tNote=tp.append('text').attr('x',14).attr('y',46).attr('font-size',11.5).attr('fill','#cfcac0').attr('font-family',FONT);
+   let auto=true;draw();K.timers.push(setInterval(()=>{if(!auto)return;st=(st+1)%3;draw()},6500));
+  } else {
+   /* ronda recuperada: casco de las bodegas que salen + borde del humedal */
+   const gone=BB.filter(b=>PROP[b.bod.n]==='gone');const pts=gone.flatMap(b=>b.g.map(p=>PJ(p[0],p[1],0)));const w=PT('Humedal La Vaca (oeste)');
+   const hull=d3.polygonHull([...pts,[w[0]+20,w[1]-30],[w[0]+40,w[1]+10]]);
+   if(hull)gFlow.insert('path',':first-child').attr('d','M'+hull.join('L')+'Z').attr('fill','#2f8f6b').attr('fill-opacity',.45).attr('stroke','#B6E27A').attr('stroke-width',2).attr('stroke-dasharray','6 4');
+   const hc=d3.polygonCentroid(hull||pts);tag([hc[0]-6,hc[1]-6],'Ronda y restauración','#d6f5b0',{fs:12.5});tag([hc[0]-6,hc[1]+10],'del Humedal La Vaca','#d6f5b0',{fs:12.5});tag([hc[0]-6,hc[1]+25],'(salen las bodegas 23, 24, 25 y 26)','#b8c9a8',{fs:10,fw:600});
+   /* volúmenes nuevos propuestos */
+   const boxAt=(k,w2,d2,h,col)=>{const c=CB.pts[k];const g0=toG(c[0],c[1]);const g=[[g0[0]-w2,g0[1]-d2],[g0[0]+w2,g0[1]-d2],[g0[0]+w2,g0[1]+d2],[g0[0]-w2,g0[1]+d2]];prism(g,h,col,{dash:'5 3',op:.9});return PJ(g0[0],g0[1],h)};
+   const pRes=boxAt('Parqueadero 02 / Martillo',34,22,10,'#B08A55'),pPre=boxAt('Parqueadero 03',20,14,7,'#5FB7E8');
+   tag([pRes[0],pRes[1]-14],'Clasificación de residuos y biodigestor','#e8c79a',{fs:11});
+   tag([pPre[0]+8,pPre[1]-14],'Pretratamiento de aguas cárnicas','#bfe6ff',{fs:10.5,a:'start'});
+   /* etiquetas de cambios */
+   const lab=(n,t,col,dx=0,dy=-16)=>{const c=ctrOf(n);if(c)tag([c[0]+dx,c[1]+dy],t,col,{fs:11})};
+   lab('12','Acopio de huertas urbanas',GRN,0,-22);lab('29','Banco de alimentos',TEAL,-10,-26);lab('55','Cárnicos y pescados',RED,-70,-30);
+   /* flujos propuestos */
+   const res=ctrOf.bind(null);const cRes=PJ(...toG(...CB.pts['Parqueadero 02 / Martillo']),0),cPre=PJ(...toG(...CB.pts['Parqueadero 03']),0),c55=ctrOf('55'),c12=ctrOf('12'),c29=ctrOf('29');
+   ['P1','P2','P3','P4','P5'].forEach((g,i)=>{const o=outward(g),gp=PT(g);seg(o,gp,RED,2,'5 4',.7);dot(o,gp,RED,.3,i*.2,4.2)});
+   ['13','14','15','19','20','1','9','8','29b','30'].forEach((n,i)=>{const c=ctrOf(n);if(!c)return;const g=nearestGate(c,['P1','P2','P3','P4','P5']);seg(PT(g),c,RED,1.2,'5 4',.35);dot(PT(g),c,RED,.25,i*.1,3.4);
+    seg(c,cRes,BRN,1.3,'2 3',.6);dot(c,cRes,BRN,.22,i*.09+.5,3)});
+   if(c55){seg(c55,cPre,RED,2,'3 3',.9);dot(c55,cPre,'#ff9a9a',.3,0,3.4);seg(cRes,c55,SKY,2,'6 4',.9);dot(cRes,c55,SKY,.25,.3,3.2);tag([(cRes[0]+c55[0])/2+8,(cRes[1]+c55[1])/2],'biogás → frío','#bfe6ff',{fs:10,a:'start'})}
+   {const o=outward('P8'),g=PT('P8');seg(cRes,g,GRN,2.2,null,.8);seg(g,o,GRN,2.2,null,.8);dot(cRes,g,GRN,.25,0,3.6);dot(g,o,GRN,.3,.4,3.6);tag([o[0]+8,o[1]+16],'compost a huertas de Kennedy',GRN,{fs:10.5,a:'start'})}
+   {const o=outward('P7'),g=PT('P7');if(c12){seg(o,g,'#d6f5b0',2,null,.8);seg(g,c12,'#d6f5b0',2,null,.8);dot(o,g,'#d6f5b0',.3,0,3.6);dot(g,c12,'#d6f5b0',.25,.4,3.6);tag([o[0]-8,o[1]-12],'cosechas de huertas urbanas','#d6f5b0',{fs:10.5,a:'end'})}}
+   if(c29&&c12){seg(c12,c29,TEAL,1.6,'4 3',.8);dot(c12,c29,TEAL,.3,.2,3)}
+   {const o=outward('P1'),g=PT('P1');seg(cPre,g,SKY,1.6,'2 4',.8);tag([o[0]+4,o[1]+18],'agua tratada al alcantarillado · subproductos a gestor autorizado','#bfe6ff',{fs:10,a:'end'})}
+   {const g=PT('P6'),o=outward('P6');seg(o,g,'#B6E27A',2.4,'1 4',.95);dot(o,g,'#B6E27A',.25,0,3);tag([g[0]+16,g[1]+4],'Puerta 6 sin carga: acceso peatonal al humedal','#d6f5b0',{fs:10.5,a:'start'})}
+  }
+  /* ---------- panel lateral ---------- */
+  const px=880,pn=gUI.append('g').attr('transform',`translate(${px},18)`);
+  pn.append('rect').attr('width',304).attr('height',704).attr('rx',14).attr('fill','#0d0e10').attr('fill-opacity',.93).attr('stroke','rgba(255,255,255,.18)');
+  const tx=(x,y,t,o={})=>pn.append('text').attr('x',x).attr('y',y).attr('font-size',o.fs||12).attr('font-weight',o.fw||500).attr('fill',o.c||'#cfcac0').attr('font-family',FONT).text(t);
+  const wrapT=(x,y,t,w,o={})=>{const words=t.split(' ');let line='',yy=y;words.forEach(wd=>{if((line+' '+wd).length>w){tx(x,yy,line.trim(),o);line=wd;yy+=o.lh||15}else line+=' '+wd});tx(x,yy,line.trim(),o);return yy+(o.lh||15)};
+  if(MODE==='hoy'){
+   tx(16,30,'CORABASTOS HOY',{fs:11,fw:800,c:'#e5484d'});tx(16,54,'Bodegas reales y su dinámica',{fs:17,fw:800,c:'#F2EFE8'});
+   let y=wrapT(16,76,'Edificios de IDECA con el número y producto de cada bodega según el plano oficial de Corabastos.',44,{fs:11.5,lh:15});
+   const ST=[['42 ha','área de la central'],['57','bodegas de venta y almacenaje'],['≈12.000','vehículos al día'],['≈80.000','personas al día'],['≈100 t','de residuos al día'],['42 %','de lo que entra viene de Cundinamarca']];
+   ST.forEach((s,i)=>{const x=16+(i%2)*144,yy=y+8+Math.floor(i/2)*48;pn.append('rect').attr('x',x).attr('y',yy).attr('width',136).attr('height',42).attr('rx',8).attr('fill','#1b1c20');tx(x+10,yy+19,s[0],{fs:15,fw:800,c:'#F2EFE8'});tx(x+10,yy+34,s[1],{fs:10,c:'#a9a49a'})});
+   y+=8+3*48+10;tx(16,y,'Qué se vende en cada bodega',{fs:12.5,fw:800,c:'#F2EFE8'});y+=8;
+   const L=[['grano','1–10, 16, 17'],['papa','13, 14, 15, 19, 20'],['verdura','12, 24, 25, 26'],['trop','11, 21, 22, 30'],['fruta','29'],['varios','18, 23'],['mayorista','81, 82'],['frio','55']];
+   L.forEach(([k,ns],i)=>{const yy=y+12+i*24;pn.append('rect').attr('x',16).attr('y',yy-10).attr('width',14).attr('height',14).attr('rx',3).attr('fill',CAT[k][0]);tx(38,yy+2,CAT[k][1],{fs:11.5,fw:700,c:'#F2EFE8'});tx(288,yy+2,ns,{fs:10.5,c:'#a9a49a'}).attr('text-anchor','end')});
+   y+=12+L.length*24+6;tx(16,y,'Flujos',{fs:12.5,fw:800,c:'#F2EFE8'});
+   [[RED,'Camiones entrando por las puertas (P1–P9)'],[ORA,'Compradores saliendo hacia los barrios'],['#ffe08a','Coteros y carretilleros en cargue'],[BRN,'Bodegas de verduras pegadas al humedal']].forEach(([c,t],i)=>{const yy=y+18+i*20;pn.append('circle').attr('cx',23).attr('cy',yy-4).attr('r',4.5).attr('fill',c);tx(36,yy,t,{fs:11})});
+  } else {
+   tx(16,30,'CORABASTOS PROPUESTA',{fs:11,fw:800,c:'#9BE15D'});tx(16,54,'Menos verdura, más humedal',{fs:17,fw:800,c:'#F2EFE8'});
+   const all=BB.filter(b=>!/^(27|35|42)$/.test(b.bod.n)),A0=d3.sum(all,b=>area(b.g)),A1=d3.sum(all.filter(b=>PROP[b.bod.n]==='gone'),b=>area(b.g));
+   let y=wrapT(16,76,'Las verduras y hortalizas pueden producirse en huertas de Bogotá y la Sabana: sus bodegas junto al humedal salen y esa franja vuelve a ser ronda.',44,{fs:11.5,lh:15});
+   const ST=[[Math.round(A1/A0*100)+' %','del área de bodegas sale'],[Math.round(A1/1000)/1+' mil m²','vuelven a la ronda'],['4 de 5','bodegas de verduras salen'],['1','pasa a acopio de huertas']];
+   ST.forEach((s,i)=>{const x=16+(i%2)*144,yy=y+8+Math.floor(i/2)*48;pn.append('rect').attr('x',x).attr('y',yy).attr('width',136).attr('height',42).attr('rx',8).attr('fill','#1b1c20');tx(x+10,yy+19,s[0],{fs:15,fw:800,c:'#F2EFE8'});tx(x+10,yy+34,s[1],{fs:10,c:'#a9a49a'})});
+   y+=8+2*48+12;tx(16,y,'Qué cambia',{fs:12.5,fw:800,c:'#F2EFE8'});y+=6;
+   const C2=[['#2f8f6b','Ronda del humedal','Salen 23, 24, 25 y 26; los detallistas de la 23 pasan a la 18.'],[GRN,'Acopio de huertas urbanas (12)','Recibe cosechas de Kennedy con precios públicos.'],[TEAL,'Banco de alimentos (29 oeste)','Rescata fruta y verdura antes de que sea residuo.'],[RED,'Cárnicos y pescados (55)','Cadena de frío, trampas de grasa y pretratamiento de aguas.'],['#B08A55','Residuos y biodigestor','Biogás para el frío; compost a las huertas.'],['#B6E27A','Puerta 6 sin carga','Camiones solo por la Av. Carrera 80, de noche.']];
+   C2.forEach(([c,t,d],i)=>{const yy=y+14+i*44;pn.append('rect').attr('x',16).attr('y',yy-10).attr('width',14).attr('height',14).attr('rx',3).attr('fill',c);tx(38,yy+2,t,{fs:11.5,fw:700,c:'#F2EFE8'});wrapT(38,yy+17,d,40,{fs:10.5,lh:13,c:'#a9a49a'})});
+   y+=14+C2.length*44;wrapT(16,y,'Siguen llegando de la región la papa, los granos y la fruta tropical: no se producen en huertas a 2.600 m.',46,{fs:10.5,lh:13,c:'#F2C14E'});
+  }
+  /* animación */
+  const t0=performance.now();let alive=true,raf;ctx.onExit(()=>{alive=false;cancelAnimationFrame(raf);K.timers.forEach(clearTimeout);K.timers.forEach(clearInterval)});
+  const tick=now=>{if(!alive)return;const t=(now-t0)/1000;flows.forEach(f=>{const u=reduce?.5:((t*f.sp+f.ph)%1);f.c.attr('cx',f.a[0]+(f.b[0]-f.a[0])*u).attr('cy',f.a[1]+(f.b[1]-f.a[1])*u)});raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);
+ });
+ return()=>{}}
+
+function coraPropView(ctx){
+ const K=conceptKit(ctx,740),{svg,FONT}=K;
+ const GN='#8EBF4C',LG='#B6E27A',OR='#DE9F50',AM='#9382E0',TE='#3CC8B4',PK='#CF7ABB',BL='#4EAECF',RD='#e5484d',GR='#8C877E';
+ const gImg=svg.append('g'),gNet=svg.append('g'),gB=svg.append('g');
+ const load=svg.append('text').attr('x',600).attr('y',380).attr('text-anchor','middle').attr('font-size',15).attr('fill','#77736b').attr('font-family',FONT).text('…');
+ const J=u=>fetch(u).then(r=>r.json()),Bf=u=>fetch(u).then(r=>r.arrayBuffer());
+ Promise.all([J('assets/territorio_kennedy.geojson'),J('assets/territorio_puntos.geojson'),J('assets/k3d/meta.json'),Bf('assets/k3d/bld.bin'),J('assets/k3d/manz.json'),Bf('assets/k3d/trees.bin'),J('assets/k3d/parques.json'),J('assets/k3d/agua.json'),J('assets/corabastos_bodegas.json')]).then(([Kg,Pg,M,bld,manz,trees,parq,agua,CB])=>{
+  const ring=Kg.features[0].geometry.coordinates[0];const {tx:TX,ty:TY,lon0:LON0,lat0:LAT0,kx:KX,ky:KY}=M;
+  const AZ=38*Math.PI/180,ca=Math.cos(AZ),sa=Math.sin(AZ);
+  const toG=(E,N)=>{const mx=E,my=-N;return[mx*ca-my*sa,mx*sa+my*ca]};
+  const G=(lon,lat)=>toG((lon-LON0)*KX,(lat-LAT0)*KY),GR_=(x,y)=>toG(x+TX,y+TY);
+  const raw=(gx,gy,z)=>[(gx-gy)*.866,(gx+gy)*.6-z*1.5];
+  const ringG=ring.map(([a,b])=>G(a,b));const rs=ringG.map(([x,y])=>raw(x,y,0));
+  const minX=Math.min(...rs.map(p=>p[0])),maxX=Math.max(...rs.map(p=>p[0])),minY=Math.min(...rs.map(p=>p[1])),maxY=Math.max(...rs.map(p=>p[1]));
+  const _rp=[...CB.bodegas.map(o=>[o.e,o.no]),...Object.values(CB.pts)].map(([e,n])=>{const g=toG(e,n);return raw(g[0],g[1],0)});const _x0=Math.min(..._rp.map(p=>p[0])),_x1=Math.max(..._rp.map(p=>p[0])),_y0=Math.min(..._rp.map(p=>p[1])),_y1=Math.max(..._rp.map(p=>p[1]));const S=Math.min(800/(_x1-_x0),590/(_y1-_y0));
+  /* sitios de la propuesta */
+  const by=k=>Pg.features.filter(f=>f.properties.c===k).map(f=>f.geometry.coordinates);const hue=by('huerta');
+  const hN=hue.filter(p=>p[1]>4.64),hc=G(d3.mean(hN,p=>p[0]),d3.mean(hN,p=>p[1]));
+  const cenW=n=>{const a=agua.filter(w=>w.n===n),q=[];a.forEach(w=>{for(let i=0;i<w.p.length;i+=2)q.push([w.p[i],w.p[i+1]])});return GR_(d3.mean(q,p=>p[0]),d3.mean(q,p=>p[1]))};
+  const corG=G(-74.159,4.6295);
+  const SITES={huerta:hc,hum:cenW('Humedal El Burro'),circ:G(-74.1535,4.6275),cor:corG,rec:G(-74.1735,4.6245)};
+  const COLS={huerta:GN,hum:BL,circ:PK,cor:OR,rec:TE};
+  const sr=Object.values(SITES).map(q=>raw(q[0],q[1],0));const rcx=d3.mean(sr,p=>p[0]),rcy=d3.mean(sr,p=>p[1]);
+  const OX=440-(_x0+_x1)/2*S,OY=335-(_y0+_y1)/2*S;
+  const PJ=(gx,gy,z=0)=>{const r=raw(gx,gy,z);return[OX+r[0]*S,OY+r[1]*S]};
+  const vis=p=>p[0]>-60&&p[0]<1260&&p[1]>-60&&p[1]<800;
+  const PLOTS={};
+  const rect=k=>{const c=SITES[k],r=PLOTS[k];return[c[0]+r[0],c[1]+r[1],c[0]+r[2],c[1]+r[3]]};
+  /* lote del proyecto arquitectónico: borde del Río Bogotá (ubicación ilustrativa) */
+  const YE='#F2C14E',PROY=G(-74.1645,4.6550),PR=[PROY[0]-85,PROY[1]-60,PROY[0]+85,PROY[1]+60];
+  const inProy=b=>b.gx>PR[0]-12&&b.gx<PR[2]+12&&b.gy>PR[1]-12&&b.gy<PR[3]+12;
+  const inClear=b=>!!b.bod;
+  /* ---------- lienzo negro ---------- */
+  const bv=new DataView(bld);let o=0;const B=[];while(o<bv.byteLength){const h=bv.getUint8(o)/2,n=bv.getUint8(o+1);o+=2;const pts=[];let sx=0,sy=0;for(let i=0;i<n;i++){const x=bv.getUint16(o,true),y=bv.getUint16(o+2,true);o+=4;pts.push(GR_(x,y));sx+=x;sy+=y}const gg=GR_(sx/n,sy/n);if(vis(PJ(gg[0],gg[1],0)))B.push({h,g:pts,gx:gg[0],gy:gg[1]})}
+  B.sort((a,b)=>(a.gx+a.gy)-(b.gx+b.gy));
+  const BODE=CB.bodegas.map(o=>({...o,g:toG(o.e,o.no)}));const aG=g=>{let a=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;a+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}return Math.abs(a)/2};
+  BODE.forEach(o=>{let best=null,bd=45;B.forEach(b=>{if(b.bod)return;const d=Math.hypot(b.gx-o.g[0],b.gy-o.g[1]);if(d<bd&&aG(b.g)>600){bd=d;best=b}});if(best)best.bod=o});
+  const SC=2,cv=document.createElement('canvas');cv.width=1200*SC;cv.height=740*SC;const c=cv.getContext('2d');c.scale(SC,SC);c.lineJoin='round';c.lineCap='round';
+  const path=pts=>{c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath()};
+  const slab=ringG.map(([x,y])=>PJ(x,y,0)),s2=ringG.map(([x,y])=>PJ(x,y,-24));
+  path(s2);c.fillStyle='#050506';c.fill();path(slab);c.fillStyle='#121216';c.fill();c.strokeStyle='rgba(255,255,255,.3)';c.lineWidth=1.2;c.stroke();
+  c.save();path(slab);c.clip();
+  const gp=a=>{const q=[];for(let i=0;i<a.length;i+=2)q.push(GR_(a[i],a[i+1]));return q};
+  c.fillStyle='#1a1a21';c.strokeStyle='rgba(255,255,255,.07)';c.lineWidth=.3;manz.forEach(m=>{const q=gp(m);if(!vis(PJ(q[0][0],q[0][1])))return;path(q.map(p=>PJ(p[0],p[1])));c.fill();c.stroke()});
+  c.fillStyle='#143a1f';parq.forEach(p=>{const q=gp(p.p);if(!vis(PJ(q[0][0],q[0][1])))return;path(q.map(a=>PJ(a[0],a[1])));c.fill()});
+  agua.forEach(w=>{const q=gp(w.p);if(w.t==='Canal'||w.t==='Quebrada'){c.beginPath();q.forEach((a,i)=>{const p=PJ(a[0],a[1]);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])});c.strokeStyle='#2c6fb0';c.lineWidth=1.4;c.stroke()}else{path(q.map(a=>PJ(a[0],a[1])));c.fillStyle='#1c63a8';c.fill();c.strokeStyle='#7cc0ff';c.lineWidth=1;c.stroke()}});
+  const tv=new DataView(trees);const nt=tv.byteLength/5;c.fillStyle='#2f6b34';for(let i=0;i<nt;i++){const x=tv.getUint16(i*5,true)-1000,y=tv.getUint16(i*5+2,true)-1000,h=Math.min(tv.getUint8(i*5+4)/4,12);const g=GR_(x,y);const p=PJ(g[0],g[1],h);if(!vis(p))continue;c.beginPath();c.arc(p[0],p[1],1.5,0,6.3);c.fill()}
+  c.restore();
+  Object.keys(PLOTS).forEach(k=>{const r=rect(k);path([[r[0],r[1]],[r[2],r[1]],[r[2],r[3]],[r[0],r[3]]].map(p=>PJ(p[0],p[1],0)));c.fillStyle=COLS[k]+'66';c.fill();c.strokeStyle=COLS[k];c.lineWidth=1.6;c.stroke()});
+  B.forEach(b=>{if(inClear(b))return;const cor=false;const hh=Math.min(b.h,120);const g=b.g;let ar=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;ar+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}const sg=ar>0?1:-1;
+   for(let i=0;i<g.length;i++){const j=(i+1)%g.length;const dx=g[j][0]-g[i][0],dy=g[j][1]-g[i][1];const nx=dy*sg,ny=-dx*sg;if(nx+ny<=0)continue;path([PJ(g[i][0],g[i][1],0),PJ(g[j][0],g[j][1],0),PJ(g[j][0],g[j][1],hh),PJ(g[i][0],g[i][1],hh)]);c.fillStyle=cor?(nx>ny?'#6a4524':'#85582d'):(nx>ny?'#202028':'#2d2d38');c.fill()}
+   path(g.map(p=>PJ(p[0],p[1],hh)));const lum=Math.min(hh,40);c.fillStyle=cor?'#c98a47':`rgb(${54+lum*1.3|0},${54+lum*1.3|0},${66+lum*1.5|0})`;c.fill();c.strokeStyle=cor?'rgba(255,220,170,.5)':'rgba(255,255,255,.22)';c.lineWidth=.3;c.stroke()});
+  cv.toBlob(bl=>{const url=URL.createObjectURL(bl);load.remove();ctx.onExit(()=>URL.revokeObjectURL(url));gImg.append('image').attr('href',url).attr('x',0).attr('y',0).attr('width',1200).attr('height',740).style('opacity',0).transition().duration(reduce?0:900).style('opacity',1)});
+  /* ================= CORABASTOS sobre los edificios reales (IDECA) y el plano oficial de bodegas ================= */
+  const MODE='prop';
+  const P2=(E,N,z=0)=>{const g=toG(E,N);return PJ(g[0],g[1],z)};
+  const CAT={grano:['#D6B24C','Granos y procesados'],papa:['#B9875A','Papa'],verdura:['#7FC35A','Verduras y hortalizas'],trop:['#E0A33A','Yuca, plátano y arracacha'],fruta:['#E8705C','Frutas'],varios:['#A08CD8','Varios (detallistas)'],mayorista:['#C9C3B6','Bodega Popular (mayorista)'],frio:['#5FB7E8','Red de fríos y cárnicos'],otro:['#7C7A74','Otros usos']};
+  const PROP={'25':'gone','24':'gone','23':'gone','26':'gone','12':'acopio','29':'banco','55':'carne','55b':'carne','55c':'carne'};
+  const PCOL={acopio:['#9BE15D','Acopio de huertas urbanas y mercado campesino'],banco:['#3CC8B4','Banco de alimentos y cocina de aprovechamiento'],carne:['#E5484D','Cárnicos y pescados con cadena de frío']};
+  const colOf=bd=>{if(MODE==='prop'&&PROP[bd.n]&&PROP[bd.n]!=='gone')return PCOL[PROP[bd.n]][0];return CAT[bd.c][0]};
+  const area=g=>{let a=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;a+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}return Math.abs(a)/2};
+  const gBod=svg.append('g'),gFlow=svg.append('g'),gLab=svg.append('g'),gUI=svg.append('g');
+  const BB=B.filter(b=>b.bod);const byN={};BB.forEach(b=>{(byN[b.bod.n]=byN[b.bod.n]||[]).push(b)});
+  const roofC=b=>{const h=Math.max(b.h,8);const g=b.g;return PJ(d3.mean(g,p=>p[0]),d3.mean(g,p=>p[1]),h)};
+  const ctrOf=n=>{const L=byN[n];if(!L)return null;const g=L.flatMap(b=>b.g);return PJ(d3.mean(g,p=>p[0]),d3.mean(g,p=>p[1]),0)};
+  /* prismas de bodegas */
+  const prism=(g,hh,col,o={})=>{const G2=gBod.append('g');let ar=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;ar+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}const sg=ar>0?1:-1;
+   const c=d3.color(col);for(let i=0;i<g.length;i++){const j=(i+1)%g.length;const dx=g[j][0]-g[i][0],dy=g[j][1]-g[i][1];const nx=dy*sg,ny=-dx*sg;if(nx+ny<=0)continue;
+    const q=[PJ(g[i][0],g[i][1],0),PJ(g[j][0],g[j][1],0),PJ(g[j][0],g[j][1],hh),PJ(g[i][0],g[i][1],hh)];G2.append('path').attr('d','M'+q.join('L')+'Z').attr('fill',(nx>ny?c.darker(1.1):c.darker(.6)).formatHex()).attr('stroke',o.dash?col:'none').attr('stroke-dasharray',o.dash||null)}
+   G2.append('path').attr('d','M'+g.map(p=>PJ(p[0],p[1],hh)).join('L')+'Z').attr('fill',col).attr('fill-opacity',o.op||1).attr('stroke',o.dash?'#fff':'rgba(255,255,255,.55)').attr('stroke-width',o.dash?1.4:.8).attr('stroke-dasharray',o.dash||null);return G2};
+  const EL={};
+  BB.forEach(b=>{const bd=b.bod;const hh=Math.max(b.h,8);
+   if(MODE==='prop'&&PROP[bd.n]==='gone'){const q=b.g.map(p=>PJ(p[0],p[1],0));gBod.append('path').attr('d','M'+q.join('L')+'Z').attr('fill','none').attr('stroke','#B6E27A').attr('stroke-width',1.2).attr('stroke-dasharray','4 3').attr('opacity',.85);return}
+   const el=prism(b.g,hh,colOf(bd));(EL[bd.n]=EL[bd.n]||[]).push(el)});
+  /* números de bodega sobre la cubierta */
+  Object.entries(byN).forEach(([n,L])=>{if(/b$|c$/.test(n))return;if(MODE==='prop'&&PROP[n]==='gone')return;const g=L.flatMap(b=>b.g),h=Math.max(...L.map(b=>b.h),8);const p=PJ(d3.mean(g,q=>q[0]),d3.mean(g,q=>q[1]),h);
+   gLab.append('text').attr('x',p[0]).attr('y',p[1]+4).attr('text-anchor','middle').attr('font-size',11).attr('font-weight',800).attr('fill','#111').attr('font-family',FONT).attr('stroke','rgba(255,255,255,.85)').attr('stroke-width',2.6).attr('paint-order','stroke').text(n)});
+  const tag=(p,t,col,o={})=>gLab.append('text').attr('x',p[0]+(o.dx||0)).attr('y',p[1]+(o.dy||0)).attr('text-anchor',o.a||'middle').attr('font-size',o.fs||11.5).attr('font-weight',o.fw||700).attr('fill',col).attr('font-family',FONT).attr('stroke','#0d0e10').attr('stroke-width',3.4).attr('paint-order','stroke').text(t);
+  const PT=k=>P2(CB.pts[k][0],CB.pts[k][1],0);
+  /* puertas (plano oficial) */
+  const GATES=['P1','P2','P3','P4','P5','P6','P7','P8','P9'];
+  const outward=k=>{const c=P2(CB.center[0],CB.center[1]),p=PT(k);const v=[p[0]-c[0],p[1]-c[1]],L=Math.hypot(...v);return[p[0]+v[0]/L*70,p[1]+v[1]/L*70]};
+  GATES.forEach(k=>{const p=PT(k);const closed=MODE==='prop'&&k==='P6';
+   gLab.append('rect').attr('x',p[0]-12).attr('y',p[1]-9).attr('width',24).attr('height',18).attr('rx',5).attr('fill',closed?'#B6E27A':'#e5484d').attr('stroke','#0d0e10').attr('stroke-width',1.5);
+   gLab.append('text').attr('x',p[0]).attr('y',p[1]+4).attr('text-anchor','middle').attr('font-size',10).attr('font-weight',800).attr('fill','#0d0e10').attr('font-family',FONT).text(k)});
+  tag(PT('Plaza de las Flores'),'Plaza de las Flores · pescados','#9fd6ef',{fs:11});
+  tag(PT('Humedal La Vaca (oeste)'),'Humedal La Vaca','#8cc8ff',{fs:13});
+  tag(PT('Humedal La Vaca (sur)'),'Humedal La Vaca','#8cc8ff',{fs:11,dx:30});
+  tag([PT('P1')[0]+20,PT('P1')[1]-26],'Av. Carrera 80','#cfcac0',{fs:11,a:'start',fw:600});
+  /* ---------- flujos ---------- */
+  const flows=[];const dot=(a,b,col,sp,ph,r=3.6)=>{const c=gFlow.append('circle').attr('r',r).attr('fill',col).attr('stroke','#0d0e10').attr('stroke-width',.8);flows.push({c,a,b,sp,ph})};
+  const seg=(a,b,col,w,dash,op=.85)=>gFlow.append('path').attr('d',`M${a[0]},${a[1]}L${b[0]},${b[1]}`).attr('stroke',col).attr('stroke-width',w).attr('stroke-dasharray',dash||null).attr('stroke-opacity',op).attr('fill','none');
+  const nearestGate=(p,list)=>list.map(k=>({k,d:Math.hypot(PT(k)[0]-p[0],PT(k)[1]-p[1])})).sort((x,y)=>x.d-y.d)[0].k;
+  const RED='#e5484d',ORA='#F2B53A',BRN='#A0703A',GRN='#9BE15D',TEAL='#3CC8B4',SKY='#7cc7ff';
+  if(MODE==='hoy'){
+   /* horarios oficiales de comercialización (corabastos.com.co/horarios) */
+   const T=[['4:00 a. m.','Granos y procesados venden desde las 4:00; entra la carga de frutas.',['1','2','3','4','5','6','7','8','9','10','16','17','35','29','29b','30','81','82']],
+            ['12:00 m.','Frutas, granos, yuca y plátano (11), tomate (12) y descargue de 21, 23 y 24.',['1','2','3','4','5','6','7','8','9','10','16','17','29','29b','30','81','82','11','12','21','23','24']],
+            ['8:00 p. m.','Papa (13, 14, 15, 18, 19, 20) de 8:00 p. m. a 3:00 a. m.; hortalizas (26) y cebolla (25).',['13','14','15','18','19','20','26','25','29','29b','30','81','82']]];
+   const truckG=['P1','P2','P3','P4','P5','P6','P7','P8','P9'],buyG=['P7','P8','P1','P2'];
+   let st=0;const draw=()=>{gFlow.selectAll('*').remove();flows.length=0;const act=new Set(T[st][2]);
+    Object.entries(EL).forEach(([n,a])=>a.forEach(e=>e.transition().duration(400).style('opacity',act.has(n)?1:.28)));
+    T[st][2].forEach((n,i)=>{const c=ctrOf(n);if(!c)return;const g=nearestGate(c,truckG),gp=PT(g),o=outward(g);
+     seg(o,gp,RED,1.6,'5 4',.6);seg(gp,c,RED,1.4,'5 4',.45);dot(o,gp,RED,.35,i*.13,4.2);dot(gp,c,RED,.3,i*.13+.3,4.2);
+     const bgt=nearestGate(c,buyG),bp=PT(bgt),bo=outward(bgt);if(i%2===0){dot(c,bp,ORA,.22,i*.11,3.4);dot(bp,bo,ORA,.3,i*.11+.4,3.4)}
+     const q=[c[0]+(i%2?14:-14),c[1]+8];dot(c,q,'#ffe08a',.9,i*.2,2.2)});
+    tBtns.forEach((b,i)=>{b.select('rect').attr('fill',i===st?'#F2EFE8':'#1b1c20');b.select('text').attr('fill',i===st?'#111':'#F2EFE8')});tNote.text(T[st][1])};
+   /* presión sobre el borde del humedal */
+   const edge=['25','24','23','26'].map(n=>ctrOf(n)).filter(Boolean);if(edge.length){const w=PT('Humedal La Vaca (oeste)');edge.forEach(p=>{seg(p,[(p[0]+w[0])/2,(p[1]+w[1])/2],BRN,2,'2 4',.9)});}
+   /* panel de horarios */
+   var tBtns=[],tNote;const tp=gUI.append('g').attr('transform','translate(20,662)');
+   tp.append('rect').attr('width',560).attr('height',62).attr('rx',12).attr('fill','#0d0e10').attr('fill-opacity',.9).attr('stroke','rgba(255,255,255,.18)');
+   tp.append('text').attr('x',14).attr('y',22).attr('font-size',12).attr('font-weight',800).attr('fill','#F2EFE8').attr('font-family',FONT).text('Dinámica según la hora (horarios oficiales)');
+   T.forEach((t,i)=>{const b=tp.append('g').attr('transform',`translate(${300+i*86},8)`).style('cursor','pointer');b.append('rect').attr('width',80).attr('height',22).attr('rx',11);b.append('text').attr('x',40).attr('y',15).attr('text-anchor','middle').attr('font-size',11).attr('font-weight',700).attr('font-family',FONT).text(t[0]);b.on('click',()=>{st=i;auto=false;draw()});tBtns.push(b)});
+   tNote=tp.append('text').attr('x',14).attr('y',46).attr('font-size',11.5).attr('fill','#cfcac0').attr('font-family',FONT);
+   let auto=true;draw();K.timers.push(setInterval(()=>{if(!auto)return;st=(st+1)%3;draw()},6500));
+  } else {
+   /* ronda recuperada: casco de las bodegas que salen + borde del humedal */
+   const gone=BB.filter(b=>PROP[b.bod.n]==='gone');const pts=gone.flatMap(b=>b.g.map(p=>PJ(p[0],p[1],0)));const w=PT('Humedal La Vaca (oeste)');
+   const hull=d3.polygonHull([...pts,[w[0]+20,w[1]-30],[w[0]+40,w[1]+10]]);
+   if(hull)gFlow.insert('path',':first-child').attr('d','M'+hull.join('L')+'Z').attr('fill','#2f8f6b').attr('fill-opacity',.45).attr('stroke','#B6E27A').attr('stroke-width',2).attr('stroke-dasharray','6 4');
+   const hc=d3.polygonCentroid(hull||pts);tag([hc[0]-6,hc[1]-6],'Ronda y restauración','#d6f5b0',{fs:12.5});tag([hc[0]-6,hc[1]+10],'del Humedal La Vaca','#d6f5b0',{fs:12.5});tag([hc[0]-6,hc[1]+25],'(salen las bodegas 23, 24, 25 y 26)','#b8c9a8',{fs:10,fw:600});
+   /* volúmenes nuevos propuestos */
+   const boxAt=(k,w2,d2,h,col)=>{const c=CB.pts[k];const g0=toG(c[0],c[1]);const g=[[g0[0]-w2,g0[1]-d2],[g0[0]+w2,g0[1]-d2],[g0[0]+w2,g0[1]+d2],[g0[0]-w2,g0[1]+d2]];prism(g,h,col,{dash:'5 3',op:.9});return PJ(g0[0],g0[1],h)};
+   const pRes=boxAt('Parqueadero 02 / Martillo',34,22,10,'#B08A55'),pPre=boxAt('Parqueadero 03',20,14,7,'#5FB7E8');
+   tag([pRes[0],pRes[1]-14],'Clasificación de residuos y biodigestor','#e8c79a',{fs:11});
+   tag([pPre[0]+8,pPre[1]-14],'Pretratamiento de aguas cárnicas','#bfe6ff',{fs:10.5,a:'start'});
+   /* etiquetas de cambios */
+   const lab=(n,t,col,dx=0,dy=-16)=>{const c=ctrOf(n);if(c)tag([c[0]+dx,c[1]+dy],t,col,{fs:11})};
+   lab('12','Acopio de huertas urbanas',GRN,0,-22);lab('29','Banco de alimentos',TEAL,-10,-26);lab('55','Cárnicos y pescados',RED,-70,-30);
+   /* flujos propuestos */
+   const res=ctrOf.bind(null);const cRes=PJ(...toG(...CB.pts['Parqueadero 02 / Martillo']),0),cPre=PJ(...toG(...CB.pts['Parqueadero 03']),0),c55=ctrOf('55'),c12=ctrOf('12'),c29=ctrOf('29');
+   ['P1','P2','P3','P4','P5'].forEach((g,i)=>{const o=outward(g),gp=PT(g);seg(o,gp,RED,2,'5 4',.7);dot(o,gp,RED,.3,i*.2,4.2)});
+   ['13','14','15','19','20','1','9','8','29b','30'].forEach((n,i)=>{const c=ctrOf(n);if(!c)return;const g=nearestGate(c,['P1','P2','P3','P4','P5']);seg(PT(g),c,RED,1.2,'5 4',.35);dot(PT(g),c,RED,.25,i*.1,3.4);
+    seg(c,cRes,BRN,1.3,'2 3',.6);dot(c,cRes,BRN,.22,i*.09+.5,3)});
+   if(c55){seg(c55,cPre,RED,2,'3 3',.9);dot(c55,cPre,'#ff9a9a',.3,0,3.4);seg(cRes,c55,SKY,2,'6 4',.9);dot(cRes,c55,SKY,.25,.3,3.2);tag([(cRes[0]+c55[0])/2+8,(cRes[1]+c55[1])/2],'biogás → frío','#bfe6ff',{fs:10,a:'start'})}
+   {const o=outward('P8'),g=PT('P8');seg(cRes,g,GRN,2.2,null,.8);seg(g,o,GRN,2.2,null,.8);dot(cRes,g,GRN,.25,0,3.6);dot(g,o,GRN,.3,.4,3.6);tag([o[0]+8,o[1]+16],'compost a huertas de Kennedy',GRN,{fs:10.5,a:'start'})}
+   {const o=outward('P7'),g=PT('P7');if(c12){seg(o,g,'#d6f5b0',2,null,.8);seg(g,c12,'#d6f5b0',2,null,.8);dot(o,g,'#d6f5b0',.3,0,3.6);dot(g,c12,'#d6f5b0',.25,.4,3.6);tag([o[0]-8,o[1]-12],'cosechas de huertas urbanas','#d6f5b0',{fs:10.5,a:'end'})}}
+   if(c29&&c12){seg(c12,c29,TEAL,1.6,'4 3',.8);dot(c12,c29,TEAL,.3,.2,3)}
+   {const o=outward('P1'),g=PT('P1');seg(cPre,g,SKY,1.6,'2 4',.8);tag([o[0]+4,o[1]+18],'agua tratada al alcantarillado · subproductos a gestor autorizado','#bfe6ff',{fs:10,a:'end'})}
+   {const g=PT('P6'),o=outward('P6');seg(o,g,'#B6E27A',2.4,'1 4',.95);dot(o,g,'#B6E27A',.25,0,3);tag([g[0]+16,g[1]+4],'Puerta 6 sin carga: acceso peatonal al humedal','#d6f5b0',{fs:10.5,a:'start'})}
+  }
+  /* ---------- panel lateral ---------- */
+  const px=880,pn=gUI.append('g').attr('transform',`translate(${px},18)`);
+  pn.append('rect').attr('width',304).attr('height',704).attr('rx',14).attr('fill','#0d0e10').attr('fill-opacity',.93).attr('stroke','rgba(255,255,255,.18)');
+  const tx=(x,y,t,o={})=>pn.append('text').attr('x',x).attr('y',y).attr('font-size',o.fs||12).attr('font-weight',o.fw||500).attr('fill',o.c||'#cfcac0').attr('font-family',FONT).text(t);
+  const wrapT=(x,y,t,w,o={})=>{const words=t.split(' ');let line='',yy=y;words.forEach(wd=>{if((line+' '+wd).length>w){tx(x,yy,line.trim(),o);line=wd;yy+=o.lh||15}else line+=' '+wd});tx(x,yy,line.trim(),o);return yy+(o.lh||15)};
+  if(MODE==='hoy'){
+   tx(16,30,'CORABASTOS HOY',{fs:11,fw:800,c:'#e5484d'});tx(16,54,'Bodegas reales y su dinámica',{fs:17,fw:800,c:'#F2EFE8'});
+   let y=wrapT(16,76,'Edificios de IDECA con el número y producto de cada bodega según el plano oficial de Corabastos.',44,{fs:11.5,lh:15});
+   const ST=[['42 ha','área de la central'],['57','bodegas de venta y almacenaje'],['≈12.000','vehículos al día'],['≈80.000','personas al día'],['≈100 t','de residuos al día'],['42 %','de lo que entra viene de Cundinamarca']];
+   ST.forEach((s,i)=>{const x=16+(i%2)*144,yy=y+8+Math.floor(i/2)*48;pn.append('rect').attr('x',x).attr('y',yy).attr('width',136).attr('height',42).attr('rx',8).attr('fill','#1b1c20');tx(x+10,yy+19,s[0],{fs:15,fw:800,c:'#F2EFE8'});tx(x+10,yy+34,s[1],{fs:10,c:'#a9a49a'})});
+   y+=8+3*48+10;tx(16,y,'Qué se vende en cada bodega',{fs:12.5,fw:800,c:'#F2EFE8'});y+=8;
+   const L=[['grano','1–10, 16, 17'],['papa','13, 14, 15, 19, 20'],['verdura','12, 24, 25, 26'],['trop','11, 21, 22, 30'],['fruta','29'],['varios','18, 23'],['mayorista','81, 82'],['frio','55']];
+   L.forEach(([k,ns],i)=>{const yy=y+12+i*24;pn.append('rect').attr('x',16).attr('y',yy-10).attr('width',14).attr('height',14).attr('rx',3).attr('fill',CAT[k][0]);tx(38,yy+2,CAT[k][1],{fs:11.5,fw:700,c:'#F2EFE8'});tx(288,yy+2,ns,{fs:10.5,c:'#a9a49a'}).attr('text-anchor','end')});
+   y+=12+L.length*24+6;tx(16,y,'Flujos',{fs:12.5,fw:800,c:'#F2EFE8'});
+   [[RED,'Camiones entrando por las puertas (P1–P9)'],[ORA,'Compradores saliendo hacia los barrios'],['#ffe08a','Coteros y carretilleros en cargue'],[BRN,'Bodegas de verduras pegadas al humedal']].forEach(([c,t],i)=>{const yy=y+18+i*20;pn.append('circle').attr('cx',23).attr('cy',yy-4).attr('r',4.5).attr('fill',c);tx(36,yy,t,{fs:11})});
+  } else {
+   tx(16,30,'CORABASTOS PROPUESTA',{fs:11,fw:800,c:'#9BE15D'});tx(16,54,'Menos verdura, más humedal',{fs:17,fw:800,c:'#F2EFE8'});
+   const all=BB.filter(b=>!/^(27|35|42)$/.test(b.bod.n)),A0=d3.sum(all,b=>area(b.g)),A1=d3.sum(all.filter(b=>PROP[b.bod.n]==='gone'),b=>area(b.g));
+   let y=wrapT(16,76,'Las verduras y hortalizas pueden producirse en huertas de Bogotá y la Sabana: sus bodegas junto al humedal salen y esa franja vuelve a ser ronda.',44,{fs:11.5,lh:15});
+   const ST=[[Math.round(A1/A0*100)+' %','del área de bodegas sale'],[Math.round(A1/1000)/1+' mil m²','vuelven a la ronda'],['4 de 5','bodegas de verduras salen'],['1','pasa a acopio de huertas']];
+   ST.forEach((s,i)=>{const x=16+(i%2)*144,yy=y+8+Math.floor(i/2)*48;pn.append('rect').attr('x',x).attr('y',yy).attr('width',136).attr('height',42).attr('rx',8).attr('fill','#1b1c20');tx(x+10,yy+19,s[0],{fs:15,fw:800,c:'#F2EFE8'});tx(x+10,yy+34,s[1],{fs:10,c:'#a9a49a'})});
+   y+=8+2*48+12;tx(16,y,'Qué cambia',{fs:12.5,fw:800,c:'#F2EFE8'});y+=6;
+   const C2=[['#2f8f6b','Ronda del humedal','Salen 23, 24, 25 y 26; los detallistas de la 23 pasan a la 18.'],[GRN,'Acopio de huertas urbanas (12)','Recibe cosechas de Kennedy con precios públicos.'],[TEAL,'Banco de alimentos (29 oeste)','Rescata fruta y verdura antes de que sea residuo.'],[RED,'Cárnicos y pescados (55)','Cadena de frío, trampas de grasa y pretratamiento de aguas.'],['#B08A55','Residuos y biodigestor','Biogás para el frío; compost a las huertas.'],['#B6E27A','Puerta 6 sin carga','Camiones solo por la Av. Carrera 80, de noche.']];
+   C2.forEach(([c,t,d],i)=>{const yy=y+14+i*44;pn.append('rect').attr('x',16).attr('y',yy-10).attr('width',14).attr('height',14).attr('rx',3).attr('fill',c);tx(38,yy+2,t,{fs:11.5,fw:700,c:'#F2EFE8'});wrapT(38,yy+17,d,40,{fs:10.5,lh:13,c:'#a9a49a'})});
+   y+=14+C2.length*44;wrapT(16,y,'Siguen llegando de la región la papa, los granos y la fruta tropical: no se producen en huertas a 2.600 m.',46,{fs:10.5,lh:13,c:'#F2C14E'});
+  }
+  /* animación */
+  const t0=performance.now();let alive=true,raf;ctx.onExit(()=>{alive=false;cancelAnimationFrame(raf);K.timers.forEach(clearTimeout);K.timers.forEach(clearInterval)});
+  const tick=now=>{if(!alive)return;const t=(now-t0)/1000;flows.forEach(f=>{const u=reduce?.5:((t*f.sp+f.ph)%1);f.c.attr('cx',f.a[0]+(f.b[0]-f.a[0])*u).attr('cy',f.a[1]+(f.b[1]-f.a[1])*u)});raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);
+ });
+ return()=>{}}
+
+
+
+
+function capasView(ctx){
+ const K=conceptKit(ctx,740),{svg,FONT}=K;
+ const GN='#8EBF4C',LG='#B6E27A',OR='#DE9F50',AM='#9382E0',TE='#3CC8B4',PK='#CF7ABB',BL='#4EAECF',RD='#e5484d',GR='#8C877E';
+ const gImg=svg.append('g'),gNet=svg.append('g'),gB=svg.append('g');
+ const load=svg.append('text').attr('x',600).attr('y',380).attr('text-anchor','middle').attr('font-size',15).attr('fill','#77736b').attr('font-family',FONT).text('…');
+ const J=u=>fetch(u).then(r=>r.json()),Bf=u=>fetch(u).then(r=>r.arrayBuffer());
+ Promise.all([J('assets/territorio_kennedy.geojson'),J('assets/territorio_puntos.geojson'),J('assets/k3d/meta.json'),Bf('assets/k3d/bld.bin'),J('assets/k3d/manz.json'),Bf('assets/k3d/trees.bin'),J('assets/k3d/parques.json'),J('assets/k3d/agua.json'),J('assets/conecto_movilidad.json'),J('assets/corabastos_bodegas.json')]).then(([Kg,Pg,M,bld,manz,trees,parq,agua,MV,CB])=>{
+  const ring=Kg.features[0].geometry.coordinates[0];const {tx:TX,ty:TY,lon0:LON0,lat0:LAT0,kx:KX,ky:KY}=M;
+  const AZ=38*Math.PI/180,ca=Math.cos(AZ),sa=Math.sin(AZ);
+  const toG=(E,N)=>{const mx=E,my=-N;return[mx*ca-my*sa,mx*sa+my*ca]};
+  const G=(lon,lat)=>toG((lon-LON0)*KX,(lat-LAT0)*KY),GR_=(x,y)=>toG(x+TX,y+TY);
+  const raw=(gx,gy,z)=>[(gx-gy)*.866,(gx+gy)*.6-z*1.5];
+  const ringG=ring.map(([a,b])=>G(a,b));const rs=ringG.map(([x,y])=>raw(x,y,0));
+  const minX=Math.min(...rs.map(p=>p[0])),maxX=Math.max(...rs.map(p=>p[0])),minY=Math.min(...rs.map(p=>p[1])),maxY=Math.max(...rs.map(p=>p[1]));
+  const S0=Math.min(1020/(maxX-minX),575/(maxY-minY)),S=330/(maxX-minX);
+  /* sitios de la propuesta */
+  const by=k=>Pg.features.filter(f=>f.properties.c===k).map(f=>f.geometry.coordinates);const hue=by('huerta');
+  const hN=hue.filter(p=>p[1]>4.64),hc=G(d3.mean(hN,p=>p[0]),d3.mean(hN,p=>p[1]));
+  const cenW=n=>{const a=agua.filter(w=>w.n===n),q=[];a.forEach(w=>{for(let i=0;i<w.p.length;i+=2)q.push([w.p[i],w.p[i+1]])});return GR_(d3.mean(q,p=>p[0]),d3.mean(q,p=>p[1]))};
+  const corG=G(-74.159,4.6295);
+  const SITES={huerta:hc,hum:cenW('Humedal El Burro'),circ:G(-74.1535,4.6275),cor:corG,rec:G(-74.1735,4.6245)};
+  const COLS={huerta:GN,hum:BL,circ:PK,cor:OR,rec:TE};
+  const sr=Object.values(SITES).map(q=>raw(q[0],q[1],0));const rcx=d3.mean(sr,p=>p[0]),rcy=d3.mean(sr,p=>p[1]);
+  const OX=470-(minX+maxX)/2*S,OY=612-(minY+maxY)/2*S;
+  const PJ=(gx,gy,z=0)=>{const r=raw(gx,gy,z);return[OX+r[0]*S,OY+r[1]*S]};
+  const vis=p=>p[0]>-60&&p[0]<1260&&p[1]>-60&&p[1]<800;
+  const PLOTS={};
+  const rect=k=>{const c=SITES[k],r=PLOTS[k];return[c[0]+r[0],c[1]+r[1],c[0]+r[2],c[1]+r[3]]};
+  /* lote del proyecto arquitectónico: borde del Río Bogotá (ubicación ilustrativa) */
+  const YE='#F2C14E',PROY=G(-74.1645,4.6550),PR=[PROY[0]-85,PROY[1]-60,PROY[0]+85,PROY[1]+60];
+  const inProy=b=>b.gx>PR[0]-12&&b.gx<PR[2]+12&&b.gy>PR[1]-12&&b.gy<PR[3]+12;
+  const inClear=b=>inProy(b)||Object.keys(PLOTS).some(k=>{const r=rect(k);return b.gx>r[0]-8&&b.gx<r[2]+8&&b.gy>r[1]-8&&b.gy<r[3]+8});
+  /* ---------- lienzo negro ---------- */
+  const bv=new DataView(bld);let o=0;const B=[];while(o<bv.byteLength){const h=bv.getUint8(o)/2,n=bv.getUint8(o+1);o+=2;const pts=[];let sx=0,sy=0;for(let i=0;i<n;i++){const x=bv.getUint16(o,true),y=bv.getUint16(o+2,true);o+=4;pts.push(GR_(x,y));sx+=x;sy+=y}const gg=GR_(sx/n,sy/n);if(vis(PJ(gg[0],gg[1],0)))B.push({h,g:pts,gx:gg[0],gy:gg[1]})}
+  B.sort((a,b)=>(a.gx+a.gy)-(b.gx+b.gy));
+  const SC=3,cv=document.createElement('canvas');cv.width=1200*SC;cv.height=740*SC;const c=cv.getContext('2d');c.scale(SC,SC);c.lineJoin='round';c.lineCap='round';
+  const path=pts=>{c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath()};
+  const slab=ringG.map(([x,y])=>PJ(x,y,0)),s2=ringG.map(([x,y])=>PJ(x,y,-24));
+  path(s2);c.fillStyle='#050506';c.fill();path(slab);c.fillStyle='#121216';c.fill();c.strokeStyle='rgba(255,255,255,.3)';c.lineWidth=1.2;c.stroke();
+  c.save();path(slab);c.clip();
+  const gp=a=>{const q=[];for(let i=0;i<a.length;i+=2)q.push(GR_(a[i],a[i+1]));return q};
+  c.fillStyle='#1a1a21';c.strokeStyle='rgba(255,255,255,.07)';c.lineWidth=.3;manz.forEach(m=>{const q=gp(m);if(!vis(PJ(q[0][0],q[0][1])))return;path(q.map(p=>PJ(p[0],p[1])));c.fill();c.stroke()});
+  c.fillStyle='#143a1f';parq.forEach(p=>{const q=gp(p.p);if(!vis(PJ(q[0][0],q[0][1])))return;path(q.map(a=>PJ(a[0],a[1])));c.fill()});
+  agua.forEach(w=>{const q=gp(w.p);if(w.t==='Canal'||w.t==='Quebrada'){c.beginPath();q.forEach((a,i)=>{const p=PJ(a[0],a[1]);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])});c.strokeStyle='#2c6fb0';c.lineWidth=1.4;c.stroke()}else{path(q.map(a=>PJ(a[0],a[1])));c.fillStyle='#1c63a8';c.fill();c.strokeStyle='#7cc0ff';c.lineWidth=1;c.stroke()}});
+  const tv=new DataView(trees);const nt=tv.byteLength/5;c.fillStyle='#2f6b34';for(let i=0;i<nt;i++){const x=tv.getUint16(i*5,true)-1000,y=tv.getUint16(i*5+2,true)-1000,h=Math.min(tv.getUint8(i*5+4)/4,12);const g=GR_(x,y);const p=PJ(g[0],g[1],h);if(!vis(p))continue;c.beginPath();c.arc(p[0],p[1],1.5,0,6.3);c.fill()}
+  c.restore();
+  Object.keys(PLOTS).forEach(k=>{const r=rect(k);path([[r[0],r[1]],[r[2],r[1]],[r[2],r[3]],[r[0],r[3]]].map(p=>PJ(p[0],p[1],0)));c.fillStyle=COLS[k]+'66';c.fill();c.strokeStyle=COLS[k];c.lineWidth=1.6;c.stroke()});
+  B.forEach(b=>{if(inClear(b))return;const cor=Math.abs(b.gx-corG[0])<560&&Math.abs(b.gy-corG[1])<400;const hh=Math.min(b.h,120);const g=b.g;let ar=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;ar+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}const sg=ar>0?1:-1;
+   for(let i=0;i<g.length;i++){const j=(i+1)%g.length;const dx=g[j][0]-g[i][0],dy=g[j][1]-g[i][1];const nx=dy*sg,ny=-dx*sg;if(nx+ny<=0)continue;path([PJ(g[i][0],g[i][1],0),PJ(g[j][0],g[j][1],0),PJ(g[j][0],g[j][1],hh),PJ(g[i][0],g[i][1],hh)]);c.fillStyle=cor?(nx>ny?'#6a4524':'#85582d'):(nx>ny?'#202028':'#2d2d38');c.fill()}
+   path(g.map(p=>PJ(p[0],p[1],hh)));const lum=Math.min(hh,40);c.fillStyle=cor?'#c98a47':`rgb(${54+lum*1.3|0},${54+lum*1.3|0},${66+lum*1.5|0})`;c.fill();c.strokeStyle=cor?'rgba(255,220,170,.5)':'rgba(255,255,255,.22)';c.lineWidth=.3;c.stroke()});
+  /* volúmenes del proyecto: nave de biorrefinería, bóvedas de micelio y borde cívico hacia el humedal */
+  {const [a,b,x1,y1]=PR;const box=(r,h,top,s1,s2)=>{const [x0,y0,xx,yy]=r;
+    path([PJ(xx,y0,0),PJ(xx,yy,0),PJ(xx,yy,h),PJ(xx,y0,h)]);c.fillStyle=s1;c.fill();
+    path([PJ(x0,yy,0),PJ(xx,yy,0),PJ(xx,yy,h),PJ(x0,yy,h)]);c.fillStyle=s2;c.fill();
+    path([PJ(x0,y0,h),PJ(xx,y0,h),PJ(xx,yy,h),PJ(x0,yy,h)]);c.fillStyle=top;c.fill();c.strokeStyle='rgba(255,244,214,.95)';c.lineWidth=1;c.stroke()};
+   path([[a,b],[x1,b],[x1,y1],[a,y1]].map(q=>PJ(q[0],q[1],0)));c.fillStyle='rgba(242,193,78,.28)';c.fill();c.setLineDash([6,4]);c.strokeStyle=YE;c.lineWidth=2;c.stroke();c.setLineDash([]);
+   box([a+10,b+10,a+100,b+66],28,'#F2C14E','#b8892a','#d9a63c');
+   box([a+108,b+10,x1-10,b+66],16,'#f6d27c','#c39a45','#e0b75a');
+   box([a+10,b+74,x1-10,y1-10],8,'#f9e2a6','#cdb070','#e6c987')}
+  cv.toBlob(bl=>{const url=URL.createObjectURL(bl);load.remove();ctx.onExit(()=>URL.revokeObjectURL(url));gImg.append('image').attr('href',url).attr('x',0).attr('y',0).attr('width',1200).attr('height',740).style('opacity',0).transition().duration(reduce?0:900).style('opacity',1)});
+  /* ================= CONECTOGRAFÍA POR CAPAS sobre el 3D real de Kennedy ================= */
+  svg.append('defs').html(`
+   <symbol id="q-fig" viewBox="0 0 10 24"><circle cx="5" cy="3.2" r="2.7" fill="currentColor"/><path d="M1.6 7.2h6.8l1 8.2H7.6l-.6 8.6H3l-.6-8.6H.6z" fill="currentColor"/></symbol>
+   <symbol id="q-ave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15c3 0 5-2 6-5 1-3 3-5 6-5a3 3 0 0 1 3 3l2 1-2 1c0 5-4 9-10 9H4l3-3"/><circle cx="16" cy="7.5" r=".6" fill="currentColor"/></symbol>
+   <symbol id="q-rana" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><path d="M5 10c-2 2-2 6 1 8h12c3-2 3-6 1-8M4 19l-2 2M20 19l2 2M9 14h6"/></symbol>
+   <symbol id="q-abeja" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="14" rx="4.5" ry="6"/><path d="M8 12h8M8 16h8M10 8c-3-4-7-3-7 0s4 3 7 2M14 8c3-4 7-3 7 0s-4 3-7 2"/></symbol>
+   <symbol id="q-lombriz" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 15c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></symbol>
+   <symbol id="q-hongo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 12a9 7 0 0 1 18 0z"/><path d="M10 12v7a2 2 0 0 0 4 0v-7"/></symbol>
+   <symbol id="q-hoja" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19l8-8"/></symbol>
+   <symbol id="q-fab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 21V10l5 3v-3l5 3V7l8 4v10z"/></symbol>
+   <symbol id="q-mesa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="3.5" r="1.8"/><circle cx="20.5" cy="12" r="1.8"/><circle cx="12" cy="20.5" r="1.8"/><circle cx="3.5" cy="12" r="1.8"/></symbol>`);
+  const DY=118,NL=4;
+  const L=(k,g)=>{const p=PJ(g[0],g[1],0);return[p[0],p[1]-k*DY]};
+  const LL=(k,lon,lat)=>L(k,G(lon,lat));
+  const gConn=svg.append('g'),gPl=[...Array(NL+1)].map(()=>svg.append('g').style('opacity',0)),gTop=svg.append('g').style('opacity',0);
+  /* --- planos: la misma silueta real de Kennedy, apilada --- */
+  const gb=[d3.min(ringG,p=>p[0]),d3.max(ringG,p=>p[0]),d3.min(ringG,p=>p[1]),d3.max(ringG,p=>p[1])];
+  for(let k=1;k<=NL;k++){const g=gPl[k];const id='clipK'+k+Math.random().toString(36).slice(2,6);
+   const pts=ringG.map(q=>L(k,q));svg.select('defs').append('clipPath').attr('id',id).append('path').attr('d','M'+pts.join('L')+'Z');
+   g.append('path').attr('d','M'+ringG.map(q=>{const p=L(k,q);return[p[0],p[1]+7]}).join('L')+'Z').attr('fill','#000').attr('opacity',.14);
+   g.append('path').attr('d','M'+pts.join('L')+'Z').attr('fill',k===4?'rgba(242,239,232,.07)':'rgba(242,239,232,.045)').attr('stroke','rgba(242,239,232,.55)').attr('stroke-width',1.1);
+   const gg=g.append('g').attr('clip-path',`url(#${id})`);const n=10;
+   for(let i=0;i<=n;i++){const x=gb[0]+(gb[1]-gb[0])*i/n,y=gb[2]+(gb[3]-gb[2])*i/n;
+    gg.append('line').attr('x1',L(k,[x,gb[2]])[0]).attr('y1',L(k,[x,gb[2]])[1]).attr('x2',L(k,[x,gb[3]])[0]).attr('y2',L(k,[x,gb[3]])[1]).attr('stroke','rgba(242,239,232,.12)');
+    gg.append('line').attr('x1',L(k,[gb[0],y])[0]).attr('y1',L(k,[gb[0],y])[1]).attr('x2',L(k,[gb[1],y])[0]).attr('y2',L(k,[gb[1],y])[1]).attr('stroke','rgba(242,239,232,.12)')}}
+  /* aristas verticales punteadas entre planos (puntos extremos de la silueta) */
+  {const ex=[0,1].map(i=>ringG.reduce((b,q)=>{const p=PJ(q[0],q[1],0);const bp=PJ(b[0],b[1],0);return (i?p[0]>bp[0]:p[0]<bp[0])?q:b},ringG[0]));
+   ex.forEach(q=>{const a=L(0,q),b=L(NL,q);gConn.append('line').attr('x1',a[0]).attr('y1',a[1]).attr('x2',b[0]).attr('y2',b[1]).attr('stroke','rgba(242,239,232,.35)').attr('stroke-dasharray','3 5')})}
+  const icon=(g,p,id,col,r=9,o={})=>{const n=g.append('g').attr('transform',`translate(${p[0]},${p[1]})`);n.append('circle').attr('r',r).attr('fill',o.fill||'#15171a').attr('stroke',col).attr('stroke-width',o.sw||1.8).attr('stroke-dasharray',o.dash||null);n.append('use').attr('href',id).attr('x',-r*.62).attr('y',-r*.62).attr('width',r*1.24).attr('height',r*1.24).style('color',o.ic||col);return n};
+  const txt=(g,p,t,col,o={})=>g.append('text').attr('x',p[0]+(o.dx||0)).attr('y',p[1]+(o.dy||0)).attr('text-anchor',o.a||'middle').attr('font-size',o.fs||9.5).attr('font-weight',o.fw||700).attr('fill',col).attr('font-family',FONT).attr('stroke','#0d0e10').attr('stroke-width',2.8).attr('paint-order','stroke').text(t);
+  const curve=(a,b,col,w=1.1,dash='3 3',op=.75)=>{const m=[(a[0]+b[0])/2+(b[1]-a[1])*.08,(a[1]+b[1])/2];return gConn.append('path').attr('d',`M${a[0]},${a[1]}Q${m[0]},${m[1]} ${b[0]},${b[1]}`).attr('fill','none').attr('stroke',col).attr('stroke-width',w).attr('stroke-dasharray',dash).attr('stroke-opacity',op)};
+  /* --- capa 0: territorio real + metro, TM y río --- */
+  const g0=gPl[0];
+  (MV.riverAll||[MV.river]).forEach(sg=>g0.append('path').attr('d','M'+sg.map(p=>LL(0,p[0],p[1])).join('L')).attr('fill','none').attr('stroke','#6fb7ff').attr('stroke-width',2.2));
+  g0.append('path').attr('d','M'+MV.metro.map(s=>LL(0,s[1],s[2])).join('L')).attr('fill','none').attr('stroke','#B98CFF').attr('stroke-width',2.6);
+  g0.append('path').attr('d','M'+MV.tm.map(s=>LL(0,s[1],s[2])).join('L')).attr('fill','none').attr('stroke','#E5484D').attr('stroke-width',2.2);
+  /* --- capa 1: Corabastos cede al humedal La Vaca --- */
+  const g1=gPl[1];const cbC=LL(1,-74.159,4.6295);
+  const vaca=agua.filter(w=>w.n==='Humedal La Vaca');vaca.forEach(w=>{const q=[];for(let i=0;i<w.p.length;i+=2)q.push(L(1,GR_(w.p[i],w.p[i+1])));g1.append('path').attr('d','M'+q.join('L')+'Z').attr('fill','#2f86d6').attr('stroke','#8cc8ff').attr('stroke-width',.8)});
+  const BODE=CB.bodegas.map(o=>({...o,g:toG(o.e,o.no)}));const GONE=new Set(['23','24','25','26']);
+  BODE.forEach(o=>{const p=L(1,o.g);g1.append('rect').attr('x',p[0]-2.2).attr('y',p[1]-1.4).attr('width',4.4).attr('height',2.8).attr('fill',GONE.has(o.n)?'#9BE15D':'#DE9F50').attr('opacity',GONE.has(o.n)?.95:.9)});
+  {const w=L(1,toG(...CB.pts['Humedal La Vaca (oeste)']));g1.append('circle').attr('cx',w[0]).attr('cy',w[1]).attr('r',13).attr('fill','none').attr('stroke','#9BE15D').attr('stroke-width',1.6).attr('stroke-dasharray','3 2');
+   const cb=g1.append('g').attr('transform',`translate(${cbC[0]-205},${cbC[1]+6})`);cb.append('rect').attr('width',150).attr('height',44).attr('rx',8).attr('fill','#0d0e10').attr('fill-opacity',.9).attr('stroke','#9BE15D');
+   cb.append('text').attr('x',10).attr('y',18).attr('font-size',12).attr('font-weight',800).attr('fill','#9BE15D').attr('font-family',FONT).text('−10 % bodegas');
+   cb.append('text').attr('x',10).attr('y',34).attr('font-size',10).attr('fill','#F2EFE8').attr('font-family',FONT).text('≈8.000 m² vuelven a La Vaca');
+   gConn.append('line').attr('x1',cbC[0]-55).attr('y1',cbC[1]+28).attr('x2',cbC[0]-6).attr('y2',cbC[1]).attr('stroke','#9BE15D').attr('stroke-width',1)}
+  /* --- capa 2: especies (registradas, del entorno, potenciales) --- */
+  const g2=gPl[2];const hum=n=>{const a=agua.filter(w=>w.n===n),q=[];a.forEach(w=>{for(let i=0;i<w.p.length;i+=2)q.push([w.p[i],w.p[i+1]])});return GR_(d3.mean(q,p=>p[0]),d3.mean(q,p=>p[1]))};
+  const hueC=by('huerta');const cells=new Map();hueC.forEach(c=>{const k=Math.round(c[0]/.006)+'_'+Math.round(c[1]/.006);if(!cells.has(k))cells.set(k,{c,n:0});cells.get(k).n++});const dense=[...cells.values()].sort((a,b)=>b.n-a.n).slice(0,3).map(o=>G(...o.c));
+  const ST={reg:['#3CC8B4',null,'registrada'],ent:['#F2B53A','3 2','del entorno'],pot:['#a9a49a','1 2','potencial'],man:['#C77DFF',null,'manejada']};
+  const SP=[['q-ave','Tingua azul',hum('Humedal El Burro'),'reg',[8,-6]],['q-ave','Tingua pico amarillo',hum('Humedal El Burro'),'reg',[-14,10]],['q-ave','Tingua bogotana',hum('Humedal de Techo'),'ent',[0,0]],['q-rana','Rana sabanera',hum('Humedal La Vaca'),'ent',[0,0]],
+   ['q-abeja','Abejas nativas',dense[0],'pot',[0,0]],['q-abeja','Polinizadores',dense[1],'pot',[0,0]],['q-lombriz','Lombriz roja',dense[2],'man',[0,0]],['q-hongo','Hongo ostra',PROY,'man',[0,0]],['q-hoja','Flora nativa de ronda',toG(...CB.pts['Humedal La Vaca (oeste)']),'pot',[0,0]]];
+  const SLB=[[12,4,'start'],[-12,4,'end'],[12,4,'start'],[-12,4,'end'],[0,17,'middle'],[0,17,'middle'],[12,4,'start'],[12,4,'start'],[-12,4,'end']];const SPn=SP.map(([id,t,g,s,d],i)=>{const p0=L(2,g),p=[p0[0]+d[0],p0[1]+d[1]];const [col,dash]=ST[s];icon(g2,p,'#'+id,col,8.5,{dash});const lb=SLB[i];txt(g2,[p[0]+lb[0],p[1]+lb[1]],t,col,{fs:8.6,a:lb[2]});return{p,g,col,t}});
+  /* --- capa 3: proyectos y espacios --- */
+  const g3=gPl[3];const PR3=[['q-fab','Complejo agro-biotecnológico',PROY,'#F2C14E',12],['q-mesa','Mesa federativa',[PROY[0]-260,PROY[1]+60],'#F2C14E',8],
+   ['#e-tienda','Acopio de huertas (B12)',toG(...CB.bodegas.find(b=>b.n==='12').e===undefined?[0,0]:[CB.bodegas.find(b=>b.n==='12').e,CB.bodegas.find(b=>b.n==='12').no]),'#9BE15D',9],
+   ['#e-recicla','Residuos y biodigestor',toG(...CB.pts['Parqueadero 02 / Martillo']),'#B08A55',9],['#e-central','Cárnicos con frío (B55)',toG(...CB.pts['Zona de fríos 55']),'#E5484D',8],
+   ...dense.map((g,i)=>['#e-compost','Compost '+(i+1),g,'#8EBF4C',7.5]),['#e-huerta','Huerta de ronda',hum('Humedal El Burro'),'#3CC8B4',8]];
+  const PLB=[[16,4,'start'],[-12,4,'end'],[-13,-8,'end'],[0,22,'middle'],[13,-8,'start'],[0,17,'middle'],[0,17,'middle'],[0,17,'middle'],[12,4,'start']];const PRn=PR3.map(([id,t,g,col,r],i)=>{const p=L(3,g);icon(g3,p,id.startsWith('#')?id:'#'+id,col,r);const lb=PLB[i]||[0,r+10,'middle'];txt(g3,[p[0]+lb[0],p[1]+lb[1]],t,col,{fs:8.6,a:lb[2]});return{p,g,col,t}});
+  ptsOf=c=>Pg.features.filter(f=>f.properties.c===c);
+  Pg.features.filter(f=>f.properties.c==='sdis'&&/Comedor/.test(f.properties.n||'')).forEach(f=>{const p=LL(3,...f.geometry.coordinates);g3.append('rect').attr('x',p[0]-2).attr('y',p[1]-2).attr('width',4).attr('height',4).attr('fill','#CF7ABB')});
+  hueC.filter((_,i)=>i%3===0).forEach(c=>{const p=LL(3,c[0],c[1]);g3.append('circle').attr('cx',p[0]).attr('cy',p[1]).attr('r',1.3).attr('fill','#B6E27A').attr('opacity',.8)});
+  /* --- capa 4: actores de la matriz (personas) --- */
+  const g4=gPl[4];const one=c=>{const f=Pg.features.find(f=>f.properties.c===c);return f?f.geometry.coordinates:null};
+  const meanOf=c=>{const a=Pg.features.filter(f=>f.properties.c===c).map(f=>f.geometry.coordinates);return[d3.mean(a,p=>p[0]),d3.mean(a,p=>p[1])]};
+  const ACT=[['HORTELANOS Y FAMILIAS',G(...meanOf('huerta')),[0,6,7,8]],['JUNTAS DE ACCIÓN COMUNAL',G(...meanOf('jac')),[1]],['COPROPIETARIOS',G(-74.140,4.640),[0]],['CUSTODIOS DEL HUMEDAL',hum('Humedal El Burro'),[9]],
+   ['COCINERAS COMUNITARIAS',G(...meanOf('sdis')),[2]],['TENDEROS Y RESTAURANTES',G(-74.146,4.618),[2]],['VENDEDORES BARRIALES',G(...one('plaza')),[2]],['RECICLADORES Y ASEO',G(-74.166,4.636),[3,6,7,8]],
+   ['MAYORISTAS',toG(...CB.center),[3,4]],['COTEROS Y TRANSPORTADORES',toG(CB.center[0]+150,CB.center[1]-120),[0]],['TÉCNICOS Y COOPERATIVA',PROY,[0]],['ESTUDIANTES Y DOCENTES',G(...meanOf('colegio')),[5]],['ALCALDÍA, SDA Y UAESP',G(...one('alcaldia')),[1]]];
+  const shade=['#d9d6cf','#a9a49a','#cfcac0','#8c877e','#bdb8ae'];
+  const ACn=ACT.map(([t,g,links],i)=>{const p=L(4,g);const n=3+(i%3);for(let j=0;j<n;j++){const dx=(j-(n-1)/2)*5.5+((i*7+j*3)%5-2),dy=((j*5+i)%4-1.5)*2.4;
+    g4.append('use').attr('href','#q-fig').attr('x',p[0]+dx-2.5).attr('y',p[1]+dy-12).attr('width',5).attr('height',12).style('color',shade[(i+j)%5])}
+   return{t,p,links}});
+  /* etiquetas de actores en columnas laterales, como en la referencia */
+  const left=ACn.filter(a=>a.p[0]<470).sort((a,b)=>a.p[1]-b.p[1]),right=ACn.filter(a=>a.p[0]>=470).sort((a,b)=>a.p[1]-b.p[1]);
+  [[left,250,'end'],[right,700,'start']].forEach(([arr,x,a])=>arr.forEach((o,i)=>{const y=40+i*20;const lx=a==='end'?x+4:x-4;
+   gTop.append('line').attr('x1',lx).attr('y1',y-3).attr('x2',o.p[0]).attr('y2',o.p[1]-6).attr('stroke','rgba(242,239,232,.28)').attr('stroke-width',.7);
+   gTop.append('text').attr('x',x).attr('y',y).attr('text-anchor',a).attr('font-size',10).attr('font-weight',800).attr('letter-spacing','.04em').attr('font-style','italic').attr('fill','#F2EFE8').attr('font-family',FONT).text(o.t)}));
+  /* --- conexiones entre capas --- */
+  ACn.forEach(a=>a.links.forEach(j=>{const b=PRn[Math.min(j,PRn.length-1)];curve(a.p,b.p,'#ff6b6b',.9,'3 3',.7)}));
+  const PS=[[0,7],[2,4],[5,4],[6,6],[7,6],[8,5],[9,0],[9,1],[3,8]];PS.forEach(([i,j])=>{const a=PRn[i],b=SPn[j];if(a&&b)curve(a.p,b.p,'#3CC8B4',1,'3 3',.75)});
+  SPn.forEach(s=>curve(s.p,L(0,s.g),'#6fa8ff',.9,'2 4',.65));
+  {const a=L(1,toG(...CB.center)),b=L(0,toG(...CB.center));gConn.append('line').attr('x1',a[0]).attr('y1',a[1]).attr('x2',b[0]).attr('y2',b[1]).attr('stroke','#DE9F50').attr('stroke-width',1.4).attr('stroke-dasharray','4 3')}
+  /* --- nombres de capas a la derecha --- */
+  const LT=[['Territorio real · Kennedy 3D','Edificios IDECA, Río Bogotá, Metro y TM'],['Corabastos cede al humedal','Salen bodegas de verduras junto a La Vaca'],['Especies','Registradas, del entorno y potenciales'],['Proyectos y espacios','Complejo, acopio, residuos y compost'],['Actores de la matriz','Quiénes hacen cada actividad']];
+  const rx=d3.max(ringG,q=>PJ(q[0],q[1],0)[0]);
+  LT.forEach(([t,s],k)=>{const y=(PJ(...ringG[0],0)[1]*0)+d3.mean(ringG,q=>PJ(q[0],q[1],0)[1])-k*DY;const g=gPl[k];
+   g.append('line').attr('x1',rx+6).attr('y1',y).attr('x2',918).attr('y2',y).attr('stroke','rgba(242,239,232,.35)').attr('stroke-dasharray','2 3');
+   g.append('text').attr('x',926).attr('y',y-2).attr('font-size',13).attr('font-weight',800).attr('fill','#F2EFE8').attr('font-family',FONT).text(t);
+   g.append('text').attr('x',926).attr('y',y+13).attr('font-size',10).attr('fill','#a9a49a').attr('font-family',FONT).text(s)});
+  /* leyenda de líneas */
+  const lg=gTop.append('g').attr('transform','translate(926,640)');
+  [['#ff6b6b','Actor → proyecto donde trabaja'],['#3CC8B4','Proyecto → especie que necesita o cuida'],['#6fa8ff','Especie → lugar real del territorio'],['#DE9F50','Corabastos en el plano real']].forEach(([c,t],i)=>{lg.append('line').attr('x1',0).attr('y1',i*18).attr('x2',22).attr('y2',i*18).attr('stroke',c).attr('stroke-width',2).attr('stroke-dasharray','3 3');lg.append('text').attr('x',30).attr('y',i*18+4).attr('font-size',10.5).attr('fill','#cfcac0').attr('font-family',FONT).text(t)});
+  [['#3CC8B4','—','registrada'],['#F2B53A','3 2','del entorno'],['#a9a49a','1 2','potencial'],['#C77DFF','—','manejada']].forEach(([c,d,t],i)=>{lg.append('circle').attr('cx',11+i*62).attr('cy',78).attr('r',5).attr('fill','none').attr('stroke',c).attr('stroke-width',1.6).attr('stroke-dasharray',d==='—'?null:d);lg.append('text').attr('x',19+i*62).attr('y',82).attr('font-size',9.5).attr('fill','#cfcac0').attr('font-family',FONT).text(t)});
+  /* aparición de abajo hacia arriba */
+  gPl.forEach((g,k)=>K.show(g,300+k*700));K.show(gTop,300+5*700);gConn.style('opacity',0);K.show(gConn,300+5*700);
+ });
+ return()=>{}}
+
+
+
+/* ---- ¿Para qué atraemos la red biótica? ---- */
+/* ---- Programa arquitectónico: cuadro de áreas ---- */
+
+
+/* ---- ¿Para qué atraemos la red biótica? ---- */
+/* ---- Programa arquitectónico: cuadro de áreas ---- */
+
+function corredorView(ctx){
+ const K=conceptKit(ctx,740),{svg,FONT}=K;
+ const GN='#8EBF4C',LG='#B6E27A',OR='#DE9F50',AM='#9382E0',TE='#3CC8B4',PK='#CF7ABB',BL='#4EAECF',RD='#e5484d',GR='#8C877E';
+ const gImg=svg.append('g'),gNet=svg.append('g'),gB=svg.append('g');
+ const load=svg.append('text').attr('x',600).attr('y',380).attr('text-anchor','middle').attr('font-size',15).attr('fill','#77736b').attr('font-family',FONT).text('…');
+ const J=u=>fetch(u).then(r=>r.json()),Bf=u=>fetch(u).then(r=>r.arrayBuffer());
+ Promise.all([J('assets/territorio_kennedy.geojson'),J('assets/territorio_puntos.geojson'),J('assets/k3d/meta.json'),Bf('assets/k3d/bld.bin'),J('assets/k3d/manz.json'),Bf('assets/k3d/trees.bin'),J('assets/k3d/parques.json'),J('assets/k3d/agua.json'),J('assets/conecto_movilidad.json')]).then(([Kg,Pg,M,bld,manz,trees,parq,agua,MV])=>{
+  const ring=Kg.features[0].geometry.coordinates[0];const {tx:TX,ty:TY,lon0:LON0,lat0:LAT0,kx:KX,ky:KY}=M;
+  const AZ=38*Math.PI/180,ca=Math.cos(AZ),sa=Math.sin(AZ);
+  const toG=(E,N)=>{const mx=E,my=-N;return[mx*ca-my*sa,mx*sa+my*ca]};
+  const G=(lon,lat)=>toG((lon-LON0)*KX,(lat-LAT0)*KY),GR_=(x,y)=>toG(x+TX,y+TY);
+  const raw=(gx,gy,z)=>[(gx-gy)*.866,(gx+gy)*.6-z*1.5];
+  const ringG=ring.map(([a,b])=>G(a,b));const rs=ringG.map(([x,y])=>raw(x,y,0));
+  const minX=Math.min(...rs.map(p=>p[0])),maxX=Math.max(...rs.map(p=>p[0])),minY=Math.min(...rs.map(p=>p[1])),maxY=Math.max(...rs.map(p=>p[1]));
+  const _cp=[[-74.1645,4.6550],[-74.1496,4.6414],[-74.1417,4.6452],[-74.137,4.668],[-74.175,4.662],[-74.155,4.62]].map(([a,b])=>{const g=G(a,b);return raw(g[0],g[1],0)});const _x0=Math.min(..._cp.map(p=>p[0])),_x1=Math.max(..._cp.map(p=>p[0])),_y0=Math.min(..._cp.map(p=>p[1])),_y1=Math.max(..._cp.map(p=>p[1]));const S=Math.min(780/(_x1-_x0),640/(_y1-_y0));
+  /* sitios de la propuesta */
+  const by=k=>Pg.features.filter(f=>f.properties.c===k).map(f=>f.geometry.coordinates);const hue=by('huerta');
+  const hN=hue.filter(p=>p[1]>4.64),hc=G(d3.mean(hN,p=>p[0]),d3.mean(hN,p=>p[1]));
+  const cenW=n=>{const a=agua.filter(w=>w.n===n),q=[];a.forEach(w=>{for(let i=0;i<w.p.length;i+=2)q.push([w.p[i],w.p[i+1]])});return GR_(d3.mean(q,p=>p[0]),d3.mean(q,p=>p[1]))};
+  const corG=G(-74.159,4.6295);
+  const SITES={huerta:hc,hum:cenW('Humedal El Burro'),circ:G(-74.1535,4.6275),cor:corG,rec:G(-74.1735,4.6245)};
+  const COLS={huerta:GN,hum:BL,circ:PK,cor:OR,rec:TE};
+  const sr=Object.values(SITES).map(q=>raw(q[0],q[1],0));const rcx=d3.mean(sr,p=>p[0]),rcy=d3.mean(sr,p=>p[1]);
+  const OX=430-(_x0+_x1)/2*S,OY=380-(_y0+_y1)/2*S;
+  const PJ=(gx,gy,z=0)=>{const r=raw(gx,gy,z);return[OX+r[0]*S,OY+r[1]*S]};
+  const vis=p=>p[0]>-60&&p[0]<1260&&p[1]>-60&&p[1]<800;
+  const PLOTS={};
+  const rect=k=>{const c=SITES[k],r=PLOTS[k];return[c[0]+r[0],c[1]+r[1],c[0]+r[2],c[1]+r[3]]};
+  /* lote del proyecto arquitectónico: borde del Río Bogotá (ubicación ilustrativa) */
+  const YE='#F2C14E',PROY=G(-74.1645,4.6550),PR=[PROY[0]-85,PROY[1]-60,PROY[0]+85,PROY[1]+60];
+  const inProy=b=>b.gx>PR[0]-12&&b.gx<PR[2]+12&&b.gy>PR[1]-12&&b.gy<PR[3]+12;
+  const inClear=b=>inProy(b)||Object.keys(PLOTS).some(k=>{const r=rect(k);return b.gx>r[0]-8&&b.gx<r[2]+8&&b.gy>r[1]-8&&b.gy<r[3]+8});
+  /* ---------- lienzo negro ---------- */
+  const bv=new DataView(bld);let o=0;const B=[];while(o<bv.byteLength){const h=bv.getUint8(o)/2,n=bv.getUint8(o+1);o+=2;const pts=[];let sx=0,sy=0;for(let i=0;i<n;i++){const x=bv.getUint16(o,true),y=bv.getUint16(o+2,true);o+=4;pts.push(GR_(x,y));sx+=x;sy+=y}const gg=GR_(sx/n,sy/n);if(vis(PJ(gg[0],gg[1],0)))B.push({h,g:pts,gx:gg[0],gy:gg[1]})}
+  B.sort((a,b)=>(a.gx+a.gy)-(b.gx+b.gy));
+  const SC=2,cv=document.createElement('canvas');cv.width=1200*SC;cv.height=740*SC;const c=cv.getContext('2d');c.scale(SC,SC);c.lineJoin='round';c.lineCap='round';
+  const path=pts=>{c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath()};
+  const slab=ringG.map(([x,y])=>PJ(x,y,0)),s2=ringG.map(([x,y])=>PJ(x,y,-24));
+  path(s2);c.fillStyle='#050506';c.fill();path(slab);c.fillStyle='#121216';c.fill();c.strokeStyle='rgba(255,255,255,.3)';c.lineWidth=1.2;c.stroke();
+  c.save();path(slab);c.clip();
+  const gp=a=>{const q=[];for(let i=0;i<a.length;i+=2)q.push(GR_(a[i],a[i+1]));return q};
+  c.fillStyle='#1a1a21';c.strokeStyle='rgba(255,255,255,.07)';c.lineWidth=.3;manz.forEach(m=>{const q=gp(m);if(!vis(PJ(q[0][0],q[0][1])))return;path(q.map(p=>PJ(p[0],p[1])));c.fill();c.stroke()});
+  c.fillStyle='#143a1f';parq.forEach(p=>{const q=gp(p.p);if(!vis(PJ(q[0][0],q[0][1])))return;path(q.map(a=>PJ(a[0],a[1])));c.fill()});
+  agua.forEach(w=>{const q=gp(w.p);if(w.t==='Canal'||w.t==='Quebrada'){c.beginPath();q.forEach((a,i)=>{const p=PJ(a[0],a[1]);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])});c.strokeStyle='#2c6fb0';c.lineWidth=1.4;c.stroke()}else{path(q.map(a=>PJ(a[0],a[1])));c.fillStyle='#1c63a8';c.fill();c.strokeStyle='#7cc0ff';c.lineWidth=1;c.stroke()}});
+  const tv=new DataView(trees);const nt=tv.byteLength/5;c.fillStyle='#2f6b34';for(let i=0;i<nt;i++){const x=tv.getUint16(i*5,true)-1000,y=tv.getUint16(i*5+2,true)-1000,h=Math.min(tv.getUint8(i*5+4)/4,12);const g=GR_(x,y);const p=PJ(g[0],g[1],h);if(!vis(p))continue;c.beginPath();c.arc(p[0],p[1],1.5,0,6.3);c.fill()}
+  c.restore();
+  Object.keys(PLOTS).forEach(k=>{const r=rect(k);path([[r[0],r[1]],[r[2],r[1]],[r[2],r[3]],[r[0],r[3]]].map(p=>PJ(p[0],p[1],0)));c.fillStyle=COLS[k]+'66';c.fill();c.strokeStyle=COLS[k];c.lineWidth=1.6;c.stroke()});
+  B.forEach(b=>{if(inClear(b))return;const cor=Math.abs(b.gx-corG[0])<560&&Math.abs(b.gy-corG[1])<400;const hh=Math.min(b.h,120);const g=b.g;let ar=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;ar+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}const sg=ar>0?1:-1;
+   for(let i=0;i<g.length;i++){const j=(i+1)%g.length;const dx=g[j][0]-g[i][0],dy=g[j][1]-g[i][1];const nx=dy*sg,ny=-dx*sg;if(nx+ny<=0)continue;path([PJ(g[i][0],g[i][1],0),PJ(g[j][0],g[j][1],0),PJ(g[j][0],g[j][1],hh),PJ(g[i][0],g[i][1],hh)]);c.fillStyle=cor?(nx>ny?'#6a4524':'#85582d'):(nx>ny?'#202028':'#2d2d38');c.fill()}
+   path(g.map(p=>PJ(p[0],p[1],hh)));const lum=Math.min(hh,40);c.fillStyle=cor?'#c98a47':`rgb(${54+lum*1.3|0},${54+lum*1.3|0},${66+lum*1.5|0})`;c.fill();c.strokeStyle=cor?'rgba(255,220,170,.5)':'rgba(255,255,255,.22)';c.lineWidth=.3;c.stroke()});
+  /* volúmenes del proyecto: nave de biorrefinería, bóvedas de micelio y borde cívico hacia el humedal */
+  {const [a,b,x1,y1]=PR;const box=(r,h,top,s1,s2)=>{const [x0,y0,xx,yy]=r;
+    path([PJ(xx,y0,0),PJ(xx,yy,0),PJ(xx,yy,h),PJ(xx,y0,h)]);c.fillStyle=s1;c.fill();
+    path([PJ(x0,yy,0),PJ(xx,yy,0),PJ(xx,yy,h),PJ(x0,yy,h)]);c.fillStyle=s2;c.fill();
+    path([PJ(x0,y0,h),PJ(xx,y0,h),PJ(xx,yy,h),PJ(x0,yy,h)]);c.fillStyle=top;c.fill();c.strokeStyle='rgba(255,244,214,.95)';c.lineWidth=1;c.stroke()};
+   path([[a,b],[x1,b],[x1,y1],[a,y1]].map(q=>PJ(q[0],q[1],0)));c.fillStyle='rgba(242,193,78,.28)';c.fill();c.setLineDash([6,4]);c.strokeStyle=YE;c.lineWidth=2;c.stroke();c.setLineDash([]);
+   box([a+10,b+10,a+100,b+66],28,'#F2C14E','#b8892a','#d9a63c');
+   box([a+108,b+10,x1-10,b+66],16,'#f6d27c','#c39a45','#e0b75a');
+   box([a+10,b+74,x1-10,y1-10],8,'#f9e2a6','#cdb070','#e6c987')}
+  cv.toBlob(bl=>{const url=URL.createObjectURL(bl);load.remove();ctx.onExit(()=>URL.revokeObjectURL(url));gImg.append('image').attr('href',url).attr('x',0).attr('y',0).attr('width',1200).attr('height',740).style('opacity',0).transition().duration(reduce?0:900).style('opacity',.8)});
+  /* ================= CORREDOR ECOLÓGICO sobre el 3D real ================= */
+  const P0=(lon,lat,z=0)=>{const g=G(lon,lat);return PJ(g[0],g[1],z)};
+  const gL=svg.append('g').style('opacity',0),gT=svg.append('g').style('opacity',0);
+  const tag=(p,t,col,o={})=>gT.append('text').attr('x',p[0]+(o.dx||0)).attr('y',p[1]+(o.dy||0)).attr('text-anchor',o.a||'middle').attr('font-size',o.fs||12).attr('font-weight',o.fw||700).attr('fill',col).attr('font-family',FONT).attr('stroke','#0d0e10').attr('stroke-width',3.4).attr('paint-order','stroke').text(t);
+  const W=n=>agua.filter(w=>w.n===n);const polyOf=w=>{const q=[];for(let i=0;i<w.p.length;i+=2){const g=GR_(w.p[i],w.p[i+1]);q.push(PJ(g[0],g[1],0))}return q};
+  const cen=n=>{const q=W(n).flatMap(polyOf);return[d3.mean(q,p=>p[0]),d3.mean(q,p=>p[1])]};
+  /* humedales completos (también los que quedan fuera de Kennedy, como Capellanía) */
+  ['Humedal Capellania','Humedal El Burro','Humedal de Techo','Humedal La Vaca'].forEach(n=>W(n).forEach(w=>{const q=polyOf(w);gL.append('path').attr('d','M'+q.join('L')+'Z').attr('fill','#2f86d6').attr('fill-opacity',.85).attr('stroke','#8cc8ff').attr('stroke-width',1.4)}));
+  /* canales reales que conectan */
+  agua.filter(w=>w.t==='Canal').forEach(w=>{const q=polyOf(w);gL.append('path').attr('d','M'+q.join('L')).attr('fill','none').attr('stroke','#5fa8ff').attr('stroke-width',2.2).attr('stroke-opacity',.75)});
+  /* Río Bogotá real */
+  (MV.riverAll||[MV.river]).forEach(sg=>{const q=sg.map(p=>P0(p[0],p[1]));gL.append('path').attr('d','M'+q.join('L')).attr('fill','none').attr('stroke','#2f86d6').attr('stroke-width',10).attr('stroke-opacity',.5);gL.append('path').attr('d','M'+q.join('L')).attr('fill','none').attr('stroke','#8cc8ff').attr('stroke-width',2.6)});
+  /* ejes viales (interfaz urbano-industrial) */
+  Object.entries(MV.roads).filter(([k])=>/Ciudad de Cali|Américas|Villavicencio/.test(k)).forEach(([k,segs])=>{segs.forEach(s=>{const q=s.map(p=>P0(p[0],p[1]));gL.append('path').attr('d','M'+q.join('L')).attr('fill','none').attr('stroke','#F2B53A').attr('stroke-width',2.4).attr('stroke-opacity',.7)});const b=segs.reduce((a,c)=>c.length>a.length?c:a,segs[0]);const m=P0(...b[Math.floor(b.length/2)]);tag([m[0],m[1]-8],k,'#F2C14E',{fs:11})});
+  /* corredor propuesto: río → proyecto → El Burro → Techo → Capellanía */
+  const pj=P0(MV.proyecto[0],MV.proyecto[1]);const rv=MV.river.map(p=>P0(p[0],p[1])).reduce((b,q)=>Math.hypot(q[0]-pj[0],q[1]-pj[1])<Math.hypot(b[0]-pj[0],b[1]-pj[1])?q:b);
+  const chain=[rv,pj,cen('Humedal El Burro'),cen('Humedal de Techo'),cen('Humedal Capellania')];
+  const cp=gL.insert('path',':first-child').attr('d',d3.line().curve(d3.curveCatmullRom.alpha(.5))(chain)).attr('fill','none').attr('stroke','#8EBF4C').attr('stroke-width',26).attr('stroke-opacity',.28).attr('stroke-linecap','round');
+  gL.append('path').attr('d',d3.line().curve(d3.curveCatmullRom.alpha(.5))(chain)).attr('fill','none').attr('stroke','#B6E27A').attr('stroke-width',2.4).attr('stroke-dasharray','8 6');
+  {const vc=cen('Humedal La Vaca'),b=cen('Humedal El Burro');gL.append('path').attr('d',`M${vc[0]},${vc[1]}L${b[0]},${b[1]}`).attr('stroke','#B6E27A').attr('stroke-width',2).attr('stroke-dasharray','3 5').attr('fill','none')}
+  /* proyecto */
+  {const g=gT.append('g');g.append('circle').attr('cx',pj[0]).attr('cy',pj[1]).attr('r',16).attr('fill','#2a210a').attr('stroke','#F2C14E').attr('stroke-width',3);tag([pj[0]+22,pj[1]+4],'Complejo biotecnológico (lote ilustrativo)','#F2C14E',{a:'start'})}
+  tag(cen('Humedal El Burro'),'Humedal El Burro','#bfe6ff',{dy:-14});tag(cen('Humedal de Techo'),'Humedal de Techo','#bfe6ff',{dy:-14});tag(cen('Humedal La Vaca'),'Humedal La Vaca','#bfe6ff',{dy:22});
+  const cap=cen('Humedal Capellania');if(isFinite(cap[0]))tag(cap,'Humedal Capellanía (Fontibón)','#bfe6ff',{dy:-14});
+  {const m=MV.river[Math.floor(MV.river.length*.35)];tag(P0(m[0],m[1]),'Río Bogotá','#8cc8ff',{fs:14,dx:-30,dy:-18,a:'end'})}
+  /* panel */
+  const pn=gT.append('g').attr('transform','translate(870,24)');pn.append('rect').attr('width',314).attr('height',300).attr('rx',14).attr('fill','#0d0e10').attr('fill-opacity',.93).attr('stroke','rgba(255,255,255,.18)');
+  const t2=(y,t,o={})=>pn.append('text').attr('x',16).attr('y',y).attr('font-size',o.fs||11.5).attr('font-weight',o.fw||500).attr('fill',o.c||'#cfcac0').attr('font-family',FONT).text(t);
+  t2(28,'CORREDOR ECOLÓGICO',{fs:11,fw:800,c:'#B6E27A'});t2(52,'Agua y ejes sobre el 3D real',{fs:17,fw:800,c:'#F2EFE8'});
+  [['#8cc8ff','Río Bogotá (cauce real, OSM)'],['#2f86d6','Humedales (IDECA)'],['#5fa8ff','Canales existentes'],['#B6E27A','Corredor propuesto'],['#F2B53A','Ejes viales de la interfaz']].forEach(([c,t],i)=>{const y=86+i*24;pn.append('rect').attr('x',16).attr('y',y-8).attr('width',22).attr('height',6).attr('rx',3).attr('fill',c);t2(y,t).attr('x',46)});
+  const notas=['El corredor une el río con el lote del proyecto','y con El Burro, Techo y Capellanía siguiendo','canales que ya existen. La interfaz con lo','industrial va por la Av. Ciudad de Cali y la','Av. de las Américas.'];notas.forEach((s,i)=>t2(222+i*15,s,{fs:11}));
+  K.show(gL,700);K.show(gT,1300);K.run();
+ });
+ return()=>{}}
+
+/* ---- ¿Para qué atraemos la red biótica? ---- */
+function paraqueView(ctx){
+ const K=conceptKit(ctx),{svg,FONT}=K;
+ svg.append('defs').html(`<symbol id="q-ave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15c3 0 5-2 6-5 1-3 3-5 6-5a3 3 0 0 1 3 3l2 1-2 1c0 5-4 9-10 9H4l3-3"/></symbol><symbol id="q-abeja" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="14" rx="4.5" ry="6"/><path d="M8 12h8M8 16h8M10 8c-3-4-7-3-7 0s4 3 7 2M14 8c3-4 7-3 7 0s-4 3-7 2"/></symbol><symbol id="q-lombriz" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 15c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></symbol><symbol id="q-hoja" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19l8-8"/></symbol><symbol id="q-rana" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><path d="M5 10c-2 2-2 6 1 8h12c3-2 3-6 1-8"/></symbol><symbol id="q-hongo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 7 0 0 1 18 0z"/><path d="M10 12v7a2 2 0 0 0 4 0v-7"/></symbol>`);
+ const C=[
+  {x:200,col:'#8EBF4C',t:'Cerrar ciclos',s:'Los residuos vuelven al suelo',sp:[['#q-lombriz','Lombriz roja','manejada','#C77DFF'],['#q-hongo','Hongo ostra','manejado','#C77DFF']],lug:'Compost barrial y biodigestor de Corabastos',mec:'Las lombrices convierten residuos orgánicos en humus; el hongo crece sobre rastrojos y deja sustrato para compost.',mod:'Baja la variable «orgánicos que salen de Kennedy» y sube «insumos propios de las huertas».'},
+  {x:600,col:'#3CC8B4',t:'Sanar el agua',s:'La ronda filtra antes del humedal',sp:[['#q-hoja','Flora nativa de ronda','propuesta','#a9a49a'],['#q-ave','Tinguas (El Burro)','registradas','#3CC8B4'],['#q-rana','Rana sabanera','del entorno','#F2B53A']],lug:'Ronda de La Vaca (antes bodegas 23–26) y borde de El Burro',mec:'La vegetación de ronda retiene sedimentos y nutrientes del escurrimiento antes de que lleguen al espejo de agua.',mod:'Baja «presión sobre el borde del humedal»; sube el hábitat de aves y anfibios.'},
+  {x:1000,col:'#F2B53A',t:'Nutrir los barrios',s:'Más cosecha cerca de casa',sp:[['#q-abeja','Abejas nativas y polinizadores','potenciales','#a9a49a'],['#q-ave','Aves pequeñas','por verificar','#a9a49a']],lug:'Huertas de vivienda, de altura, de lote y escolares',mec:'Polinizadores ayudan al cuajado de hortalizas y frutos; las aves pequeñas comen insectos de las huertas.',mod:'Sube «producción para autoconsumo y excedentes» y baja la dependencia de Corabastos.'}];
+ const gs=C.map(()=>svg.append('g').style('opacity',0));
+ C.forEach((c,i)=>{const g=gs[i];const x=c.x;
+  g.append('rect').attr('x',x-180).attr('y',40).attr('width',360).attr('height',640).attr('rx',18).attr('fill','#15171a').attr('stroke',c.col).attr('stroke-width',1.6);
+  K.text(g,x,82,c.t.toUpperCase(),{fs:20,fw:800,c:c.col,ls:'.05em'});K.text(g,x,106,c.s,{fs:13.5,fw:500,c:'#cfcac0'});
+  K.text(g,x,146,'Especies',{fs:11,fw:800,c:'#8c877e',ls:'.08em'});
+  c.sp.forEach((s,j)=>{const y=180+j*62;K.node(g,[x-120,y],s[0],s[3],22,null,{ic:s[3],dash:s[2]==='registradas'||s[2]==='manejada'||s[2]==='manejado'?null:'4 3'});
+   K.text(g,x-88,y-2,s[1],{a:'start',fs:14,fw:700,c:'#F2EFE8'});K.text(g,x-88,y+16,s[2],{a:'start',fs:11.5,fw:600,c:s[3]})});
+  const wrap=(y,lbl,txt,col)=>{K.text(g,x-150,y,lbl,{a:'start',fs:11,fw:800,c:'#8c877e',ls:'.08em'});const w=txt.split(' ');let line='',yy=y+20;w.forEach(wd=>{if((line+' '+wd).length>44){K.text(g,x-150,yy,line.trim(),{a:'start',fs:13,fw:500,c:col||'#E7E3DA'});line=wd;yy+=18}else line+=' '+wd});K.text(g,x-150,yy,line.trim(),{a:'start',fs:13,fw:500,c:col||'#E7E3DA'});return yy+30};
+  let y=372;y=wrap(y,'DÓNDE',c.lug);y=wrap(y,'CÓMO',c.mec);wrap(y,'QUÉ CAMBIA EN EL MODELO',c.mod,c.col)});
+ K.text(svg,600,712,'Línea continua: registro en el área · punteada: del entorno, potencial o propuesta (por verificar en Kennedy)',{fs:12,fw:500,c:'#8c877e'});
+ gs.forEach((g,i)=>K.show(g,200+i*900));K.run();return()=>{}}
+/* ---- Programa arquitectónico: cuadro de áreas ---- */
+function progAreasView(ctx){
+ const K=conceptKit(ctx),{svg,FONT}=K;
+ const Z=[['A','Biorrefinería y muelle mecatrónico',2800,'#fb923c','Recibe mermas y sustratos; cintas en vez de bultos a lomo.'],['B','Bóvedas de hongo ostra',2200,'#38bdf8','Cámaras oscuras: proteína sobre rastrojos.'],['C','Silos de carbohidratos',1800,'#facc15','Papa y tubérculos con ventilación cruzada.'],['E','Borde cívico y comedor',1400,'#4ade80','Comedor, mercado barrial y biofiltro hacia el río.'],['D','Reconversión laboral',800,'#c084fc','Aulas para coteros y recicladores.']];
+ const tot=d3.sum(Z,z=>z[2]);
+ K.text(svg,40,46,'CUADRO DE ÁREAS · 9.000 m² CONSTRUIDOS',{a:'start',fs:13,fw:800,c:'#F2C14E',ls:'.08em'});
+ K.text(svg,40,74,'Cada zona tiene un área y una razón para estar junto a otra',{a:'start',fs:22,fw:800,c:'#F2EFE8'});
+ /* barra de proporciones */
+ let x=40;const W=1120,gb=svg.append('g').style('opacity',0);
+ Z.forEach(z=>{const w=z[2]/tot*W;gb.append('rect').attr('x',x).attr('y',100).attr('width',w-4).attr('height',58).attr('rx',8).attr('fill',z[3]);
+  K.text(gb,x+12,124,'Zona '+z[0],{a:'start',fs:13,fw:800,c:'#111'});K.text(gb,x+12,145,z[2].toLocaleString('es-CO')+' m² · '+Math.round(z[2]/tot*100)+' %',{a:'start',fs:12,fw:700,c:'#111'});x+=w});
+ /* zonificación: bloques proporcionales en planta */
+ const gp=svg.append('g').style('opacity',0);const P={A:[260,350],B:[520,350],C:[260,560],E:[760,470],D:[520,580]};const SH={A:'Biorrefinería',B:'Bóvedas de hongo',C:'Silos',D:'Reconversión laboral',E:'Borde cívico'};
+ Z.forEach(z=>{const s=Math.sqrt(z[2])*3.4,p=P[z[0]];gp.append('rect').attr('x',p[0]-s/2).attr('y',p[1]-s/2*0.72).attr('width',s).attr('height',s*.72).attr('rx',10).attr('fill',z[3]).attr('fill-opacity',.18).attr('stroke',z[3]).attr('stroke-width',2);
+  K.text(gp,p[0],p[1]-6,'Zona '+z[0],{fs:15,fw:800,c:z[3]});K.text(gp,p[0],p[1]+13,SH[z[0]],{fs:12,fw:600,c:'#E7E3DA'})});
+ const ADJ=[['A','B','sustrato'],['A','C','carga'],['B','D','formación técnica'],['C','D','oficio'],['D','E','comedor'],['B','E','proteína']];
+ ADJ.forEach(([a,b,t])=>{const p=P[a],q=P[b];K.link(gp,p,q,'#F2EFE8',2,.45,'5 4');K.text(gp,(p[0]+q[0])/2,(p[1]+q[1])/2-6,t,{fs:10.5,fw:600,c:'#cfcac0'})});
+ K.text(gp,100,350,'← Corabastos',{fs:12,fw:700,c:'#DE9F50'});K.text(gp,850,400,'Río Bogotá →',{fs:12,fw:700,c:'#6fb7ff'});
+ /* fichas */
+ const gf=svg.append('g').style('opacity',0);Z.forEach((z,i)=>{const y=210+i*92;gf.append('rect').attr('x',890).attr('y',y).attr('width',270).attr('height',82).attr('rx',10).attr('fill','#15171a').attr('stroke',z[3]);
+  K.text(gf,904,y+22,'Zona '+z[0]+' · '+z[2].toLocaleString('es-CO')+' m²',{a:'start',fs:13,fw:800,c:z[3]});K.text(gf,904,y+42,z[1],{a:'start',fs:12,fw:700,c:'#F2EFE8'});
+  const w=z[4].split(' ');let line='',yy=y+60;w.forEach(wd=>{if((line+' '+wd).length>40){K.text(gf,904,yy,line.trim(),{a:'start',fs:11,fw:500,c:'#a9a49a'});line=wd;yy+=14}else line+=' '+wd});K.text(gf,904,yy,line.trim(),{a:'start',fs:11,fw:500,c:'#a9a49a'})});
+ K.show(gb,200);K.show(gp,1200);K.show(gf,2200);K.run();return()=>{}}
 
 const CV={
  macros:{title:'Diez macromodelos; seis actúan directamente sobre esta problemática',cols:5,pcols:2,stagger:120,maxh:210,items:[
@@ -2247,6 +2906,12 @@ const SL=[
  {b:3,key:'escena',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return escenaView(ctx)}},
  {b:3,key:'axo',src:'Edificios, manzanas, arbolado, parques, agua y vías de Kennedy (IDECA / OpenStreetMap) · zonas de la propuesta y lote del proyecto ilustrativos',draw(ctx){return axoView(ctx)}},
  {b:3,key:'conecto',src:'Conectografía: puntos del grupo (IDECA/OSM), vías y estaciones de OpenStreetMap; trazado del Metro L1 y lote del proyecto aproximados',draw(ctx){return conectoView(ctx)}},
+ {b:3,key:'prog_areas',src:'Programa arquitectónico del grupo (9.000 m²) · adyacencias: propuesta',draw(ctx){return progAreasView(ctx)}},
+ {b:3,key:'corredor',src:'Edificios y agua: IDECA · Río Bogotá y vías: OpenStreetMap · corredor y lote: propuesta del grupo',draw(ctx){return corredorView(ctx)}},
+ {b:3,key:'paraque',src:'Guion del grupo · estado de especies: registros del Corte III · mecanismos generales, por verificar en Kennedy',draw(ctx){return paraqueView(ctx)}},
+ {b:3,key:'capas',src:'Base: edificios, agua y vías de Kennedy (IDECA/OSM) · actores: matriz del grupo · especies: estado según registros (ver organizacion-kennedy.html) · proyectos: propuesta del grupo',draw(ctx){return capasView(ctx)}},
+ {b:3,key:'cora_hoy',src:'Edificios IDECA · bodegas y puertas: Plano general de Corabastos (abril 2017) · horarios: corabastos.com.co · cifras: Corabastos, Visit Bogotá, Semana, Contexto Ganadero',draw(ctx){return coraHoyView(ctx)}},
+ {b:3,key:'cora_prop',src:'Propuesta del grupo sobre edificios IDECA y plano oficial de Corabastos · volúmenes nuevos ilustrativos',draw(ctx){return coraPropView(ctx)}},
  {b:3,key:'soberania2',src:'Guion del grupo · ilustrativo: la proporción no es una meta ni un dato',draw(ctx){return soberaniaFullView(ctx)}},
  {b:3,key:'barrio',src:'Ilustración de la propuesta del grupo · no representa obras existentes',draw(ctx){return barrioView(ctx)}},
  {b:3,key:'conceptos',src:'Guion del grupo · gobierno, gobernanza y autogobierno',draw(ctx){return conceptosView(ctx)}},

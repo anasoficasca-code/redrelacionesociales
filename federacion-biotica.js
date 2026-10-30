@@ -2068,7 +2068,7 @@
       updateFaseView();
     }
 
-    setSubMode('metabolismo');
+    setSubMode(window.FED_SUB === 'fases' ? 'fases' : 'metabolismo');
   }
 
   // --- LÓGICA DE CONTROL ---
@@ -2105,7 +2105,8 @@
 
   // API Global
   window.FEDERACION_BIOTICA = {
-    init: function (tab) {
+    init: function (tab, sub) {
+      window.FED_SUB = sub || null;
       const stage = document.getElementById('viewFederacion');
       if (stage) stage.style.display = 'block';
       const valid = ['comparacion', 'funciona', 'sociobiotica', 'metropolitano', 'fases', 'canasta', 'sintesis', 'burbujas'];
