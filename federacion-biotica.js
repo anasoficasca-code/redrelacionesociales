@@ -1,9 +1,9 @@
 // federacion-biotica.js
-// Rediseño 100% visual interactivo con ICONOS FLAT VECTORIALES (Sin emojis):
+// Rediseño visual interactivo con ICONOS FLAT VECTORIALES orientado a PROGRAMA ARQUITECTÓNICO:
 // 1. Federación Policéntrica (Sin Líder) vs. Jerarquía Piramidal
 // 2. Red Sociobiótica: Dónde (Lugares) + Quiénes (Personas) + Humedal El Burro (Relaciones Bióticas y Para qué)
-// 3. Propuesta por Fases: Industria Biotecnológica Urbana, Biorrefinería & Fin del Trabajo Degradante
-// 4. Canasta Familiar Colombiana (Proteínas, Carbohidratos, Vegetales) & Nuevas Dinámicas de Comercio
+// 3. Programa Arquitectónico: Zonificación, Áreas (9.000 m²) y Sección Bioclimática de la Biorrefinería
+// 4. Arquitectura de la Canasta Familiar & Fases de Implantación Constructiva
 
 (function(){
   // --- DICCIONARIO DE SÍMBOLOS SVG FLAT ---
@@ -186,11 +186,23 @@
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
     </symbol>
 
-    <!-- Canasta Familiar / Manzana / Plato -->
+    <!-- Canasta Familiar / Nutrición -->
     <symbol id="ic-canasta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 10h16l-2 10H6L4 10z"/>
       <path d="M9 10V6a3 3 0 0 1 6 0v4"/>
       <line x1="4" y1="10" x2="20" y2="10"/>
+    </symbol>
+
+    <!-- Plano / Arquitectura / Cuadrícula -->
+    <symbol id="ic-plano" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="18" height="18" x="3" y="3" rx="2"/>
+      <path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>
+    </symbol>
+
+    <!-- Sección / Corte arquitectónico / Capas -->
+    <symbol id="ic-seccion" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 12h20M2 6h20M2 18h20"/>
+      <path d="m6 3 12 18"/>
     </symbol>
   </defs>
   `;
@@ -379,7 +391,7 @@
 
   // --- DATOS TAB 2: RED SOCIOBIÓTICA (4 COLUMNAS) ---
   const NODOS_SOCIOBIOTICA = [
-    // Columna 1: QUIÉNES (Actores y Comunidad)
+    // Columna 1: QUIÉNES
     { id:'P_hor', col_idx:1, cat:'persona', n:'Hortelanos & Familias', icon:'persona', col:'#86efac', x:140, y:120,
       quienes:'Vecinas y hortelanos de barrios populares',
       paraque:'Siembra, cuidado cotidiano y cosecha en terrazas y lotes' },
@@ -483,10 +495,10 @@
           ${iconSvgHtml('huerta', 13)} 2. Red Sociobiótica (Humedal & Huertas)
         </button>
         <button class="fed-tab-btn" data-tab="fases" id="btnTabFases">
-          ${iconSvgHtml('engranaje', 13)} 3. Fases & Complejo Biotecnológico
+          ${iconSvgHtml('plano', 13)} 3. Programa Arquitectónico: Biorrefinería (9.000 m²)
         </button>
         <button class="fed-tab-btn" data-tab="canasta" id="btnTabCanasta">
-          ${iconSvgHtml('canasta', 13)} 4. Canasta Familiar & Nuevo Comercio
+          ${iconSvgHtml('seccion', 13)} 4. Arquitectura de la Canasta & Fases
         </button>
       </div>
 
@@ -527,7 +539,6 @@
     const svg = d3.select('#fedSvg');
     svg.selectAll('*').remove();
 
-    // Inyectar definiciones de símbolos SVG flat
     svg.html(SVG_DEFS);
 
     const tip = document.getElementById('fedTip');
@@ -556,9 +567,9 @@
     } else if (activeTab === 'sociobiotica') {
       renderSociobiotica(svg, showTip, hideTip);
     } else if (activeTab === 'fases') {
-      renderFases(svg, showTip, hideTip);
+      renderProgramaArquitectonico(svg, showTip, hideTip);
     } else if (activeTab === 'canasta') {
-      renderCanasta(svg, showTip, hideTip);
+      renderArquitecturaCanasta(svg, showTip, hideTip);
     }
   }
 
@@ -795,241 +806,313 @@
     leg.append('text').text('Especies del Humedal (Para qué)').attr('x', 388).attr('y', 19).attr('fill', '#cbd5e1').attr('font-size', '10px');
   }
 
-  // 3. PROPUESTA POR FASES: BIORREFINERÍA & AUTOMATIZACIÓN SOCIOTÉCNICA
-  function renderFases(svg, showTip, hideTip) {
-    const header = svg.append('g').attr('transform', 'translate(500, 50)');
-    header.append('text').text('PROPUESTA POR FASES: COMPLEJO BIOTECNOLÓGICO URBANO')
-      .attr('text-anchor', 'middle').attr('fill', '#38bdf8').attr('font-weight', '800').attr('font-size', '15.5px').attr('letter-spacing', '0.05em');
-    header.append('text').text('De la carga manual insalubre a la automatización mecatrónica · Coteros y recicladores como técnicos operadores')
+  // 3. TAB 3: PROGRAMA ARQUITECTÓNICO & CORTE BIOCLIMÁTICO (9.000 m²)
+  function renderProgramaArquitectonico(svg, showTip, hideTip) {
+    const header = svg.append('g').attr('transform', 'translate(500, 48)');
+    header.append('text').text('PROGRAMA ARQUITECTÓNICO: COMPLEJO BIOTECNOLÓGICO URBANO (9.000 m²)')
+      .attr('text-anchor', 'middle').attr('fill', '#38bdf8').attr('font-weight', '800').attr('font-size', '15px').attr('letter-spacing', '0.05em');
+    header.append('text').text('Zonificación funcional, áreas y corte espacial bioclimático en el borde Corabastos – Humedal El Burro')
       .attr('text-anchor', 'middle').attr('fill', '#94a3b8').attr('font-size', '11.5px').attr('y', 17);
 
-    const FASES = [
+    // --- COLUMNA IZQUIERDA: CUADRO DE ÁREAS Y PAQUETES PROGRAMÁTICOS (x=35, w=450) ---
+    const gAreas = svg.append('g').attr('transform', 'translate(35, 82)');
+    gAreas.append('rect').attr('width', 450).attr('height', 455).attr('rx', 14)
+      .attr('fill', '#0a101d').attr('stroke', 'rgba(56,189,248,0.35)').attr('stroke-width', 1.4);
+
+    gAreas.append('text').text('CUADRO GENERAL DE ÁREAS Y ZONIFICACIÓN')
+      .attr('x', 18).attr('y', 26).attr('fill', '#38bdf8').attr('font-size', '11.5px').attr('font-weight', '800');
+    gAreas.append('text').text('Total construido: 9.000 m² cubiertos + 2.500 m² espacio público')
+      .attr('x', 18).attr('y', 41).attr('fill', '#94a3b8').attr('font-size', '10px');
+
+    const PAQUETES = [
       {
-        num: 'FASE 1', tiempo: 'MESES 1 – 12',
-        tit: 'Planta Piloto & Reconversión',
-        col: '#38bdf8', x: 35,
-        hit1: 'Biorrefinería Piloto: 25 ton/día mermas Corabastos',
-        hit2: 'Laboratorio de Micoproteína: Setas Pleurotus',
-        hit3: 'Escuela Técnica (SENA): 100 coteros y recicladores capacitados',
-        metrica: '25 ton/día orgánicos · 1.5 ton/mes micoproteína',
-        tip: '<b>Fase 1: Diagnóstico e Instalación de Planta Piloto.</b> Se implementa la primera biorrefinería modular de 25 toneladas diarias. Se inicia el laboratorio fúngico y la Escuela Técnica Distrital para certificar a los trabajadores manuales en competencias de bioprocesos.'
+        nom: 'ZONA A: Biorrefinería Mecatrónica', m2: '2.800 m²', col: '#38bdf8', ic: 'ic-engranaje',
+        sub: 'Muelle automatizado (600m²), trommels ópticos (700m²), biodigestor biogás (800m²), compostaje cerrado (700m²)',
+        tip: '<b>Zona A (2.800 m²):</b> Muelle de descarga continua con cintas mecanizadas que reciben las 350 ton/día de mermas de Corabastos. Erradica el cargue a lomo en la espalda. Digestores anaerobios que capturan biogás para energizar la planta.'
       },
       {
-        num: 'FASE 2', tiempo: 'MESES 13 – 24',
-        tit: 'Mecanización de Carga & Mercado',
-        col: '#fb923c', x: 350,
-        hit1: 'Cintas Transportadoras & Transpaletas Eléctricas',
-        hit2: 'FIN DEL CARGUE A LOMO: Cero bultos en la espalda',
-        hit3: 'Red de 80 Tiendas Barriales y Comedores con venta directa',
-        metrica: '80 tiendas activas · 80% reducción lesiones lumbares',
-        tip: '<b>Fase 2: Mecanización y Nuevo Circuito Comercial.</b> Se introducen cintas de carga y transpaletas cooperativas en Corabastos. El cotero deja de cargar a lomo y pasa a ser operador de maquinaria. 80 tiendas de barrio se abastecen directamente a precios justos.'
+        nom: 'ZONA B: Bóvedas de Micoproteína', m2: '2.200 m²', col: '#ec4899', ic: 'ic-hongo',
+        sub: 'Cámaras de fructificación Pleurotus (1.000m²), lab inoculación aséptica (400m²), secado y empaque (800m²)',
+        tip: '<b>Zona B (2.200 m²):</b> Salas oscuras climatizadas con masa térmica para cultivo de setas Pleurotus y Shiitake sobre rastrojos agrícolas. Producción de 40 ton/mes de proteína de alta digestibilidad sin deforestación.'
       },
       {
-        num: 'FASE 3', tiempo: 'MESES 25 – 48',
-        tit: 'Federación Biotecnológica Total',
-        col: '#4ade80', x: 665,
-        hit1: 'Biorrefinería Escala Completa: 100% mermas procesadas',
-        hit2: 'CERO TRABAJO DEGRADANTE: Integración laboral formal',
-        hit3: 'Blindaje Total del Humedal El Burro y Soberanía Local',
-        metrica: '100% mermas procesadas · Cero lixiviados al humedal',
-        tip: '<b>Fase 3: Consolidación de la Federación.</b> La localidad procesa la totalidad de sus mermas orgánicas en abono y proteína. Los antiguos coteros y recicladores son socios y operadores formales con salario digno y seguridad social plena.'
+        nom: 'ZONA C: Silos de Acopio & Canasta', m2: '1.800 m²', col: '#facc15', ic: 'ic-bodega',
+        sub: 'Silos tecnificados de tubérculos andinos (800m²), cuartos fríos hortalizas (500m²), línea pesaje digital (500m²)',
+        tip: '<b>Zona C (1.800 m²):</b> Silos con ventilación forzada para conservar papa, arracacha y yuca de la Sabana Sur sin pérdidas. Estación mecatrónica de pesado y ensamblado de la Canasta Familiar.'
+      },
+      {
+        nom: 'ZONA D: Centro Transición Laboral', m2: '800 m²', col: '#94a3b8', ic: 'ic-obrero',
+        sub: 'Aulas técnicas SENA (300m²), talleres de mecatrónica (250m²), vestuarios, duchas y descanso ergonómico (250m²)',
+        tip: '<b>Zona D (800 m²):</b> Espacio de dignificación sociolaboral. Los antiguos coteros y recicladores se capacitan como técnicos operadores de maquinaria y laboratoristas de micología con instalaciones dignas.'
+      },
+      {
+        nom: 'ZONA E: Comedor Cívico & Humedal', m2: '1.400 m²', col: '#4ade80', ic: 'ic-comedor',
+        sub: 'Comedor comunitario (500m²), mercado de cercanía (600m²), umbral fitodepuración hacia El Burro (300m²)',
+        tip: '<b>Zona E (1.400 m²):</b> Remate público del edificio conectado con el Humedal El Burro. Comedor social para 500 raciones/día, feria campesina barrial y biofiltro vegetal de aguas.'
       }
     ];
 
-    FASES.forEach((f, idx) => {
-      const g = svg.append('g').attr('transform', `translate(${f.x}, 90)`).style('cursor', 'pointer');
+    PAQUETES.forEach((pq, i) => {
+      const pY = 56 + i * 76;
+      const gRow = gAreas.append('g').attr('transform', `translate(14, ${pY})`).style('cursor', 'pointer');
       
-      // Contenedor tarjeta
-      g.append('rect').attr('width', 300).attr('height', 430).attr('rx', 16)
-        .attr('fill', '#0c1322').attr('stroke', f.col).attr('stroke-width', 1.6);
+      gRow.append('rect').attr('width', 422).attr('height', 68).attr('rx', 8)
+        .attr('fill', '#111828').attr('stroke', pq.col + '40').attr('stroke-width', 1);
 
-      // Badge superior de fase
-      g.append('rect').attr('x', 18).attr('y', 16).attr('width', 90).attr('height', 24).attr('rx', 6)
-        .attr('fill', f.col + '25').attr('stroke', f.col).attr('stroke-width', 1.2);
-      g.append('text').text(f.num).attr('x', 63).attr('y', 32).attr('text-anchor', 'middle')
-        .attr('fill', f.col).attr('font-size', '10.5px').attr('font-weight', '800');
+      gRow.append('circle').attr('cx', 24).attr('cy', 34).attr('r', 14).attr('fill', pq.col + '20').attr('stroke', pq.col).attr('stroke-width', 1.2);
+      gRow.append('use').attr('href', '#' + pq.ic).attr('x', 15).attr('y', 25).attr('width', 18).attr('height', 18)
+        .style('color', pq.col).style('pointer-events', 'none');
 
-      g.append('text').text(f.tiempo).attr('x', 120).attr('y', 32)
-        .attr('fill', '#94a3b8').attr('font-size', '11px').attr('font-weight', '700');
+      gRow.append('text').text(pq.nom).attr('x', 46).attr('y', 23)
+        .attr('fill', '#fff').attr('font-size', '11px').attr('font-weight', '700');
+      
+      gRow.append('rect').attr('x', 338).attr('y', 11).attr('width', 74).attr('height', 18).attr('rx', 4)
+        .attr('fill', pq.col + '25').attr('stroke', pq.col).attr('stroke-width', 1);
+      gRow.append('text').text(pq.m2).attr('x', 375).attr('y', 23).attr('text-anchor', 'middle')
+        .attr('fill', pq.col).attr('font-size', '9.5px').attr('font-weight', '800');
 
-      // Título de la fase
-      g.append('text').text(f.tit).attr('x', 18).attr('y', 68)
-        .attr('fill', '#fff').attr('font-size', '14.5px').attr('font-weight', '700');
+      // Descripción wrap
+      gRow.append('text').text(pq.sub).attr('x', 46).attr('y', 42)
+        .attr('fill', '#94a3b8').attr('font-size', '8.5px')
+        .call(wrapSvgText, 355);
 
-      // Línea divisoria
-      g.append('line').attr('x1', 18).attr('y1', 82).attr('x2', 282).attr('y2', 82)
-        .attr('stroke', 'rgba(255,255,255,0.08)').attr('stroke-width', 1);
-
-      // Hitos de la fase (Cajas limpias)
-      const hitos = [
-        { t: f.hit1, ic: 'ic-engranaje' },
-        { t: f.hit2, ic: idx === 1 ? 'ic-obrero' : 'ic-hongo' },
-        { t: f.hit3, ic: idx === 2 ? 'ic-agua' : 'ic-tienda' }
-      ];
-
-      hitos.forEach((h, hIdx) => {
-        const hY = 98 + hIdx * 76;
-        g.append('rect').attr('x', 18).attr('y', hY).attr('width', 264).attr('height', 64).attr('rx', 10)
-          .attr('fill', '#131b2e').attr('stroke', 'rgba(255,255,255,0.06)').attr('stroke-width', 1);
-
-        g.append('circle').attr('cx', 42).attr('cy', hY + 32).attr('r', 14).attr('fill', f.col + '20').attr('stroke', f.col).attr('stroke-width', 1.2);
-        g.append('use').attr('href', '#' + h.ic).attr('x', 33).attr('y', hY + 23).attr('width', 18).attr('height', 18)
-          .style('color', f.col).style('pointer-events', 'none');
-
-        // Texto wrap en 2 líneas
-        const words = h.t.split(': ');
-        if (words.length > 1) {
-          g.append('text').text(words[0] + ':').attr('x', 66).attr('y', hY + 26)
-            .attr('fill', '#fff').attr('font-size', '10.5px').attr('font-weight', '700');
-          g.append('text').text(words[1]).attr('x', 66).attr('y', hY + 42)
-            .attr('fill', '#94a3b8').attr('font-size', '9.5px');
-        } else {
-          g.append('text').text(h.t).attr('x', 66).attr('y', hY + 35)
-            .attr('fill', '#fff').attr('font-size', '10px').attr('font-weight', '600');
-        }
-      });
-
-      // Métrica inferior
-      g.append('rect').attr('x', 18).attr('y', 360).attr('width', 264).attr('height', 36).attr('rx', 8)
-        .attr('fill', f.col + '15').attr('stroke', f.col + '40').attr('stroke-width', 1);
-      g.append('text').text(f.metrica).attr('x', 150).attr('y', 382).attr('text-anchor', 'middle')
-        .attr('fill', f.col).attr('font-size', '10px').attr('font-weight', '700');
-
-      // Flechas conectoras entre fases
-      if (idx < 2) {
-        const arrowX = f.x + 300;
-        const gArr = svg.append('g').attr('transform', `translate(${arrowX}, 300)`);
-        gArr.append('line').attr('x1', 3).attr('y1', 0).attr('x2', 15).attr('y2', 0)
-          .attr('stroke', '#38bdf8').attr('stroke-width', 2);
-        gArr.append('polygon').attr('points', '13,-4 20,0 13,4').attr('fill', '#38bdf8');
-      }
-
-      g.on('mouseenter', () => showTip(f.num, f.col, `${iconSvgHtml('engranaje', 18, f.col)} ${f.tit}`, f.tip));
-      g.on('mouseleave', hideTip);
+      gRow.on('mouseenter', () => showTip('Zona Arquitectónica', pq.col, `${iconSvgHtml(pq.ic, 18, pq.col)} ${pq.nom} (${pq.m2})`, pq.tip));
+      gRow.on('mouseleave', hideTip);
     });
+
+    // --- COLUMNA DERECHA: SECCIÓN / CORTE BIOCLIMÁTICO (x=505, w=460) ---
+    const gSec = svg.append('g').attr('transform', 'translate(505, 82)');
+    gSec.append('rect').attr('width', 460).attr('height', 455).attr('rx', 14)
+      .attr('fill', '#09131e').attr('stroke', 'rgba(16,185,129,0.35)').attr('stroke-width', 1.4);
+
+    gSec.append('text').text('CORTE ARQUITECTÓNICO BIOCLIMÁTICO (SECCIÓN A - A\')')
+      .attr('x', 18).attr('y', 26).attr('fill', '#10b981').attr('font-size', '11.5px').attr('font-weight', '800');
+    gSec.append('text').text('Flujos térmicos, masa biológica y transición de cota hacia el Humedal')
+      .attr('x', 18).attr('y', 41).attr('fill', '#94a3b8').attr('font-size', '10px');
+
+    // Diagrama de Niveles en Corte
+    const NIVELES = [
+      {
+        cota: '+13.50m', tit: 'Cubierta Productiva & Captación', col: '#4ade80', y: 58,
+        desc: 'Huertas de hortalizas en azotea (1.500m²), biofiltros verdes y captación de agua lluvia para riego y proceso.',
+        ic: 'ic-huerta'
+      },
+      {
+        cota: '+9.00m', tit: 'Cámaras de Micelio & Climatización Pasiva', col: '#ec4899', y: 146,
+        desc: 'Bóvedas isotérmicas de setas Pleurotus aisladas con muros de tierra compactada para mantener 18°C sin gasto de aire acondicionado.',
+        ic: 'ic-hongo'
+      },
+      {
+        cota: '+4.50m', tit: 'Planta de Operación & Centro de Formación', col: '#facc15', y: 234,
+        desc: 'Laboratorios asépticos, aulas de reconversión laboral SENA, vestuarios y pasarelas de monitoreo mecatrónico.',
+        ic: 'ic-obrero'
+      },
+      {
+        cota: '±0.00m', tit: 'Muelle Mecanizado (Norte) · Comedor & Plaza (Sur)', col: '#38bdf8', y: 322,
+        desc: 'Segregación radical de flujos: carga pesada automatizada con cintas hacia Corabastos; plaza cívica y comedor abiertos hacia el Humedal.',
+        ic: 'ic-transporte'
+      }
+    ];
+
+    NIVELES.forEach(niv => {
+      const gN = gSec.append('g').attr('transform', `translate(14, ${niv.y})`).style('cursor', 'pointer');
+      gN.append('rect').attr('width', 432).attr('height', 74).attr('rx', 8)
+        .attr('fill', '#0e1c2b').attr('stroke', niv.col + '45').attr('stroke-width', 1);
+
+      // Cota nivel
+      gN.append('rect').attr('x', 10).attr('y', 10).attr('width', 64).attr('height', 20).attr('rx', 4)
+        .attr('fill', niv.col + '20').attr('stroke', niv.col).attr('stroke-width', 1);
+      gN.append('text').text(niv.cota).attr('x', 42).attr('y', 24).attr('text-anchor', 'middle')
+        .attr('fill', niv.col).attr('font-size', '9.5px').attr('font-weight', '800');
+
+      gN.append('text').text(niv.tit).attr('x', 84).attr('y', 24)
+        .attr('fill', '#fff').attr('font-size', '11px').attr('font-weight', '700');
+
+      gN.append('text').text(niv.desc).attr('x', 12).attr('y', 45)
+        .attr('fill', '#cbd5e1').attr('font-size', '8.5px')
+        .call(wrapSvgText, 410);
+
+      gN.on('mouseenter', () => showTip('Corte Bioclimático ' + niv.cota, niv.col, `${iconSvgHtml(niv.ic, 18, niv.col)} ${niv.tit}`, niv.desc));
+      gN.on('mouseleave', hideTip);
+    });
+
+    // Biofiltro del humedal en base del corte (+-0.00m base)
+    const gBioFiltro = gSec.append('g').attr('transform', 'translate(14, 404)');
+    gBioFiltro.append('rect').attr('width', 432).attr('height', 38).attr('rx', 6)
+      .attr('fill', 'rgba(16,185,129,0.18)').attr('stroke', '#10b981').attr('stroke-width', 1.2);
+    gBioFiltro.append('text').text('TALUD DE FITODEPURACIÓN: CERO LIXIVIADOS AL HUMEDAL EL BURRO')
+      .attr('x', 216).attr('y', 23).attr('text-anchor', 'middle').attr('fill', '#34d399').attr('font-size', '9.5px').attr('font-weight', '800');
 
     // Banner pie
-    const bBanner = svg.append('g').attr('transform', 'translate(500, 560)');
-    bBanner.append('rect').attr('x', -340).attr('y', -14).attr('width', 680).attr('height', 28).attr('rx', 14)
+    const bBanner = svg.append('g').attr('transform', 'translate(500, 565)');
+    bBanner.append('rect').attr('x', -360).attr('y', -14).attr('width', 720).attr('height', 28).attr('rx', 14)
       .attr('fill', 'rgba(56,189,248,0.14)').attr('stroke', '#38bdf8').attr('stroke-width', 1.2);
-    bBanner.append('text').text('✓ TRANSICIÓN SOCIOTÉCNICA: LA MAQUINARIA ASUME EL ESFUERZO FÍSICO LESIVO; LA COMUNIDAD DIRIGE LA INDUSTRIA')
-      .attr('text-anchor', 'middle').attr('y', 4).attr('fill', '#38bdf8').attr('font-weight', '800').attr('font-size', '10.5px');
+    bBanner.append('text').text('✓ CRITERIO ARQUITECTÓNICO: SEGREGACIÓN TÉCNICA DE CARGA HACIA CORABASTOS Y APERTURA CÍVICO-ECOLÓGICA AL HUMEDAL')
+      .attr('text-anchor', 'middle').attr('y', 4).attr('fill', '#38bdf8').attr('font-weight', '800').attr('font-size', '10px');
   }
 
-  // 4. CANASTA FAMILIAR COLOMBIANA & NUEVAS DINÁMICAS DE COMERCIO
-  function renderCanasta(svg, showTip, hideTip) {
-    const header = svg.append('g').attr('transform', 'translate(500, 50)');
-    header.append('text').text('CANASTA FAMILIAR COLOMBIANA & NUEVO CIRCUITO COMERCIAL')
-      .attr('text-anchor', 'middle').attr('fill', '#facc15').attr('font-weight', '800').attr('font-size', '15.5px').attr('letter-spacing', '0.05em');
-    header.append('text').text('Rebalanceo nutricional sustentado (DANE / ENSIN) · Proteínas de micelio, carbohidratos andinos y hortalizas frescas')
+  // 4. TAB 4: ARQUITECTURA DE LA CANASTA & FASES DE IMPLANTACIÓN
+  function renderArquitecturaCanasta(svg, showTip, hideTip) {
+    const header = svg.append('g').attr('transform', 'translate(500, 48)');
+    header.append('text').text('ARQUITECTURA DE LA CANASTA FAMILIAR & FASES CONSTRUCTIVAS')
+      .attr('text-anchor', 'middle').attr('fill', '#facc15').attr('font-weight', '800').attr('font-size', '15px').attr('letter-spacing', '0.05em');
+    header.append('text').text('Espacialización de la nutrición (DANE / ENSIN) y plan maestro de implantación física en 3 fases')
       .attr('text-anchor', 'middle').attr('fill', '#94a3b8').attr('font-size', '11.5px').attr('y', 17);
 
-    const PILARES = [
+    // --- TOP: 3 MÓDULOS ARQUITECTÓNICOS DE LA CANASTA (y=80, h=210) ---
+    const MODULOS = [
       {
-        tit: 'PROTEÍNAS (25% - 30%)', sub: 'Micoproteína & Leguminosas',
+        tit: 'MÓDULO PROTEICO (2.200 m²)', sub: 'Bóvedas de Micelio & Deshidratado',
         col: '#ec4899', ic: 'ic-hongo', x: 35,
-        desc1: 'Setas Pleurotus ostreatus (Ostra) y Shiitake',
-        desc2: 'Cultivo sobre rastrojos agrícolas de Corabastos (21 días)',
-        desc3: '28% proteína seca, hierro y vitamina B; cero colesterol',
-        met: '40 ton/mes · 30% más barata que carne vacuna',
-        tip: '<b>Pilar Proteico:</b> La micoproteína fúngica cultivada con biotecnología sobre las mermas de Corabastos democratiza el acceso a proteína de alta calidad para familias de bajos ingresos, sustituyendo la carne cara sin impacto ambiental.'
+        espacios: ['Cámaras oscuras de fructificación Pleurotus', 'Inoculación aséptica en sala blanca (ISO 7)', 'Línea de secado y empaque aséptico al vacío'],
+        met: '40 ton/mes proteína fúngica · 28% proteína seca',
+        tip: '<b>Módulo Arquitectónico Proteico:</b> Espacio industrial limpio con control de CO2, humedad al 85% y temperatura a 18°C. Produce proteína de setas en 21 días sobre rastrojos agrícolas de Corabastos, democratizando el acceso a proteína barata y nutritiva.'
       },
       {
-        tit: 'CARBOHIDRATOS (45% - 50%)', sub: 'Tubérculos Andinos de Proximidad',
+        tit: 'MÓDULO CARBOHIDRATOS (1.800 m²)', sub: 'Silos de Tubérculos Andinos',
         col: '#facc15', ic: 'ic-bodega', x: 350,
-        desc1: 'Papa pastusa/criolla, arracacha, plátano y yuca',
-        desc2: 'Compra directa a campesinos de la Sabana Sur y Sumapaz',
-        desc3: 'Silos tecnificados con control de mermas (<3% pérdida)',
-        met: 'Pesaje digital en acopio · Desintermediación',
-        tip: '<b>Pilar Carbohidratos:</b> Alimentos energéticos andinos comprados directamente a pequeños productores. El acopio tecnificado evita la especulación y el acaparamiento de intermediarios de Corabastos.'
+        espacios: ['Silos en doble altura con ventilación cruzada', 'Tolvas de recepción directa desde camiones', 'Pesaje electrónico y empaque mecanizado'],
+        met: 'Pérdidas postcosecha reducidas del 30% a <3%',
+        tip: '<b>Módulo de Carbohidratos:</b> Almacén tecnificado que recibe papa, arracacha, plátano y yuca de pequeños campesinos. Elimina intermediarios usureros y garantiza pesaje exacto sin merma.'
       },
       {
-        tit: 'VEGETALES (25% - 30%)', sub: 'Huertas de Proximidad & Humedal',
+        tit: 'MÓDULO VEGETALES (1.400 m²)', sub: 'Cubiertas & Cuartos Fríos Solares',
         col: '#4ade80', ic: 'ic-huerta', x: 665,
-        desc1: 'Acelga, lechuga, espinaca, tomate y aromáticas',
-        desc2: 'Biofertilizados con humus de lombriz de la biorrefinería',
-        desc3: 'Polinizados por abejas nativas del Humedal El Burro',
-        met: 'Cosecha diaria en 24 horas · 100% agroecológico',
-        tip: '<b>Pilar Vegetales y Micronutrientes:</b> Producción en terrazas y lotes comunitarios que aporta vitaminas frescas y antioxidantes, rompiendo la deficiencia nutricional de micronutrientes en Kennedy.'
+        espacios: ['1.500m² cubiertas productivas biofertilizadas', 'Cámaras de frío solar para hortalizas de hoja', 'Puntos de acopio de 10 huertas barriales'],
+        met: 'Cosecha fresca en <24h · 100% sin agrotóxicos',
+        tip: '<b>Módulo de Vegetales:</b> Articula las huertas en terrazas, baldíos y ronda del humedal con la planta de frío solar, proveyendo acelgas, espinacas y tomates frescos a comedores y tiendas.'
       }
     ];
 
-    PILARES.forEach(p => {
-      const g = svg.append('g').attr('transform', `translate(${p.x}, 85)`).style('cursor', 'pointer');
-      g.append('rect').attr('width', 300).attr('height', 245).attr('rx', 14)
-        .attr('fill', '#0c1322').attr('stroke', p.col).attr('stroke-width', 1.5);
+    MODULOS.forEach(m => {
+      const g = svg.append('g').attr('transform', `translate(${m.x}, 80)`).style('cursor', 'pointer');
+      g.append('rect').attr('width', 300).attr('height', 215).attr('rx', 12)
+        .attr('fill', '#0c1322').attr('stroke', m.col).attr('stroke-width', 1.4);
 
-      g.append('circle').attr('cx', 32).attr('cy', 30).attr('r', 16).attr('fill', p.col + '20').attr('stroke', p.col).attr('stroke-width', 1.4);
-      g.append('use').attr('href', '#' + p.ic).attr('x', 22).attr('y', 20).attr('width', 20).attr('height', 20)
-        .style('color', p.col).style('pointer-events', 'none');
+      g.append('circle').attr('cx', 28).attr('cy', 26).attr('r', 13).attr('fill', m.col + '20').attr('stroke', m.col).attr('stroke-width', 1.2);
+      g.append('use').attr('href', '#' + m.ic).attr('x', 19).attr('y', 17).attr('width', 18).attr('height', 18)
+        .style('color', m.col).style('pointer-events', 'none');
 
-      g.append('text').text(p.tit).attr('x', 56).attr('y', 26)
-        .attr('fill', p.col).attr('font-size', '11.5px').attr('font-weight', '800');
-      g.append('text').text(p.sub).attr('x', 56).attr('y', 40)
-        .attr('fill', '#fff').attr('font-size', '11px').attr('font-weight', '600');
+      g.append('text').text(m.tit).attr('x', 48).attr('y', 23)
+        .attr('fill', m.col).attr('font-size', '10px').attr('font-weight', '800');
+      g.append('text').text(m.sub).attr('x', 48).attr('y', 36)
+        .attr('fill', '#fff').attr('font-size', '10px').attr('font-weight', '600');
 
-      g.append('line').attr('x1', 16).attr('y1', 54).attr('x2', 284).attr('y2', 54)
+      g.append('line').attr('x1', 14).attr('y1', 48).attr('x2', 286).attr('y2', 48)
         .attr('stroke', 'rgba(255,255,255,0.08)').attr('stroke-width', 1);
 
-      [p.desc1, p.desc2, p.desc3].forEach((d, i) => {
-        g.append('circle').attr('cx', 24).attr('cy', 78 + i * 36).attr('r', 3).attr('fill', p.col);
-        g.append('text').text(d).attr('x', 36).attr('y', 82 + i * 36)
-          .attr('fill', '#cbd5e1').attr('font-size', '9.5px');
+      m.espacios.forEach((esp, idx) => {
+        g.append('circle').attr('cx', 22).attr('cy', 68 + idx * 30).attr('r', 2.8).attr('fill', m.col);
+        g.append('text').text(esp).attr('x', 32).attr('y', 72 + idx * 30)
+          .attr('fill', '#cbd5e1').attr('font-size', '8.5px');
       });
 
-      g.append('rect').attr('x', 16).attr('y', 190).attr('width', 268).attr('height', 36).attr('rx', 8)
-        .attr('fill', p.col + '15').attr('stroke', p.col + '35').attr('stroke-width', 1);
-      g.append('text').text(p.met).attr('x', 150).attr('y', 212).attr('text-anchor', 'middle')
-        .attr('fill', p.col).attr('font-size', '9.5px').attr('font-weight', '700');
+      g.append('rect').attr('x', 14).attr('y', 165).attr('width', 272).attr('height', 34).attr('rx', 6)
+        .attr('fill', m.col + '15').attr('stroke', m.col + '35').attr('stroke-width', 1);
+      g.append('text').text(m.met).attr('x', 150).attr('y', 186).attr('text-anchor', 'middle')
+        .attr('fill', m.col).attr('font-size', '9px').attr('font-weight', '700');
 
-      g.on('mouseenter', () => showTip(p.tit, p.col, `${iconSvgHtml(p.ic, 18, p.col)} ${p.sub}`, p.tip));
+      g.on('mouseenter', () => showTip(m.tit, m.col, `${iconSvgHtml(m.ic, 18, m.col)} ${m.sub}`, m.tip));
       g.on('mouseleave', hideTip);
     });
 
-    // Diagrama horizontal del Nuevo Circuito Comercial
-    const gFlow = svg.append('g').attr('transform', 'translate(35, 350)');
-    gFlow.append('rect').attr('width', 930).attr('height', 190).attr('rx', 16)
-      .attr('fill', '#0b111e').attr('stroke', 'rgba(250,204,21,0.3)').attr('stroke-width', 1.4);
+    // --- BOTTOM: FASES DE IMPLANTACIÓN FÍSICA Y CONSTRUCTIVA (y=310, h=230) ---
+    const gFases = svg.append('g').attr('transform', 'translate(35, 310)');
+    gFases.append('rect').attr('width', 930).attr('height', 230).attr('rx', 14)
+      .attr('fill', '#09101d').attr('stroke', 'rgba(56,189,248,0.3)').attr('stroke-width', 1.3);
 
-    gFlow.append('text').text('EL NUEVO CIRCUITO COMERCIAL: DESINTERMEDIACIÓN Y PRECIO JUSTO')
-      .attr('x', 24).attr('y', 30).attr('fill', '#facc15').attr('font-size', '12px').attr('font-weight', '800');
-    gFlow.append('text').text('Flujo directo de alimentos balanceados hacia los hogares de Kennedy')
-      .attr('x', 24).attr('y', 46).attr('fill', '#94a3b8').attr('font-size', '10.5px');
+    gFases.append('text').text('FASES DE IMPLANTACIÓN ARQUITECTÓNICA Y CONSTRUCTIVA (PLAN MAESTRO)')
+      .attr('x', 20).attr('y', 26).attr('fill', '#38bdf8').attr('font-size', '11.5px').attr('font-weight', '800');
+    gFases.append('text').text('Secuencia de obra, mecanización progresiva de carga y reconversión física de suelos')
+      .attr('x', 20).attr('y', 41).attr('fill', '#94a3b8').attr('font-size', '10px');
 
-    const PASOS_COM = [
-      { tit: '1. Biorrefinería & Huertas', sub: 'Producción local tecnificada', ic: 'ic-hongo', x: 50 },
-      { tit: '2. Acopio Automatizado', sub: 'Pesaje y empaque mecánico', ic: 'ic-bodega', x: 275 },
-      { tit: '3. 150 Tiendas & Comedores', sub: 'Venta de cercanía a precio pactado', ic: 'ic-tienda', x: 500 },
-      { tit: '4. Familias de Kennedy', sub: 'Ahorro 30% y alta nutrición', ic: 'ic-comunidad', x: 725 }
+    const FASES_ARQ = [
+      {
+        num: 'FASE 1 (Meses 1–12)', tit: 'Implantación Piloto & Muelle Mecánico', m2: '3.000 m² construidos',
+        col: '#38bdf8', x: 20,
+        items: [
+          'Estructura modular desmontable de acero reciclado',
+          'Instalación del muelle con cintas de descarga continua',
+          'Primeras aulas técnicas para capacitar a los coteros'
+        ],
+        tip: '<b>Fase 1 Constructiva:</b> Edificación rápida en estructura de acero modular sobre lote aledaño a Corabastos. Se inicia la mecanización de carga pesada que sustituye el esfuerzo físico en la espalda.'
+      },
+      {
+        num: 'FASE 2 (Meses 13–24)', tit: 'Bóvedas Biológicas & Silos Canasta', m2: '3.500 m² construidos',
+        col: '#fb923c', x: 320,
+        items: [
+          'Construcción de cámaras climatizadas para Pleurotus',
+          'Silos de acopio con ventilación pasiva para tubérculos',
+          'Línea automatizada de empaque y canastas barriales'
+        ],
+        tip: '<b>Fase 2 Constructiva:</b> Se expande la nave hacia las bóvedas fúngicas y los silos. Se eliminan por completo los bultos a lomo y el producto sale empacado a las tiendas barriales.'
+      },
+      {
+        num: 'FASE 3 (Meses 25–48)', tit: 'Borde Cívico & Comedor del Humedal', m2: '2.500 m² construidos',
+        col: '#4ade80', x: 620,
+        items: [
+          'Comedor comunitario para 500 raciones diarias',
+          'Plaza de mercado de cercanía y comercio justo',
+          'Talud de fitodepuración y restauración ecológica'
+        ],
+        tip: '<b>Fase 3 Constructiva:</b> Remate cívico del complejo. Se entrega la plaza pública permeable, el comedor popular y los biofiltros que conectan con el Humedal El Burro.'
+      }
     ];
 
-    PASOS_COM.forEach((ps, idx) => {
-      const gP = gFlow.append('g').attr('transform', `translate(${ps.x}, 75)`);
-      gP.append('rect').attr('width', 170).attr('height', 85).attr('rx', 10)
-        .attr('fill', '#141d30').attr('stroke', '#38bdf8').attr('stroke-width', 1.2);
+    FASES_ARQ.forEach(fa => {
+      const gF = gFases.append('g').attr('transform', `translate(${fa.x}, 55)`).style('cursor', 'pointer');
+      gF.append('rect').attr('width', 285).attr('height', 155).attr('rx', 10)
+        .attr('fill', '#111b2c').attr('stroke', fa.col + '50').attr('stroke-width', 1.2);
 
-      gP.append('circle').attr('cx', 28).attr('cy', 28).attr('r', 13).attr('fill', '#38bdf820').attr('stroke', '#38bdf8').attr('stroke-width', 1.2);
-      gP.append('use').attr('href', '#' + ps.ic).attr('x', 19).attr('y', 19).attr('width', 18).attr('height', 18)
-        .style('color', '#38bdf8').style('pointer-events', 'none');
+      gF.append('text').text(fa.num).attr('x', 14).attr('y', 22)
+        .attr('fill', fa.col).attr('font-size', '9.5px').attr('font-weight', '800');
+      gF.append('text').text(fa.tit).attr('x', 14).attr('y', 38)
+        .attr('fill', '#fff').attr('font-size', '10.5px').attr('font-weight', '700');
+      gF.append('text').text(fa.m2).attr('x', 14).attr('y', 52)
+        .attr('fill', fa.col).attr('font-size', '9px').attr('font-weight', '600');
 
-      gP.append('text').text(ps.tit).attr('x', 48).attr('y', 26)
-        .attr('fill', '#fff').attr('font-size', '10px').attr('font-weight', '700');
-      gP.append('text').text(ps.sub).attr('x', 48).attr('y', 40)
-        .attr('fill', '#94a3b8').attr('font-size', '8.5px');
+      fa.items.forEach((it, idx) => {
+        gF.append('circle').attr('cx', 18).attr('cy', 74 + idx * 26).attr('r', 2.5).attr('fill', fa.col);
+        gF.append('text').text(it).attr('x', 26).attr('y', 78 + idx * 26)
+          .attr('fill', '#cbd5e1').attr('font-size', '8.5px');
+      });
 
-      if (idx < 3) {
-        gFlow.append('line').attr('x1', ps.x + 175).attr('y1', 117).attr('x2', ps.x + 220).attr('y2', 117)
-          .attr('stroke', '#facc15').attr('stroke-width', 2);
-        gFlow.append('polygon').attr('points', `${ps.x + 218},113 ${ps.x + 225},117 ${ps.x + 218},121`).attr('fill', '#facc15');
-      }
+      gF.on('mouseenter', () => showTip(fa.num, fa.col, `${iconSvgHtml('plano', 18, fa.col)} ${fa.tit}`, fa.tip));
+      gF.on('mouseleave', hideTip);
     });
 
     // Banner pie
     const bBanner = svg.append('g').attr('transform', 'translate(500, 565)');
     bBanner.append('rect').attr('x', -340).attr('y', -14).attr('width', 680).attr('height', 28).attr('rx', 14)
       .attr('fill', 'rgba(250,204,21,0.15)').attr('stroke', '#facc15').attr('stroke-width', 1.2);
-    bBanner.append('text').text('✓ CANASTA FAMILIAR ACCESIBLE: PROTEÍNA DE MICELIO + CARBOHIDRATOS ANDINOS + VEGETALES FRESCOS · AHORRO 30%')
-      .attr('text-anchor', 'middle').attr('y', 4).attr('fill', '#facc15').attr('font-weight', '800').attr('font-size', '10.5px');
+    bBanner.append('text').text('✓ PROGRAMA ARQUITECTÓNICO TOTAL: 9.000 m² CONSTRUIDOS · CERO HUELLA ECOLÓGICA · RECONVERSIÓN LABORAL FORMAL')
+      .attr('text-anchor', 'middle').attr('y', 4).attr('fill', '#facc15').attr('font-weight', '800').attr('font-size', '9.5px');
+  }
+
+  // Helper para hacer wrap de texto SVG
+  function wrapSvgText(text, width) {
+    text.each(function() {
+      const textEl = d3.select(this);
+      const words = textEl.text().split(/\s+/).reverse();
+      let word;
+      let line = [];
+      let lineNumber = 0;
+      const lineHeight = 1.2; // ems
+      const y = textEl.attr('y');
+      const x = textEl.attr('x');
+      const dy = 0;
+      let tspan = textEl.text(null).append('tspan').attr('x', x).attr('y', y).attr('dy', dy + 'em');
+      while (word = words.pop()) {
+        line.push(word);
+        tspan.text(line.join(' '));
+        if (tspan.node().getComputedTextLength && tspan.node().getComputedTextLength() > width) {
+          line.pop();
+          tspan.text(line.join(' '));
+          line = [word];
+          tspan = textEl.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + 'em').text(word);
+        }
+      }
+    });
   }
 
   // --- LÓGICA DE CONTROL ---
