@@ -1451,7 +1451,10 @@ function axoView(ctx){
   const vis=p=>p[0]>-60&&p[0]<1260&&p[1]>-60&&p[1]<800;
   const PLOTS={huerta:[-90,-60,90,60],circ:[-120,-28,120,28],cor:[-100,-55,100,55],rec:[-90,-50,90,50]};
   const rect=k=>{const c=SITES[k],r=PLOTS[k];return[c[0]+r[0],c[1]+r[1],c[0]+r[2],c[1]+r[3]]};
-  const inClear=b=>Object.keys(PLOTS).some(k=>{const r=rect(k);return b.gx>r[0]-8&&b.gx<r[2]+8&&b.gy>r[1]-8&&b.gy<r[3]+8});
+  /* lote del proyecto arquitectónico: borde Corabastos - Humedal El Burro (ubicación ilustrativa) */
+  const YE='#F2C14E',PROY=[corG[0]+(SITES.hum[0]-corG[0])*.4,corG[1]+(SITES.hum[1]-corG[1])*.4],PR=[PROY[0]-85,PROY[1]-60,PROY[0]+85,PROY[1]+60];
+  const inProy=b=>b.gx>PR[0]-12&&b.gx<PR[2]+12&&b.gy>PR[1]-12&&b.gy<PR[3]+12;
+  const inClear=b=>inProy(b)||Object.keys(PLOTS).some(k=>{const r=rect(k);return b.gx>r[0]-8&&b.gx<r[2]+8&&b.gy>r[1]-8&&b.gy<r[3]+8});
   /* ---------- lienzo negro ---------- */
   const bv=new DataView(bld);let o=0;const B=[];while(o<bv.byteLength){const h=bv.getUint8(o)/2,n=bv.getUint8(o+1);o+=2;const pts=[];let sx=0,sy=0;for(let i=0;i<n;i++){const x=bv.getUint16(o,true),y=bv.getUint16(o+2,true);o+=4;pts.push(GR_(x,y));sx+=x;sy+=y}const gg=GR_(sx/n,sy/n);if(vis(PJ(gg[0],gg[1],0)))B.push({h,g:pts,gx:gg[0],gy:gg[1]})}
   B.sort((a,b)=>(a.gx+a.gy)-(b.gx+b.gy));
@@ -1470,6 +1473,15 @@ function axoView(ctx){
   B.forEach(b=>{if(inClear(b))return;const cor=Math.abs(b.gx-corG[0])<560&&Math.abs(b.gy-corG[1])<400;const hh=Math.min(b.h,120);const g=b.g;let ar=0;for(let i=0;i<g.length;i++){const j=(i+1)%g.length;ar+=g[i][0]*g[j][1]-g[j][0]*g[i][1]}const sg=ar>0?1:-1;
    for(let i=0;i<g.length;i++){const j=(i+1)%g.length;const dx=g[j][0]-g[i][0],dy=g[j][1]-g[i][1];const nx=dy*sg,ny=-dx*sg;if(nx+ny<=0)continue;path([PJ(g[i][0],g[i][1],0),PJ(g[j][0],g[j][1],0),PJ(g[j][0],g[j][1],hh),PJ(g[i][0],g[i][1],hh)]);c.fillStyle=cor?(nx>ny?'#6a4524':'#85582d'):(nx>ny?'#202028':'#2d2d38');c.fill()}
    path(g.map(p=>PJ(p[0],p[1],hh)));const lum=Math.min(hh,40);c.fillStyle=cor?'#c98a47':`rgb(${54+lum*1.3|0},${54+lum*1.3|0},${66+lum*1.5|0})`;c.fill();c.strokeStyle=cor?'rgba(255,220,170,.5)':'rgba(255,255,255,.22)';c.lineWidth=.3;c.stroke()});
+  /* volúmenes del proyecto: nave de biorrefinería, bóvedas de micelio y borde cívico hacia el humedal */
+  {const [a,b,x1,y1]=PR;const box=(r,h,top,s1,s2)=>{const [x0,y0,xx,yy]=r;
+    path([PJ(xx,y0,0),PJ(xx,yy,0),PJ(xx,yy,h),PJ(xx,y0,h)]);c.fillStyle=s1;c.fill();
+    path([PJ(x0,yy,0),PJ(xx,yy,0),PJ(xx,yy,h),PJ(x0,yy,h)]);c.fillStyle=s2;c.fill();
+    path([PJ(x0,y0,h),PJ(xx,y0,h),PJ(xx,yy,h),PJ(x0,yy,h)]);c.fillStyle=top;c.fill();c.strokeStyle='rgba(255,244,214,.95)';c.lineWidth=1;c.stroke()};
+   path([[a,b],[x1,b],[x1,y1],[a,y1]].map(q=>PJ(q[0],q[1],0)));c.fillStyle='rgba(242,193,78,.28)';c.fill();c.setLineDash([6,4]);c.strokeStyle=YE;c.lineWidth=2;c.stroke();c.setLineDash([]);
+   box([a+10,b+10,a+100,b+66],28,'#F2C14E','#b8892a','#d9a63c');
+   box([a+108,b+10,x1-10,b+66],16,'#f6d27c','#c39a45','#e0b75a');
+   box([a+10,b+74,x1-10,y1-10],8,'#f9e2a6','#cdb070','#e6c987')}
   cv.toBlob(bl=>{const url=URL.createObjectURL(bl);load.remove();ctx.onExit(()=>URL.revokeObjectURL(url));gImg.append('image').attr('href',url).attr('x',0).attr('y',0).attr('width',1200).attr('height',740).style('opacity',0).transition().duration(reduce?0:900).style('opacity',1)});
   /* ---------- lupas: zoom real del territorio, hoy → propuesta ---------- */
   const RL=112,SL=.3,LSC=3;
@@ -1537,6 +1549,20 @@ function axoView(ctx){
    K.timers.push(setTimeout(()=>ln.style('opacity',1).transition().duration(reduce?0:700).ease(d3.easeCubicOut).attr('stroke-dashoffset',0),reduce?0:T0+i*(3800/Math.max(1,edges.length))))});
   V.forEach(n=>{const r=n.t==='s'?0:n.t==='h'?3.2:3.8;if(!r)return;const col=n.t==='h'?LG:n.t==='c'?PK:n.t==='e'?AM:PK;const d=gNet.append('circle').attr('cx',n.p[0]).attr('cy',n.p[1]).attr('r',0).attr('fill',col).attr('stroke','#0d0e10').attr('stroke-width',1);K.timers.push(setTimeout(()=>d.transition().duration(400).attr('r',r),reduce?0:T0-300+Math.random()*3000))});
   edges.filter((_,i)=>i%5===0).slice(0,70).forEach((e,i)=>{const d=gNet.append('circle').attr('r',2.8).attr('fill','#fff').attr('opacity',.9);const P=K.P;const c2={c:d,a:e.a.p,b:e.b.p,sp:.17+(i%5)*.03,ph:(i*.137)%1};K.timers.push(setTimeout(()=>P.push(c2),reduce?0:T0+4200))});
+  /* marcador: aquí se implanta el proyecto */
+  {const pp=PJ(PROY[0],PROY[1],10);const gPr=svg.append('g').style('opacity',0);
+   const lx=Math.min(Math.max(pp[0]+150,170),1030),ly=Math.max(pp[1]-150,300);
+   gPr.append('line').attr('x1',pp[0]+22).attr('y1',pp[1]-22).attr('x2',lx-128).attr('y2',ly+20).attr('stroke',YE).attr('stroke-width',2).attr('stroke-dasharray','5 4');
+   const pulse=gPr.append('circle').attr('cx',pp[0]).attr('cy',pp[1]).attr('r',30).attr('fill','none').attr('stroke',YE).attr('stroke-width',3);
+   pulse.append('animate').attr('attributeName','r').attr('values','30;58').attr('dur','2.2s').attr('repeatCount','indefinite');
+   pulse.append('animate').attr('attributeName','stroke-opacity').attr('values','1;0').attr('dur','2.2s').attr('repeatCount','indefinite');
+   gPr.append('circle').attr('cx',pp[0]).attr('cy',pp[1]).attr('r',30).attr('fill','none').attr('stroke',YE).attr('stroke-width',2.2);
+   const cd=gPr.append('g').attr('transform',`translate(${lx},${ly})`);
+   cd.append('rect').attr('x',-132).attr('y',-6).attr('width',264).attr('height',74).attr('rx',12).attr('fill','#0d0e10').attr('fill-opacity',.93).attr('stroke',YE).attr('stroke-width',2.2);
+   cd.append('text').attr('x',-116).attr('y',17).attr('font-size',14).attr('font-weight',800).attr('fill',YE).attr('font-family',FONT).text('Aquí se implanta el proyecto');
+   cd.append('text').attr('x',-116).attr('y',37).attr('font-size',12).attr('font-weight',700).attr('fill','#F2EFE8').attr('font-family',FONT).text('Complejo biotecnológico · 9.000 m²');
+   cd.append('text').attr('x',-116).attr('y',55).attr('font-size',11).attr('fill','#b9b4aa').attr('font-family',FONT).text('Borde Corabastos – Humedal El Burro');
+   K.show(gPr,700)}
   const nc=svg.append('g').attr('transform','translate(600,686)').style('opacity',0);nc.append('rect').attr('x',-170).attr('y',-14).attr('width',340).attr('height',28).attr('rx',14).attr('fill','#0d0e10').attr('fill-opacity',.9).attr('stroke',LG).attr('stroke-width',1.8);nc.append('text').attr('y',5).attr('text-anchor','middle').attr('font-size',13).attr('font-weight',800).attr('fill','#fff').attr('font-family',FONT).text('Red que conecta huertas y lugares');K.show(nc,8200);
   K.run();
  });
@@ -1690,7 +1716,7 @@ const SL=[
  {b:3,key:'mapa',src:'IDECA · Datos Abiertos Bogotá',draw(ctx){return mapaView(ctx)}},
  {b:3,key:'propuesta',src:'Propuesta del grupo sobre capas IDECA · Datos Abiertos Bogotá · ilustrativo',draw(ctx){return propuestaView(ctx)}},
  {b:3,key:'escena',src:'Ilustración animada de la propuesta del grupo · no representa obras existentes',draw(ctx){return escenaView(ctx)}},
- {b:3,key:'axo',src:'Edificios, manzanas, arbolado, parques, agua y vías de Kennedy (IDECA / OpenStreetMap) · zonas de la propuesta ilustrativas',draw(ctx){return axoView(ctx)}},
+ {b:3,key:'axo',src:'Edificios, manzanas, arbolado, parques, agua y vías de Kennedy (IDECA / OpenStreetMap) · zonas de la propuesta y lote del proyecto ilustrativos',draw(ctx){return axoView(ctx)}},
  {b:3,key:'soberania2',src:'Guion del grupo · ilustrativo: la proporción no es una meta ni un dato',draw(ctx){return soberaniaFullView(ctx)}},
  {b:3,key:'barrio',src:'Ilustración de la propuesta del grupo · no representa obras existentes',draw(ctx){return barrioView(ctx)}},
  {b:3,key:'conceptos',src:'Guion del grupo · gobierno, gobernanza y autogobierno',draw(ctx){return conceptosView(ctx)}},
