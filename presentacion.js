@@ -470,139 +470,274 @@ function heterarquiaView(ctx){
 }
 
 function programaArqView(ctx){
- const {svg,W,H,P}=svgIn(ctx.el);
- const OCH='#F2B53A',GRN='#4ADE80',BLU='#38BDF8',PUR='#C084FC',ORA='#FB923C';
+ const el = ctx.el;
+ const {svg, W, H, P} = svgIn(el);
+ const OCH = '#F2B53A', GRN = '#4ADE80', BLU = '#38BDF8', PUR = '#C084FC', ORA = '#FB923C';
 
- txt(svg,W/2,P?20:25,'Programa Arquitectónico & Localización Metropolitana (9.000 m²)',{a:'middle',fw:700,fs:P?13:19,c:BLU});
- txt(svg,W/2,P?35:42,'Implantación metropolitana cerca de Fontibón y al lado de Kennedy · Corte bioclimático',{a:'middle',fs:P?10:12,c:SOFT});
+ txt(svg, W/2, P?20:25, 'Programa Arquitectónico & Localización Metropolitana (9.000 m²)', {a:'middle', fw:700, fs:P?13:19, c:BLU});
+ txt(svg, W/2, P?35:42, 'Implantación metropolitana cerca de Fontibón y al lado de Kennedy · Corte bioclimático', {a:'middle', fs:P?10:12, c:SOFT});
 
  let subView = 'metropolitano'; // 'metropolitano' o 'corte'
+ let map = null, mapAlive = true;
 
  const topSw = P?46:54;
- const gSw = svg.append('g').attr('transform',`translate(${W/2},${topSw})`);
- const btnMet = gSw.append('g').attr('transform','translate(-165,0)').style('cursor','pointer');
- const bgMet = btnMet.append('rect').attr('width',160).attr('height',24).attr('rx',12);
- const txtMet = txt(btnMet,80,15.5,'🗺️ 1. Plano Metropolitano',{a:'middle',fs:P?9.5:10.5});
+ const gSw = svg.append('g').attr('transform', `translate(${W/2},${topSw})`);
+ const btnMet = gSw.append('g').attr('transform', 'translate(-170,0)').style('cursor', 'pointer');
+ const bgMet = btnMet.append('rect').attr('width', 165).attr('height', 24).attr('rx', 12);
+ const txtMet = txt(btnMet, 82.5, 15.5, '🗺️ 1. Mapa Real Bogotá', {a:'middle', fs:P?9.5:10.5});
 
- const btnCor = gSw.append('g').attr('transform','translate(5,0)').style('cursor','pointer');
- const bgCor = btnCor.append('rect').attr('width',160).attr('height',24).attr('rx',12);
- const txtCor = txt(btnCor,80,15.5,'📐 2. Corte Bioclimático',{a:'middle',fs:P?9.5:10.5});
+ const btnCor = gSw.append('g').attr('transform', 'translate(5,0)').style('cursor', 'pointer');
+ const bgCor = btnCor.append('rect').attr('width', 165).attr('height', 24).attr('rx', 12);
+ const txtCor = txt(btnCor, 82.5, 15.5, '📐 2. Corte Bioclimático', {a:'middle', fs:P?9.5:10.5});
 
- btnMet.on('click', () => { subView = 'metropolitano'; render(); });
- btnCor.on('click', () => { subView = 'corte'; render(); });
-
- const gBox = svg.append('g').attr('transform',`translate(20,${topSw + 32})`);
+ const gBox = svg.append('g').attr('transform', `translate(20,${topSw + 32})`);
  const bW = W - 40, bH = H - topSw - 48;
 
- function render() {
-  const isM = subView === 'metropolitano';
-  bgMet.attr('fill', isM ? BLU : '#111827').attr('stroke', BLU).attr('stroke-width', isM ? 1.8 : 1);
-  txtMet.attr('fill', isM ? '#0f172a' : '#cbd5e1').attr('font-weight', isM ? 800 : 600);
+ // Contenedor DOM para el mapa real MapLibre GL
+ const mapDivId = 'metroRealMapPres';
+ d3.select(el).selectAll('#' + mapDivId).remove();
+ const mapContainer = d3.select(el).append('div')
+   .attr('id', mapDivId)
+   .style('position', 'absolute')
+   .style('left', '20px')
+   .style('right', '20px')
+   .style('top', `${topSw + 32}px`)
+   .style('bottom', '20px')
+   .style('border-radius', '12px')
+   .style('overflow', 'hidden')
+   .style('border', '1.5px solid #38bdf8')
+   .style('box-shadow', '0 12px 36px rgba(0,0,0,0.7)')
+   .style('z-index', '6');
 
-  bgCor.attr('fill', !isM ? OCH : '#111827').attr('stroke', OCH).attr('stroke-width', !isM ? 1.8 : 1);
-  txtCor.attr('fill', !isM ? '#0f172a' : '#cbd5e1').attr('font-weight', !isM ? 800 : 600);
+ ctx.onExit(() => {
+   mapAlive = false;
+   if (map) { try { map.remove(); } catch(e){} }
+   d3.select(el).selectAll('#' + mapDivId).remove();
+ });
 
+ btnMet.on('click', () => { subView = 'metropolitano'; updateView(); });
+ btnCor.on('click', () => { subView = 'corte'; updateView(); });
+
+ function updateView() {
+   const isM = subView === 'metropolitano';
+   bgMet.attr('fill', isM ? BLU : '#111827').attr('stroke', BLU).attr('stroke-width', isM ? 1.8 : 1);
+   txtMet.attr('fill', isM ? '#0f172a' : '#cbd5e1').attr('font-weight', isM ? 800 : 600);
+
+   bgCor.attr('fill', !isM ? OCH : '#111827').attr('stroke', OCH).attr('stroke-width', !isM ? 1.8 : 1);
+   txtCor.attr('fill', !isM ? '#0f172a' : '#cbd5e1').attr('font-weight', !isM ? 800 : 600);
+
+   if (isM) {
+     mapContainer.style('display', 'block');
+     gBox.style('display', 'none');
+     if (map) { map.resize(); }
+     else { initRealMap(); }
+   } else {
+     mapContainer.style('display', 'none');
+     gBox.style('display', 'block');
+     drawCorteTransversal();
+   }
+ }
+
+ function initRealMap() {
+   mapContainer.html('');
+
+   // Botón flotante para cambiar estilo: Oscuro vs Satélite
+   const gStyleSw = mapContainer.append('div')
+     .style('position', 'absolute')
+     .style('top', '14px')
+     .style('left', '14px')
+     .style('z-index', '10')
+     .style('display', 'flex')
+     .style('gap', '6px')
+     .style('background', 'rgba(11,15,25,0.92)')
+     .style('backdrop-filter', 'blur(8px)')
+     .style('border', '1px solid #334155')
+     .style('border-radius', '20px')
+     .style('padding', '3px 8px');
+
+   let curStyle = 'dark';
+   const btnDark = gStyleSw.append('button')
+     .text('🌙 Mapa Carto')
+     .style('background', '#38bdf8').style('color', '#0f172a').style('border', '0').style('border-radius', '12px')
+     .style('font-size', '11px').style('font-weight', '700').style('padding', '3px 8px').style('cursor', 'pointer');
+
+   const btnSat = gStyleSw.append('button')
+     .text('🛰️ Satélite Real')
+     .style('background', 'transparent').style('color', '#94a3b8').style('border', '0').style('border-radius', '12px')
+     .style('font-size', '11px').style('font-weight', '600').style('padding', '3px 8px').style('cursor', 'pointer');
+
+   btnDark.on('click', () => {
+     if (curStyle === 'dark') return;
+     curStyle = 'dark';
+     btnDark.style('background', '#38bdf8').style('color', '#0f172a');
+     btnSat.style('background', 'transparent').style('color', '#94a3b8');
+     map.setStyle('https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json');
+   });
+
+   btnSat.on('click', () => {
+     if (curStyle === 'sat') return;
+     curStyle = 'sat';
+     btnSat.style('background', '#38bdf8').style('color', '#0f172a');
+     btnDark.style('background', 'transparent').style('color', '#94a3b8');
+     map.setStyle({
+       version: 8,
+       sources: {
+         'esri-sat': {
+           type: 'raster',
+           tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+           tileSize: 256,
+           attribution: 'Esri, Maxar'
+         }
+       },
+       layers: [{ id: 'esri-sat-layer', type: 'raster', source: 'esri-sat', minzoom: 0, maxzoom: 19 }]
+     });
+   });
+
+   // Tarjeta informativa flotante (HUD)
+   const hud = mapContainer.append('div')
+     .style('position', 'absolute')
+     .style('right', '14px')
+     .style('top', '14px')
+     .style('max-width', P ? '260px' : '360px')
+     .style('background', 'rgba(10,14,24,0.95)')
+     .style('backdrop-filter', 'blur(12px)')
+     .style('border', '1.5px solid #facc15')
+     .style('border-radius', '12px')
+     .style('padding', '12px 16px')
+     .style('z-index', '10')
+     .style('box-shadow', '0 16px 36px rgba(0,0,0,0.85)');
+
+   hud.html(`
+     <div style="font:800 10px 'JetBrains Mono',monospace;color:#facc15;letter-spacing:.08em;text-transform:uppercase">AQUÍ SE IMPLANTA EL PROYECTO</div>
+     <div style="font:800 15px 'Instrument Sans',sans-serif;color:#fff;margin:2px 0">COMPLEJO BIOTECNOLÓGICO · 9.000 m²</div>
+     <div style="font:700 11.5px 'Instrument Sans',sans-serif;color:#38bdf8;margin-bottom:8px">Borde de FONTIBÓN y al lado de KENNEDY</div>
+     <div style="font:500 11px/1.4 'Instrument Sans',sans-serif;color:#cbd5e1;display:flex;flex-direction:column;gap:5px">
+       <div><b style="color:#38bdf8">📍 Cerca de Fontibón:</b> Acceso directo a Calle 13 / Av. Centenario y zona industrial sin cruzar barrios.</div>
+       <div><b style="color:#facc15">📍 Al lado de Kennedy:</b> Adyacente a Corabastos y al Humedal El Burro.</div>
+       <div><b style="color:#4ade80">⚙️ Captación directa:</b> 300 t/día de rastrojos orgánicos sin sobrecostos de fletes.</div>
+       <div><b style="color:#fb923c">🛒 Circuito corto:</b> Abastecimiento directo a 150 tiendas barriales y comedores.</div>
+     </div>
+   `);
+
+   // Inicializar mapa MapLibre GL
+   map = new maplibregl.Map({
+     container: mapDivId,
+     style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+     center: [-74.154, 4.643], // Punto bisagra Fontibón - Kennedy
+     zoom: P ? 12.0 : 12.8,
+     pitch: 35,
+     bearing: -10,
+     attributionControl: { compact: true }
+   });
+
+   map.addControl(new maplibregl.NavigationControl({ showCompass: true, showZoom: true }), 'bottom-right');
+
+   map.on('style.load', () => {
+     if (!mapAlive) return;
+
+     // Cargar GeoJSON de Kennedy
+     fetch('assets/territorio_kennedy.geojson')
+       .then(r => r.json())
+       .then(geoK => {
+         if (!map.getSource('kennedy-src')) {
+           map.addSource('kennedy-src', { type: 'geojson', data: geoK });
+           map.addLayer({
+             id: 'kennedy-fill',
+             type: 'fill',
+             source: 'kennedy-src',
+             paint: { 'fill-color': '#facc15', 'fill-opacity': 0.08 }
+           });
+           map.addLayer({
+             id: 'kennedy-glow',
+             type: 'line',
+             source: 'kennedy-src',
+             paint: { 'line-color': '#facc15', 'line-width': 6, 'line-blur': 5, 'line-opacity': 0.35 }
+           });
+           map.addLayer({
+             id: 'kennedy-line',
+             type: 'line',
+             source: 'kennedy-src',
+             paint: { 'line-color': '#facc15', 'line-width': 2, 'line-opacity': 0.85 }
+           });
+         }
+       })
+       .catch(e => console.log('Kennedy geojson load err', e));
+
+     // Añadir polígono del Lote de 9.000 m²
+     const loteCoords = [
+       [-74.1585, 4.6405],
+       [-74.1565, 4.6405],
+       [-74.1565, 4.6420],
+       [-74.1585, 4.6420],
+       [-74.1585, 4.6405]
+     ];
+     if (!map.getSource('lote-src')) {
+       map.addSource('lote-src', {
+         type: 'geojson',
+         data: {
+           type: 'Feature',
+           geometry: { type: 'Polygon', coordinates: [loteCoords] }
+         }
+       });
+       map.addLayer({
+         id: 'lote-fill',
+         type: 'fill',
+         source: 'lote-src',
+         paint: { 'fill-color': '#38bdf8', 'fill-opacity': 0.45 }
+       });
+       map.addLayer({
+         id: 'lote-line',
+         type: 'line',
+         source: 'lote-src',
+         paint: { 'line-color': '#fde047', 'line-width': 3 }
+       });
+     }
+
+     // Marcador HTML pulsante en el Lote del Proyecto
+     const pinEl = document.createElement('div');
+     pinEl.innerHTML = `
+       <div style="position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer">
+         <div style="position:absolute;width:44px;height:44px;border-radius:50%;background:rgba(253,224,71,0.3);border:2px solid #fde047;animation:fedPulse 2s infinite"></div>
+         <div style="position:absolute;width:24px;height:24px;border-radius:50%;background:rgba(56,189,248,0.4);border:2px solid #38bdf8"></div>
+         <div style="width:14px;height:14px;border-radius:50%;background:#fde047;border:2px solid #0f172a;box-shadow:0 0 10px #fde047"></div>
+         <div style="position:absolute;top:22px;background:#0d131f;border:1.5px solid #fde047;border-radius:6px;padding:3px 8px;font:800 11px sans-serif;color:#fde047;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.8)">
+           ★ LOTE PROYECTO (9.000 m²)
+         </div>
+       </div>
+     `;
+     new maplibregl.Marker({ element: pinEl }).setLngLat([-74.1575, 4.6412]).addTo(map);
+
+     // Marcador Corabastos
+     const corEl = document.createElement('div');
+     corEl.style.cssText = 'background:rgba(15,23,42,0.9);border:1px solid #f87171;border-radius:6px;padding:2px 7px;font:700 10.5px sans-serif;color:#f87171;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.7)';
+     corEl.textContent = '🛒 Corabastos';
+     new maplibregl.Marker({ element: corEl }).setLngLat([-74.1590, 4.6295]).addTo(map);
+
+     // Marcador Humedal El Burro
+     const humEl = document.createElement('div');
+     humEl.style.cssText = 'background:rgba(15,23,42,0.9);border:1px solid #4ade80;border-radius:6px;padding:2px 7px;font:700 10.5px sans-serif;color:#4ade80;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.7)';
+     humEl.textContent = '🌿 Humedal El Burro';
+     new maplibregl.Marker({ element: humEl }).setLngLat([-74.1530, 4.6390]).addTo(map);
+
+     // Marcador Fontibón (Zona Industrial)
+     const fonEl = document.createElement('div');
+     fonEl.style.cssText = 'background:rgba(15,23,42,0.9);border:1.5px solid #38bdf8;border-radius:6px;padding:3px 8px;font:800 11px sans-serif;color:#38bdf8;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.7)';
+     fonEl.textContent = '🏭 FONTIBÓN (Calle 13 / Zona Industrial)';
+     new maplibregl.Marker({ element: fonEl }).setLngLat([-74.1480, 4.6650]).addTo(map);
+
+     // Marcador Río Fucha (Límite)
+     const fucEl = document.createElement('div');
+     fucEl.style.cssText = 'background:rgba(15,23,42,0.85);border:1px solid #67e8f9;border-radius:6px;padding:2px 6px;font:700 9.5px sans-serif;color:#67e8f9;white-space:nowrap';
+     fucEl.textContent = '💧 Río Fucha (Límite Fontibón - Kennedy)';
+     new maplibregl.Marker({ element: fucEl }).setLngLat([-74.1620, 4.6465]).addTo(map);
+   });
+ }
+
+ function drawCorteTransversal() {
   gBox.selectAll('*').remove();
   gBox.append('rect').attr('width',bW).attr('height',bH).attr('rx',10)
     .attr('fill','#070a10').attr('stroke','#1e293b').attr('stroke-width',1.2);
 
-  if (isM) drawPlanoMetropolitano();
-  else drawCorteTransversal();
- }
-
- function drawPlanoMetropolitano() {
-  // Río Bogotá (oeste)
-  gBox.append('path')
-    .attr('d', `M ${bW*.18},20 Q ${bW*.14},${bH*.3} ${bW*.15},${bH*.5} Q ${bW*.12},${bH*.75} ${bW*.14},${bH-20}`)
-    .attr('fill', 'none').attr('stroke', '#0284c7').attr('stroke-width', 2.8).attr('stroke-dasharray', '6 4').attr('class', 'flowing');
-  txt(gBox, bW*.12, bH*.5, 'RÍO BOGOTÁ (LÍMITE OCCIDENTAL)', {a:'middle', fs:8, c:BLU, transform:`rotate(-90 ${bW*.12} ${bH*.5})`});
-
-  // Cerros Orientales (este)
-  gBox.append('path')
-    .attr('d', `M ${bW*.8},20 Q ${bW*.84},${bH*.3} ${bW*.82},${bH*.6} Q ${bW*.85},${bH*.85} ${bW*.82},${bH-20} L ${bW-15},${bH-20} L ${bW-15},20 Z`)
-    .attr('fill', 'rgba(16,185,129,0.06)').attr('stroke', '#065f46').attr('stroke-width', 1).attr('stroke-dasharray', '4 4');
-  txt(gBox, bW*.88, bH*.5, 'CERROS ORIENTALES', {a:'middle', fs:8, c:'#047857', transform:`rotate(90 ${bW*.88} ${bH*.5})`});
-
-  // Localidades
-  const LOCS = [
-   {nom:'FONTIBÓN (Al norte del proyecto)', col:BLU, foco:true, p:`M ${bW*.17},${bH*.36} L ${bW*.32},${bH*.34} L ${bW*.42},${bH*.36} L ${bW*.41},${bH*.5} L ${bW*.28},${bH*.52} L ${bW*.16},${bH*.48} Z`, cx:bW*.28, cy:bH*.42},
-   {nom:'KENNEDY (Red barrial y Corabastos)', col:OCH, foco:true, p:`M ${bW*.16},${bH*.48} L ${bW*.28},${bH*.52} L ${bW*.41},${bH*.5} L ${bW*.45},${bH*.72} L ${bW*.32},${bH*.76} L ${bW*.15},${bH*.66} Z`, cx:bW*.29, cy:bH*.62},
-   {nom:'BOSA', col:'#475569', foco:false, p:`M ${bW*.15},${bH*.66} L ${bW*.32},${bH*.76} L ${bW*.41},${bH*.76} L ${bW*.38},${bH*.92} L ${bW*.2},${bH*.88} Z`, cx:bW*.27, cy:bH*.82},
-   {nom:'ENGATIVÁ', col:'#475569', foco:false, p:`M ${bW*.18},40 L ${bW*.35},35 L ${bW*.44},50 L ${bW*.42},${bH*.36} L ${bW*.17},${bH*.36} Z`, cx:bW*.3, cy:bH*.2},
-   {nom:'PUENTE ARANDA', col:'#475569', foco:false, p:`M ${bW*.42},${bH*.36} L ${bW*.56},${bH*.38} L ${bW*.54},${bH*.58} L ${bW*.41},${bH*.5} Z`, cx:bW*.48, cy:bH*.46},
-   {nom:'TEUSAQUILLO / CENTRO', col:'#475569', foco:false, p:`M ${bW*.44},50 L ${bW*.68},60 L ${bW*.66},${bH*.58} L ${bW*.56},${bH*.38} L ${bW*.42},${bH*.36} Z`, cx:bW*.55, cy:bH*.25}
-  ];
-
-  LOCS.forEach(l => {
-   gBox.append('path').attr('d', l.p)
-     .attr('fill', l.foco ? (l.col === BLU ? 'rgba(56,189,248,0.14)' : 'rgba(250,204,21,0.16)') : '#0e1420')
-     .attr('stroke', l.col).attr('stroke-width', l.foco ? 2.5 : 1).attr('stroke-opacity', l.foco ? .9 : .35);
-   txt(gBox, l.cx, l.cy, l.nom, {a:'middle', fw:l.foco?800:600, fs:l.foco?11:9, c:l.foco?l.col:'#64748b'});
-  });
-
-  // Río Fucha (límite entre Fontibón y Kennedy)
-  gBox.append('path')
-    .attr('d', `M ${bW*.56},${bH*.45} Q ${bW*.46},${bH*.48} ${bW*.41},${bH*.5} Q ${bW*.33},${bH*.52} ${bW*.28},${bH*.52} Q ${bW*.2},${bH*.5} ${bW*.16},${bH*.48}`)
-    .attr('fill','none').attr('stroke','#38bdf8').attr('stroke-width',2.5).attr('stroke-dasharray','5 3');
-  txt(gBox, bW*.25, bH*.5, 'Río Fucha (Límite Fontibón - Kennedy)', {fs:7.5, fw:700, c:'#7dd3fc'});
-
-  // Ejes Viales principales
-  // Calle 13 / Av. Centenario (Fontibón)
-  gBox.append('path')
-    .attr('d', `M ${bW*.16},${bH*.4} L ${bW*.33},${bH*.41} L ${bW*.42},${bH*.43} L ${bW*.6},${bH*.44}`)
-    .attr('fill','none').attr('stroke','#fbbf24').attr('stroke-width',2.2).attr('stroke-dasharray','5 4').attr('class','flowing');
-  txt(gBox, bW*.18, bH*.39, 'Av. Centenario (Calle 13)', {fs:7.5, fw:700, c:'#fbbf24'});
-
-  // Av. Ciudad de Cali
-  gBox.append('path')
-    .attr('d', `M ${bW*.33},50 L ${bW*.32},${bH*.34} L ${bW*.28},${bH*.52} L ${bW*.26},${bH*.75} L ${bW*.24},${bH*.9}`)
-    .attr('fill','none').attr('stroke','#f59e0b').attr('stroke-width',2.2);
-  txt(gBox, bW*.34, bH*.28, 'Av. Ciudad de Cali', {fs:7.5, fw:700, c:'#f59e0b', transform:`rotate(85 ${bW*.34} ${bH*.28})`});
-
-  // Humedal El Burro y Corabastos
-  gBox.append('ellipse').attr('cx', bW*.28).attr('cy', bH*.54).attr('rx', 18).attr('ry', 7)
-    .attr('fill', 'rgba(74,222,128,0.35)').attr('stroke', GRN).attr('stroke-width', 1.5);
-  txt(gBox, bW*.28, bH*.545, 'H. El Burro', {a:'middle', fs:7, fw:800, c:GRN});
-
-  gBox.append('rect').attr('x', bW*.26).attr('y', bH*.58).attr('width', 36).attr('height', 20).attr('rx', 3)
-    .attr('fill', 'rgba(248,113,113,0.3)').attr('stroke', '#f87171');
-  txt(gBox, bW*.26 + 18, bH*.58 + 13, 'CORABASTOS', {a:'middle', fs:6.5, fw:800, c:'#f87171'});
-
-  // Pin pulsante del Proyecto (Lote 9.000 m²) en la interfaz Fontibón - Kennedy
-  const pX = bW*.28, pY = bH*.52;
-  const gPin = gBox.append('g').attr('transform',`translate(${pX},${pY})`);
-  const pu1 = gPin.append('circle').attr('r', 16).attr('fill', 'none').attr('stroke', '#fde047').attr('stroke-width', 2.5);
-  pu1.append('animate').attr('attributeName', 'r').attr('values', '12;30').attr('dur', '2s').attr('repeatCount', 'indefinite');
-  pu1.append('animate').attr('attributeName', 'stroke-opacity').attr('values', '1;0').attr('dur', '2s').attr('repeatCount', 'indefinite');
-
-  gPin.append('circle').attr('r', 8).attr('fill', '#fde047').attr('stroke', '#0f172a').attr('stroke-width', 2);
-  gPin.append('circle').attr('r', 3).attr('fill', '#0f172a');
-
-  // Tarjeta explicativa de implantación metropolitana
-  const cX = bW*.68, cY = bH*.68;
-  gBox.append('line').attr('x1', pX + 8).attr('y1', pY - 5).attr('x2', cX - 140).attr('y2', cY - 25)
-    .attr('stroke', '#fde047').attr('stroke-width', 1.8).attr('stroke-dasharray', '4 4');
-
-  const gCard = gBox.append('g').attr('transform',`translate(${cX},${cY})`);
-  gCard.append('rect').attr('x', -140).attr('y', -60).attr('width', 280).attr('height', 120).attr('rx', 10)
-    .attr('fill', '#0d131f').attr('stroke', '#fde047').attr('stroke-width', 2);
-
-  txt(gCard, -126, -38, 'AQUÍ SE IMPLANTA EL PROYECTO', {fw:800, fs:10.5, c:'#fde047'});
-  txt(gCard, -126, -22, 'COMPLEJO BIOTECNOLÓGICO · 9.000 m²', {fw:800, fs:11.5, c:'#fff'});
-  txt(gCard, -126, -6, 'Borde de FONTIBÓN y al lado de KENNEDY', {fw:700, fs:9.5, c:BLU});
-
-  const IT = [
-   '📍 Cerca de Fontibón (corredor Calle 13 y zona industrial)',
-   '📍 Al lado de Kennedy (Corabastos y Humedal El Burro)',
-   '⚙️ Captación de 300 t/día rastrojos sin fletes costosos',
-   '🛒 Circuito corto directo a 150 tiendas populares'
-  ];
-  IT.forEach((it, idx) => {
-   txt(gCard, -126, 12 + idx * 15, it, {fs:8.5, fw:idx<2?700:500, c:idx<2?'#fde047':SOFT});
-  });
- }
-
- function drawCorteTransversal() {
   const wS = bW, hS = bH;
   const yGround = hS - (P?25:35);
 
@@ -623,42 +758,38 @@ function programaArqView(ctx){
   // Terreno
   gBox.append('path')
     .attr('d', `M 35,${yGround} L ${wS*.7},${yGround} Q ${wS*.85},${yGround} ${wS-20},${yGround+15}`)
-    .attr('stroke', '#334155').attr('stroke-width', 2).attr('fill', 'none');
+    .attr('fill', 'none').attr('stroke', '#334155').attr('stroke-width', 2);
 
-  // Volúmenes arquitectónicos
+  // Lámina de agua del humedal
+  gBox.append('rect').attr('x', wS*.82).attr('y', yGround + 5).attr('width', wS*.16).attr('height', hS - yGround - 5)
+    .attr('fill', 'rgba(56,189,248,0.2)').attr('stroke', BLU).attr('stroke-width', 1);
+  txt(gBox, wS*.9, yGround - 3, 'HUMEDAL EL BURRO', {a:'middle', fs:8, fw:700, c:BLU});
+
+  // Volúmenes funcionales
   const VOLS = [
-   {nom:'Zona A: Biorrefinería', c:ORA, p:`M 50,${yGround} L 50,${hS*.48} L ${wS*.25},${hS*.48} L ${wS*.25},${yGround} Z`, lx:wS*.15, ly:yGround-hS*.22},
-   {nom:'Zona B: Bóvedas Pleurotus', c:BLU, p:`M ${wS*.27},${hS*.62} L ${wS*.27},${hS*.28} L ${wS*.55},${hS*.28} L ${wS*.55},${hS*.62} Z`, lx:wS*.41, ly:hS*.45},
-   {nom:'Zona C: Silos Carbohidratos', c:OCH, p:`M ${wS*.27},${yGround} L ${wS*.27},${hS*.64} L ${wS*.55},${hS*.64} L ${wS*.55},${yGround} Z`, lx:wS*.41, ly:yGround-hS*.15},
-   {nom:'Zona D: Aulas Técnicas', c:PUR, p:`M ${wS*.57},${yGround} L ${wS*.57},${hS*.48} L ${wS*.72},${hS*.48} L ${wS*.72},${yGround} Z`, lx:wS*.645, ly:yGround-hS*.22},
-   {nom:'Zona E: Comedor Cívico', c:GRN, p:`M ${wS*.74},${yGround} L ${wS*.74},${hS*.55} L ${wS*.92},${hS*.65} L ${wS*.92},${yGround+15} Z`, lx:wS*.83, ly:yGround-hS*.18}
+   {nom:'Zona A: Biorrefinería & Muelle', m2:'2.800 m²', col:ORA, p:`M 45,${yGround} L 45,${hS*.48} L ${wS*.26},${hS*.48} L ${wS*.26},${yGround} Z`, cx:wS*.15, cy:hS*.58},
+   {nom:'Zona B: Bóvedas Pleurotus', m2:'2.200 m²', col:BLU, p:`M ${wS*.28},${yGround} L ${wS*.28},${hS*.22} L ${wS*.5},${hS*.22} L ${wS*.5},${yGround} Z`, cx:wS*.39, cy:hS*.35},
+   {nom:'Zona C: Silos Carbohidratos', m2:'1.800 m²', col:OCH, p:`M ${wS*.52},${yGround} L ${wS*.52},${hS*.28} L ${wS*.68},${hS*.28} L ${wS*.68},${yGround} Z`, cx:wS*.6, cy:hS*.4},
+   {nom:'Zona D: Reconversión Laboral', m2:'800 m²', col:PUR, p:`M ${wS*.28},${hS*.65} L ${wS*.28},${hS*.48} L ${wS*.5},${hS*.48} L ${wS*.5},${hS*.65} Z`, cx:wS*.39, cy:hS*.56},
+   {nom:'Zona E: Borde Cívico & Comedor', m2:'1.400 m²', col:GRN, p:`M ${wS*.7},${yGround} L ${wS*.7},${hS*.55} L ${wS*.82},${hS*.65} L ${wS*.82},${yGround+10} Z`, cx:wS*.76, cy:hS*.66}
   ];
 
-  // Techo verde
-  gBox.append('path')
-    .attr('d', `M 45,${hS*.48} L ${wS*.25},${hS*.28} L ${wS*.55},${hS*.15} L ${wS*.72},${hS*.25} L ${wS*.92},${hS*.65}`)
-    .attr('fill', 'none').attr('stroke', GRN).attr('stroke-width', 2.5);
-  txt(gBox, wS*.45, hS*.12, 'CUBIERTA VERDE PRODUCTIVA + CAPTACIÓN PLUVIAL', {a:'middle', fs:8.5, fw:700, c:'#86efac'});
-
-  // Cinta transportadora mecánica
-  gBox.append('line').attr('x1', 70).attr('y1', yGround - 5).attr('x2', wS*.23).attr('y2', hS*.52)
-    .attr('stroke', ORA).attr('stroke-width', 3).attr('stroke-dasharray', '5 4').attr('class', 'flowing');
-
   VOLS.forEach(v => {
-   gBox.append('path').attr('d', v.p).attr('fill', v.c).attr('fill-opacity', .15)
-     .attr('stroke', v.c).attr('stroke-width', 1.8);
-   txt(gBox, v.lx, v.ly, v.nom, {a:'middle', fs:9.5, fw:700, c:'#fff'});
+   gBox.append('path').attr('d', v.p)
+     .attr('fill', v.col).attr('fill-opacity', .18)
+     .attr('stroke', v.col).attr('stroke-width', 1.8);
+   txt(gBox, v.cx, v.cy - 7, v.nom, {a:'middle', fw:700, fs:P?8:10, c:'#fff'});
+   txt(gBox, v.cx, v.cy + 9, v.m2, {a:'middle', fw:800, fs:P?9:11, c:v.col, mono:1});
   });
 
-  // Brisa del humedal
+  // Cubierta inclinada general
   gBox.append('path')
-    .attr('d', `M ${wS-30},${yGround+5} C ${wS*.7},${yGround-20} ${wS*.5},${hS*.5} 70,${yGround-10}`)
-    .attr('fill', 'none').attr('stroke', BLU).attr('stroke-width', 2)
-    .attr('stroke-dasharray', '6 5').attr('class', 'flowing').attr('stroke-opacity', .75);
-  txt(gBox, wS - 40, yGround - 15, 'Brisa fresca humedal', {a:'end', fs:8, c:BLU});
+    .attr('d', `M 40,${hS*.48} L ${wS*.27},${hS*.22} L ${wS*.51},${hS*.15} L ${wS*.69},${hS*.28} L ${wS*.83},${hS*.65}`)
+    .attr('fill', 'none').attr('stroke', GRN).attr('stroke-width', 2.5);
+  txt(gBox, wS*.4, hS*.11, 'Cubierta verde biofertilizada (1.500 m²) + Captación pluvial', {a:'middle', fs:8.5, fw:700, c:GRN});
  }
 
- render();
+ updateView();
  return sub => {};
 }
 

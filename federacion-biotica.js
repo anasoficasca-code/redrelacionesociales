@@ -526,6 +526,7 @@
       </div>
     </div>
 
+    <div id="fedRealMap" style="position:absolute;left:20px;right:20px;top:54px;bottom:20px;border-radius:12px;overflow:hidden;border:1.5px solid #38bdf8;box-shadow:0 12px 36px rgba(0,0,0,0.7);display:none;z-index:10;"></div>
     <svg id="fedSvg" class="fed-svg-stage" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg>
 
     <div id="fedTip" class="fed-floating-tip hidden">
@@ -592,6 +593,10 @@
 
   function renderView() {
     clearAnims();
+    const mapEl = document.getElementById('fedRealMap');
+    const svgEl = document.getElementById('fedSvg');
+    if (mapEl && activeTab !== 'metropolitano') mapEl.style.display = 'none';
+    if (svgEl && activeTab !== 'metropolitano') svgEl.style.display = 'block';
     const svg = d3.select('#fedSvg');
     svg.selectAll('*').remove();
     svg.html(SVG_DEFS);
@@ -1316,186 +1321,149 @@
   // 4. PLANO DE BOGOTÁ METROPOLITANO: IMPLANTACIÓN (FONTIBÓN - KENNEDY)
   // =========================================================================
   function renderPlanoMetropolitano(svg, showTip, hideTip) {
-    const W = 1000, H = 620;
+    const stage = document.getElementById('viewFederacion');
+    const svgEl = document.getElementById('fedSvg');
+    const mapDiv = document.getElementById('fedRealMap');
+    if (!mapDiv) return;
 
-    // Encabezado limpio y sin colisiones (y=40)
-    const header = svg.append('g').attr('transform', 'translate(500, 48)');
-    header.append('text').text('PLANO DE BOGOTÁ METROPOLITANO: LOCALIZACIÓN DEL PROYECTO')
-      .attr('text-anchor', 'middle').attr('fill', '#fde047').attr('font-weight', '800').attr('font-size', '15px').attr('letter-spacing', '0.05em');
-    header.append('text').text('Implantación estratégica en la interfaz metropolitana: CERCA DE FONTIBÓN Y AL LADO DE KENNEDY')
-      .attr('text-anchor', 'middle').attr('fill', '#94a3b8').attr('font-size', '11px').attr('y', 17);
+    if (svgEl) svgEl.style.display = 'none';
+    mapDiv.style.display = 'block';
 
-    // Marco del plano
-    const mX = 35, mY = 82, mW = 930, mH = 490;
-    const gMap = svg.append('g').attr('transform', `translate(${mX}, ${mY})`);
-
-    gMap.append('rect').attr('width', mW).attr('height', mH).attr('rx', 12)
-      .attr('fill', '#070a11').attr('stroke', '#1e293b').attr('stroke-width', 1.5);
-
-    // Cuadrícula cartográfica sutil
-    const gGrid = gMap.append('g').style('opacity', 0.2);
-    for (let x = 60; x < mW; x += 90) {
-      gGrid.append('line').attr('x1', x).attr('y1', 15).attr('x2', x).attr('y2', mH - 15).attr('stroke', '#334155').attr('stroke-dasharray', '2 4');
-    }
-    for (let y = 30; y < mH; y += 70) {
-      gGrid.append('line').attr('x1', 30).attr('y1', y).attr('x2', mW - 30).attr('y2', y).attr('stroke', '#334155').attr('stroke-dasharray', '2 4');
+    if (window._fedRealMapInstance) {
+      window._fedRealMapInstance.resize();
+      return;
     }
 
-    // Cerros Orientales (Este)
-    gMap.append('path')
-      .attr('d', 'M 740,30 Q 770,150 755,250 Q 775,340 750,450 L 800,450 L 800,30 Z')
-      .attr('fill', 'rgba(16,185,129,0.07)').attr('stroke', '#065f46').attr('stroke-width', 1).attr('stroke-dasharray', '4 4');
-    gMap.append('text').text('CERROS ORIENTALES (LÍMITE ORIENTAL)').attr('transform', 'translate(775, 240) rotate(90)')
-      .attr('fill', '#059669').attr('font-size', '8.5px').attr('letter-spacing', '0.12em').attr('text-anchor', 'middle');
+    mapDiv.innerHTML = '';
 
-    // Río Bogotá (Oeste)
-    gMap.append('path')
-      .attr('d', 'M 210,30 Q 170,120 180,190 Q 150,260 170,330 Q 140,400 160,465')
-      .attr('fill', 'none').attr('stroke', '#0284c7').attr('stroke-width', 3).attr('stroke-dasharray', '8 4').attr('class', 'flowing');
-    gMap.append('text').text('RÍO BOGOTÁ (LÍMITE OCCIDENTAL)').attr('transform', 'translate(145, 245) rotate(-90)')
-      .attr('fill', '#38bdf8').attr('font-size', '8.5px').attr('letter-spacing', '0.1em').attr('text-anchor', 'middle');
+    // Switcher de capas flotante
+    const swEl = document.createElement('div');
+    swEl.style.cssText = 'position:absolute;top:14px;left:14px;z-index:20;display:flex;gap:6px;background:rgba(11,15,25,0.92);backdrop-filter:blur(8px);border:1px solid #334155;border-radius:20px;padding:3px 8px;box-shadow:0 8px 24px rgba(0,0,0,0.7)';
+    swEl.innerHTML = `
+      <button id="btnFedDark" style="background:#38bdf8;color:#0f172a;border:0;border-radius:12px;font:700 11px sans-serif;padding:3px 8px;cursor:pointer">🌙 Mapa Carto</button>
+      <button id="btnFedSat" style="background:transparent;color:#94a3b8;border:0;border-radius:12px;font:600 11px sans-serif;padding:3px 8px;cursor:pointer">🛰️ Satélite Real</button>
+    `;
+    mapDiv.appendChild(swEl);
 
-    // Polígonos de Localidades de Bogotá
-    const LOCALIDADES = [
-      {
-        id: 'fontibon', nom: 'FONTIBÓN', foco: true, col: '#38bdf8',
-        path: 'M 205,175 L 340,165 L 430,175 L 420,240 L 305,245 L 195,230 Z',
-        cx: 310, cy: 205,
-        sub: 'Al norte del proyecto (Corredor Calle 13 y Zona Industrial)'
-      },
-      {
-        id: 'kennedy', nom: 'KENNEDY', foco: true, col: '#facc15',
-        path: 'M 195,230 L 305,245 L 420,240 L 460,335 L 330,355 L 180,310 Z',
-        cx: 320, cy: 295,
-        sub: 'Al sur del proyecto (Corabastos, Huertas y 150 Tiendas Barriales)'
-      },
-      { id: 'bosa', nom: 'BOSA', foco: false, col: '#475569', path: 'M 180,310 L 330,355 L 420,355 L 390,430 L 220,410 Z', cx: 295, cy: 385 },
-      { id: 'engativa', nom: 'ENGATIVÁ', foco: false, col: '#475569', path: 'M 210,105 L 370,100 L 460,115 L 430,175 L 340,165 L 205,175 Z', cx: 325, cy: 135 },
-      { id: 'puente', nom: 'PUENTE ARANDA', foco: false, col: '#475569', path: 'M 430,175 L 560,185 L 545,270 L 420,240 Z', cx: 485, cy: 215 },
-      { id: 'teusaquillo', nom: 'TEUSAQUILLO', foco: false, col: '#475569', path: 'M 460,115 L 590,125 L 560,185 L 430,175 Z', cx: 510, cy: 150 },
-      { id: 'suba', nom: 'SUBA', foco: false, col: '#334155', path: 'M 230,30 L 450,30 L 460,115 L 210,105 Z', cx: 330, cy: 70 },
-      { id: 'centro', nom: 'SANTA FE / CENTRO', foco: false, col: '#334155', path: 'M 560,185 L 690,195 L 680,270 L 545,270 Z', cx: 615, cy: 230 }
-    ];
+    // Tarjeta HUD informativa
+    const hud = document.createElement('div');
+    hud.style.cssText = 'position:absolute;right:14px;top:14px;max-width:360px;background:rgba(10,14,24,0.95);backdrop-filter:blur(12px);border:1.5px solid #facc15;border-radius:12px;padding:12px 16px;z-index:20;box-shadow:0 16px 36px rgba(0,0,0,0.85);color:#cbd5e1';
+    hud.innerHTML = `
+      <div style="font:800 10px 'JetBrains Mono',monospace;color:#facc15;letter-spacing:.08em;text-transform:uppercase">AQUÍ SE IMPLANTA EL PROYECTO</div>
+      <div style="font:800 15px 'Instrument Sans',sans-serif;color:#fff;margin:2px 0">COMPLEJO BIOTECNOLÓGICO · 9.000 m²</div>
+      <div style="font:700 11.5px 'Instrument Sans',sans-serif;color:#38bdf8;margin-bottom:8px">Borde de FONTIBÓN y al lado de KENNEDY</div>
+      <div style="font:500 11px/1.4 'Instrument Sans',sans-serif;display:flex;flex-direction:column;gap:5px">
+        <div><b style="color:#38bdf8">📍 Cerca de Fontibón:</b> Acceso directo a Calle 13 / Av. Centenario y zona industrial sin cruzar barrios.</div>
+        <div><b style="color:#facc15">📍 Al lado de Kennedy:</b> Adyacente a Corabastos y al Humedal El Burro.</div>
+        <div><b style="color:#4ade80">⚙️ Captación directa:</b> 300 t/día de rastrojos orgánicos sin sobrecostos de fletes.</div>
+        <div><b style="color:#fb923c">🛒 Circuito corto:</b> Abastecimiento directo a 150 tiendas barriales y comedores.</div>
+      </div>
+    `;
+    mapDiv.appendChild(hud);
 
-    const gLocs = gMap.append('g');
-    LOCALIDADES.forEach(l => {
-      const gL = gLocs.append('g').style('cursor', l.foco ? 'pointer' : 'default');
+    const map = new maplibregl.Map({
+      container: 'fedRealMap',
+      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+      center: [-74.154, 4.643],
+      zoom: 12.8,
+      pitch: 35,
+      bearing: -10,
+      attributionControl: { compact: true }
+    });
+    window._fedRealMapInstance = map;
 
-      gL.append('path').attr('d', l.path)
-        .attr('fill', l.foco ? (l.id === 'fontibon' ? 'rgba(56,189,248,0.14)' : 'rgba(250,204,21,0.16)') : '#0e1420')
-        .attr('stroke', l.col).attr('stroke-width', l.foco ? 2.5 : 1)
-        .attr('stroke-opacity', l.foco ? 0.9 : 0.35);
+    map.addControl(new maplibregl.NavigationControl({ showCompass: true, showZoom: true }), 'bottom-right');
 
-      const tL = gL.append('text').text(l.nom).attr('x', l.cx).attr('y', l.cy).attr('text-anchor', 'middle')
-        .attr('fill', l.foco ? (l.id === 'fontibon' ? '#38bdf8' : '#facc15') : '#64748b')
-        .attr('font-size', l.foco ? '12px' : '9px').attr('font-weight', l.foco ? '800' : '600')
-        .attr('letter-spacing', '0.06em');
+    const btnDark = document.getElementById('btnFedDark');
+    const btnSat = document.getElementById('btnFedSat');
+    btnDark.onclick = () => {
+      btnDark.style.background = '#38bdf8'; btnDark.style.color = '#0f172a';
+      btnSat.style.background = 'transparent'; btnSat.style.color = '#94a3b8';
+      map.setStyle('https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json');
+    };
+    btnSat.onclick = () => {
+      btnSat.style.background = '#38bdf8'; btnSat.style.color = '#0f172a';
+      btnDark.style.background = 'transparent'; btnDark.style.color = '#94a3b8';
+      map.setStyle({
+        version: 8,
+        sources: {
+          'esri-sat': {
+            type: 'raster',
+            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+            tileSize: 256,
+            attribution: 'Esri, Maxar'
+          }
+        },
+        layers: [{ id: 'esri-sat-layer', type: 'raster', source: 'esri-sat', minzoom: 0, maxzoom: 19 }]
+      });
+    };
 
-      if (l.foco && l.sub) {
-        tL.append('tspan').attr('x', l.cx).attr('dy', 14).attr('font-size', '8px').attr('font-weight', '500')
-          .attr('fill', '#94a3b8').text(l.sub);
+    map.on('style.load', () => {
+      fetch('assets/territorio_kennedy.geojson')
+        .then(r => r.json())
+        .then(geoK => {
+          if (!map.getSource('k-src')) {
+            map.addSource('k-src', { type: 'geojson', data: geoK });
+            map.addLayer({ id: 'k-fill', type: 'fill', source: 'k-src', paint: { 'fill-color': '#facc15', 'fill-opacity': 0.08 } });
+            map.addLayer({ id: 'k-glow', type: 'line', source: 'k-src', paint: { 'line-color': '#facc15', 'line-width': 6, 'line-blur': 5, 'line-opacity': 0.35 } });
+            map.addLayer({ id: 'k-line', type: 'line', source: 'k-src', paint: { 'line-color': '#facc15', 'line-width': 2, 'line-opacity': 0.85 } });
+          }
+        })
+        .catch(e => console.log('Kennedy geojson load err', e));
+
+      // Lote del Proyecto 9.000 m²
+      const loteCoords = [
+        [-74.1585, 4.6405],
+        [-74.1565, 4.6405],
+        [-74.1565, 4.6420],
+        [-74.1585, 4.6420],
+        [-74.1585, 4.6405]
+      ];
+      if (!map.getSource('lote-src')) {
+        map.addSource('lote-src', {
+          type: 'geojson',
+          data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [loteCoords] } }
+        });
+        map.addLayer({ id: 'lote-fill', type: 'fill', source: 'lote-src', paint: { 'fill-color': '#38bdf8', 'fill-opacity': 0.45 } });
+        map.addLayer({ id: 'lote-line', type: 'line', source: 'lote-src', paint: { 'line-color': '#fde047', 'line-width': 3 } });
       }
-    });
 
-    // Río Fucha (límite entre Fontibón y Kennedy)
-    gMap.append('path')
-      .attr('d', 'M 580,210 Q 480,225 420,240 Q 350,245 305,245 Q 240,240 195,230')
-      .attr('fill', 'none').attr('stroke', '#38bdf8').attr('stroke-width', 2.8).attr('stroke-dasharray', '6 3');
-    gMap.append('text').text('Río Fucha (Límite natural Fontibón - Kennedy)').attr('x', 240).attr('y', 240)
-      .attr('fill', '#7dd3fc').attr('font-size', '8px').attr('font-weight', '700');
+      // Marcadores HTML en mapa
+      const pinEl = document.createElement('div');
+      pinEl.innerHTML = `
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer">
+          <div style="position:absolute;width:44px;height:44px;border-radius:50%;background:rgba(253,224,71,0.3);border:2px solid #fde047;animation:fedPulse 2s infinite"></div>
+          <div style="position:absolute;width:24px;height:24px;border-radius:50%;background:rgba(56,189,248,0.4);border:2px solid #38bdf8"></div>
+          <div style="width:14px;height:14px;border-radius:50%;background:#fde047;border:2px solid #0f172a;box-shadow:0 0 10px #fde047"></div>
+          <div style="position:absolute;top:22px;background:#0d131f;border:1.5px solid #fde047;border-radius:6px;padding:3px 8px;font:800 11px sans-serif;color:#fde047;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.8)">
+            ★ LOTE PROYECTO (9.000 m²)
+          </div>
+        </div>
+      `;
+      new maplibregl.Marker({ element: pinEl }).setLngLat([-74.1575, 4.6412]).addTo(map);
 
-    // Ejes viales clave
-    // Calle 13 / Av. Centenario (Fontibón)
-    gMap.append('path').attr('d', 'M 195,190 L 340,195 L 430,205 L 610,210')
-      .attr('fill', 'none').attr('stroke', '#fbbf24').attr('stroke-width', 2.2).attr('stroke-dasharray', '5 4').attr('class', 'flowing');
-    gMap.append('text').text('Av. Centenario (Calle 13)').attr('x', 210).attr('y', 185)
-      .attr('fill', '#fbbf24').attr('font-size', '8px').attr('font-weight', '700');
+      const corEl = document.createElement('div');
+      corEl.style.cssText = 'background:rgba(15,23,42,0.9);border:1px solid #f87171;border-radius:6px;padding:2px 7px;font:700 10.5px sans-serif;color:#f87171;white-space:nowrap';
+      corEl.textContent = '🛒 Corabastos';
+      new maplibregl.Marker({ element: corEl }).setLngLat([-74.1590, 4.6295]).addTo(map);
 
-    // Av. Ciudad de Cali
-    gMap.append('path').attr('d', 'M 350,90 L 335,165 L 305,245 L 290,360 L 260,420')
-      .attr('fill', 'none').attr('stroke', '#f59e0b').attr('stroke-width', 2.2);
-    gMap.append('text').text('Av. Ciudad de Cali (Conector Fontibón - Kennedy)').attr('transform', 'translate(315, 135) rotate(80)')
-      .attr('fill', '#f59e0b').attr('font-size', '7.5px').attr('font-weight', '700');
+      const humEl = document.createElement('div');
+      humEl.style.cssText = 'background:rgba(15,23,42,0.9);border:1px solid #4ade80;border-radius:6px;padding:2px 7px;font:700 10.5px sans-serif;color:#4ade80;white-space:nowrap';
+      humEl.textContent = '🌿 Humedal El Burro';
+      new maplibregl.Marker({ element: humEl }).setLngLat([-74.1530, 4.6390]).addTo(map);
 
-    // Humedal El Burro y Corabastos
-    gMap.append('ellipse').attr('cx', 305).attr('cy', 255).attr('rx', 22).attr('ry', 10)
-      .attr('fill', 'rgba(74,222,128,0.3)').attr('stroke', '#4ade80').attr('stroke-width', 1.8);
-    gMap.append('text').text('H. El Burro').attr('x', 305).attr('y', 258).attr('text-anchor', 'middle')
-      .attr('fill', '#4ade80').attr('font-size', '8px').attr('font-weight', '800');
+      const fonEl = document.createElement('div');
+      fonEl.style.cssText = 'background:rgba(15,23,42,0.9);border:1.5px solid #38bdf8;border-radius:6px;padding:3px 8px;font:800 11px sans-serif;color:#38bdf8;white-space:nowrap';
+      fonEl.textContent = '🏭 FONTIBÓN (Calle 13 / Zona Industrial)';
+      new maplibregl.Marker({ element: fonEl }).setLngLat([-74.1480, 4.6650]).addTo(map);
 
-    gMap.append('rect').attr('x', 280).attr('y', 275).attr('width', 45).attr('height', 28).attr('rx', 4)
-      .attr('fill', 'rgba(248,113,113,0.25)').attr('stroke', '#f87171').attr('stroke-width', 1.5);
-    gMap.append('text').text('CORABASTOS').attr('x', 302.5).attr('y', 292).attr('text-anchor', 'middle')
-      .attr('fill', '#f87171').attr('font-size', '7.5px').attr('font-weight', '800');
-
-    // PIN PULSANTE DEL PROYECTO (LOTE 9.000 m²)
-    const pX = 305, pY = 248;
-    const gPin = gMap.append('g').attr('transform', `translate(${pX},${pY})`);
-
-    const pu1 = gPin.append('circle').attr('r', 18).attr('fill', 'none').attr('stroke', '#fde047').attr('stroke-width', 2.5);
-    pu1.append('animate').attr('attributeName', 'r').attr('values', '14;34').attr('dur', '2s').attr('repeatCount', 'indefinite');
-    pu1.append('animate').attr('attributeName', 'stroke-opacity').attr('values', '1;0').attr('dur', '2s').attr('repeatCount', 'indefinite');
-
-    const pu2 = gPin.append('circle').attr('r', 12).attr('fill', 'none').attr('stroke', '#38bdf8').attr('stroke-width', 2);
-    pu2.append('animate').attr('attributeName', 'r').attr('values', '10;24').attr('dur', '2s').attr('begin', '0.6s').attr('repeatCount', 'indefinite');
-    pu2.append('animate').attr('attributeName', 'stroke-opacity').attr('values', '1;0').attr('dur', '2s').attr('begin', '0.6s').attr('repeatCount', 'indefinite');
-
-    gPin.append('circle').attr('r', 9).attr('fill', '#fde047').attr('stroke', '#0f172a').attr('stroke-width', 2.5);
-    gPin.append('circle').attr('r', 3.5).attr('fill', '#0f172a');
-
-    // Tarjeta explicativa de implantación metropolitana
-    const callX = 640, callY = 320;
-    gMap.append('line').attr('x1', pX + 10).attr('y1', pY - 8).attr('x2', callX - 160).attr('y2', callY - 30)
-      .attr('stroke', '#fde047').attr('stroke-width', 2).attr('stroke-dasharray', '4 4');
-
-    const gCard = gMap.append('g').attr('transform', `translate(${callX},${callY})`);
-    gCard.append('rect').attr('x', -160).attr('y', -65).attr('width', 320).attr('height', 140).attr('rx', 12)
-      .attr('fill', '#0d131f').attr('stroke', '#fde047').attr('stroke-width', 2);
-
-    gCard.append('text').text('AQUÍ SE IMPLANTA EL PROYECTO').attr('x', -145).attr('y', -42)
-      .attr('fill', '#fde047').attr('font-size', '11.5px').attr('font-weight', '800').attr('letter-spacing', '0.05em');
-    gCard.append('text').text('COMPLEJO BIOTECNOLÓGICO · 9.000 m²').attr('x', -145).attr('y', -24)
-      .attr('fill', '#fff').attr('font-size', '12.5px').attr('font-weight', '800');
-    gCard.append('text').text('Borde de FONTIBÓN y al lado de KENNEDY').attr('x', -145).attr('y', -6)
-      .attr('fill', '#38bdf8').attr('font-size', '10.5px').attr('font-weight', '700');
-
-    const ITEMS_METRO = [
-      '📍 Cerca de Fontibón (acceso a Calle 13 y zona industrial)',
-      '📍 Al lado de Kennedy (adyacente a Corabastos y Humedal El Burro)',
-      '⚙️ Captación directa de 300 t/día de rastrojos sin fletes costosos',
-      '🛒 Distribución en circuito corto a 150 tiendas barriales'
-    ];
-
-    ITEMS_METRO.forEach((it, idx) => {
-      gCard.append('text').text(it).attr('x', -145).attr('y', 14 + idx * 16)
-        .attr('fill', idx < 2 ? '#fde047' : '#cbd5e1').attr('font-size', '9px').attr('font-weight', idx < 2 ? '700' : '500');
-    });
-
-    // Leyenda cartográfica
-    const gLey = gMap.append('g').attr('transform', 'translate(740, 25)');
-    gLey.append('rect').attr('width', 170).attr('height', 110).attr('rx', 8)
-      .attr('fill', 'rgba(13,19,31,0.92)').attr('stroke', '#334155');
-    gLey.append('text').text('CONVENCIONES METROPOLITANAS').attr('x', 12).attr('y', 18)
-      .attr('fill', '#94a3b8').attr('font-size', '8.5px').attr('font-weight', '800');
-
-    const LEY_ITEMS = [
-      { c: '#fde047', t: 'Lote del proyecto (9.000 m²)' },
-      { c: '#38bdf8', t: 'Fontibón (Industrial / Carga)' },
-      { c: '#facc15', t: 'Kennedy (Comercio / Barrios)' },
-      { c: '#f87171', t: 'Corabastos (Acopio mayorista)' },
-      { c: '#4ade80', t: 'Humedales (Estructura ecológica)' }
-    ];
-
-    LEY_ITEMS.forEach((li, idx) => {
-      gLey.append('circle').attr('cx', 18).attr('cy', 34 + idx * 15).attr('r', 4).attr('fill', li.c);
-      gLey.append('text').text(li.t).attr('x', 28).attr('y', 37 + idx * 15)
-        .attr('fill', '#e2e8f0').attr('font-size', '8px');
+      const fucEl = document.createElement('div');
+      fucEl.style.cssText = 'background:rgba(15,23,42,0.85);border:1px solid #67e8f9;border-radius:6px;padding:2px 6px;font:700 9.5px sans-serif;color:#67e8f9;white-space:nowrap';
+      fucEl.textContent = '💧 Río Fucha (Límite Fontibón - Kennedy)';
+      new maplibregl.Marker({ element: fucEl }).setLngLat([-74.1620, 4.6465]).addTo(map);
     });
   }
 
-  // =========================================================================
-  // 5. CORTE ARQUITECTÓNICO BIOCLIMÁTICO TRANSVERSAL (LIMPIO Y SIN COLISIONES)
-  // =========================================================================
   function renderProgramaArquitectonico(svg, showTip, hideTip) {
     let selZona = 'all';
 
