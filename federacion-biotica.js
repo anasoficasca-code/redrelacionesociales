@@ -512,6 +512,10 @@
         <button class="fed-tab-btn" data-tab="canasta">
           ${iconSvgHtml('seccion', 13)} 6. Canasta y fases
         </button>
+        <button class="fed-tab-btn" data-tab="burbujas" style="color:#0284c7;border:1px solid rgba(2,132,199,0.4);background:rgba(2,132,199,0.08);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="9" r="2.5"/><circle cx="16" cy="13" r="3"/><circle cx="11" cy="16" r="2"/></svg>
+          8. Diagrama de relaciones
+        </button>
         <button class="fed-tab-btn" data-tab="sintesis" style="color:#f43f5e;border:1px solid rgba(244,63,94,0.4);background:rgba(244,63,94,0.08);">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><path d="M7 8h2M7 12h2M7 16h2M15 8h2M15 12h2"/></svg>
           7. Tablero editorial (Síntesis)
@@ -634,6 +638,7 @@
     else if (activeTab === 'funciona') renderFunciona(svg, showTip, hideTip);
     else if (activeTab === 'fases') renderProgramaArquitectonico(svg, showTip, hideTip);
     else if (activeTab === 'canasta') renderArquitecturaCanasta(svg, showTip, hideTip);
+    else if (activeTab === 'burbujas') renderDiagramaBurbujas(svg, 1000, 620, false);
     else if (activeTab === 'sintesis') renderSintesisEditorialBoard(svg, 1000, 620, false);
     else renderSociobiotica(svg, showTip, hideTip);
   }
@@ -2102,7 +2107,7 @@
     init: function (tab) {
       const stage = document.getElementById('viewFederacion');
       if (stage) stage.style.display = 'block';
-      const valid = ['comparacion', 'funciona', 'sociobiotica', 'metropolitano', 'fases', 'canasta', 'sintesis'];
+      const valid = ['comparacion', 'funciona', 'sociobiotica', 'metropolitano', 'fases', 'canasta', 'sintesis', 'burbujas'];
       setTab(valid.includes(tab) ? tab : activeTab);
     },
     paso: function (i) { activeTab = 'funciona'; setTab('funciona'); goStep(i); }
@@ -2537,5 +2542,361 @@ function renderSintesisEditorialBoard(svg, W, H, P) {
   // Folio número de página abajo a la derecha
   gRoot.append('text').text('05 · INDICADORES & IMPACTO METROPOLITANO').attr('x', bX + bW - 20).attr('y', bY + bH - 12)
     .attr('text-anchor', 'end').attr('fill', '#a8a29e').attr('font-size', '8px').attr('font-family', 'JetBrains Mono, monospace');
+}
+
+
+
+
+/* =========================================================================
+   DIAGRAMA DE RELACIONES ESPACIALES & PROGRAMA ARQUITECTÓNICO (BUBBLE DIAGRAM)
+   Inspirado en el diagrama circular de ecosistema programático y flujos urbanos.
+   ========================================================================= */
+function renderDiagramaBurbujas(svg, W, H, P) {
+  const gRoot = svg.append('g').attr('class', 'diagrama-burbujas-root');
+  const baseW = 1000, baseH = 620;
+  if (W && H && (W !== baseW || H !== baseH)) {
+    const s = Math.min(W / baseW, H / baseH);
+    const dx = (W - baseW * s) / 2;
+    const dy = (H - baseH * s) / 2;
+    gRoot.attr('transform', `translate(${dx},${dy}) scale(${s})`);
+  }
+
+  // Fondo cálido y arquitectónico tipo lámina de concurso
+  gRoot.append('rect').attr('width', baseW).attr('height', baseH).attr('fill', '#f8f7f2');
+
+  // Retícula técnica de puntos de fondo
+  const gGrid = gRoot.append('g').style('opacity', 0.25);
+  for (let x = 30; x < baseW; x += 35) {
+    for (let y = 30; y < baseH; y += 35) {
+      gGrid.append('circle').attr('cx', x).attr('cy', y).attr('r', 0.9).attr('fill', '#94a3b8');
+    }
+  }
+
+  // Encabezado editorial superior
+  const gHead = gRoot.append('g').attr('transform', 'translate(500, 32)');
+  gHead.append('text').text('DIAGRAMA DE RELACIONES ESPACIALES Y PROGRAMA FUNCIONAL')
+    .attr('text-anchor', 'middle').attr('fill', '#0f172a').attr('font-size', '14.5px')
+    .attr('font-weight', '900').attr('letter-spacing', '0.06em').attr('font-family', 'Instrument Sans, sans-serif');
+  gHead.append('text').text('Complejo Biotecnológico Urbano (9.000 m²) · Adyacencias, flujos bioclimáticos y transición de cota')
+    .attr('text-anchor', 'middle').attr('fill', '#64748b').attr('font-size', '10px').attr('y', 16);
+
+  // Defs: Sombras suaves y clips
+  const defs = svg.select('defs').empty() ? svg.append('defs') : svg.select('defs');
+  if (defs.select('#bubbleShadow').empty()) {
+    const f = defs.append('filter').attr('id', 'bubbleShadow').attr('x', '-15%').attr('y', '-15%').attr('width', '130%').attr('height', '130%');
+    f.append('feDropShadow').attr('dx', 0).attr('dy', 4).attr('stdDeviation', 6).attr('flood-color', '#000').attr('flood-opacity', 0.08);
+  }
+
+  // =========================================================================
+  // CÍRCULO MAESTRO Y CURVAS DE CONECTIVIDAD
+  // =========================================================================
+  const cX = 580, cY = 325, masterR = 255;
+
+  // Gran perímetro circular punteado maestro
+  gRoot.append('circle').attr('cx', cX).attr('cy', cY).attr('r', masterR)
+    .attr('fill', 'none').attr('stroke', '#cbd5e1').attr('stroke-width', 1.5).attr('stroke-dasharray', '5 5');
+
+  // Arcos conectores entre zonas programáticas
+  const gLinks = gRoot.append('g');
+  function addFlowArc(d, col, strokeW, dash) {
+    gLinks.append('path').attr('d', d)
+      .attr('fill', 'none').attr('stroke', col).attr('stroke-width', strokeW || 1.8)
+      .attr('stroke-dasharray', dash || '4 4').attr('stroke-opacity', 0.6);
+  }
+
+  addFlowArc('M 480,180 Q 580,180 670,190', '#fb923c', 2.2); // Tolvas -> Bóvedas
+  addFlowArc('M 670,225 Q 700,280 735,330', '#f43f5e', 2.2); // Bóvedas -> Comedor
+  addFlowArc('M 450,220 Q 400,280 380,340', '#fb923c', 2);   // Tolvas -> Reconversión
+  addFlowArc('M 430,420 Q 520,470 600,470', '#0284c7', 2);   // Reconversión -> Humedal
+  addFlowArc('M 720,400 Q 690,440 650,450', '#059669', 2);   // Comedor -> Humedal
+
+  // Textos curvados o guías de flujo
+  gRoot.append('text').text('FLUJO CONTINUO DE SUSTRATO ORGÁNICO').attr('x', 520).attr('y', 170)
+    .attr('fill', '#ea580c').attr('font-size', '7.5px').attr('font-weight', '700').attr('font-family', 'JetBrains Mono, monospace');
+  gRoot.append('text').text('TRANSICIÓN TÉCNICA LABORAL').attr('x', 360).attr('y', 270)
+    .attr('fill', '#0284c7').attr('font-size', '7.5px').attr('font-weight', '700').attr('font-family', 'JetBrains Mono, monospace');
+  gRoot.append('text').text('DISTRIBUCIÓN PROTEÍNA Pleurotus').attr('x', 710).attr('y', 260)
+    .attr('fill', '#be123c').attr('font-size', '7.5px').attr('font-weight', '700').attr('font-family', 'JetBrains Mono, monospace');
+
+  // Nubes de fondo orgánicas (círculos translúcidos apilados de fondo)
+  const gClouds = gRoot.append('g').style('opacity', 0.5);
+  function drawCloud(cx, cy, col, count, spread) {
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * 2 * Math.PI;
+      const r = spread * (0.6 + Math.sin(i * 3) * 0.3);
+      gClouds.append('circle')
+        .attr('cx', cx + Math.cos(a) * r).attr('cy', cy + Math.sin(a) * r)
+        .attr('r', 22 + (i % 3) * 8).attr('fill', col);
+    }
+  }
+
+  drawCloud(480, 160, '#ffedd5', 8, 55); // Nube Tolvas
+  drawCloud(680, 175, '#ffe4e6', 8, 55); // Nube Bóvedas
+  drawCloud(370, 390, '#e0f2fe', 9, 60); // Nube Reconversión
+  drawCloud(740, 350, '#fef9c3', 8, 55); // Nube Comedor
+  drawCloud(630, 480, '#dcfce7', 8, 55); // Nube Humedal
+
+  // =========================================================================
+  // ESPINA PEATONAL CENTRAL (WAVY CROWD TRAIL)
+  // Wavy path con siluetas de personas caminando por el centro
+  // =========================================================================
+  const gTrail = gRoot.append('g').attr('class', 'crowd-spine');
+  const pathSpine = 'M 490,225 Q 520,290 565,315 T 625,410';
+  gTrail.append('path').attr('d', pathSpine)
+    .attr('fill', 'none').attr('stroke', 'rgba(203,213,225,0.7)').attr('stroke-width', 22).attr('stroke-linecap', 'round');
+  gTrail.append('path').attr('d', pathSpine)
+    .attr('fill', 'none').attr('stroke', '#fff').attr('stroke-width', 16).attr('stroke-linecap', 'round');
+
+  // Siluetas de personas sobre la espina peatonal
+  const PEOPLE = [
+    {x: 485, y: 228, c: '#0f172a'}, {x: 494, y: 236, c: '#ea580c'}, {x: 498, y: 248, c: '#0f172a'},
+    {x: 508, y: 260, c: '#0284c7'}, {x: 518, y: 272, c: '#0f172a'}, {x: 526, y: 284, c: '#059669'},
+    {x: 538, y: 295, c: '#0f172a'}, {x: 546, y: 304, c: '#d97706'}, {x: 556, y: 312, c: '#0f172a'},
+    {x: 566, y: 320, c: '#be123c'}, {x: 576, y: 334, c: '#0f172a'}, {x: 585, y: 348, c: '#0284c7'},
+    {x: 594, y: 362, c: '#0f172a'}, {x: 604, y: 378, c: '#059669'}, {x: 615, y: 395, c: '#0f172a'},
+    {x: 622, y: 408, c: '#ea580c'}
+  ];
+
+  function drawTinyPerson(g, x, y, col) {
+    const p = g.append('g').attr('transform', `translate(${x},${y})`);
+    p.append('circle').attr('cx', 0).attr('cy', -4).attr('r', 1.8).attr('fill', col);
+    p.append('path').attr('d', 'M -2,-2 L 2,-2 L 1.5,5 L -1.5,5 Z').attr('fill', col);
+  }
+  PEOPLE.forEach(pt => drawTinyPerson(gTrail, pt.x, pt.y, pt.c));
+
+  // Etiqueta de la espina
+  gTrail.append('text').text('ESPINA PEATONAL & CONECTIVIDAD CÍVICA').attr('x', 560).attr('y', 270)
+    .attr('fill', '#475569').attr('font-size', '7px').attr('font-weight', '800')
+    .attr('font-family', 'JetBrains Mono, monospace').attr('transform', 'rotate(42 560 270)');
+
+  // =========================================================================
+  // LAS 5 GRANDES BURBUJAS PROGRAMÁTICAS
+  // =========================================================================
+  const BUBBLES = [
+    {
+      id: 'b1', cx: 480, cy: 160, r: 58,
+      tit: 'MUELLE & TOLVAS', sub: 'Zona A · 2.800 m²', col: '#ea580c', bg: '#fff7ed', stroke: '#fb923c',
+      desc: 'Muelle mecatrónico a cota ±0.00m. 4 tolvas automáticas y cintas transportadoras continuas que sustituyen el cargue a lomo.',
+      satellites: [
+        { angle: -2.3, dist: 78, r: 18, nom: 'Tolvas automatizadas', icon: 'tolva' },
+        { angle: -1.5, dist: 80, r: 19, nom: 'Cintas mecánicas continuas', icon: 'cinta' },
+        { angle: -0.8, dist: 78, r: 18, nom: 'Pesaje y clasificación', icon: 'bascula' },
+        { angle: -0.1, dist: 82, r: 18, nom: 'Descarga Calle 13', icon: 'camion' }
+      ]
+    },
+    {
+      id: 'b2', cx: 680, cy: 175, r: 60,
+      tit: 'BÓVEDAS & SILOS', sub: 'Zonas B y C · 4.000 m²', col: '#be123c', bg: '#fff1f2', stroke: '#f43f5e',
+      desc: 'Bóvedas de fructificación Pleurotus (40 t/mes) + Silos verticales de ventilación pasiva para papa y tubérculos.',
+      satellites: [
+        { angle: -1.7, dist: 82, r: 19, nom: 'Cámaras oscuras de micelio', icon: 'hongo' },
+        { angle: -0.9, dist: 84, r: 19, nom: 'Silos pasivos para papa', icon: 'silo' },
+        { angle: -0.1, dist: 84, r: 18, nom: 'Empacadora aséptica al vacío', icon: 'caja' },
+        { angle: 0.7, dist: 80, r: 18, nom: 'Sala blanca inoculación ISO 7', icon: 'lab' }
+      ]
+    },
+    {
+      id: 'b3', cx: 375, cy: 385, r: 64,
+      tit: 'RECONVERSIÓN LABORAL', sub: 'Zona D · 800 m²', col: '#0284c7', bg: '#f0f9ff', stroke: '#38bdf8',
+      desc: 'Centro técnico y aulas para que 320 coteros y recicladores se certifiquen como operadores mecatrónicos.',
+      satellites: [
+        { angle: -2.6, dist: 84, r: 19, nom: 'Aulas mecatrónicas', icon: 'aula' },
+        { angle: -1.9, dist: 86, r: 19, nom: 'Mesa federativa sin líder', icon: 'mesa' },
+        { angle: 2.6, dist: 86, r: 19, nom: '320 contratos formales', icon: 'contrato' },
+        { angle: 1.8, dist: 84, r: 18, nom: 'Lockers y bienestar', icon: 'lockers' },
+        { angle: 0.9, dist: 82, r: 18, nom: 'Bicicargas y carretillas', icon: 'carro' }
+      ]
+    },
+    {
+      id: 'b4', cx: 745, cy: 350, r: 60,
+      tit: 'COMEDOR & TIENDAS', sub: 'Zona E · 1.400 m²', col: '#d97706', bg: '#fefce8', stroke: '#facc15',
+      desc: 'Comedor popular para 500 raciones diarias + plaza de mercado barrial y despacho a 150 tiendas locales.',
+      satellites: [
+        { angle: -0.7, dist: 82, r: 19, nom: 'Comedor 500 raciones/día', icon: 'plato' },
+        { angle: 0.0, dist: 84, r: 19, nom: 'Red de 150 tiendas barriales', icon: 'tienda' },
+        { angle: 0.8, dist: 82, r: 18, nom: 'Cocina pedagógica comunitaria', icon: 'cocina' },
+        { angle: 1.6, dist: 78, r: 17, nom: 'Ropa técnica y dotaciones', icon: 'ropa' }
+      ]
+    },
+    {
+      id: 'b5', cx: 640, cy: 475, r: 58,
+      tit: 'BORDE ECOLÓGICO', sub: '2.500 m² Parque + 1.500 m² Techos', col: '#059669', bg: '#f0fdf4', stroke: '#4ade80',
+      desc: 'Talud escalonado de fitodepuración (vertimiento cero al humedal) + cubiertas verdes con polinizadores.',
+      satellites: [
+        { angle: -0.2, dist: 80, r: 18, nom: 'Talud de fitodepuración', icon: 'agua' },
+        { angle: 0.5, dist: 82, r: 18, nom: 'Cubiertas biofertilizadas', icon: 'cubierta' },
+        { angle: 1.3, dist: 82, r: 18, nom: 'Abejas nativas y polinizadores', icon: 'abeja' },
+        { angle: 2.1, dist: 80, r: 18, nom: 'Biofiltro de juncos y alisos', icon: 'arbol' }
+      ]
+    }
+  ];
+
+  // Dibujador de iconos SVG vectoriales planos para satélites
+  function drawFlatIcon(g, iconType, col) {
+    if (iconType === 'tolva' || iconType === 'silo') {
+      g.append('rect').attr('x', -6).attr('y', -7).attr('width', 12).attr('height', 10).attr('rx', 2).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.4);
+      g.append('path').attr('d', 'M -4,3 L 0,8 L 4,3').attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.4);
+    } else if (iconType === 'cinta') {
+      g.append('circle').attr('cx', -5).attr('cy', 0).attr('r', 3).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.3);
+      g.append('circle').attr('cx', 5).attr('cy', 0).attr('r', 3).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.3);
+      g.append('line').attr('x1', -5).attr('y1', -3).attr('x2', 5).attr('y2', -3).attr('stroke', col).attr('stroke-width', 1.3);
+      g.append('line').attr('x1', -5).attr('y1', 3).attr('x2', 5).attr('y2', 3).attr('stroke', col).attr('stroke-width', 1.3);
+    } else if (iconType === 'camion') {
+      g.append('rect').attr('x', -8).attr('y', -4).attr('width', 11).attr('height', 7).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.3);
+      g.append('path').attr('d', 'M 3,-1 L 6,-1 L 8,3 L 3,3 Z').attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.3);
+      g.append('circle').attr('cx', -4).attr('cy', 4).attr('r', 2).attr('fill', col);
+      g.append('circle').attr('cx', 5).attr('cy', 4).attr('r', 2).attr('fill', col);
+    } else if (iconType === 'hongo') {
+      g.append('path').attr('d', 'M -6,0 C -6,-6 6,-6 6,0 Z').attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.4);
+      g.append('line').attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 6).attr('stroke', col).attr('stroke-width', 1.8);
+    } else if (iconType === 'tienda' || iconType === 'plato') {
+      g.append('path').attr('d', 'M -7,-2 L 7,-2 L 5,-6 L -5,-6 Z').attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.3);
+      g.append('rect').attr('x', -6).attr('y', -2).attr('width', 12).attr('height', 8).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.3);
+    } else if (iconType === 'arbol' || iconType === 'cubierta' || iconType === 'agua') {
+      g.append('circle').attr('cx', 0).attr('cy', -2).attr('r', 5).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.3);
+      g.append('line').attr('x1', 0).attr('y1', 3).attr('x2', 0).attr('y2', 7).attr('stroke', col).attr('stroke-width', 1.4);
+    } else if (iconType === 'aula' || iconType === 'mesa' || iconType === 'contrato') {
+      g.append('rect').attr('x', -6).attr('y', -6).attr('width', 12).attr('height', 12).attr('rx', 2).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.3);
+      g.append('line').attr('x1', -3).attr('y1', -2).attr('x2', 3).attr('y2', -2).attr('stroke', col).attr('stroke-width', 1.2);
+      g.append('line').attr('x1', -3).attr('y1', 2).attr('x2', 3).attr('y2', 2).attr('stroke', col).attr('stroke-width', 1.2);
+    } else {
+      g.append('circle').attr('r', 4.5).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 1.3);
+      g.append('line').attr('x1', 0).attr('y1', -2).attr('x2', 0).attr('y2', 2).attr('stroke', col).attr('stroke-width', 1.3);
+    }
+  }
+
+  // Renderizar burbujas principales y satélites
+  const gMainBubbles = gRoot.append('g').attr('class', 'main-bubbles');
+
+  BUBBLES.forEach(b => {
+    const gB = gMainBubbles.append('g').style('cursor', 'pointer');
+
+    // Satélites orbitales
+    b.satellites.forEach(s => {
+      const sx = b.cx + Math.cos(s.angle) * s.dist;
+      const sy = b.cy + Math.sin(s.angle) * s.dist;
+
+      // Línea de unión punteada
+      gB.append('line').attr('x1', b.cx).attr('y1', b.cy).attr('x2', sx).attr('y2', sy)
+        .attr('stroke', '#cbd5e1').attr('stroke-width', 1.2).attr('stroke-dasharray', '2 3');
+
+      // Círculo satélite
+      const gSat = gB.append('g').attr('transform', `translate(${sx},${sy})`);
+      gSat.append('circle').attr('r', s.r).attr('fill', '#fff')
+        .attr('stroke', b.stroke).attr('stroke-width', 1.6).attr('filter', 'url(#bubbleShadow)');
+      drawFlatIcon(gSat, s.icon, b.col);
+
+      // Etiqueta tooltip
+      gSat.on('mouseenter', () => showInfoCard(s.nom, b.tit, b.col, b.desc));
+      gSat.on('mouseleave', hideInfoCard);
+    });
+
+    // Círculo principal
+    const circleMain = gB.append('circle').attr('cx', b.cx).attr('cy', b.cy).attr('r', b.r)
+      .attr('fill', b.bg).attr('stroke', b.stroke).attr('stroke-width', 2.2).attr('filter', 'url(#bubbleShadow)')
+      .style('transition', 'transform 0.2s, stroke-width 0.2s');
+
+    // Anillo interior sutil
+    gB.append('circle').attr('cx', b.cx).attr('cy', b.cy).attr('r', b.r - 4)
+      .attr('fill', 'none').attr('stroke', b.stroke).attr('stroke-width', 0.8).attr('stroke-dasharray', '3 2');
+
+    // Título y subtítulo
+    gB.append('text').text(b.tit).attr('x', b.cx).attr('y', b.cy - 3)
+      .attr('text-anchor', 'middle').attr('fill', '#0f172a').attr('font-size', '10px')
+      .attr('font-weight', '800').attr('font-family', 'Instrument Sans, sans-serif').attr('letter-spacing', '0.04em');
+    gB.append('text').text(b.sub).attr('x', b.cx).attr('y', b.cy + 13)
+      .attr('text-anchor', 'middle').attr('fill', b.col).attr('font-size', '8px')
+      .attr('font-weight', '700').attr('font-family', 'JetBrains Mono, monospace');
+
+    gB.on('mouseenter', () => showInfoCard(b.tit, b.sub, b.col, b.desc));
+    gB.on('mouseleave', hideInfoCard);
+  });
+
+  // =========================================================================
+  // LAS 3 VIÑETAS ILUSTRADAS EN EL BORDE IZQUIERDO (SATELLITE VIGNETTES)
+  // (Exactamente como las 3 fotos circulares a la izquierda en la imagen de referencia)
+  // =========================================================================
+  const gVignettes = gRoot.append('g').attr('class', 'satellite-vignettes');
+
+  // Viñeta 1: Logística y Biorrefinería (Arriba a la izquierda)
+  const v1X = 115, v1Y = 125, v1R = 48;
+  gVignettes.append('line').attr('x1', v1X + v1R).attr('y1', v1Y + 10).attr('x2', 420).attr('y2', 150)
+    .attr('stroke', '#cbd5e1').attr('stroke-width', 1.4).attr('stroke-dasharray', '3 3');
+
+  const gV1 = gVignettes.append('g').attr('transform', `translate(${v1X},${v1Y})`);
+  gV1.append('circle').attr('r', v1R).attr('fill', '#ffedd5').attr('stroke', '#ea580c').attr('stroke-width', 2.2).attr('filter', 'url(#bubbleShadow)');
+  // Ilustración vectorial interna
+  gV1.append('path').attr('d', 'M -35,15 L 0,-15 L 35,15 Z').attr('fill', '#fdba74'); // Nave
+  gV1.append('rect').attr('x', -25).attr('y', 5).attr('width', 50).attr('height', 20).attr('fill', '#9a3412');
+  gV1.append('rect').attr('x', -15).attr('y', -6).attr('width', 12).attr('height', 10).attr('fill', '#fed7aa'); // Montacargas
+  gV1.append('circle').attr('cx', -10).attr('cy', 8).attr('r', 3).attr('fill', '#111');
+  gV1.append('text').text('BIORREFINERÍA').attr('y', 36).attr('text-anchor', 'middle')
+    .attr('fill', '#9a3412').attr('font-size', '8px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+
+  // Viñeta 2: Comensalidad y Encuentro (Centro izquierda)
+  const v2X = 90, v2Y = 295, v2R = 44;
+  gVignettes.append('line').attr('x1', v2X + v2R).attr('y1', v2Y).attr('x2', 310).attr('y2', 360)
+    .attr('stroke', '#cbd5e1').attr('stroke-width', 1.4).attr('stroke-dasharray', '3 3');
+
+  const gV2 = gVignettes.append('g').attr('transform', `translate(${v2X},${v2Y})`);
+  gV2.append('circle').attr('r', v2R).attr('fill', '#fef9c3').attr('stroke', '#ca8a04').attr('stroke-width', 2.2).attr('filter', 'url(#bubbleShadow)');
+  gV2.append('path').attr('d', 'M -25,-4 L 25,-4 L 18,-18 L -18,-18 Z').attr('fill', '#fde047'); // Carpa
+  gV2.append('rect').attr('x', -20).attr('y', -2).attr('width', 40).attr('height', 16).attr('fill', '#854d0e'); // Mesa
+  drawTinyPerson(gV2, -10, -5, '#854d0e');
+  drawTinyPerson(gV2, 10, -5, '#854d0e');
+  gV2.append('text').text('COMENSALIDAD').attr('y', 32).attr('text-anchor', 'middle')
+    .attr('fill', '#854d0e').attr('font-size', '8px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+
+  // Viñeta 3: Restauración del Humedal (Abajo a la izquierda)
+  const v3X = 130, v3Y = 465, v3R = 50;
+  gVignettes.append('line').attr('x1', v3X + v3R).attr('y1', v3Y - 10).attr('x2', 320).attr('y2', 430)
+    .attr('stroke', '#cbd5e1').attr('stroke-width', 1.4).attr('stroke-dasharray', '3 3');
+
+  const gV3 = gVignettes.append('g').attr('transform', `translate(${v3X},${v3Y})`);
+  gV3.append('circle').attr('r', v3R).attr('fill', '#dcfce7').attr('stroke', '#16a34a').attr('stroke-width', 2.2).attr('filter', 'url(#bubbleShadow)');
+  gV3.append('ellipse').attr('cx', 0).attr('cy', 18).attr('rx', 38).attr('ry', 12).attr('fill', '#86efac'); // Agua
+  gV3.append('circle').attr('cx', -15).attr('cy', -8).attr('r', 16).attr('fill', '#15803d'); // Árbol
+  gV3.append('circle').attr('cx', 12).attr('cy', -4).attr('r', 14).attr('fill', '#16a34a'); // Árbol
+  gV3.append('text').text('HUMEDAL & PARQUE').attr('y', 38).attr('text-anchor', 'middle')
+    .attr('fill', '#166534').attr('font-size', '8px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+
+  // =========================================================================
+  // TARJETA DE INSPECCIÓN INTERACTIVA (HUD INFERIOR)
+  // =========================================================================
+  const hudBox = gRoot.append('g').attr('transform', 'translate(480, 560)').style('opacity', 0);
+  hudBox.append('rect').attr('x', -240).attr('y', -24).attr('width', 480).attr('height', 48).attr('rx', 8)
+    .attr('fill', 'rgba(15,23,42,0.94)').attr('stroke', '#38bdf8').attr('stroke-width', 1.5).attr('filter', 'url(#bubbleShadow)');
+
+  const hudTit = hudBox.append('text').attr('x', -220).attr('y', -6).attr('fill', '#fde047').attr('font-size', '10.5px').attr('font-weight', '800');
+  const hudSub = hudBox.append('text').attr('x', 50).attr('y', -6).attr('fill', '#38bdf8').attr('font-size', '9.5px').attr('font-weight', '700');
+  const hudDesc = hudBox.append('text').attr('x', -220).attr('y', 12).attr('fill', '#e2e8f0').attr('font-size', '8.5px');
+
+  function showInfoCard(tit, sub, col, desc) {
+    hudTit.text(tit.toUpperCase()).attr('fill', col);
+    hudSub.text(sub);
+    hudDesc.text(desc);
+    hudBox.select('rect').attr('stroke', col);
+    hudBox.transition().duration(200).style('opacity', 1);
+  }
+  function hideInfoCard() {
+    hudBox.transition().duration(200).style('opacity', 0);
+  }
+
+  // Tarjeta fija explicativa de la leyenda al pie
+  const gFoot = gRoot.append('g').attr('transform', 'translate(50, 582)');
+  gFoot.append('text').text('● PAQUETES:').attr('fill', '#64748b').attr('font-size', '8px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+  const LEGS = [
+    {n: 'Logística & Tolvas', c: '#ea580c'},
+    {n: 'Bóvedas & Silos', c: '#be123c'},
+    {n: 'Reconversión Laboral', c: '#0284c7'},
+    {n: 'Comedor & 150 Tiendas', c: '#d97706'},
+    {n: 'Humedal & Fitodepuración', c: '#059669'}
+  ];
+  let curLegX = 125;
+  LEGS.forEach(lg => {
+    gFoot.append('circle').attr('cx', curLegX).attr('cy', -3).attr('r', 3.5).attr('fill', lg.c);
+    gFoot.append('text').text(lg.n).attr('x', curLegX + 7).attr('y', 0).attr('fill', '#334155').attr('font-size', '7.5px').attr('font-weight', '600');
+    curLegX += lg.n.length * 5.2 + 22;
+  });
 }
 

@@ -36,6 +36,14 @@ sintesis_infografia:[
     tags:[['A25','Recicladores','320 trabajadores reconvertidos','#DC2626'],['A15','Tiendas Barriales','150 puntos de distribución','#D97706'],['AMB04','Humedal El Burro','0 vertimientos · 100% circular','#10B981']]
   }
 ],
+diagrama_burbujas:[
+  {
+    t:'Diagrama de Relaciones Espaciales y Programa Arquitectónico',
+    s:'Ecosistema funcional de 9.000 m²: logística mecatrónica, biotecnología, reconversión y borde ecológico.',
+    n:'Traducimos la totalidad del complejo biotecnológico en un diagrama de relaciones espaciales por burbujas y clústeres funcionales inspirado en esquemas programáticos de alta calidad: 1) El clúster mecatrónico y muelle de carga continua norte hacia Corabastos (2.800 m²); 2) Las bóvedas de micoproteína Pleurotus y silos verticales de tubérculos (4.000 m²); 3) El centro de formación técnica y aulas de reconversión laboral para 320 coteros y recicladores (800 m²); 4) El borde cívico con comedor comunitario (500 raciones) y despacho a 150 tiendas barriales (1.400 m²); y 5) La transición ecológica hacia el Humedal El Burro con cubiertas verdes y taludes de fitodepuración (2.500 m²). Todo articulado por una espina peatonal continua que conecta la producción urbana con el ecosistema vivo.',
+    tags:[['A25','Mecatrónica','Tolvas y clasificación continua','#FB923C'],['A15','Borde Cívico','Comedor y 150 tiendas','#F2B53A'],['AMB04','Humedal El Burro','Fitodepuración y cubiertas verdes','#4ADE80']]
+  }
+],
 canasta_fases:[
   {
     t:'Arquitectura de la Canasta Familiar: Proteínas, Carbohidratos y Vegetales',
