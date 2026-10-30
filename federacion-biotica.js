@@ -512,6 +512,10 @@
         <button class="fed-tab-btn" data-tab="canasta">
           ${iconSvgHtml('seccion', 13)} 6. Canasta y fases
         </button>
+        <button class="fed-tab-btn" data-tab="sintesis" style="color:#f43f5e;border:1px solid rgba(244,63,94,0.4);background:rgba(244,63,94,0.08);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><path d="M7 8h2M7 12h2M7 16h2M15 8h2M15 12h2"/></svg>
+          7. Tablero editorial (Síntesis)
+        </button>
       </div>
 
       <div class="fed-filters-pill" id="fedFilters" style="display:none">
