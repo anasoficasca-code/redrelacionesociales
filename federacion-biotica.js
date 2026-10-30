@@ -1,1051 +1,594 @@
 // federacion-biotica.js
-// Visualizador interactivo de:
-// 1. Federación Territorial Policéntrica (Sin Líder Central) vs. Jerarquía Tradicional
-// 2. Matriz Operativa del Problema: Qué resolvemos, Dónde, Con Qué y Quiénes (Google Sheet)
-// 3. Red Sociobiótica: Lugares, Actores Humanos y Especies del Humedal El Burro Atraídas (humedalburro)
+// Rediseño 100% visual en forma de RED con ICONOS:
+// 1. Diagrama de Red: Jerarquía Vertical vs. Federación Policéntrica (Sin Líder)
+// 2. Grafo de Red Sociobiótica: Lugares (Dónde) + Personas (Quiénes) + Especies del Humedal El Burro (Relaciones bióticas y Para qué)
 
 (function(){
-  // --- DATOS DE LA MATRIZ OPERATIVA (Google Spreadsheet) ---
-  const MATRIZ_PROBLEMA = [
-    {
-      id: 'm1',
-      dinamica: 'Compra concentrada en un solo nodo',
-      problema: 'P1 · Dependencia alimentaria de Corabastos: la concentración del abastecimiento de alimentos en un solo nodo hace que tiendas, restaurantes, comedores y hogares de Kennedy dependan de él.',
-      actividad: 'Tiendas, restaurantes y comedores se abastecen en la central; los hogares compran lo que esa cadena distribuye.',
-      quienes: 'Corabastos S.A., mayoristas, intermediarios, transportadoras, coteros, tenderos, restaurantes, hogares.',
-      con_que: 'Camiones de carga pesada, bodegas comerciales, dinero y crédito informal. (Proveedor externo concentrado).',
-      donde: 'Espacio: Central Corabastos (entorno externo; no intervenido). Tiempo: diario, madrugada y mañana.',
-      adyacencia: 'Corabastos no se modifica; se reconoce como el punto de partida de la vulnerabilidad y dependencia.',
-      acceso: 'De Corabastos a tiendas y hogares: acceso indirecto por vías colapsadas del barrio en vehículos de terceros.',
-      modelo: 'Variable: dependencia de Corabastos. Bucle de equilibrio: la central responde si baja la compra.'
-    },
-    {
-      id: 'm2',
-      dinamica: 'Producción en huertas comunales gestionadas por los barrios',
-      problema: 'P1 · Dependencia de Corabastos / Soberanía alimentaria barrial',
-      actividad: 'Cultivo, cuidado y cosecha en vivienda de asentamiento informal / invasión (patio, cubierta o lote pequeño).',
-      quienes: 'Hogares y vecinos hortelanos, Juntas de Acción Comunal (JAC), residentes.',
-      con_que: 'Suelo vivo, compost, lombrices californianas, polinizadores (abejas, abejorros, mariposas), aves pequeñas. Condiciones: suelo sin contaminantes; agua lluvia captada; sin plaguicidas de síntesis.',
-      donde: 'Espacio: huerta de vivienda en asentamiento informal. Tiempo: cuidado diario corto; cosecha semanal continua.',
-      adyacencia: 'La huerta va junto a la vivienda y cerca de la estación de compostaje y semillero local.',
-      acceso: 'Hacia el punto de acopio y distribución: acceso indirecto por rutas del barrio, en carreta o bicicleta.',
-      modelo: 'Variables: superficie productiva, producción para autoconsumo y excedentes. Bucle de refuerzo: huertas → excedentes → ingresos → más huertas.'
-    },
-    {
-      id: 'm3',
-      dinamica: 'Producción en huertas comunales gestionadas por los barrios',
-      problema: 'P1 · Dependencia de Corabastos / Soberanía alimentaria en densidad urbana',
-      actividad: 'Cultivo en cubiertas, terrazas, balcones y muros de vivienda en altura (conjuntos residenciales).',
-      quienes: 'Copropietarios y residentes, comités de administración del conjunto, hortelanos barriales.',
-      con_que: 'Polinizadores, microbiota del sustrato ligero, módulos verticales, bandejas de cultivo. Condiciones: peso admisible de cubierta; riego por goteo sin desperdicio; acuerdos de copropiedad.',
-      donde: 'Espacio: cubiertas, terrazas comunitarias y balcones de propiedad horizontal. Tiempo: cuidado semanal; cosechas periódicas.',
-      adyacencia: 'La huerta se ubica dentro del conjunto; se conecta con la estación de compostaje para recibir abono.',
-      acceso: 'Hacia el punto de acopio: acceso por rutas del barrio. Dentro del edificio: ascensores y escaleras según reglamento.',
-      modelo: 'Variables: superficie productiva en altura, reducción de compras externas de hortalizas.'
-    },
-    {
-      id: 'm4',
-      dinamica: 'Producción en huertas comunales gestionadas por los barrios',
-      problema: 'P1 · Dependencia de Corabastos / Recuperación de suelo baldío',
-      actividad: 'Cultivo comunitario en terreno baldío adecuado y biorremediado.',
-      quienes: 'JAC, colectivos barriales, vecinos, mediación con Alcaldía Local o dueños de lote.',
-      con_que: 'Suelo regenerado, vegetación acompañante (chilco, botón de oro), fauna edáfica. Condiciones: análisis de metales pesados en suelo; cerramiento vivo; biofiltros.',
-      donde: 'Espacio: lotes baldíos en desuso en barrios de Kennedy. Tiempo: ciclos estacionales; uso comunitario con turnos.',
-      adyacencia: 'La huerta va junto a la estación de compostaje y cerca del punto de acopio; lote con acceso a vía peatonal.',
-      acceso: 'Acceso directo desde las calles del barrio para el grupo hortelano con regla de uso transparente.',
-      modelo: 'Variables: superficie productiva disponible; límite de suelo y agua. Bucle de equilibrio ecológico.'
-    },
-    {
-      id: 'm5',
-      dinamica: 'Producción en huertas comunales gestionadas por los barrios',
-      problema: 'P1 · Dependencia de Corabastos / Conectividad socioecológica del humedal',
-      actividad: 'Cultivo agroecológico de bajo impacto en la ronda del Humedal El Burro y La Vaca, con restauración.',
-      quienes: 'Custodios comunitarios del humedal, colectivos ambientales, vecinos, Secretaría Distrital de Ambiente (SDA).',
-      con_que: 'Humedal vivo, aves acuáticas (tinguas, monjitas), anfibios (rana sabanera), flora nativa (aliso, chilco). Condiciones: 100% libre de plaguicidas o fertilizantes químicos; respeto estricto de rondas hídricas y épocas de cría.',
-      donde: 'Espacio: franja de amortiguamiento y ronda de humedales. Tiempo: ciclos adaptados al calendario hidrológico.',
-      adyacencia: 'Junto al borde del humedal; separada de estaciones de compostaje para evitar lixiviados al espejo de agua.',
-      acceso: 'Acceso humano por senderos delimitados; la fauna conserva pasos biológicos libres sin barreras.',
-      modelo: 'Variables: restauración ecológica y producción de plantas medicinales y aromáticas. Bucle de equilibrio: preservación del ecosistema.'
-    },
-    {
-      id: 'm6',
-      dinamica: 'Autoconsumo y comensalidad de lo producido',
-      problema: 'P1 · Inseguridad alimentaria y desnutrición en sectores populares',
-      actividad: 'Cocinar y comer colectivamente lo cosechado en los barrios de Kennedy.',
-      quienes: 'Hogares, cocineras de comedores comunitarios, colegios públicos (A40), madres comunitarias, cuidadores.',
-      con_que: 'Cocinas colectivas, menaje comunitario, alimentos frescos recién cosechados (acelga, lechuga, aromáticas, hongos).',
-      donde: 'Espacio: comedores comunitarios, cocinas populares y comedores escolares. Tiempo: raciones calientes diarias al mediodía.',
-      adyacencia: 'El comedor se articula con el punto de acopio y huertas cercanas para abastecimiento inmediato.',
-      acceso: 'De huertas y punto de acopio al comedor: traslados a pie o en bicitaxi por rutas seguras.',
-      modelo: 'Variable: raciones frescas producidas localmente. Reduce la dependencia de compras en Corabastos.'
-    },
-    {
-      id: 'm7',
-      dinamica: 'Comercio de excedentes: circuito huertas, vendedores y tiendas',
-      problema: 'P1 · Pérdida de excedentes y falta de ingresos para hortelanos',
-      actividad: 'Reunir, pesar, clasificar y repartir los excedentes de las huertas comunales.',
-      quienes: 'Hortelanos, equipo rotativo del punto de acopio, tenderos de barrio, vendedores populares.',
-      con_que: 'Básculas, canastillas limpias, mesas de selección, bicicleta de carga, registro abierto de pesaje.',
-      donde: 'Espacio: punto de acopio y distribución barrial. Tiempo: 2 a 3 veces por semana sincronizado con cosechas.',
-      adyacencia: 'Junto a ferias vecinales y cerca de tiendas barriales; próximo a ciclorrutas.',
-      acceso: 'Acceso directo para hortelanos del vecindario y tenderos que compran hortalizas frescas del día.',
-      modelo: 'Variable: excedentes comercializados. Bucle de refuerzo: huertas → excedentes → ingresos justos → más huertas.'
-    },
-    {
-      id: 'm8',
-      dinamica: 'Insumos circulares de la red (compost, semillas, agua)',
-      problema: 'P1 · Generación masiva de residuos orgánicos y compra costosa de abonos externos',
-      actividad: 'Compostar residuos orgánicos de hogares, tiendas y plazas; intercambiar semillas nativas y plántulas.',
-      quienes: 'Hortelanos, vecinos, JAC, operadora de aseo, organizaciones de recicladores, UAESP.',
-      con_que: 'Microorganismos aerobios, lombrices de tierra (Eisenia foetida), composteras aireadas, semilleros comunitarios.',
-      donde: 'Espacio: estación comunitaria de compostaje y semillero local. Tiempo: recepción continua de orgánicos; ciclo de 6-8 semanas.',
-      adyacencia: 'Junto a huertas de vivienda y lote baldío; aislada de escorrentías hacia los humedales.',
-      acceso: 'Rutas cortas de entrega de residuos orgánicos separados en origen por hogares y tiendas.',
-      modelo: 'Variables: toneladas de orgánicos transformadas en abono; reducción de abonos sintéticos comprados afuera.'
-    },
-    {
-      id: 'm9',
-      dinamica: 'Distrito biotecnológico: proteína alternativa de bajo costo',
-      problema: 'P1 · Alto costo de la proteína animal y desperdicio masivo de rastrojos de Corabastos',
-      actividad: 'Cultivar hongos comestibles (Pleurotus ostreatus / setas orellana) sobre sustratos de residuos agrícolas.',
-      quienes: 'Técnicos comunitarios en biotecnología, hortelanos, cooperativa gestora, mayoristas proveedores de sustrato.',
-      con_que: 'Hongos saprófitos (micelio de Pleurotus), microbiota benéfica, paja/bagazo esterilizado, módulos de fructificación.',
-      donde: 'Espacio: unidad de cultivo e inoculación del distrito biotecnológico. Tiempo: ciclos controlados de 3 a 4 semanas.',
-      adyacencia: 'Junto al punto de acopio y recepción de residuos agrícolas; área limpia con control de inocuidad.',
-      acceso: 'Sustrato entra desde el circuito de Corabastos; la proteína sale directa a comedores y tiendas de barrio.',
-      modelo: 'Variables: kilos de proteína de hongos producida; costo de proteína para hogares vulnerables.'
-    },
-    {
-      id: 'm10',
-      dinamica: 'Gobierno de la red: federación con rotación de responsabilidades',
-      problema: 'P1 · Concentración de poder, desgaste de líderes y riesgo de captura del circuito',
-      actividad: 'Deliberar y acordar por asunto (qué se siembra, a quién se vende, cómo se reparten recursos) sin jefes permanentes.',
-      quienes: 'Vecinos hortelanos, delegados de JAC, tenderos, cocineras de comedores, recicladores, Alcaldía Local.',
-      con_que: 'Asamblea federativa, tableros públicos de información, actas de consentimiento, pactos de cogestión escrita.',
-      donde: 'Espacio: salón comunal de JAC, aulas-huerta escolares. Tiempo: asambleas mensuales; vocerías rotan cada 1 a 3 meses.',
-      adyacencia: 'Junto al punto de acopio o huerta comunitaria para deliberar en el mismo terreno de producción.',
-      acceso: 'Acceso abierto y horizontal para todos los nodos de la red territorial; deliberación por consentimiento.',
-      modelo: 'Variables: carga de trabajo por persona, tasa de rotación de vocerías. Previene el desgaste y la captura del circuito.'
-    }
-  ];
-
-  // --- DATOS DE LA RED SOCIOBIÓTICA (Humedal El Burro & Huertas de Kennedy) ---
-  const LUGARES_TERRITORIALES = [
-    {
-      id: 'L1',
-      nombre: 'Huerta en Asentamiento Informal (Invasión)',
-      tipo: 'Producción en patio / cubierta baja',
-      personas: 'Familias hortelanas, vecinos autoorganizados, comités comunitarios de barrio popular.',
-      funcion_humana: 'Cultivo diario para autoconsumo familiar, recolección de aromáticas y semillas criollas.',
-      especies_atraidas: ['B1_abejas', 'B2_aves', 'B3_lombrices', 'B6_flora'],
-      porque: 'Garantiza comida fresca a costo casi nulo en zonas marginadas y biofiltra aguas lluvias.'
-    },
-    {
-      id: 'L2',
-      nombre: 'Huerta en Cubiertas y Terrazas en Altura',
-      tipo: 'Producción en propiedad horizontal',
-      personas: 'Residentes de conjuntos residenciales, comités de administración, copropietarios voluntarios.',
-      funcion_humana: 'Manejo de camas elevadas, cultivo vertical de hortalizas de hoja y compostaje doméstico.',
-      especies_atraidas: ['B1_abejas', 'B2_aves'],
-      porque: 'Aprovecha techos ociosos, mitiga la isla de calor urbana y crea islas de paso para polinizadores aéreos.'
-    },
-    {
-      id: 'L3',
-      nombre: 'Huerta Comunitaria en Lotes Baldíos Adecuados',
-      tipo: 'Espacio comunal recuperado',
-      personas: 'Juntas de Acción Comunal (JAC), jóvenes barriales, adultos mayores guardianes del lote.',
-      funcion_humana: 'Saneamiento del suelo, deshierbe colectivo, siembra de tubérculos y maíz, mingas comunitarias.',
-      especies_atraidas: ['B1_abejas', 'B2_aves', 'B3_lombrices', 'B6_flora'],
-      porque: 'Transforma botaderos ilegales de escombros en suelo fértil, recreación comunitaria y seguridad barrial.'
-    },
-    {
-      id: 'L4',
-      nombre: 'Huerta Agroecológica en Ronda del Humedal El Burro',
-      tipo: 'Franja de restauración socioecológica',
-      personas: 'Custodios ambientales de El Burro y La Vaca, biólogos comunitarios, vecinos ribereños, Secretaría de Ambiente.',
-      funcion_humana: 'Siembra de bajo impacto sin fertilizantes químicos, rescate de flora nativa y monitoreo de aguas.',
-      especies_atraidas: ['B1_abejas', 'B2_aves', 'B4_anfibios', 'B6_flora'],
-      porque: 'Crea una barrera protectora de amortiguamiento que detiene la invasión de residuos al espejo de agua.'
-    },
-    {
-      id: 'L5',
-      nombre: 'Estación Comunitaria de Compostaje y Semillero',
-      tipo: 'Infraestructura de circularidad orgánica',
-      personas: 'Organizaciones de recicladores de orgánicos, coteros recicladores, hortelanos operadores.',
-      funcion_humana: 'Recepción, picado, volteo aeróbico de residuos orgánicos de plazas y hogares, producción de lombricompost.',
-      especies_atraidas: ['B3_lombrices', 'B6_flora'],
-      porque: 'Desvía toneladas de orgánicos que hoy se pudren en Corabastos o van a Doña Juana, convirtiéndolos en abono gratis.'
-    },
-    {
-      id: 'L6',
-      nombre: 'Punto de Acopio, Ferias y Tiendas Barriales',
-      tipo: 'Distribución y economía popular',
-      personas: 'Tenderos de barrio, vendedores populares de plaza, hortelanos delegados de turno.',
-      funcion_humana: 'Pesaje, venta directa a precio justo de excedentes agrícolas y compra preferencial por tiendas locales.',
-      especies_atraidas: [],
-      porque: 'Evita la especulación de mayoristas externos y retiene los recursos económicos dentro del propio barrio.'
-    },
-    {
-      id: 'L7',
-      nombre: 'Distrito Biotecnológico (Unidad de Hongos)',
-      tipo: 'Biotecnología popular de alimentos',
-      personas: 'Técnicos comunitarios, egresados del SENA/universidades, cooperativas de trabajadores.',
-      funcion_humana: 'Inoculación de rastrojos de Corabastos con Pleurotus ostreatus, pasteurización e incubación.',
-      especies_atraidas: ['B5_hongos'],
-      porque: 'Produce proteína de altísimo valor nutricional para comedores populares a partir de rastrojo agrícola desaprovechado.'
-    },
-    {
-      id: 'L8',
-      nombre: 'Comedores Comunitarios y Huertas Escolares',
-      tipo: 'Comensalidad y formación de relevo',
-      personas: 'Cocineras comunitarias, docentes, estudiantes de colegios (A40), comensales del barrio.',
-      funcion_humana: 'Preparación de menús saludables basados en la cosecha barrial, pedagogía agroecológica infantil.',
-      especies_atraidas: ['B1_abejas', 'B2_aves'],
-      porque: 'Garantiza nutrición digna a niños y adultos mayores, formando a las nuevas generaciones en soberanía territorial.'
-    }
-  ];
-
-  const ESPECIES_BIOTICAS = [
-    {
-      id: 'B1_abejas',
-      nombre: 'Polinizadores Nativos y Mariposas',
-      cientifico: 'Bombus pauloensis, Tetragonisca angustula (abeja angelita), Leptophobia aripa, Danaus plexippus',
-      icono: '🐝',
-      origen: 'Humedal El Burro y parches verdes de la sabana',
-      para_que: 'Polinizan flores de hortalizas (tomate, habas, calabacines, aromáticas), multiplicando la fertilidad de las huertas hasta en un 40% y preservando la biodiversidad genética floral.',
-      condiciones: 'Prohibición absoluta de insecticidas químicos; presencia de flores melíferas continuas (botón de oro, caléndula, ruda) y disponibilidad de agua limpia.'
-    },
-    {
-      id: 'B2_aves',
-      nombre: 'Aves de Humedal y Aves Urbanas',
-      cientifico: 'Tingua azul (Porphyrio martinica), Tingua bogotana (Rallus semiplumbeus), Cucarachero de pantano, Colibrí chillón, Mirla',
-      icono: '🦆',
-      origen: 'Espejos de agua y totorales del Humedal El Burro y La Vaca',
-      para_que: 'Control biológico natural de plagas (orugas, gusanos, pulgones y caracoles) sin venenos; dispersión de semillas de árboles y arbustos nativos, fortaleciendo corredores ecológicos urbanos.',
-      condiciones: 'Setos vivos densos para refugio y anidación; ausencia de basuras plásticas cortantes; zonas de suelo blando sin cemento.'
-    },
-    {
-      id: 'B3_lombrices',
-      nombre: 'Lombrices de Tierra y Microbiota Edáfica',
-      cientifico: 'Eisenia foetida (lombriz roja californiana), bacterias nitrificantes, hongos micorrícicos',
-      icono: '🪱',
-      origen: 'Suelo vivo y lechos de compostaje agroecológico',
-      para_que: 'Descomponen vorazmente la materia orgánica de Corabastos y los hogares, convirtiéndola en humus rico en nitrógeno, fósforo y potasio asimilable para las plantas cultivadas.',
-      condiciones: 'Humedad controlada (70%), temperatura moderada, aireación continua, sin presencia de residuos de carnes o heces de mascotas en el lecho.'
-    },
-    {
-      id: 'B4_anfibios',
-      nombre: 'Anfibios y Bioindicadores de Agua',
-      cientifico: 'Rana sabanera (Dendropsophus labialis / Hyla labialis)',
-      icono: '🐸',
-      origen: 'Zanjas de bioinfiltración y ronda hídrica del Humedal El Burro',
-      para_que: 'Depredan larvas de zancudos y mosquitos vectores de enfermedades; actúan como bioindicador infalible de agua no contaminada con agroquímicos ni metales pesados.',
-      condiciones: 'Cuerpos de agua sombreados con vegetación flotante nativa (lenteja de agua, juncos); cero vertimientos de lixiviados o detergentes.'
-    },
-    {
-      id: 'B5_hongos',
-      nombre: 'Hongos Saprófitos Comestibles (Proteína)',
-      cientifico: 'Pleurotus ostreatus (Setas orellanas), microbiota lignocelulítica',
-      icono: '🍄',
-      origen: 'Distrito Biotecnológico Comunitario / Saberes micológicos',
-      para_que: 'Biotransforman celulosa y lignina de residuos secos de Corabastos (bagazo de caña, cascarilla, rastrojo de maíz) en proteína comestible de alta digestibilidad para los comedores populares.',
-      condiciones: 'Cámaras de incubación limpias y oscuras con 85% de humedad, ventilación filtrada y esterilización del sustrato.'
-    },
-    {
-      id: 'B6_flora',
-      nombre: 'Flora Nativa de Ronda y Setos Vivos',
-      cientifico: 'Aliso (Alnus acuminata), Chilco (Baccharis latifolia), Botón de oro (Tithonia diversifolia), Sauco, Ruda, Caléndula',
-      icono: '🌿',
-      origen: 'Bosque de ronda del humedal y semilleros comunitarios',
-      para_que: 'Fijan nitrógeno en el suelo de las huertas, crean barreras cortaviento y amortiguadoras de ruido, y funcionan como farmacia viva y trampas biológicas para insectos plaga.',
-      condiciones: 'Suelo con humedad constante, espacio para desarrollo de raíces y podas selectivas comunitarias.'
-    }
-  ];
-
-  // --- INYECCIÓN DE ESTILOS CSS ---
+  // --- ESTILOS CSS VISUALES (Minimizando texto, maximizando iconos y grafos) ---
   const css = `
   .view-federacion-stage {
     display: none;
     position: absolute;
     inset: 0;
-    background: #090c12;
-    overflow-y: auto;
+    background: radial-gradient(circle at 1px 1px, #182032 1px, transparent 1.3px) 0 0/24px 24px, #080b11;
+    overflow: hidden;
     z-index: 10;
-    padding: 20px 24px 60px;
     color: #F3F0EA;
     font-family: 'Instrument Sans', system-ui, sans-serif;
   }
-  .fed-header {
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    padding-bottom: 16px;
+  .fed-topbar {
+    position: absolute;
+    top: 12px;
+    left: 20px;
+    right: 20px;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px;
+    z-index: 20;
+    pointer-events: none;
   }
-  .fed-badge {
+  .fed-topbar > * { pointer-events: auto; }
+  .fed-switcher {
     display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font: 700 11px 'JetBrains Mono', monospace;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    background: rgba(56,189,248,0.12);
-    color: #38bdf8;
-    padding: 4px 10px;
+    background: rgba(14, 18, 28, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 999px;
-    border: 1px solid rgba(56,189,248,0.3);
-  }
-  .fed-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #fff;
-    margin: 6px 0 2px;
-    letter-spacing: -0.02em;
-  }
-  .fed-sub {
-    font-size: 13.5px;
-    color: #94a3b8;
-    max-width: 80ch;
-    line-height: 1.45;
-    margin: 0;
-  }
-  .fed-nav {
-    display: flex;
-    gap: 8px;
-    background: #111522;
     padding: 4px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
   }
-  .fed-nav-btn {
-    padding: 7px 14px;
-    border-radius: 8px;
+  .fed-tab-btn {
     background: none;
     border: 0;
+    color: #94a3b8;
+    padding: 7px 16px;
+    border-radius: 999px;
     font-size: 12.5px;
     font-weight: 600;
-    color: #94a3b8;
     cursor: pointer;
     transition: all .15s;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
   }
-  .fed-nav-btn:hover {
+  .fed-tab-btn:hover { color: #fff; }
+  .fed-tab-btn.active {
+    background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
     color: #fff;
-    background: rgba(255,255,255,0.04);
-  }
-  .fed-nav-btn.active {
-    background: #38bdf8;
-    color: #090c12;
     font-weight: 700;
+    box-shadow: 0 0 12px rgba(56,189,248,0.35);
   }
 
-  /* Comparación Jerarquía vs Federación */
-  .fed-compare-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 22px;
-    margin-top: 10px;
-  }
-  @media(max-width: 900px) {
-    .fed-compare-grid { grid-template-columns: 1fr; }
-  }
-  .fed-col {
-    background: #0f1420;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-  }
-  .fed-col.jerarquia {
-    border-top: 3px solid #ef4444;
-  }
-  .fed-col.federacion {
-    border-top: 3px solid #10b981;
-    background: linear-gradient(180deg, #101827 0%, #0c111a 100%);
-  }
-  .col-title-wrap {
-    margin-bottom: 14px;
-  }
-  .col-pill {
-    font: 700 10.5px 'JetBrains Mono', monospace;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 6px;
-    margin-bottom: 6px;
-  }
-  .pill-jer { background: rgba(239,68,68,0.18); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-  .pill-fed { background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
-  .col-title {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 700;
-    color: #fff;
-  }
-  .col-desc {
-    margin: 4px 0 0;
-    font-size: 12.5px;
-    color: #94a3b8;
-    line-height: 1.4;
-  }
-
-  /* Diagrama Jerarquía */
-  .jer-ladder {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 14px;
-  }
-  .jer-step {
-    padding: 10px 14px;
-    border-radius: 8px;
-    background: #141a29;
-    border: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 13px;
-  }
-  .jer-step.lead { border-color: #ef4444; background: rgba(239,68,68,0.08); }
-  .jer-step .pos { font: 700 11px 'JetBrains Mono'; color: #64748b; width: 22px; }
-  .jer-step .name { font-weight: 600; color: #f1f5f9; flex: 1; }
-  .jer-step .tag { font-size: 11px; color: #94a3b8; }
-  .jer-arrow {
-    text-align: center;
-    color: #ef4444;
-    font-size: 13px;
-    line-height: 1;
-    opacity: 0.6;
-  }
-
-  /* Diagrama Federación (Sin Líder) */
-  .fed-radial-wrap {
-    margin-top: 12px;
-    background: #090d16;
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid rgba(16,185,129,0.2);
-    position: relative;
-    text-align: center;
-  }
-  .no-leader-banner {
-    background: rgba(16,185,129,0.15);
-    border: 1px solid #10b981;
-    color: #6ee7b7;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    padding: 6px 12px;
-    border-radius: 999px;
+  .fed-filters-pill {
     display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-  .fed-nodes-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 10px;
-    text-align: left;
-  }
-  .fed-node-card {
-    background: #131a29;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-    padding: 10px 12px;
-    transition: all .15s;
-  }
-  .fed-node-card:hover {
-    border-color: #38bdf8;
-    background: #192236;
-  }
-  .fed-node-card .icon-title {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 700;
-    font-size: 12.5px;
-    color: #fff;
-  }
-  .fed-node-card .peeps {
-    font-size: 11.5px;
-    color: #94a3b8;
-    margin-top: 4px;
-    line-height: 1.35;
-  }
-  .fed-center-box {
-    margin-top: 12px;
-    background: #182235;
-    border: 1.5px dashed #38bdf8;
-    border-radius: 10px;
-    padding: 12px;
-    text-align: center;
-  }
-  .fed-center-box h4 {
-    margin: 0;
-    font-size: 14px;
-    color: #38bdf8;
-    font-weight: 700;
-  }
-  .fed-center-box p {
-    margin: 4px 0 0;
-    font-size: 11.5px;
-    color: #cbd5e1;
-    line-height: 1.4;
-  }
-
-  /* Pestaña 2: Matriz */
-  .matrix-intro {
-    background: #101624;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-left: 4px solid #F2B53A;
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 16px;
-  }
-  .matrix-intro h4 {
-    margin: 0 0 4px;
-    font-size: 15px;
-    color: #F2B53A;
-    font-weight: 700;
-  }
-  .matrix-intro p {
-    margin: 0;
-    font-size: 12.5px;
-    color: #cbd5e1;
-    line-height: 1.45;
-  }
-  .matrix-filter-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 16px;
-  }
-  .mf-btn {
-    padding: 5px 12px;
+    background: rgba(14, 18, 28, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 999px;
-    background: #141926;
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #94a3b8;
-    font-size: 11.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .mf-btn:hover { color: #fff; border-color: #475569; }
-  .mf-btn.active { background: #F2B53A; color: #111; font-weight: 700; border-color: #F2B53A; }
-
-  .matrix-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 14px;
-  }
-  .m-card {
-    background: #0f1420;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    transition: transform .15s, border-color .15s;
-  }
-  .m-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255,255,255,0.2);
-  }
-  .m-card-badge {
-    font: 700 10.5px 'JetBrains Mono', monospace;
-    color: #38bdf8;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .m-card-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-    line-height: 1.35;
-  }
-  .m-pill-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 12px;
-  }
-  .m-row-item {
-    display: grid;
-    grid-template-columns: 85px 1fr;
-    gap: 8px;
-    align-items: baseline;
-    color: #cbd5e1;
-    line-height: 1.35;
-  }
-  .m-lbl {
-    font-weight: 700;
-    color: #64748b;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  /* Pestaña 3: Red Sociobiótica */
-  .bio-stage-layout {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 18px;
-  }
-  @media(max-width: 900px) {
-    .bio-stage-layout { grid-template-columns: 1fr; }
-  }
-  .bio-places-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 12px;
-  }
-  .bio-place-card {
-    background: #0e131d;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 14px;
-    cursor: pointer;
-    transition: all .15s;
-    position: relative;
-  }
-  .bio-place-card:hover {
-    border-color: #10b981;
-    background: #141c2c;
-    transform: translateY(-2px);
-  }
-  .bio-place-card.active {
-    border-color: #10b981;
-    background: #12212f;
-    box-shadow: 0 0 16px rgba(16,185,129,0.2);
-  }
-  .bpc-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
-  }
-  .bpc-type {
-    font: 600 10.5px 'JetBrains Mono';
-    color: #10b981;
-    text-transform: uppercase;
-  }
-  .bpc-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
-    margin: 0 0 6px;
-  }
-  .bpc-peeps {
-    font-size: 12px;
-    color: #94a3b8;
-    line-height: 1.35;
-    margin-bottom: 8px;
-  }
-  .bpc-species-tags {
-    display: flex;
-    flex-wrap: wrap;
+    padding: 4px;
     gap: 4px;
   }
-  .sp-tag {
-    font-size: 11px;
-    background: rgba(16,185,129,0.12);
-    color: #6ee7b7;
-    border: 1px solid rgba(16,185,129,0.25);
-    border-radius: 6px;
-    padding: 2px 7px;
+  .ff-btn {
+    background: none;
+    border: 0;
+    color: #94a3b8;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .ff-btn:hover { color: #fff; }
+  .ff-btn.active {
+    background: rgba(255,255,255,0.12);
+    color: #38bdf8;
+    font-weight: 700;
   }
 
-  .bio-species-panel {
-    background: #0f1420;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
-    padding: 18px;
-    position: sticky;
-    top: 10px;
-    max-height: 85vh;
-    overflow-y: auto;
+  /* Canvas SVG principal */
+  .fed-svg-stage {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
   }
-  .bsp-title {
+  .fed-svg-stage:active { cursor: grabbing; }
+
+  /* Tooltip flotante limpio y explicativo */
+  .fed-floating-tip {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(12, 16, 26, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1.5px solid #38bdf8;
+    border-radius: 14px;
+    padding: 12px 20px;
+    max-width: 620px;
+    width: 90%;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.8);
+    z-index: 25;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .fed-floating-tip.hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  .tip-badge {
+    font: 700 10.5px 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-bottom: 4px;
+  }
+  .tip-title {
+    margin: 0;
     font-size: 16px;
     font-weight: 700;
     color: #fff;
-    margin: 0 0 4px;
-  }
-  .bsp-sub {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-bottom: 14px;
-  }
-  .species-card-item {
-    background: #141a29;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-  }
-  .sci-head {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 4px;
   }
-  .sci-ico { font-size: 18px; }
-  .sci-name { font-weight: 700; font-size: 13px; color: #f1f5f9; }
-  .sci-sci { font-size: 11px; font-style: italic; color: #94a3b8; margin-bottom: 6px; }
-  .sci-para {
-    font-size: 12px;
-    color: #6ee7b7;
-    background: rgba(16,185,129,0.08);
-    border-radius: 6px;
-    padding: 6px 8px;
-    line-height: 1.35;
-    margin-bottom: 6px;
+  .tip-desc {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #cbd5e1;
   }
-  .sci-para b { color: #fff; font-weight: 700; }
-  .sci-cond { font-size: 11.5px; color: #94a3b8; line-height: 1.3; }
+  .tip-desc b { color: #6ee7b7; font-weight: 700; }
   `;
 
-  const styleEl = document.createElement('style');
-  styleEl.textContent = css;
-  document.head.appendChild(styleEl);
+  const sEl = document.createElement('style');
+  sEl.textContent = css;
+  document.head.appendChild(sEl);
 
-  // --- CONTENEDOR PRINCIPAL HTML ---
+  // --- DATOS VISUALES PARA LOS DOS GRAFOS ---
+
+  // 1. COMPARACIÓN VISUAL: Jerarquía vs Federación
+  const DATA_COMP = {
+    jerarquia: {
+      titulo: 'Hoy: Jerarquía (Mando Vertical)',
+      sub: 'Un solo orden: las entidades deciden arriba; los costos caen sobre las bases.',
+      nodos: [
+        { id:'j1', n:'Alcaldía & UAESP', icon:'🏛️', y:110, tag:'Decisión y Contratos', col:'#f87171' },
+        { id:'j2', n:'Gerencia Corabastos', icon:'🏢', y:190, tag:'Monopolio Mayorista', col:'#fb923c' },
+        { id:'j3', n:'Transporte & Aseo', icon:'🚛', y:270, tag:'Operación Externa', col:'#fbbf24' },
+        { id:'j4', n:'Recicladores & Coteros', icon:'👷', y:350, tag:'Trabajo Físico', col:'#94a3b8' },
+        { id:'j5', n:'Vecinos & Humedal', icon:'👥', y:430, tag:'Soportan Costos', col:'#64748b' }
+      ]
+    },
+    federacion: {
+      titulo: 'Propuesta: Federación Policéntrica (Sin Líder)',
+      sub: 'Red horizontal de núcleos autónomos: NO HAY LÍDER CENTRAL.',
+      centro: { id:'fc', n:'Mesa Federativa', icon:'🤝', tag:'Vocerías rotativas · Consentimiento', col:'#38bdf8' },
+      nodos: [
+        { id:'f1', n:'Huertas & Alimentos', icon:'🌿', tag:'Hogares y Comedores', col:'#4ade80', angle: -Math.PI/2 },
+        { id:'f2', n:'Humedal & Agua', icon:'🦆', tag:'Custodios El Burro', col:'#38bdf8', angle: -Math.PI/2 + (2*Math.PI/5) },
+        { id:'f3', n:'Circularidad & Compost', icon:'♻️', tag:'Recicladores', col:'#facc15', angle: -Math.PI/2 + 2*(2*Math.PI/5) },
+        { id:'f4', n:'Comercio Barrial', icon:'🏪', tag:'Tenderos y Ferias', col:'#fb923c', angle: -Math.PI/2 + 3*(2*Math.PI/5) },
+        { id:'f5', n:'Soporte Público', icon:'🏛️', tag:'UAESP y Alcaldía (sin mando)', col:'#c084fc', angle: -Math.PI/2 + 4*(2*Math.PI/5) }
+      ]
+    }
+  };
+
+  // 2. RED SOCIOBIÓTICA: Lugares + Personas + Relaciones Bióticas atraídas
+  const NODOS_SOCIOBIOTICA = [
+    // --- LUGARES (Dónde) ---
+    { id:'L_inv', cat:'lugar', n:'Huerta Invasión', icon:'🏡', col:'#4ade80', x:320, y:180,
+      quienes:'Familias de asentamiento informal',
+      paraque:'Autoconsumo diario y soberanía alimentaria en barrios populares' },
+    { id:'L_alt', cat:'lugar', n:'Huerta en Altura', icon:'🏢', col:'#38bdf8', x:480, y:140,
+      quienes:'Vecinos de conjuntos residenciales',
+      paraque:'Aprovechar terrazas ociosas y reducir isla de calor' },
+    { id:'L_bal', cat:'lugar', n:'Huerta en Baldío', icon:'🏞️', col:'#2dd4bf', x:640, y:190,
+      quienes:'Juntas Comunales (JAC) y jóvenes',
+      paraque:'Recuperar lotes abandonados y crear espacio comunitario' },
+    { id:'L_hum', cat:'lugar', n:'Ronda Humedal El Burro', icon:'💧', col:'#06b6d4', x:500, y:290,
+      quienes:'Custodios del humedal y vecinos ribereños',
+      paraque:'Franja agroecológica de amortiguamiento y protección hídrica' },
+    { id:'L_com', cat:'lugar', n:'Estación Compostaje', icon:'♻️', col:'#eab308', x:310, y:380,
+      quienes:'Recicladores organizados y coteros',
+      paraque:'Desviar orgánicos de Corabastos y transformarlos en abono gratis' },
+    { id:'L_aco', cat:'lugar', n:'Acopio & Tiendas', icon:'🏪', col:'#f97316', x:670, y:350,
+      quienes:'Tenderos barriales y vendedores de feria',
+      paraque:'Venta directa a precio justo de excedentes agrícolas' },
+    { id:'L_hon', cat:'lugar', n:'Distrito de Hongos', icon:'🍄', col:'#ec4899', x:420, y:460,
+      quienes:'Técnicos comunitarios en micología',
+      paraque:'Cultivar proteína de setas sobre rastrojos agrícolas de Corabastos' },
+    { id:'L_esc', cat:'lugar', n:'Comedores & Escuelas', icon:'🍲', col:'#a855f7', x:580, y:450,
+      quienes:'Cocineras comunitarias, docentes y estudiantes',
+      paraque:'Comensalidad digna y formación de relevo generacional' },
+
+    // --- PERSONAS (Quiénes) ---
+    { id:'P_hor', cat:'persona', n:'Hortelanos & Familias', icon:'👩‍🌾', col:'#86efac', x:160, y:140,
+      quienes:'Vecinas y hortelanos populares',
+      paraque:'Siembra, deshierbe y cosecha cotidiana en los barrios' },
+    { id:'P_jac', cat:'persona', n:'Juntas de Acción Comunal', icon:'👥', col:'#67e8f9', x:800, y:140,
+      quienes:'Dignatarios y líderes vecinales',
+      paraque:'Gestión de lotes, salones comunales y mingas de trabajo' },
+    { id:'P_cus', cat:'persona', n:'Custodios Humedal', icon:'🦆', col:'#38bdf8', x:140, y:270,
+      quienes:'Colectivos ambientales de El Burro y La Vaca',
+      paraque:'Veeduría ambiental, monitoreo de agua y cuidado de la fauna' },
+    { id:'P_rec', cat:'persona', n:'Recicladores de Orgánicos', icon:'🦺', col:'#fde047', x:150, y:400,
+      quienes:'Asociaciones de recicladores de oficio',
+      paraque:'Recolección diferenciada y manejo de camas de compostaje' },
+    { id:'P_ten', cat:'persona', n:'Tenderos Barriales', icon:'🛒', col:'#fdba74', x:820, y:360,
+      quienes:'Comerciantes de víveres del barrio',
+      paraque:'Compra preferencial de hortalizas locales para abastecer a las familias' },
+    { id:'P_coc', cat:'persona', n:'Cocineras Comunitarias', icon:'👩‍🍳', col:'#d8b4fe', x:800, y:470,
+      quienes:'Madres comunitarias y líderes de comedores',
+      paraque:'Transformar lo cosechado en raciones calientes saludables' },
+
+    // --- ESPECIES BIÓTICAS (Atraídas del Humedal El Burro) ---
+    { id:'B_abe', cat:'biotica', n:'Polinizadores (Abejas/Mariposas)', icon:'🐝', col:'#fde047', x:400, y:60,
+      quienes:'Bombus pauloensis, Abeja angelita, Mariposas',
+      paraque:'Polinizar flores de hortalizas y frutales: ¡aumenta la cosecha un 40%!' },
+    { id:'B_ave', cat:'biotica', n:'Aves (Tinguas/Cucarachero)', icon:'🐦', col:'#38bdf8', x:590, y:60,
+      quienes:'Tingua bogotana, cucarachero de pantano, colibrí, mirlas',
+      paraque:'Control biológico natural de gusanos, orugas y plagas sin pesticidas' },
+    { id:'B_lom', cat:'biotica', n:'Lombrices & Microbiota', icon:'🪱', col:'#fb923c', x:330, y:270,
+      quienes:'Lombriz roja californiana y bacterias nitrificantes',
+      paraque:'Degradar vorazmente los residuos orgánicos y generar abono vivo' },
+    { id:'B_ran', cat:'biotica', n:'Rana Sabanera', icon:'🐸', col:'#4ade80', x:640, y:270,
+      quienes:'Dendropsophus labialis (anfibio nativo)',
+      paraque:'Depredar larvas de zancudos y ser bioindicador de agua sin venenos' },
+    { id:'B_flo', cat:'biotica', n:'Flora Nativa (Aliso/Chilco)', icon:'🌿', col:'#a3e635', x:250, y:200,
+      quienes:'Aliso, chilco, botón de oro, ruda y caléndula',
+      paraque:'Cercas vivas cortaviento, hospederos florales y fijación de nitrógeno' }
+  ];
+
+  const ENLACES_SOCIOBIOTICA = [
+    // Lugares <-> Personas
+    { s:'P_hor', t:'L_inv', label:'Cultiva y cuida' },
+    { s:'P_hor', t:'L_alt', label:'Manejo de terrazas' },
+    { s:'P_jac', t:'L_bal', label:'Asigna y convoca' },
+    { s:'P_cus', t:'L_hum', label:'Restaura y custodia' },
+    { s:'P_rec', t:'L_com', label:'Opera composteras' },
+    { s:'P_ten', t:'L_aco', label:'Distribuye y vende' },
+    { s:'P_coc', t:'L_esc', label:'Cocina raciones' },
+
+    // Lugares <-> Especies atraídas del humedal (¿Para qué?)
+    { s:'B_abe', t:'L_inv', label:'Poliniza hortalizas' },
+    { s:'B_abe', t:'L_alt', label:'Conecta islas florales' },
+    { s:'B_abe', t:'L_bal', label:'Aumenta rendimiento' },
+    { s:'B_ave', t:'L_hum', label:'Control biológico de plagas' },
+    { s:'B_ave', t:'L_bal', label:'Dispersa semillas nativas' },
+    { s:'B_ave', t:'L_esc', label:'Pedagogía ambiental' },
+    { s:'B_lom', t:'L_com', label:'Digiere residuos orgánicos' },
+    { s:'B_lom', t:'L_inv', label:'Nutre las camas de siembra' },
+    { s:'B_ran', t:'L_hum', label:'Controla larvas de mosquitos' },
+    { s:'B_flo', t:'L_hum', label:'Cerca viva y biofiltro' },
+    { s:'B_flo', t:'L_inv', label:'Barrera y repelente natural' },
+
+    // Flujos entre lugares (El circuito integrado)
+    { s:'L_inv', t:'L_aco', label:'Entrega excedentes' },
+    { s:'L_bal', t:'L_aco', label:'Entrega cosechas' },
+    { s:'L_com', t:'L_inv', label:'Aporta compost' },
+    { s:'L_com', t:'L_bal', label:'Aporta compost' },
+    { s:'L_aco', t:'L_esc', label:'Abastece comedores' },
+    { s:'L_hon', t:'L_esc', label:'Aporta proteína de setas' }
+  ];
+
+  // --- HTML ESTRUCTURAL ---
   const html = `
   <div id="viewFederacion" class="view-federacion-stage">
-    <div class="fed-header">
-      <div>
-        <div class="fed-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
-          Gobernanza Policéntrica & Red Biótica · Kennedy
-        </div>
-        <h2 class="fed-title">Federación Territorial y Red Sociobiótica</h2>
-        <p class="fed-sub">Descentralización del abastecimiento alimentario de Corabastos, articulación agroecológica en los barrios y atracción activa de la red biótica del Humedal El Burro.</p>
+    <div class="fed-topbar">
+      <div class="fed-switcher">
+        <button class="fed-tab-btn active" data-tab="comparacion" id="btnTabComp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8m-4-4v8"/></svg>
+          1. Federación (Sin Líder) vs. Jerarquía
+        </button>
+        <button class="fed-tab-btn" data-tab="sociobiotica" id="btnTabBio">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          2. Red Sociobiótica (Huertas & Humedal El Burro)
+        </button>
       </div>
-      <div class="fed-nav">
-        <button class="fed-nav-btn active" data-tab="comparacion" id="btnTabComp">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8m-4-4v8"/></svg>
-          Federación (Sin Líder) vs. Jerarquía
-        </button>
-        <button class="fed-nav-btn" data-tab="matriz" id="btnTabMatriz">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-          Problema, Dónde, Con Qué y Quiénes
-        </button>
-        <button class="fed-nav-btn" data-tab="sociobiotica" id="btnTabBio">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          Red Sociobiótica (Huertas & Humedal)
-        </button>
+
+      <!-- Filtros para la Red Sociobiótica -->
+      <div class="fed-filters-pill" id="fedFilters" style="display:none">
+        <button class="ff-btn active" data-filter="all">Toda la Red (20)</button>
+        <button class="ff-btn" data-filter="lugar">🏡 8 Lugares</button>
+        <button class="ff-btn" data-filter="persona">👥 6 Personas</button>
+        <button class="ff-btn" data-filter="biotica">🐝 6 Especies Bióticas</button>
       </div>
     </div>
 
-    <!-- SECCIÓN 1: FEDERACIÓN SIN LÍDER VS JERARQUÍA (Corrige la foto) -->
-    <div id="fedSecComp" class="fed-tab-sec">
-      <div class="fed-compare-grid">
-        <!-- Columna Izquierda: Jerarquía -->
-        <div class="fed-col jerarquia">
-          <div class="col-title-wrap">
-            <span class="col-pill pill-jer">Diagnóstico Actual</span>
-            <h3 class="col-title">Hoy: Jerarquía Piramidal Centralizada</h3>
-            <p class="col-desc">Un solo orden vertical para todo: las instituciones deciden arriba y quienes hacen el trabajo quedan subordinados abajo sin capacidad de incidir.</p>
-          </div>
-          <div class="jer-ladder">
-            <div class="jer-step lead">
-              <span class="pos">01</span>
-              <span class="name">Alcaldía Local, UAESP & Sec. Ambiente</span>
-              <span class="tag">Deciden y contratan</span>
-            </div>
-            <div class="jer-arrow">▼ órdenes, regulaciones y contratos ▼</div>
-            <div class="jer-step">
-              <span class="pos">02</span>
-              <span class="name">Gerencia Corabastos & Mayoristas</span>
-              <span class="tag">Controlan mercancía</span>
-            </div>
-            <div class="jer-arrow">▼ fijación unilateral de precios y horarios ▼</div>
-            <div class="jer-step">
-              <span class="pos">03</span>
-              <span class="name">Empresas Transportadoras & Operador de Aseo</span>
-              <span class="tag">Controlan rutas y flotas</span>
-            </div>
-            <div class="jer-arrow">▼ asignación de cargas y turnos ▼</div>
-            <div class="jer-step">
-              <span class="pos">04</span>
-              <span class="name">Organizaciones de Recicladores & Coteros</span>
-              <span class="tag">Trabajo físico pesado</span>
-            </div>
-            <div class="jer-arrow">▲ sólo pueden enviar solicitudes no vinculantes ▲</div>
-            <div class="jer-step">
-              <span class="pos">05</span>
-              <span class="name">Vecinos, Huertas Comunitarias, Comedores & Humedal</span>
-              <span class="tag">Soportan costos e impactos</span>
-            </div>
-          </div>
-          <p style="margin-top:14px;font-size:12px;color:#94a3b8;line-height:1.4">
-            <b style="color:#f87171">Falla estructural:</b> Quienes realizan el trabajo cotidiano (reciclaje, cargue, siembra) no tienen voz vinculante en la fijación de tarifas, horarios ni prioridades del presupuesto local.
-          </p>
-        </div>
+    <!-- Escenario SVG interactivo -->
+    <svg id="fedSvg" class="fed-svg-stage" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg>
 
-        <!-- Columna Derecha: Federación Policéntrica Sin Líder -->
-        <div class="fed-col federacion">
-          <div class="col-title-wrap">
-            <span class="col-pill pill-fed">Propuesta Territorial</span>
-            <h3 class="col-title">Propuesta: Federación Territorial Policéntrica</h3>
-            <p class="col-desc">Coordinación horizontal entre núcleos autónomos: <b>NO HAY LÍDER CENTRAL</b> ni escalafón de mando superior. La autoridad reside en los acuerdos por asunto.</p>
-          </div>
-
-          <div class="fed-radial-wrap">
-            <div class="no-leader-banner">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              PRINCIPIO FUNDAMENTAL: CERO LÍDERES PERMANENTES
-            </div>
-
-            <div class="fed-nodes-grid">
-              <div class="fed-node-card">
-                <div class="icon-title">🌿 Núcleo Soberanía Alimentaria</div>
-                <div class="peeps">Hogares, hortelanos, comedores comunitarios y escuelas. Deciden qué se siembra y cómo se reparten excedentes.</div>
-              </div>
-              <div class="fed-node-card">
-                <div class="icon-title">🦆 Núcleo Humedal y Restauración</div>
-                <div class="peeps">Custodios ambientales de El Burro y La Vaca. Custodia biótica, monitoreo de agua y llave ecológica de la cuenca.</div>
-              </div>
-              <div class="fed-node-card">
-                <div class="icon-title">♻️ Núcleo Circularidad y Orgánicos</div>
-                <div class="peeps">Recicladores organizados, coteros y planta comunitaria de compostaje. Manejo autónomo de residuos in situ.</div>
-              </div>
-              <div class="fed-node-card">
-                <div class="icon-title">🏪 Núcleo Comercio Barrial</div>
-                <div class="peeps">Tenderos, ferias barriales y puntos de acopio. Precios transparentes y abastecimiento directo sin intermediarios.</div>
-              </div>
-            </div>
-
-            <div class="fed-center-box">
-              <h4>Mesa Federativa de Coordinación de Kennedy</h4>
-              <p><b>Sin jerarquía:</b> Funciona con <b>vocerías rotativas cada 1 a 3 meses</b>, mandatos revocables con límites estrictos, deliberación por consentimiento mutuo y pactos de cogestión con entidades públicas (UAESP, SDA, Alcaldía).</p>
-            </div>
-          </div>
-
-          <p style="margin-top:14px;font-size:12px;color:#94a3b8;line-height:1.4">
-            <b style="color:#34d399">Ventaja federativa:</b> Ningún actor manda sobre otro. La entidad pública acompaña y aporta presupuesto participativo; el saber práctico de los trabajadores y hortelanos define la operación real.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECCIÓN 2: MATRIZ OPERATIVA (Qué problema, Dónde, Con Qué y Quiénes) -->
-    <div id="fedSecMatriz" class="fed-tab-sec" style="display:none">
-      <div class="matrix-intro">
-        <h4>Problema Central: P1 · Dependencia Alimentaria y Ecológica de Corabastos</h4>
-        <p>La concentración absoluta del abastecimiento en un único megamercado monopolizador somete a tiendas, comedores y hogares de Kennedy a precios volátiles, genera pérdidas masivas de residuos orgánicos que colapsan vertederos y contamina los humedales. La propuesta despliega un circuito agroecológico territorial distribuido.</p>
-      </div>
-
-      <div class="matrix-filter-bar" id="matrixFilterBar">
-        <button class="mf-btn active" data-filter="all">Todas las Dinámicas (10)</button>
-        <button class="mf-btn" data-filter="huertas">Huertas Comunales (4)</button>
-        <button class="mf-btn" data-filter="comensalidad">Comensalidad y Comedores (1)</button>
-        <button class="mf-btn" data-filter="excedentes">Comercio de Excedentes (1)</button>
-        <button class="mf-btn" data-filter="insumos">Insumos Circulares & Compost (1)</button>
-        <button class="mf-btn" data-filter="biotech">Distrito Biotecnológico (1)</button>
-        <button class="mf-btn" data-filter="gobierno">Gobierno Federado (1)</button>
-      </div>
-
-      <div class="matrix-cards-grid" id="matrixCardsGrid">
-        <!-- Renderizado dinámico vía JS -->
-      </div>
-    </div>
-
-    <!-- SECCIÓN 3: RED SOCIOBIÓTICA (Huertas & Humedal El Burro) -->
-    <div id="fedSecBio" class="fed-tab-sec" style="display:none">
-      <div class="matrix-intro" style="border-left-color:#10b981">
-        <h4 style="color:#10b981">Atracción de Relaciones Bióticas del Humedal El Burro hacia las Huertas Urbanas</h4>
-        <p>Conectamos los 8 lugares territoriales del circuito con los actores humanos que los gestionan y las <b>especies y relaciones bióticas</b> que atraemos activamente desde el Humedal El Burro para garantizar polinización, control biológico de plagas sin pesticidas, suelo fértil y proteína limpia.</p>
-      </div>
-
-      <div class="bio-stage-layout">
-        <!-- Lugares Territoriales -->
-        <div>
-          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;margin-bottom:10px">
-            Lugares Territoriales en Kennedy (Toca un lugar para ver qué especies y actores conviven)
-          </div>
-          <div class="bio-places-grid" id="bioPlacesGrid">
-            <!-- Renderizado dinámico vía JS -->
-          </div>
-        </div>
-
-        <!-- Panel Lateral de Especies Bióticas Atraídas -->
-        <div class="bio-species-panel" id="bioSpeciesPanel">
-          <h4 class="bsp-title">Red de Relaciones Bióticas</h4>
-          <p class="bsp-sub">Especies atraídas desde el Humedal El Burro y su función sistémica ("¿Para qué?"):</p>
-          <div id="speciesListContainer">
-            <!-- Renderizado dinámico vía JS -->
-          </div>
-        </div>
-      </div>
+    <!-- Tooltip flotante limpio y explicativo -->
+    <div id="fedTip" class="fed-floating-tip hidden">
+      <span class="tip-badge" id="tipBadge">Elemento</span>
+      <h3 class="tip-title" id="tipTitle">Título</h3>
+      <p class="tip-desc" id="tipDesc">Descripción</p>
     </div>
   </div>
   `;
 
-  // Insertar en el escenario de corte-3.html
-  const stage = document.getElementById('stage');
-  if (stage) {
+  // Insertar en #stage
+  const stageEl = document.getElementById('stage');
+  if (stageEl) {
     const wrap = document.createElement('div');
     wrap.innerHTML = html;
-    stage.appendChild(wrap.firstElementChild);
+    stageEl.appendChild(wrap.firstElementChild);
   }
 
-  // --- LÓGICA DE CONTROL DE PESTAÑAS Y RENDERIZADO ---
-  function showTab(tabId) {
-    document.querySelectorAll('.fed-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
-    document.getElementById('fedSecComp').style.display = tabId === 'comparacion' ? 'block' : 'none';
-    document.getElementById('fedSecMatriz').style.display = tabId === 'matriz' ? 'block' : 'none';
-    document.getElementById('fedSecBio').style.display = tabId === 'sociobiotica' ? 'block' : 'none';
+  // --- MOTOR DE DIBUJO D3 DE LAS DOS REDES ---
+  let activeTab = 'comparacion';
+  let activeFilter = 'all';
 
-    if (tabId === 'matriz') renderMatrixCards('all');
-    if (tabId === 'sociobiotica') renderSociobiotica();
+  function renderView() {
+    const svg = d3.select('#fedSvg');
+    svg.selectAll('*').remove();
+
+    const tip = document.getElementById('fedTip');
+    const filtersBar = document.getElementById('fedFilters');
+    if (filtersBar) filtersBar.style.display = activeTab === 'sociobiotica' ? 'inline-flex' : 'none';
+
+    // Función para mostrar tooltip
+    function showTip(badge, col, title, desc) {
+      if (!tip) return;
+      const b = document.getElementById('tipBadge');
+      const t = document.getElementById('tipTitle');
+      const d = document.getElementById('tipDesc');
+      b.textContent = badge;
+      b.style.background = col + '25';
+      b.style.color = col;
+      b.style.border = '1px solid ' + col;
+      t.innerHTML = title;
+      d.innerHTML = desc;
+      tip.classList.remove('hidden');
+    }
+    function hideTip() {
+      if (tip) tip.classList.add('hidden');
+    }
+
+    if (activeTab === 'comparacion') {
+      renderComparacion(svg, showTip, hideTip);
+    } else {
+      renderSociobiotica(svg, showTip, hideTip);
+    }
   }
 
-  document.querySelectorAll('.fed-nav-btn').forEach(btn => {
-    btn.onclick = () => showTab(btn.dataset.tab);
+  // 1. RENDERIZAR COMPARACIÓN: Jerarquía vs Federación
+  function renderComparacion(svg, showTip, hideTip) {
+    const W = 1000, H = 620;
+
+    // Fondo dividido
+    const gBg = svg.append('g');
+    gBg.append('rect').attr('x', 30).attr('y', 55).attr('width', 440).attr('height', 525).attr('rx', 18)
+      .attr('fill', '#0e1320').attr('stroke', 'rgba(239,68,68,0.3)').attr('stroke-width', 1.5);
+    gBg.append('rect').attr('x', 510).attr('y', 55).attr('width', 460).attr('height', 525).attr('rx', 18)
+      .attr('fill', '#0d1924').attr('stroke', 'rgba(56,189,248,0.4)').attr('stroke-width', 1.5);
+
+    // Título Columna 1: Jerarquía
+    const h1 = svg.append('g').attr('transform', 'translate(250, 85)');
+    h1.append('text').text('HOY: JERARQUÍA PIRAMIDAL').attr('text-anchor', 'middle')
+      .attr('fill', '#f87171').attr('font-weight', '800').attr('font-size', '15px').attr('letter-spacing', '0.06em');
+    h1.append('text').text('Un solo orden: decisiones arriba · costos abajo').attr('text-anchor', 'middle')
+      .attr('fill', '#94a3b8').attr('font-size', '11.5px').attr('y', 18);
+
+    // Título Columna 2: Federación sin líder
+    const h2 = svg.append('g').attr('transform', 'translate(740, 85)');
+    h2.append('text').text('PROPUESTA: FEDERACIÓN POLICÉNTRICA').attr('text-anchor', 'middle')
+      .attr('fill', '#38bdf8').attr('font-weight', '800').attr('font-size', '15px').attr('letter-spacing', '0.06em');
+    h2.append('text').text('SIN LÍDER CENTRAL · Nodos autónomos en igualdad horizontal').attr('text-anchor', 'middle')
+      .attr('fill', '#34d399').attr('font-size', '11.5px').attr('font-weight', '700').attr('y', 18);
+
+    // Dibujar Escalera de Jerarquía (Lado Izquierdo)
+    const jN = DATA_COMP.jerarquia.nodos;
+    const gJer = svg.append('g');
+
+    // Flechas descendentes de mando
+    for (let i = 0; i < jN.length - 1; i++) {
+      const y1 = jN[i].y + 24, y2 = jN[i+1].y - 24;
+      gJer.append('line').attr('x1', 250).attr('y1', y1).attr('x2', 250).attr('y2', y2)
+        .attr('stroke', '#ef4444').attr('stroke-width', 2.5).attr('stroke-dasharray', '4 4');
+      gJer.append('polygon').attr('points', `246,${y2-2} 254,${y2-2} 250,${y2+6}`).attr('fill', '#ef4444');
+    }
+
+    // Nodos de Jerarquía
+    jN.forEach((n, idx) => {
+      const g = gJer.append('g').attr('transform', `translate(250, ${n.y})`).style('cursor', 'pointer');
+      g.append('rect').attr('x', -150).attr('y', -20).attr('width', 300).attr('height', 40).attr('rx', 10)
+        .attr('fill', '#151d2e').attr('stroke', n.col).attr('stroke-width', idx === 0 ? 2.5 : 1.2);
+      g.append('text').text(n.icon).attr('x', -130).attr('y', 6).attr('font-size', '18px');
+      g.append('text').text(n.n).attr('x', -98).attr('y', 0).attr('fill', '#fff').attr('font-weight', '700').attr('font-size', '13px');
+      g.append('text').text(n.tag).attr('x', -98).attr('y', 14).attr('fill', n.col).attr('font-size', '10.5px').attr('font-weight', '600');
+      g.append('circle').attr('cx', 130).attr('cy', 0).attr('r', 11).attr('fill', n.col).attr('opacity', 0.2);
+      g.append('text').text(idx + 1).attr('x', 130).attr('y', 4).attr('text-anchor', 'middle').attr('fill', n.col).attr('font-size', '10px').attr('font-weight', '800');
+
+      g.on('mouseenter', () => showTip('Jerarquía Actual', n.col, `${n.icon} ${n.n}`, `<b>Nivel ${idx+1}:</b> ${n.tag}. En el modelo actual, la toma de decisiones está concentrada arriba, excluyendo a quienes ejecutan el trabajo cotidiano.`));
+      g.on('mouseleave', hideTip);
+    });
+
+    // Dibujar Red Circular de Federación (Lado Derecho)
+    const gFed = svg.append('g');
+    const fC = { x: 740, y: 325 };
+    const fN = DATA_COMP.federacion.nodos;
+    const R = 145;
+
+    // Posiciones polares de los 5 nodos
+    fN.forEach(n => {
+      n.x = fC.x + Math.cos(n.angle) * R;
+      n.y = fC.y + Math.sin(n.angle) * R;
+    });
+
+    // Enlaces de red entre nodos (malla horizontal)
+    for (let i = 0; i < fN.length; i++) {
+      for (let j = i + 1; j < fN.length; j++) {
+        gFed.append('line').attr('x1', fN[i].x).attr('y1', fN[i].y).attr('x2', fN[j].x).attr('y2', fN[j].y)
+          .attr('stroke', '#10b981').attr('stroke-width', 1.2).attr('stroke-dasharray', '3 3').attr('opacity', 0.45);
+      }
+    }
+
+    // Enlaces hacia el centro (Mesa Federativa)
+    fN.forEach(n => {
+      gFed.append('line').attr('x1', fC.x).attr('y1', fC.y).attr('x2', n.x).attr('y2', n.y)
+        .attr('stroke', '#38bdf8').attr('stroke-width', 2).attr('opacity', 0.7);
+    });
+
+    // Centro: Mesa Federativa 🤝
+    const gC = gFed.append('g').attr('transform', `translate(${fC.x}, ${fC.y})`).style('cursor', 'pointer');
+    gC.append('circle').attr('r', 52).attr('fill', '#0f2438').attr('stroke', '#38bdf8').attr('stroke-width', 3);
+    gC.append('text').text('🤝').attr('text-anchor', 'middle').attr('y', -10).attr('font-size', '28px');
+    gC.append('text').text('MESA FEDERATIVA').attr('text-anchor', 'middle').attr('y', 14)
+      .attr('fill', '#38bdf8').attr('font-size', '10.5px').attr('font-weight', '800').attr('letter-spacing', '0.04em');
+    gC.append('text').text('Vocerías rotativas').attr('text-anchor', 'middle').attr('y', 27)
+      .attr('fill', '#94a3b8').attr('font-size', '9.5px');
+
+    gC.on('mouseenter', () => showTip('Centro Coordinador', '#38bdf8', '🤝 Mesa Federativa de Kennedy', '<b>SIN LÍDER CENTRAL:</b> Espacio donde convergen los delegados con <b>vocerías rotativas cortas (1 a 3 meses)</b> y mandatos revocables. Se decide por consentimiento mutuo y cogestión pública.'));
+    gC.on('mouseleave', hideTip);
+
+    // Nodos Periféricos de la Federación
+    fN.forEach(n => {
+      const g = gFed.append('g').attr('transform', `translate(${n.x}, ${n.y})`).style('cursor', 'pointer');
+      g.append('circle').attr('r', 38).attr('fill', '#111e30').attr('stroke', n.col).attr('stroke-width', 2.5);
+      g.append('text').text(n.icon).attr('text-anchor', 'middle').attr('y', -4).attr('font-size', '22px');
+      g.append('text').text(n.n).attr('text-anchor', 'middle').attr('y', 16)
+        .attr('fill', '#fff').attr('font-size', '10.5px').attr('font-weight', '700');
+      g.append('text').text(n.tag).attr('text-anchor', 'middle').attr('y', 27)
+        .attr('fill', n.col).attr('font-size', '8.5px').attr('font-weight', '600');
+
+      g.on('mouseenter', () => showTip('Nodo Autónomo', n.col, `${n.icon} ${n.n}`, `<b>Composición:</b> ${n.tag}. Autonomía total para su materia sin someterse a jefes. Se conecta en igualdad de condiciones con los demás núcleos.`));
+      g.on('mouseleave', hideTip);
+    });
+
+    // Banner destacado inferior
+    const bBanner = svg.append('g').attr('transform', 'translate(740, 545)');
+    bBanner.append('rect').attr('x', -200).attr('y', -14).attr('width', 400).attr('height', 28).attr('rx', 14)
+      .attr('fill', 'rgba(16,185,129,0.18)').attr('stroke', '#10b981').attr('stroke-width', 1.2);
+    bBanner.append('text').text('✓ CERO LÍDERES · MANDATO ROTATIVO · CONSENTIMIENTO')
+      .attr('text-anchor', 'middle').attr('y', 4).attr('fill', '#34d399').attr('font-weight', '800').attr('font-size', '11.5px');
+  }
+
+  // 2. RENDERIZAR RED SOCIOBIÓTICA INTERACTIVA
+  function renderSociobiotica(svg, showTip, hideTip) {
+    let nodes = NODOS_SOCIOBIOTICA;
+    if (activeFilter !== 'all') {
+      nodes = NODOS_SOCIOBIOTICA.filter(n => n.cat === activeFilter);
+    }
+    const nodeMap = new Map(NODOS_SOCIOBIOTICA.map(n => [n.id, n]));
+
+    const gLinks = svg.append('g').attr('class', 'links');
+    const gNodes = svg.append('g').attr('class', 'nodes');
+
+    // Filtrar enlaces visibles
+    const visibleIds = new Set(nodes.map(n => n.id));
+    const links = ENLACES_SOCIOBIOTICA.filter(l => visibleIds.has(l.s) && visibleIds.has(l.t));
+
+    // Dibujar Enlaces con curvatura y flechas
+    links.forEach(l => {
+      const s = nodeMap.get(l.s), t = nodeMap.get(l.t);
+      if (!s || !t) return;
+      const isBio = s.cat === 'biotica' || t.cat === 'biotica';
+      const col = isBio ? '#10b981' : '#38bdf8';
+
+      const line = gLinks.append('line')
+        .attr('x1', s.x).attr('y1', s.y).attr('x2', t.x).attr('y2', t.y)
+        .attr('stroke', col).attr('stroke-width', isBio ? 2.2 : 1.4)
+        .attr('stroke-dasharray', isBio ? '4 3' : null)
+        .attr('opacity', 0.5)
+        .style('transition', 'all .2s');
+
+      // Animación de partículas ecológicas en relaciones bióticas
+      if (isBio) {
+        const p = gLinks.append('circle').attr('r', 3).attr('fill', '#34d399');
+        p.append('animate').attr('attributeName', 'cx').attr('values', `${s.x};${t.x}`).attr('dur', '2.4s').attr('repeatCount', 'indefinite');
+        p.append('animate').attr('attributeName', 'cy').attr('values', `${s.y};${t.y}`).attr('dur', '2.4s').attr('repeatCount', 'indefinite');
+      }
+    });
+
+    // Dibujar Nodos
+    nodes.forEach(n => {
+      const g = gNodes.append('g').attr('transform', `translate(${n.x}, ${n.y})`).style('cursor', 'pointer');
+      const isLugar = n.cat === 'lugar', isBio = n.cat === 'biotica';
+
+      if (isLugar) {
+        g.append('rect').attr('x', -32).attr('y', -32).attr('width', 64).attr('height', 64).attr('rx', 14)
+          .attr('fill', '#111827').attr('stroke', n.col).attr('stroke-width', 2.5);
+      } else if (isBio) {
+        // Diamante brillante para especies bióticas
+        g.append('polygon').attr('points', '0,-36 36,0 0,36 -36,0')
+          .attr('fill', '#09231f').attr('stroke', n.col).attr('stroke-width', 2.5);
+      } else {
+        // Círculo para personas
+        g.append('circle').attr('r', 30).attr('fill', '#161e2e').attr('stroke', n.col).attr('stroke-width', 2);
+      }
+
+      g.append('text').text(n.icon).attr('text-anchor', 'middle').attr('y', 6).attr('font-size', '24px');
+      g.append('text').text(n.n).attr('text-anchor', 'middle').attr('y', isLugar ? 46 : isBio ? 48 : 42)
+        .attr('fill', '#fff').attr('font-size', '11px').attr('font-weight', '700')
+        .style('paint-order', 'stroke').style('stroke', '#080b11').style('stroke-width', '3px');
+
+      // Interacción hover: resaltar conexiones y mostrar ficha rápida
+      g.on('mouseenter', () => {
+        gLinks.selectAll('line').style('opacity', 0.15);
+        gLinks.selectAll('line')
+          .filter(l => l.s === n.id || l.t === n.id)
+          .style('opacity', 1).style('stroke-width', 3).style('stroke', '#facc15');
+
+        const catName = isLugar ? 'Lugar Territorial (Dónde)' : isBio ? 'Especie del Humedal El Burro' : 'Actor Humano (Quiénes)';
+        showTip(catName, n.col, `${n.icon} ${n.n}`, `<b>Participantes:</b> ${n.quienes}<br><b>¿Para qué se articula / atrae?:</b> ${n.paraque}`);
+      });
+
+      g.on('mouseleave', () => {
+        gLinks.selectAll('line').style('opacity', l => (l.s.startsWith('B_') || l.t.startsWith('B_')) ? 0.5 : 0.45).style('stroke-width', 1.8).style('stroke', null);
+        hideTip();
+      });
+    });
+
+    // Leyenda flotante pequeña en esquina
+    const leg = svg.append('g').attr('transform', 'translate(30, 560)');
+    leg.append('rect').attr('width', 380).attr('height', 42).attr('rx', 8).attr('fill', 'rgba(14,18,28,0.85)').attr('stroke', 'rgba(255,255,255,0.1)');
+    leg.append('text').text('Convenciones:').attr('x', 14).attr('y', 25).attr('fill', '#94a3b8').attr('font-size', '11px').attr('font-weight', '700');
+    leg.append('rect').attr('x', 95).attr('y', 14).attr('width', 14).attr('height', 14).attr('rx', 3).attr('fill', '#111827').attr('stroke', '#4ade80').attr('stroke-width', 1.5);
+    leg.append('text').text('Lugares (Dónde)').attr('x', 115).attr('y', 26).attr('fill', '#cbd5e1').attr('font-size', '10.5px');
+    leg.append('circle').attr('cx', 220).attr('cy', 21).attr('r', 7).attr('fill', '#161e2e').attr('stroke', '#38bdf8').attr('stroke-width', 1.5);
+    leg.append('text').text('Personas (Quiénes)').attr('x', 234).attr('y', 26).attr('fill', '#cbd5e1').attr('font-size', '10.5px');
+    leg.append('polygon').attr('points', '345,14 352,21 345,28 338,21').attr('fill', '#09231f').attr('stroke', '#fde047').attr('stroke-width', 1.5);
+    leg.append('text').text('Especies Bióticas').attr('x', 360).attr('y', 26).attr('fill', '#cbd5e1').attr('font-size', '10.5px');
+  }
+
+  // --- LÓGICA DE CONTROL ---
+  function setTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.fed-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    renderView();
+  }
+
+  document.querySelectorAll('.fed-tab-btn').forEach(b => {
+    b.onclick = () => setTab(b.dataset.tab);
   });
 
-  // Renderizado de tarjetas de la matriz
-  function renderMatrixCards(filter) {
-    const grid = document.getElementById('matrixCardsGrid');
-    if (!grid) return;
-
-    let items = MATRIZ_PROBLEMA;
-    if (filter === 'huertas') items = MATRIZ_PROBLEMA.filter(m => m.dinamica.includes('huertas'));
-    else if (filter === 'comensalidad') items = MATRIZ_PROBLEMA.filter(m => m.dinamica.includes('Autoconsumo'));
-    else if (filter === 'excedentes') items = MATRIZ_PROBLEMA.filter(m => m.dinamica.includes('Comercio de excedentes'));
-    else if (filter === 'insumos') items = MATRIZ_PROBLEMA.filter(m => m.dinamica.includes('Insumos circulares'));
-    else if (filter === 'biotech') items = MATRIZ_PROBLEMA.filter(m => m.dinamica.includes('Distrito biotecnológico'));
-    else if (filter === 'gobierno') items = MATRIZ_PROBLEMA.filter(m => m.dinamica.includes('Gobierno de la red'));
-
-    grid.innerHTML = items.map(it => `
-      <div class="m-card">
-        <div class="m-card-badge">${it.dinamica}</div>
-        <h4 class="m-card-title">${it.actividad}</h4>
-        <div class="m-pill-row">
-          <div class="m-row-item">
-            <span class="m-lbl">¿Dónde?</span>
-            <span>${it.donde}</span>
-          </div>
-          <div class="m-row-item">
-            <span class="m-lbl">¿Quiénes?</span>
-            <span style="color:#fff;font-weight:600">${it.quienes}</span>
-          </div>
-          <div class="m-row-item">
-            <span class="m-lbl">¿Con qué?</span>
-            <span style="color:#6ee7b7">${it.con_que}</span>
-          </div>
-          <div class="m-row-item">
-            <span class="m-lbl">Acceso</span>
-            <span>${it.acceso}</span>
-          </div>
-          <div class="m-row-item">
-            <span class="m-lbl">Dinámica</span>
-            <span style="color:#F2B53A">${it.modelo}</span>
-          </div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // Filtros de la matriz
-  const filterBar = document.getElementById('matrixFilterBar');
-  if (filterBar) {
-    filterBar.querySelectorAll('.mf-btn').forEach(btn => {
-      btn.onclick = () => {
-        filterBar.querySelectorAll('.mf-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderMatrixCards(btn.dataset.filter);
+  const fBar = document.getElementById('fedFilters');
+  if (fBar) {
+    fBar.querySelectorAll('.ff-btn').forEach(b => {
+      b.onclick = () => {
+        fBar.querySelectorAll('.ff-btn').forEach(btn => btn.classList.remove('active'));
+        b.classList.add('active');
+        activeFilter = b.dataset.filter;
+        renderView();
       };
     });
   }
 
-  // Renderizado de la Red Sociobiótica
-  let activePlaceId = 'L4'; // Por defecto la huerta en ronda del humedal
-  function renderSociobiotica() {
-    const placesGrid = document.getElementById('bioPlacesGrid');
-    const spContainer = document.getElementById('speciesListContainer');
-    if (!placesGrid || !spContainer) return;
-
-    // Renderizar tarjetas de lugares
-    placesGrid.innerHTML = LUGARES_TERRITORIALES.map(p => {
-      const isAct = p.id === activePlaceId;
-      const spTags = p.especies_atraidas.map(sid => {
-        const sp = ESPECIES_BIOTICAS.find(s => s.id === sid);
-        return sp ? `<span class="sp-tag">${sp.icono} ${sp.nombre.split(' ')[0]}</span>` : '';
-      }).join('');
-
-      return `
-        <div class="bio-place-card ${isAct ? 'active' : ''}" data-pid="${p.id}">
-          <div class="bpc-head">
-            <span class="bpc-type">${p.tipo}</span>
-            <span style="font-size:11px;color:#64748b">${p.id}</span>
-          </div>
-          <h4 class="bpc-name">${p.nombre}</h4>
-          <div class="bpc-peeps"><b>Actores humanos:</b> ${p.personas}</div>
-          <div class="bpc-peeps" style="color:#cbd5e1"><b>Función:</b> ${p.funcion_humana}</div>
-          <div style="margin-top:6px">
-            <div style="font-size:11px;font-weight:700;color:#10b981;margin-bottom:3px">Especies atraídas:</div>
-            <div class="bpc-species-tags">${spTags || '<span style="font-size:11px;color:#64748b">Circuito comercial</span>'}</div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    // Click handler en lugares
-    placesGrid.querySelectorAll('.bio-place-card').forEach(c => {
-      c.onclick = () => {
-        activePlaceId = c.dataset.pid;
-        renderSociobiotica();
-      };
-    });
-
-    // Renderizar panel de especies destacando las del lugar activo
-    const currPlace = LUGARES_TERRITORIALES.find(p => p.id === activePlaceId);
-    const relatedSpeciesIds = new Set(currPlace ? currPlace.especies_atraidas : []);
-
-    spContainer.innerHTML = ESPECIES_BIOTICAS.map(sp => {
-      const isLinked = relatedSpeciesIds.has(sp.id);
-      return `
-        <div class="species-card-item" style="${isLinked ? 'border-color:#10b981;background:#13242b;' : 'opacity:0.65;'}">
-          <div class="sci-head">
-            <span class="sci-ico">${sp.icono}</span>
-            <span class="sci-name">${sp.nombre}</span>
-            ${isLinked ? '<span style="margin-left:auto;font:700 10px JetBrains Mono;color:#10b981;text-transform:uppercase">Presente aquí</span>' : ''}
-          </div>
-          <div class="sci-sci">${sp.cientifico}</div>
-          <div class="sci-para">
-            <b>¿Para qué se atrae?:</b> ${sp.para_que}
-          </div>
-          <div class="sci-cond">
-            <b>Condiciones ecológicas:</b> ${sp.condiciones}
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // API pública
+  // API Global
   window.FEDERACION_BIOTICA = {
     init: function(tab = 'comparacion') {
-      showTab(tab);
-    },
-    selectPlace: function(pid) {
-      activePlaceId = pid;
-      showTab('sociobiotica');
+      const stage = document.getElementById('viewFederacion');
+      if (stage) stage.style.display = 'block';
+      setTab(tab === 'sociobiotica' ? 'sociobiotica' : 'comparacion');
     }
   };
 
+  // Render inicial al cargar
+  setTimeout(renderView, 200);
 })();
