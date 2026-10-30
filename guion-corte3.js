@@ -17,7 +17,7 @@ heterarquia2:[
 programa_arq:[
   {
     t:'Programa Arquitectónico: Biorrefinería & Complejo Ecosocial (9.000 m²)',
-    s:'Zonificación en 5 paquetes funcionales sobre el borde Corabastos - Humedal El Burro.',
+    s:'Zonificación en 5 paquetes funcionales sobre el borde del Río Bogotá.',
     n:'La propuesta espacializa la federación en un Complejo Biotecnológico Urbano de 9.000 m² cubiertos sobre el borde de amortiguación entre Corabastos y el Humedal El Burro. Se zonifica en cinco paquetes funcionales: Zona A de Biorrefinería y tolvas mecatrónicas (2.800 m²), que sustituye el cargue manual en la espalda; Zona B de bóvedas de micoproteína (2.200 m²) para cultivo de setas Pleurotus sobre rastrojos orgánicos; Zona C de silos tecnificados de la Canasta Familiar (1.800 m²) para acopio de carbohidratos andinos con ventilación pasiva cruzada; Zona D del Centro de Reconversión Laboral (800 m²), con aulas técnicas y laboratorios para que coteros y recicladores se formen como operadores mecatrónicos y laboratoristas; y Zona E (1.400 m²) con el comedor comunitario cívico para 500 raciones diarias y biofiltros hacia el humedal.',
     tags:[['A25','Recicladores','Operadores mecatrónicos','#8EBF4C'],['A13','Coteros','Fin del trabajo a lomo','#FB923C']]
   },
@@ -48,6 +48,7 @@ cv_macros:[{t:'1',s:'',n:''}],
 cv_tres:[{t:'1',s:'',n:''}],
 cv_comunes:[{t:'1',s:'',n:''}],
 axo:[{t:'1',s:'',n:''}],
+conecto:[{t:'1',s:'',n:''}],
 soberania2:[{t:'1',s:'',n:''}],
 barrio:[{t:'1',s:'',n:''}],
 conceptos:[{t:'1',s:'',n:''}],
