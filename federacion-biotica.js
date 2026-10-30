@@ -1302,6 +1302,7 @@
   // 4 y 5. PROGRAMA ARQUITECTÓNICO Y CANASTA (versión del equipo, sin cambios)
   // =====================================================================
   function renderProgramaArquitectonico(svg, showTip, hideTip) {
+    let activeSubView = 'metropolitano'; // 'metropolitano' o 'corte'
     let selZona = 'all';
 
     const ZONAS_DATA = [
@@ -1323,305 +1324,538 @@
     ];
 
     // Encabezado
-    const header = svg.append('g').attr('transform', 'translate(500, 36)');
-    header.append('text').text('PROGRAMA ARQUITECTÓNICO: BIORREFINERÍA & COMPLEJO (9.000 m²)')
+    const header = svg.append('g').attr('transform', 'translate(500, 34)');
+    header.append('text').text('PROGRAMA ARQUITECTÓNICO & IMPLANTACIÓN METROPOLITANA (9.000 m²)')
       .attr('text-anchor', 'middle').attr('fill', '#38bdf8').attr('font-weight', '800').attr('font-size', '14.5px').attr('letter-spacing', '0.05em');
-    header.append('text').text('Zonificación espacial, flujos bioclimáticos y corte longitudinal (Corabastos → Humedal El Burro)')
+    header.append('text').text('Localización metropolitana (Fontibón – Kennedy) y corte bioclimático transversal')
       .attr('text-anchor', 'middle').attr('fill', '#94a3b8').attr('font-size', '11px').attr('y', 17);
 
+    // Conmutador interactivo superior entre Plano Metropolitano y Corte Bioclimático
+    const gTopSwitch = svg.append('g').attr('transform', 'translate(500, 68)');
+    const btnMetro = gTopSwitch.append('g').attr('transform', 'translate(-235, 0)').style('cursor', 'pointer');
+    const bgMetro = btnMetro.append('rect').attr('width', 230).attr('height', 26).attr('rx', 13);
+    const txtMetro = btnMetro.append('text').text('🗺️ 1. Plano Bogotá Metropolitano').attr('x', 115).attr('y', 16.5).attr('text-anchor', 'middle')
+      .attr('font-size', '10.5px');
+
+    const btnCorte = gTopSwitch.append('g').attr('transform', 'translate(5, 0)').style('cursor', 'pointer');
+    const bgCorte = btnCorte.append('rect').attr('width', 230).attr('height', 26).attr('rx', 13);
+    const txtCorte = btnCorte.append('text').text('📐 2. Corte Bioclimático Transversal').attr('x', 115).attr('y', 16.5).attr('text-anchor', 'middle')
+      .attr('font-size', '10.5px');
+
+    btnMetro.on('click', () => { setSubView('metropolitano'); });
+    btnCorte.on('click', () => { setSubView('corte'); });
+
     // Contenedor principal de la vista
-    const gMain = svg.append('g');
+    const gStage = svg.append('g').attr('transform', 'translate(35, 94)');
 
-    // Botones de filtro de zona (Interactivo)
-    const gFiltros = gMain.append('g').attr('transform', 'translate(500, 72)');
-    const botones = [
-      { id: 'all', nom: 'Todos (9.000 m²)', col: '#94a3b8' },
-      ...ZONAS_DATA
-    ];
+    function setSubView(v) {
+      activeSubView = v;
+      const isM = v === 'metropolitano';
 
-    const btnWidths = [125, 155, 155, 155, 145, 155];
-    let totalBtnW = btnWidths.reduce((a, b) => a + b + 6, -6);
-    let curBtnX = -totalBtnW / 2;
+      bgMetro.attr('fill', isM ? '#38bdf8' : '#111827').attr('stroke', '#38bdf8').attr('stroke-width', isM ? 1.8 : 1);
+      txtMetro.attr('fill', isM ? '#0a0e17' : '#cbd5e1').attr('font-weight', isM ? '800' : '600');
 
-    const btnEls = [];
-    botones.forEach((b, i) => {
-      const bw = btnWidths[i];
-      const gBtn = gFiltros.append('g').attr('transform', `translate(${curBtnX}, 0)`).style('cursor', 'pointer');
-      curBtnX += bw + 6;
+      bgCorte.attr('fill', !isM ? '#facc15' : '#111827').attr('stroke', '#facc15').attr('stroke-width', !isM ? 1.8 : 1);
+      txtCorte.attr('fill', !isM ? '#0a0e17' : '#cbd5e1').attr('font-weight', !isM ? '800' : '600');
 
-      const bg = gBtn.append('rect').attr('width', bw).attr('height', 24).attr('rx', 12)
-        .attr('fill', b.id === selZona ? b.col : '#111827')
-        .attr('stroke', b.col).attr('stroke-width', b.id === selZona ? 1.8 : 1).attr('stroke-opacity', 0.6);
-
-      const txt = gBtn.append('text').text(b.id === 'all' ? b.nom : b.nom.split(':')[0])
-        .attr('x', bw / 2).attr('y', 15.5).attr('text-anchor', 'middle')
-        .attr('fill', b.id === selZona ? (b.id === 'all' ? '#fff' : '#0a0e17') : '#cbd5e1')
-        .attr('font-size', '10px').attr('font-weight', b.id === selZona ? '800' : '600');
-
-      gBtn.on('click', () => {
-        selZona = b.id;
-        updateCorte();
-      });
-      btnEls.push({ gBtn, bg, txt, b });
-    });
-
-    // Marco del Corte Arquitectónico Bioclimático
-    const cX = 35, cY = 105, cW = 930, cH = 395;
-    const gCorte = gMain.append('g').attr('transform', `translate(${cX}, ${cY})`);
-
-    gCorte.append('rect').attr('width', cW).attr('height', cH).attr('rx', 12)
-      .attr('fill', '#090d15').attr('stroke', '#1e293b').attr('stroke-width', 1.4);
-
-    // Eje de cotas y cuadrícula técnica arquitectónica
-    const gGrid = gCorte.append('g').style('opacity', 0.35);
-    const COTAS = [
-      { y: 60, cota: '+13.50m', desc: 'Cubierta verde y captación' },
-      { y: 140, cota: '+9.00m', desc: 'Silos y extracción solar' },
-      { y: 220, cota: '+4.50m', desc: 'Bóvedas de micelio e inoculación' },
-      { y: 310, cota: '±0.00m', desc: 'Muelle mecatrónico y plaza' },
-      { y: 375, cota: '-1.50m', desc: 'Biofiltros del Humedal El Burro' }
-    ];
-
-    COTAS.forEach(c => {
-      gGrid.append('line').attr('x1', 55).attr('y1', c.y).attr('x2', cW - 20).attr('y2', c.y)
-        .attr('stroke', '#334155').attr('stroke-dasharray', '3 4');
-      gCorte.append('text').text(c.cota).attr('x', 45).attr('y', c.y + 3.5).attr('text-anchor', 'end')
-        .attr('fill', '#64748b').attr('font-size', '8.5px').attr('font-family', 'JetBrains Mono, monospace');
-    });
-
-    // Terreno y topografía natural
-    const gTerreno = gCorte.append('g');
-    gTerreno.append('path')
-      .attr('d', `M 50,310 L 680,310 Q 750,310 790,345 L 850,375 L ${cW - 20},375 L ${cW - 20},390 L 50,390 Z`)
-      .attr('fill', '#0c1420').attr('stroke', '#334155').attr('stroke-width', 1.5);
-
-    // Agua del Humedal El Burro
-    gTerreno.append('path')
-      .attr('d', `M 820,375 L ${cW - 20},375 L ${cW - 20},390 L 820,390 Z`)
-      .attr('fill', 'rgba(56,189,248,0.18)').attr('stroke', '#38bdf8').attr('stroke-width', 1);
-    gTerreno.append('text').text('HUMEDAL EL BURRO').attr('x', cW - 30).attr('y', 368).attr('text-anchor', 'end')
-      .attr('fill', '#38bdf8').attr('font-size', '9px').attr('font-weight', '800');
-
-    // Nombres de orientación
-    gCorte.append('text').text('← NORTE: ACCESO CORABASTOS').attr('x', 60).attr('y', 25)
-      .attr('fill', '#fb923c').attr('font-size', '10px').attr('font-weight', '700');
-    gCorte.append('text').text('SUR: BORDE ECOLÓGICO HUMEDAL →').attr('x', cW - 30).attr('y', 25).attr('text-anchor', 'end')
-      .attr('fill', '#4ade80').attr('font-size', '10px').attr('font-weight', '700');
-
-    // Dibujo de Volúmenes Espaciales de las Zonas Arquitectónicas
-    const gVolumenes = gCorte.append('g');
-
-    // Definición geométrica de las 5 zonas en el corte
-    const VOLUMENES = [
-      {
-        id: 'A', nom: 'Zona A: Biorrefinería', col: '#fb923c',
-        path: 'M 70,310 L 70,170 L 260,170 L 260,310 Z',
-        labelX: 165, labelY: 235, m2: '2.800 m²',
-        detalles: [
-          'Muelle mecatrónico a cota ±0.00m',
-          'Tolvas automáticas y trituradores de rastrojo',
-          'Cintas continuas: CERO BULTOS A LOMO'
-        ]
-      },
-      {
-        id: 'B', nom: 'Zona B: Bóvedas Pleurotus', col: '#38bdf8',
-        path: 'M 270,220 L 270,110 L 510,110 L 510,220 Z',
-        labelX: 390, labelY: 155, m2: '2.200 m²',
-        detalles: [
-          'Cámaras oscuras isotérmicas en cota +4.50m',
-          'Aislamiento térmico pasivo con masa biológica',
-          '40 ton/mes de proteína fúngica bioasimilable'
-        ]
-      },
-      {
-        id: 'C', nom: 'Zona C: Silos Carbohidratos', col: '#facc15',
-        path: 'M 270,310 L 270,225 L 510,225 L 510,310 Z',
-        labelX: 390, labelY: 270, m2: '1.800 m²',
-        detalles: [
-          'Silos verticales con ventilación cruzada',
-          'Control de HR al 85% para papa pastusa y andina',
-          'Pérdidas postcosecha reducidas a menos del 3%'
-        ]
-      },
-      {
-        id: 'D', nom: 'Zona D: Reconversión Laboral', col: '#c084fc',
-        path: 'M 520,310 L 520,180 L 670,180 L 670,310 Z',
-        labelX: 595, labelY: 245, m2: '800 m²',
-        detalles: [
-          'Aulas técnicas mecatrónicas y laboratorios',
-          'Formación para 320 coteros y recicladores',
-          'Empleo formal y cooperativa de operadores'
-        ]
-      },
-      {
-        id: 'E', nom: 'Zona E: Borde Cívico & Comedor', col: '#4ade80',
-        path: 'M 680,310 L 680,210 L 810,240 L 810,345 L 750,345 Z',
-        labelX: 745, labelY: 275, m2: '1.400 m²',
-        detalles: [
-          'Comedor comunitario para 500 raciones diarias',
-          'Plaza de mercado barrial y comercio justo',
-          'Talud de fitodepuración (juncos y biofiltros)'
-        ]
-      }
-    ];
-
-    // Cubierta verde general inclinada a cota +13.50m
-    const gTecho = gCorte.append('g');
-    gTecho.append('path')
-      .attr('d', 'M 65,170 L 265,110 L 515,60 L 675,90 L 815,240')
-      .attr('fill', 'none').attr('stroke', '#4ade80').attr('stroke-width', 3);
-    gTecho.append('text').text('CUBIERTA PRODUCTIVA VEGETAL (1.500 m²) + CAPTACIÓN PLUVIAL')
-      .attr('x', 400).attr('y', 52).attr('text-anchor', 'middle')
-      .attr('fill', '#86efac').attr('font-size', '9.5px').attr('font-weight', '800');
-
-    // Elementos gráficos de maquinaria
-    // 1. Camión y Tolva mecánica en Zona A
-    const gEqA = gCorte.append('g').attr('transform', 'translate(85, 275)');
-    gEqA.append('rect').attr('width', 36).attr('height', 24).attr('rx', 4).attr('fill', '#26334d').attr('stroke', '#fb923c');
-    gEqA.append('circle').attr('cx', 10).attr('cy', 24).attr('r', 5).attr('fill', '#0f172a').attr('stroke', '#fb923c');
-    gEqA.append('circle').attr('cx', 28).attr('cy', 24).attr('r', 5).attr('fill', '#0f172a').attr('stroke', '#fb923c');
-    // Cinta transportadora inclinada
-    gCorte.append('line').attr('x1', 125).attr('y1', 295).attr('x2', 240).attr('y2', 200)
-      .attr('stroke', '#fb923c').attr('stroke-width', 3.5).attr('stroke-dasharray', '5 4').attr('class', 'flowing');
-    gCorte.append('text').text('Cinta mecánica continua').attr('x', 190).attr('y', 235)
-      .attr('fill', '#fb923c').attr('font-size', '8px').attr('font-weight', '700');
-
-    // 2. Silos en Zona C
-    const gEqC = gCorte.append('g').attr('transform', 'translate(310, 235)');
-    gEqC.append('rect').attr('x', 0).attr('y', 0).attr('width', 40).attr('height', 65).attr('rx', 6)
-      .attr('fill', '#1f1e14').attr('stroke', '#facc15').attr('stroke-width', 1.5);
-    gEqC.append('rect').attr('x', 50).attr('y', 0).attr('width', 40).attr('height', 65).attr('rx', 6)
-      .attr('fill', '#1f1e14').attr('stroke', '#facc15').attr('stroke-width', 1.5);
-    gEqC.append('text').text('SILO 1').attr('x', 20).attr('y', 35).attr('text-anchor', 'middle').attr('fill', '#facc15').attr('font-size', '8px');
-    gEqC.append('text').text('SILO 2').attr('x', 70).attr('y', 35).attr('text-anchor', 'middle').attr('fill', '#facc15').attr('font-size', '8px');
-
-    // 3. Racks de micelio en Zona B
-    const gEqB = gCorte.append('g').attr('transform', 'translate(310, 125)');
-    for (let r = 0; r < 4; r++) {
-      gEqB.append('line').attr('x1', 10).attr('y1', 15 + r * 18).attr('x2', 180).attr('y2', 15 + r * 18)
-        .attr('stroke', '#38bdf8').attr('stroke-width', 2).attr('stroke-opacity', 0.6);
-      gEqB.append('text').text('🍄 🍄 🍄 🍄 🍄 🍄 🍄').attr('x', 15).attr('y', 13 + r * 18)
-        .attr('fill', '#38bdf8').attr('font-size', '9px');
+      gStage.selectAll('*').remove();
+      if (isM) renderPlanoMetropolitano();
+      else renderCorteBioclimatico();
     }
 
-    // 4. Biofiltros escalonados en Zona E
-    const gEqE = gCorte.append('g').attr('transform', 'translate(760, 320)');
-    gEqE.append('path').attr('d', 'M 0,0 L 25,15 L 25,30 L 55,45 L 80,45')
-      .attr('fill', 'none').attr('stroke', '#4ade80').attr('stroke-width', 2);
-    gEqE.append('text').text('Fitodepuración').attr('x', 20).attr('y', -4)
-      .attr('fill', '#86efac').attr('font-size', '8.5px').attr('font-weight', '700');
+    // =========================================================================
+    // VISTA 1: PLANO METROPOLITANO DE BOGOTÁ (IMPLANTACIÓN FONTIBÓN - KENNEDY)
+    // =========================================================================
+    function renderPlanoMetropolitano() {
+      const mW = 930, mH = 475;
+      gStage.append('rect').attr('width', mW).attr('height', mH).attr('rx', 12)
+        .attr('fill', '#070a10').attr('stroke', '#1e293b').attr('stroke-width', 1.4);
 
-    // Flujos bioclimáticos animados
-    const gFlujos = gCorte.append('g');
-    // Brisa fresca desde el humedal
-    gFlujos.append('path')
-      .attr('d', `M ${cW - 40},360 C 720,330 600,280 450,290 C 350,300 200,300 80,300`)
-      .attr('fill', 'none').attr('stroke', '#38bdf8').attr('stroke-width', 2.5)
-      .attr('stroke-dasharray', '6 5').attr('class', 'flowing').attr('stroke-opacity', 0.7);
-    gFlujos.append('text').text('Brisa fresca del Humedal El Burro').attr('x', cW - 120).attr('y', 335)
-      .attr('fill', '#38bdf8').attr('font-size', '8.5px').attr('font-weight', '700');
-
-    // Chimenea solar expulsando aire caliente
-    gFlujos.append('path')
-      .attr('d', 'M 515,100 L 515,35')
-      .attr('fill', 'none').attr('stroke', '#f87171').attr('stroke-width', 2)
-      .attr('stroke-dasharray', '4 4').attr('class', 'flowing');
-    gFlujos.append('text').text('Extracción solar').attr('x', 525).attr('y', 42)
-      .attr('fill', '#f87171').attr('font-size', '8px');
-
-    // Generar áreas poligonales interactivas para cada zona
-    const zonaEls = [];
-    VOLUMENES.forEach(v => {
-      const gZ = gVolumenes.append('g').style('cursor', 'pointer');
-      const poly = gZ.append('path').attr('d', v.path)
-        .attr('fill', v.col).attr('fill-opacity', 0.12)
-        .attr('stroke', v.col).attr('stroke-width', 1.8).attr('stroke-opacity', 0.7);
-
-      const tNom = gZ.append('text').text(v.nom).attr('x', v.labelX).attr('y', v.labelY).attr('text-anchor', 'middle')
-        .attr('fill', '#fff').attr('font-size', '10.5px').attr('font-weight', '800');
-      const tM2 = gZ.append('text').text(v.m2).attr('x', v.labelX).attr('y', v.labelY + 14).attr('text-anchor', 'middle')
-        .attr('fill', v.col).attr('font-size', '9.5px').attr('font-weight', '700');
-
-      gZ.on('click', () => {
-        selZona = (selZona === v.id ? 'all' : v.id);
-        updateCorte();
-      });
-
-      gZ.on('mouseenter', () => {
-        showTip(v.nom, v.col, `${v.m2} construidos`, v.detalles.join('<br>'));
-      });
-      gZ.on('mouseleave', hideTip);
-
-      zonaEls.push({ gZ, poly, tNom, tM2, v });
-    });
-
-    // Ficha técnica flotante inferior (cuando se selecciona una zona)
-    const gFicha = gCorte.append('g').attr('transform', `translate(20, ${cH - 65})`);
-    const fBg = gFicha.append('rect').attr('width', cW - 40).attr('height', 52).attr('rx', 8)
-      .attr('fill', '#0e1726').attr('stroke', '#38bdf8').attr('stroke-width', 1.2);
-    const fTit = gFicha.append('text').attr('x', 16).attr('y', 20).attr('fill', '#fff').attr('font-size', '11px').attr('font-weight', '800');
-    const fDesc = gFicha.append('text').attr('x', 16).attr('y', 36).attr('fill', '#94a3b8').attr('font-size', '9.5px');
-    const fBtnCerrar = gFicha.append('text').text('Ver todas ✕').attr('x', cW - 55).attr('y', 28).attr('text-anchor', 'end')
-      .attr('fill', '#38bdf8').attr('font-size', '9.5px').attr('font-weight', '700').style('cursor', 'pointer')
-      .on('click', () => { selZona = 'all'; updateCorte(); });
-
-    // Barra Proporcional del Programa (Cuadro gráfico de áreas al pie)
-    const gBarra = gMain.append('g').attr('transform', `translate(${cX}, ${cY + cH + 12})`);
-    gBarra.append('text').text('DISTRIBUCIÓN PROPORCIONAL DE ÁREAS (9.000 m² TOTALES):')
-      .attr('x', 0).attr('y', -6).attr('fill', '#94a3b8').attr('font-size', '9.5px').attr('font-weight', '700');
-
-    let curBarX = 0;
-    ZONAS_DATA.forEach(z => {
-      const segW = (z.m2 / 9000) * cW;
-      const gSeg = gBarra.append('g').attr('transform', `translate(${curBarX}, 0)`).style('cursor', 'pointer');
-      curBarX += segW;
-
-      gSeg.append('rect').attr('width', segW - 2).attr('height', 20).attr('rx', 4)
-        .attr('fill', z.col).attr('fill-opacity', 0.85);
-      gSeg.append('text').text(`${z.id} · ${z.pct}`).attr('x', (segW - 2) / 2).attr('y', 13.5).attr('text-anchor', 'middle')
-        .attr('fill', '#0f172a').attr('font-size', '9px').attr('font-weight', '800');
-
-      gSeg.on('click', () => {
-        selZona = (selZona === z.id ? 'all' : z.id);
-        updateCorte();
-      });
-      gSeg.on('mouseenter', () => showTip(z.nom, z.col, `${z.m2} m² (${z.pct})`, z.imp));
-      gSeg.on('mouseleave', hideTip);
-    });
-
-    function updateCorte() {
-      btnEls.forEach(({ bg, txt, b }) => {
-        const isSel = b.id === selZona;
-        bg.attr('fill', isSel ? b.col : '#111827')
-          .attr('stroke-width', isSel ? 1.8 : 1);
-        txt.attr('fill', isSel ? (b.id === 'all' ? '#fff' : '#0a0e17') : '#cbd5e1')
-          .attr('font-weight', isSel ? '800' : '600');
-      });
-
-      zonaEls.forEach(({ poly, tNom, tM2, v }) => {
-        const active = selZona === 'all' || selZona === v.id;
-        poly.attr('fill-opacity', active ? (selZona === v.id ? 0.35 : 0.14) : 0.03)
-          .attr('stroke-width', active ? (selZona === v.id ? 2.8 : 1.8) : 0.8)
-          .attr('stroke-opacity', active ? 1 : 0.2);
-        tNom.attr('opacity', active ? 1 : 0.3);
-        tM2.attr('opacity', active ? 1 : 0.3);
-      });
-
-      if (selZona === 'all') {
-        fBg.attr('stroke', '#38bdf8');
-        fTit.text('COMPLEJO TOTAL: 9.000 m² CUBIERTOS + 2.500 m² DE PARQUE Y RESTAURACIÓN DEL HUMEDAL');
-        fDesc.text('Haz clic en cualquier zona del corte arquitectónico o en los botones superiores para inspeccionar su equipamiento.');
-        fBtnCerrar.style('display', 'none');
-      } else {
-        const z = ZONAS_DATA.find(x => x.id === selZona);
-        fBg.attr('stroke', z.col);
-        fTit.text(`${z.nom.toUpperCase()} (${z.m2} m² · ${z.pct}) — COTA ${z.cota}`).attr('fill', z.col);
-        fDesc.text(`Equipamiento: ${z.eq}. Impacto: ${z.imp}`);
-        fBtnCerrar.style('display', 'block');
+      // Cuadrícula geográfica sutil
+      const gGridM = gStage.append('g').style('opacity', 0.25);
+      for (let x = 60; x < mW; x += 80) {
+        gGridM.append('line').attr('x1', x).attr('y1', 20).attr('x2', x).attr('y2', mH - 20)
+          .attr('stroke', '#334155').attr('stroke-dasharray', '2 4');
       }
+      for (let y = 30; y < mH; y += 70) {
+        gGridM.append('line').attr('x1', 40).attr('y1', y).attr('x2', mW - 40).attr('y2', y)
+          .attr('stroke', '#334155').attr('stroke-dasharray', '2 4');
+      }
+
+      // Cerros Orientales (Borde oriental verde oscuro)
+      gStage.append('path')
+        .attr('d', 'M 720,40 Q 750,150 740,240 Q 760,330 730,440 L 780,440 L 780,40 Z')
+        .attr('fill', 'rgba(16,185,129,0.06)').attr('stroke', '#065f46').attr('stroke-width', 1).attr('stroke-dasharray', '4 4');
+      gStage.append('text').text('CERROS ORIENTALES').attr('transform', 'translate(760, 240) rotate(90)')
+        .attr('fill', '#047857').attr('font-size', '8.5px').attr('letter-spacing', '0.12em').attr('text-anchor', 'middle');
+
+      // Río Bogotá (Borde occidental azul)
+      gStage.append('path')
+        .attr('d', 'M 210,40 Q 170,120 180,180 Q 150,250 170,320 Q 140,390 160,450')
+        .attr('fill', 'none').attr('stroke', '#0284c7').attr('stroke-width', 3).attr('stroke-opacity', 0.8)
+        .attr('stroke-dasharray', '8 4').attr('class', 'flowing');
+      gStage.append('text').text('RÍO BOGOTÁ (LÍMITE OCCIDENTAL)').attr('transform', 'translate(145, 230) rotate(-90)')
+        .attr('fill', '#38bdf8').attr('font-size', '8.5px').attr('letter-spacing', '0.1em').attr('text-anchor', 'middle');
+
+      // Geometrías poligonales de las localidades
+      const LOCALIDADES = [
+        {
+          id: 'fontibon', nom: 'FONTIBÓN', foco: true, col: '#38bdf8',
+          path: 'M 205,175 L 340,165 L 430,175 L 420,240 L 305,245 L 195,230 Z',
+          cx: 310, cy: 205,
+          desc: 'Localidad de Fontibón: Corredor de carga Calle 13 (Av. Centenario), Aeropuerto El Dorado, Zona Industrial y Humedal Capellanía.'
+        },
+        {
+          id: 'kennedy', nom: 'KENNEDY', foco: true, col: '#facc15',
+          path: 'M 195,230 L 305,245 L 420,240 L 460,335 L 330,355 L 180,310 Z',
+          cx: 320, cy: 295,
+          desc: 'Localidad de Kennedy: Corabastos (300 t/día residuos), Humedal El Burro, Humedal La Vaca, red de huertas populares y 150 tiendas barriales.'
+        },
+        {
+          id: 'bosa', nom: 'BOSA', foco: false, col: '#64748b',
+          path: 'M 180,310 L 330,355 L 420,355 L 390,430 L 220,410 Z',
+          cx: 295, cy: 385, desc: 'Localidad de Bosa: Cuenca sur del Río Tunjuelo y conector hacia Soacha.'
+        },
+        {
+          id: 'engativa', nom: 'ENGATIVÁ', foco: false, col: '#64748b',
+          path: 'M 210,105 L 370,100 L 460,115 L 430,175 L 340,165 L 205,175 Z',
+          cx: 325, cy: 135, desc: 'Localidad de Engativá: Humedal Jaboque y cuenca norte.'
+        },
+        {
+          id: 'puente', nom: 'PUENTE ARANDA', foco: false, col: '#64748b',
+          path: 'M 430,175 L 560,185 L 545,270 L 420,240 Z',
+          cx: 485, cy: 215, desc: 'Localidad de Puente Aranda: Zona industrial central y enlaces férreos.'
+        },
+        {
+          id: 'teusaquillo', nom: 'TEUSAQUILLO', foco: false, col: '#64748b',
+          path: 'M 460,115 L 590,125 L 560,185 L 430,175 Z',
+          cx: 510, cy: 150, desc: 'Localidad de Teusaquillo: CAN y eje universitario.'
+        },
+        {
+          id: 'suba', nom: 'SUBA', foco: false, col: '#475569',
+          path: 'M 230,40 L 450,40 L 460,115 L 210,105 Z',
+          cx: 330, cy: 75, desc: 'Localidad de Suba: Humedales Juan Amarillo y Córdoba.'
+        },
+        {
+          id: 'usaquen', nom: 'USAQUÉN', foco: false, col: '#475569',
+          path: 'M 450,40 L 680,40 L 670,125 L 460,115 Z',
+          cx: 560, cy: 75, desc: 'Localidad de Usaquén: Eje norte y Cerros.'
+        },
+        {
+          id: 'centro', nom: 'SANTA FE / CANDELARIA', foco: false, col: '#475569',
+          path: 'M 560,185 L 690,195 L 680,270 L 545,270 Z',
+          cx: 615, cy: 230, desc: 'Centro histórico, gubernamental y administrativo de Bogotá.'
+        },
+        {
+          id: 'tunjuelito', nom: 'TUNJUELITO / C. BOLÍVAR', foco: false, col: '#475569',
+          path: 'M 420,355 L 545,270 L 660,320 L 590,440 L 390,430 Z',
+          cx: 510, cy: 370, desc: 'Cuenca media del Tunjuelo y ladera sur.'
+        }
+      ];
+
+      // Dibujar polígonos de localidades
+      LOCALIDADES.forEach(loc => {
+        const gL = gStage.append('g').style('cursor', loc.foco ? 'pointer' : 'default');
+
+        const poly = gL.append('path').attr('d', loc.path)
+          .attr('fill', loc.foco ? (loc.id === 'fontibon' ? 'rgba(56,189,248,0.14)' : 'rgba(250,204,21,0.16)') : '#0e1420')
+          .attr('stroke', loc.col)
+          .attr('stroke-width', loc.foco ? 2.5 : 1)
+          .attr('stroke-opacity', loc.foco ? 0.9 : 0.35);
+
+        const lbl = gL.append('text').text(loc.nom).attr('x', loc.cx).attr('y', loc.cy).attr('text-anchor', 'middle')
+          .attr('fill', loc.foco ? (loc.id === 'fontibon' ? '#38bdf8' : '#facc15') : '#64748b')
+          .attr('font-size', loc.foco ? '12px' : '9.5px')
+          .attr('font-weight', loc.foco ? '800' : '600')
+          .attr('letter-spacing', '0.06em');
+
+        if (loc.foco) {
+          lbl.append('tspan').attr('x', loc.cx).attr('dy', 14).attr('font-size', '8px').attr('font-weight', '500')
+            .attr('fill', '#94a3b8').text(loc.id === 'fontibon' ? '(Al norte del proyecto)' : '(Donde opera la red barrial)');
+        }
+
+        gL.on('mouseenter', () => showTip(loc.nom, loc.col, loc.foco ? 'Eje Estratégico del Proyecto' : 'Localidad de Bogotá', loc.desc));
+        gL.on('mouseleave', hideTip);
+      });
+
+      // 2. CORREDOR HÍDRICO: RÍO FUCHA (Límite natural entre Fontibón y Kennedy)
+      gStage.append('path')
+        .attr('d', 'M 580,210 Q 480,225 420,240 Q 350,245 305,245 Q 240,240 195,230')
+        .attr('fill', 'none').attr('stroke', '#38bdf8').attr('stroke-width', 2.8).attr('stroke-dasharray', '6 3');
+      gStage.append('text').text('Río Fucha (Límite Fontibón - Kennedy)').attr('x', 270).attr('y', 238)
+        .attr('fill', '#7dd3fc').attr('font-size', '8px').attr('font-weight', '700');
+
+      // 3. HUMEDALES DEL CORREDOR
+      // Humedal El Burro (en el borde de Kennedy)
+      gStage.append('ellipse').attr('cx', 305).attr('cy', 255).attr('rx', 22).attr('ry', 10)
+        .attr('fill', 'rgba(74,222,128,0.3)').attr('stroke', '#4ade80').attr('stroke-width', 1.8);
+      gStage.append('text').text('H. El Burro').attr('x', 305).attr('y', 258).attr('text-anchor', 'middle')
+        .attr('fill', '#4ade80').attr('font-size', '8px').attr('font-weight', '800');
+
+      // Humedal Capellanía (en Fontibón)
+      gStage.append('ellipse').attr('cx', 290).attr('cy', 185).attr('rx', 18).attr('ry', 8)
+        .attr('fill', 'rgba(56,189,248,0.22)').attr('stroke', '#38bdf8').attr('stroke-width', 1.2);
+      gStage.append('text').text('H. Capellanía').attr('x', 290).attr('y', 188).attr('text-anchor', 'middle')
+        .attr('fill', '#38bdf8').attr('font-size', '7.5px');
+
+      // Corabastos (en Kennedy)
+      gStage.append('rect').attr('x', 280).attr('y', 275).attr('width', 45).attr('height', 28).attr('rx', 4)
+        .attr('fill', 'rgba(248,113,113,0.25)').attr('stroke', '#f87171').attr('stroke-width', 1.5);
+      gStage.append('text').text('CORABASTOS').attr('x', 302.5).attr('y', 292).attr('text-anchor', 'middle')
+        .attr('fill', '#f87171').attr('font-size', '7.5px').attr('font-weight', '800');
+
+      // 4. EJES VIALES METROPOLITANOS PRINCIPALES
+      const gVias = gStage.append('g').style('opacity', 0.85);
+
+      // Calle 13 / Av. Centenario (Eje de carga de Fontibón hacia el centro)
+      gVias.append('path').attr('d', 'M 195,190 L 340,195 L 430,205 L 610,210')
+        .attr('fill', 'none').attr('stroke', '#fbbf24').attr('stroke-width', 2.5).attr('stroke-dasharray', '5 4').attr('class', 'flowing');
+      gVias.append('text').text('Av. Centenario (Calle 13)').attr('x', 210).attr('y', 185)
+        .attr('fill', '#fbbf24').attr('font-size', '8px').attr('font-weight', '700');
+
+      // Av. Ciudad de Cali (Conector norte-sur vital Fontibón - Kennedy)
+      gVias.append('path').attr('d', 'M 350,90 L 335,165 L 305,245 L 290,360 L 260,420')
+        .attr('fill', 'none').attr('stroke', '#f59e0b').attr('stroke-width', 2.5);
+      gVias.append('text').text('Av. Ciudad de Cali (Eje Fontibón - Kennedy)').attr('transform', 'translate(315, 140) rotate(80)')
+        .attr('fill', '#f59e0b').attr('font-size', '7.5px').attr('font-weight', '700');
+
+      // Av. de las Américas (De Corabastos al centro)
+      gVias.append('path').attr('d', 'M 315,285 L 420,270 L 570,230')
+        .attr('fill', 'none').attr('stroke', '#cbd5e1').attr('stroke-width', 2);
+      gVias.append('text').text('Av. Américas').attr('x', 450).attr('y', 255)
+        .attr('fill', '#cbd5e1').attr('font-size', '8px');
+
+      // 5. MARCADOR METROPOLITANO: LOTE DE IMPLANTACIÓN DEL PROYECTO (9.000 m²)
+      // Ubicación exacta: interfaz entre Fontibón y Kennedy (x=305, y=248)
+      const pX = 305, pY = 248;
+      const gPin = gStage.append('g').attr('transform', `translate(${pX},${pY})`);
+
+      // Círculos de pulso concéntrico
+      const pulse1 = gPin.append('circle').attr('r', 18).attr('fill', 'none').attr('stroke', '#fde047').attr('stroke-width', 2.5);
+      pulse1.append('animate').attr('attributeName', 'r').attr('values', '14;34').attr('dur', '2s').attr('repeatCount', 'indefinite');
+      pulse1.append('animate').attr('attributeName', 'stroke-opacity').attr('values', '1;0').attr('dur', '2s').attr('repeatCount', 'indefinite');
+
+      const pulse2 = gPin.append('circle').attr('r', 12).attr('fill', 'none').attr('stroke', '#38bdf8').attr('stroke-width', 2);
+      pulse2.append('animate').attr('attributeName', 'r').attr('values', '10;24').attr('dur', '2s').attr('begin', '0.6s').attr('repeatCount', 'indefinite');
+      pulse2.append('animate').attr('attributeName', 'stroke-opacity').attr('values', '1;0').attr('dur', '2s').attr('begin', '0.6s').attr('repeatCount', 'indefinite');
+
+      gPin.append('circle').attr('r', 9).attr('fill', '#fde047').attr('stroke', '#0f172a').attr('stroke-width', 2.5);
+      gPin.append('circle').attr('r', 3.5).attr('fill', '#0f172a');
+
+      // Línea conector hacia la tarjeta explicativa
+      const callX = 640, callY = 320;
+      gStage.append('line').attr('x1', pX + 10).attr('y1', pY - 8).attr('x2', callX - 160).attr('y2', callY - 30)
+        .attr('stroke', '#fde047').attr('stroke-width', 2).attr('stroke-dasharray', '4 4');
+
+      // 6. TARJETA METROPOLITANA: INSERCIÓN TERRITORIAL DEL PROYECTO
+      const gCardMetro = gStage.append('g').attr('transform', `translate(${callX},${callY})`);
+      gCardMetro.append('rect').attr('x', -160).attr('y', -65).attr('width', 320).attr('height', 135).attr('rx', 12)
+        .attr('fill', '#0d131f').attr('stroke', '#fde047').attr('stroke-width', 2);
+
+      gCardMetro.append('text').text('AQUÍ SE IMPLANTA EL PROYECTO').attr('x', -145).attr('y', -42)
+        .attr('fill', '#fde047').attr('font-size', '11.5px').attr('font-weight', '800').attr('letter-spacing', '0.05em');
+      gCardMetro.append('text').text('COMPLEJO BIOTECNOLÓGICO · 9.000 m²').attr('x', -145).attr('y', -24)
+        .attr('fill', '#fff').attr('font-size', '12.5px').attr('font-weight', '800');
+      gCardMetro.append('text').text('Borde de FONTIBÓN y al lado de KENNEDY').attr('x', -145).attr('y', -6)
+        .attr('fill', '#38bdf8').attr('font-size', '10.5px').attr('font-weight', '700');
+
+      const ITEMS_METRO = [
+        '📍 Cerca de Fontibón (acceso a Calle 13 y zona industrial)',
+        '📍 Al lado de Kennedy (adyacente a Corabastos y Humedal El Burro)',
+        '⚙️ Captación directa de 300 t/día de rastrojos sin fletes costosos',
+        '🛒 Distribución en circuito corto a 150 tiendas barriales'
+      ];
+
+      ITEMS_METRO.forEach((it, idx) => {
+        gCardMetro.append('text').text(it).attr('x', -145).attr('y', 14 + idx * 16)
+          .attr('fill', idx < 2 ? '#fde047' : '#cbd5e1').attr('font-size', '9px').attr('font-weight', idx < 2 ? '700' : '500');
+      });
+
+      // Leyenda cartográfica en la esquina superior derecha
+      const gLey = gStage.append('g').attr('transform', 'translate(740, 30)');
+      gLey.append('rect').attr('width', 170).attr('height', 110).attr('rx', 8)
+        .attr('fill', 'rgba(13,19,31,0.92)').attr('stroke', '#334155');
+      gLey.append('text').text('CONVENCIONES METROPOLITANAS').attr('x', 12).attr('y', 18)
+        .attr('fill', '#94a3b8').attr('font-size', '8.5px').attr('font-weight', '800');
+
+      const LEY_ITEMS = [
+        { c: '#fde047', t: 'Lote del proyecto (9.000 m²)' },
+        { c: '#38bdf8', t: 'Fontibón (Industrial / Carga)' },
+        { c: '#facc15', t: 'Kennedy (Comercio / Barrios)' },
+        { c: '#f87171', t: 'Corabastos (Acopio mayorista)' },
+        { c: '#4ade80', t: 'Humedales (Estructura ecológica)' }
+      ];
+
+      LEY_ITEMS.forEach((li, idx) => {
+        gLey.append('circle').attr('cx', 18).attr('cy', 34 + idx * 15).attr('r', 4).attr('fill', li.c);
+        gLey.append('text').text(li.t).attr('x', 28).attr('y', 37 + idx * 15)
+          .attr('fill', '#e2e8f0').attr('font-size', '8px');
+      });
     }
 
-    updateCorte();
+    // =========================================================================
+    // VISTA 2: CORTE BIOCLIMÁTICO TRANSVERSAL (9.000 m² CORABASTOS → HUMEDAL)
+    // =========================================================================
+    function renderCorteBioclimatico() {
+      // Botones de filtro de zona (Interactivo)
+      const gFiltros = gStage.append('g').attr('transform', 'translate(465, 8)');
+      const botones = [
+        { id: 'all', nom: 'Todos (9.000 m²)', col: '#94a3b8' },
+        ...ZONAS_DATA
+      ];
+
+      const btnWidths = [125, 155, 155, 155, 145, 155];
+      let totalBtnW = btnWidths.reduce((a, b) => a + b + 6, -6);
+      let curBtnX = -totalBtnW / 2;
+
+      const btnEls = [];
+      botones.forEach((b, i) => {
+        const bw = btnWidths[i];
+        const gBtn = gFiltros.append('g').attr('transform', `translate(${curBtnX}, 0)`).style('cursor', 'pointer');
+        curBtnX += bw + 6;
+
+        const bg = gBtn.append('rect').attr('width', bw).attr('height', 24).attr('rx', 12)
+          .attr('fill', b.id === selZona ? b.col : '#111827')
+          .attr('stroke', b.col).attr('stroke-width', b.id === selZona ? 1.8 : 1).attr('stroke-opacity', 0.6);
+
+        const txt = gBtn.append('text').text(b.id === 'all' ? b.nom : b.nom.split(':')[0])
+          .attr('x', bw / 2).attr('y', 15.5).attr('text-anchor', 'middle')
+          .attr('fill', b.id === selZona ? (b.id === 'all' ? '#fff' : '#0a0e17') : '#cbd5e1')
+          .attr('font-size', '10px').attr('font-weight', b.id === selZona ? '800' : '600');
+
+        gBtn.on('click', () => {
+          selZona = b.id;
+          updateCorte();
+        });
+        btnEls.push({ gBtn, bg, txt, b });
+      });
+
+      // Marco del Corte Arquitectónico Bioclimático
+      const cW = 930, cH = 385;
+      const gCorte = gStage.append('g').attr('transform', 'translate(0, 40)');
+
+      gCorte.append('rect').attr('width', cW).attr('height', cH).attr('rx', 12)
+        .attr('fill', '#090d15').attr('stroke', '#1e293b').attr('stroke-width', 1.4);
+
+      // Eje de cotas y cuadrícula técnica arquitectónica
+      const gGrid = gCorte.append('g').style('opacity', 0.35);
+      const COTAS = [
+        { y: 55, cota: '+13.50m', desc: 'Cubierta verde y captación' },
+        { y: 130, cota: '+9.00m', desc: 'Silos y extracción solar' },
+        { y: 210, cota: '+4.50m', desc: 'Bóvedas de micelio e inoculación' },
+        { y: 300, cota: '±0.00m', desc: 'Muelle mecatrónico y plaza' },
+        { y: 360, cota: '-1.50m', desc: 'Biofiltros del Humedal El Burro' }
+      ];
+
+      COTAS.forEach(c => {
+        gGrid.append('line').attr('x1', 55).attr('y1', c.y).attr('x2', cW - 20).attr('y2', c.y)
+          .attr('stroke', '#334155').attr('stroke-dasharray', '3 4');
+        gCorte.append('text').text(c.cota).attr('x', 45).attr('y', c.y + 3.5).attr('text-anchor', 'end')
+          .attr('fill', '#64748b').attr('font-size', '8.5px').attr('font-family', 'JetBrains Mono, monospace');
+      });
+
+      // Terreno y topografía natural
+      const gTerreno = gCorte.append('g');
+      gTerreno.append('path')
+        .attr('d', `M 50,300 L 680,300 Q 750,300 790,335 L 850,360 L ${cW - 20},360 L ${cW - 20},380 L 50,380 Z`)
+        .attr('fill', '#0c1420').attr('stroke', '#334155').attr('stroke-width', 1.5);
+
+      // Agua del Humedal El Burro
+      gTerreno.append('path')
+        .attr('d', `M 820,360 L ${cW - 20},360 L ${cW - 20},380 L 820,380 Z`)
+        .attr('fill', 'rgba(56,189,248,0.18)').attr('stroke', '#38bdf8').attr('stroke-width', 1);
+      gTerreno.append('text').text('HUMEDAL EL BURRO').attr('x', cW - 30).attr('y', 352).attr('text-anchor', 'end')
+        .attr('fill', '#38bdf8').attr('font-size', '9px').attr('font-weight', '800');
+
+      // Nombres de orientación
+      gCorte.append('text').text('← NORTE: ACCESO CORABASTOS').attr('x', 60).attr('y', 22)
+        .attr('fill', '#fb923c').attr('font-size', '10px').attr('font-weight', '700');
+      gCorte.append('text').text('SUR: BORDE ECOLÓGICO HUMEDAL →').attr('x', cW - 30).attr('y', 22).attr('text-anchor', 'end')
+        .attr('fill', '#4ade80').attr('font-size', '10px').attr('font-weight', '700');
+
+      // Definición geométrica de las 5 zonas en el corte
+      const VOLUMENES = [
+        {
+          id: 'A', nom: 'Zona A: Biorrefinería', col: '#fb923c',
+          path: 'M 70,300 L 70,165 L 260,165 L 260,300 Z',
+          labelX: 165, labelY: 230, m2: '2.800 m²',
+          detalles: [
+            'Muelle mecatrónico a cota ±0.00m',
+            'Tolvas automáticas y trituradores de rastrojo',
+            'Cintas continuas: CERO BULTOS A LOMO'
+          ]
+        },
+        {
+          id: 'B', nom: 'Zona B: Bóvedas Pleurotus', col: '#38bdf8',
+          path: 'M 270,210 L 270,105 L 510,105 L 510,210 Z',
+          labelX: 390, labelY: 150, m2: '2.200 m²',
+          detalles: [
+            'Cámaras oscuras isotérmicas en cota +4.50m',
+            'Aislamiento térmico pasivo con masa biológica',
+            '40 ton/mes de proteína fúngica bioasimilable'
+          ]
+        },
+        {
+          id: 'C', nom: 'Zona C: Silos Carbohidratos', col: '#facc15',
+          path: 'M 270,300 L 270,215 L 510,215 L 510,300 Z',
+          labelX: 390, labelY: 260, m2: '1.800 m²',
+          detalles: [
+            'Silos verticales con ventilación cruzada',
+            'Control de HR al 85% para papa pastusa y andina',
+            'Pérdidas postcosecha reducidas a menos del 3%'
+          ]
+        },
+        {
+          id: 'D', nom: 'Zona D: Reconversión Laboral', col: '#c084fc',
+          path: 'M 520,300 L 520,175 L 670,175 L 670,300 Z',
+          labelX: 595, labelY: 235, m2: '800 m²',
+          detalles: [
+            'Aulas técnicas mecatrónicas y laboratorios',
+            'Formación para 320 coteros y recicladores',
+            'Empleo formal y cooperativa de operadores'
+          ]
+        },
+        {
+          id: 'E', nom: 'Zona E: Borde Cívico & Comedor', col: '#4ade80',
+          path: 'M 680,300 L 680,205 L 810,235 L 810,335 L 750,335 Z',
+          labelX: 745, labelY: 265, m2: '1.400 m²',
+          detalles: [
+            'Comedor comunitario para 500 raciones diarias',
+            'Plaza de mercado barrial y comercio justo',
+            'Talud de fitodepuración (juncos y biofiltros)'
+          ]
+        }
+      ];
+
+      // Cubierta verde general inclinada a cota +13.50m
+      const gTecho = gCorte.append('g');
+      gTecho.append('path')
+        .attr('d', 'M 65,165 L 265,105 L 515,55 L 675,85 L 815,235')
+        .attr('fill', 'none').attr('stroke', '#4ade80').attr('stroke-width', 3);
+      gTecho.append('text').text('CUBIERTA PRODUCTIVA VEGETAL (1.500 m²) + CAPTACIÓN PLUVIAL')
+        .attr('x', 400).attr('y', 48).attr('text-anchor', 'middle')
+        .attr('fill', '#86efac').attr('font-size', '9.5px').attr('font-weight', '800');
+
+      // Maquinaria visual
+      // Cinta transportadora en Zona A
+      gCorte.append('line').attr('x1', 115).attr('y1', 285).attr('x2', 240).attr('y2', 195)
+        .attr('stroke', '#fb923c').attr('stroke-width', 3.5).attr('stroke-dasharray', '5 4').attr('class', 'flowing');
+      gCorte.append('text').text('Cinta mecánica continua').attr('x', 185).attr('y', 230)
+        .attr('fill', '#fb923c').attr('font-size', '8px').attr('font-weight', '700');
+
+      // Silos en Zona C
+      gCorte.append('rect').attr('x', 315).attr('y', 225).attr('width', 38).attr('height', 68).attr('rx', 5)
+        .attr('fill', '#1f1e14').attr('stroke', '#facc15').attr('stroke-width', 1.5);
+      gCorte.append('rect').attr('x', 365).attr('y', 225).attr('width', 38).attr('height', 68).attr('rx', 5)
+        .attr('fill', '#1f1e14').attr('stroke', '#facc15').attr('stroke-width', 1.5);
+
+      // Flujos bioclimáticos animados
+      gCorte.append('path')
+        .attr('d', `M ${cW - 40},345 C 720,320 600,270 450,280 C 350,290 200,290 80,290`)
+        .attr('fill', 'none').attr('stroke', '#38bdf8').attr('stroke-width', 2.5)
+        .attr('stroke-dasharray', '6 5').attr('class', 'flowing').attr('stroke-opacity', 0.7);
+      gCorte.append('text').text('Brisa fresca del Humedal El Burro').attr('x', cW - 120).attr('y', 320)
+        .attr('fill', '#38bdf8').attr('font-size', '8.5px').attr('font-weight', '700');
+
+      // Chimenea solar
+      gCorte.append('path')
+        .attr('d', 'M 515,95 L 515,30')
+        .attr('fill', 'none').attr('stroke', '#f87171').attr('stroke-width', 2)
+        .attr('stroke-dasharray', '4 4').attr('class', 'flowing');
+
+      // Generar áreas poligonales interactivas para cada zona
+      const zonaEls = [];
+      VOLUMENES.forEach(v => {
+        const gZ = gCorte.append('g').style('cursor', 'pointer');
+        const poly = gZ.append('path').attr('d', v.path)
+          .attr('fill', v.col).attr('fill-opacity', 0.12)
+          .attr('stroke', v.col).attr('stroke-width', 1.8).attr('stroke-opacity', 0.7);
+
+        const tNom = gZ.append('text').text(v.nom).attr('x', v.labelX).attr('y', v.labelY).attr('text-anchor', 'middle')
+          .attr('fill', '#fff').attr('font-size', '10.5px').attr('font-weight', '800');
+        const tM2 = gZ.append('text').text(v.m2).attr('x', v.labelX).attr('y', v.labelY + 14).attr('text-anchor', 'middle')
+          .attr('fill', v.col).attr('font-size', '9.5px').attr('font-weight', '700');
+
+        gZ.on('click', () => {
+          selZona = (selZona === v.id ? 'all' : v.id);
+          updateCorte();
+        });
+
+        gZ.on('mouseenter', () => {
+          showTip(v.nom, v.col, `${v.m2} construidos`, v.detalles.join('<br>'));
+        });
+        gZ.on('mouseleave', hideTip);
+
+        zonaEls.push({ gZ, poly, tNom, tM2, v });
+      });
+
+      // Ficha técnica flotante inferior
+      const gFicha = gCorte.append('g').attr('transform', `translate(20, ${cH - 58})`);
+      const fBg = gFicha.append('rect').attr('width', cW - 40).attr('height', 48).attr('rx', 8)
+        .attr('fill', '#0e1726').attr('stroke', '#38bdf8').attr('stroke-width', 1.2);
+      const fTit = gFicha.append('text').attr('x', 16).attr('y', 18).attr('fill', '#fff').attr('font-size', '10.5px').attr('font-weight', '800');
+      const fDesc = gFicha.append('text').attr('x', 16).attr('y', 33).attr('fill', '#94a3b8').attr('font-size', '9px');
+      const fBtnCerrar = gFicha.append('text').text('Ver todas ✕').attr('x', cW - 55).attr('y', 26).attr('text-anchor', 'end')
+        .attr('fill', '#38bdf8').attr('font-size', '9.5px').attr('font-weight', '700').style('cursor', 'pointer')
+        .on('click', () => { selZona = 'all'; updateCorte(); });
+
+      // Barra proporcional
+      const gBarra = gStage.append('g').attr('transform', `translate(0, ${cH + 48})`);
+      let curBarX = 0;
+      ZONAS_DATA.forEach(z => {
+        const segW = (z.m2 / 9000) * cW;
+        const gSeg = gBarra.append('g').attr('transform', `translate(${curBarX}, 0)`).style('cursor', 'pointer');
+        curBarX += segW;
+
+        gSeg.append('rect').attr('width', segW - 2).attr('height', 18).attr('rx', 4)
+          .attr('fill', z.col).attr('fill-opacity', 0.85);
+        gSeg.append('text').text(`${z.id} · ${z.pct}`).attr('x', (segW - 2) / 2).attr('y', 12.5).attr('text-anchor', 'middle')
+          .attr('fill', '#0f172a').attr('font-size', '8.5px').attr('font-weight', '800');
+
+        gSeg.on('click', () => {
+          selZona = (selZona === z.id ? 'all' : z.id);
+          updateCorte();
+        });
+        gSeg.on('mouseenter', () => showTip(z.nom, z.col, `${z.m2} m² (${z.pct})`, z.imp));
+        gSeg.on('mouseleave', hideTip);
+      });
+
+      function updateCorte() {
+        btnEls.forEach(({ bg, txt, b }) => {
+          const isSel = b.id === selZona;
+          bg.attr('fill', isSel ? b.col : '#111827')
+            .attr('stroke-width', isSel ? 1.8 : 1);
+          txt.attr('fill', isSel ? (b.id === 'all' ? '#fff' : '#0a0e17') : '#cbd5e1')
+            .attr('font-weight', isSel ? '800' : '600');
+        });
+
+        zonaEls.forEach(({ poly, tNom, tM2, v }) => {
+          const active = selZona === 'all' || selZona === v.id;
+          poly.attr('fill-opacity', active ? (selZona === v.id ? 0.35 : 0.14) : 0.03)
+            .attr('stroke-width', active ? (selZona === v.id ? 2.8 : 1.8) : 0.8)
+            .attr('stroke-opacity', active ? 1 : 0.2);
+          tNom.attr('opacity', active ? 1 : 0.3);
+          tM2.attr('opacity', active ? 1 : 0.3);
+        });
+
+        if (selZona === 'all') {
+          fBg.attr('stroke', '#38bdf8');
+          fTit.text('COMPLEJO TOTAL: 9.000 m² CUBIERTOS + 2.500 m² DE PARQUE Y RESTAURACIÓN DEL HUMEDAL');
+          fDesc.text('Haz clic en cualquier zona del corte arquitectónico o en los botones superiores para inspeccionar su equipamiento.');
+          fBtnCerrar.style('display', 'none');
+        } else {
+          const z = ZONAS_DATA.find(x => x.id === selZona);
+          fBg.attr('stroke', z.col);
+          fTit.text(`${z.nom.toUpperCase()} (${z.m2} m² · ${z.pct}) — COTA ${z.cota}`).attr('fill', z.col);
+          fDesc.text(`Equipamiento: ${z.eq}. Impacto: ${z.imp}`);
+          fBtnCerrar.style('display', 'block');
+        }
+      }
+
+      updateCorte();
+    }
+
+    setSubView('metropolitano');
   }
 
   function renderArquitecturaCanasta(svg, showTip, hideTip) {
