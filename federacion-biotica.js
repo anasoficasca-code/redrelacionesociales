@@ -2,6 +2,7 @@
 // Rediseño visual interactivo con ICONOS FLAT VECTORIALES orientado a PROGRAMA ARQUITECTÓNICO:
 // 1. Federación Policéntrica (Sin Líder) vs. Jerarquía Piramidal
 // 2. Red Sociobiótica: Dónde (Lugares) + Quiénes (Personas) + Humedal El Burro (Relaciones Bióticas y Para qué)
+// 1b. Cómo funciona la federación: explicación animada en 6 pasos
 // 3. Programa Arquitectónico: Zonificación, Áreas (9.000 m²) y Sección Bioclimática de la Biorrefinería
 // 4. Arquitectura de la Canasta Familiar & Fases de Implantación Constructiva
 
@@ -259,6 +260,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
   }
   .fed-tab-btn:hover { color: #fff; }
   .fed-tab-btn.active {
@@ -384,7 +386,7 @@
         { id:'f2', n:'Humedal & Agua', icon:'agua', tag:'Custodios El Burro', col:'#38bdf8', angle: -Math.PI/2 + (2*Math.PI/5) },
         { id:'f3', n:'Circularidad & Compost', icon:'reciclaje', tag:'Recicladores de oficio', col:'#facc15', angle: -Math.PI/2 + 2*(2*Math.PI/5) },
         { id:'f4', n:'Comercio Barrial', icon:'tienda', tag:'Tenderos y ferias', col:'#fb923c', angle: -Math.PI/2 + 3*(2*Math.PI/5) },
-        { id:'f5', n:'Soporte Distrital', icon:'institucion', tag:'UAESP y Alcaldía (soporte técnico)', col:'#c084fc', angle: -Math.PI/2 + 4*(2*Math.PI/5) }
+        { id:'f5', n:'Soporte Distrital', icon:'institucion', tag:'Soporte técnico, no manda', col:'#c084fc', angle: -Math.PI/2 + 4*(2*Math.PI/5) }
       ]
     }
   };
@@ -483,38 +485,41 @@
     { s:'L_inv', t:'B_flo', label:'Barrera y repelente botánico natural' }
   ];
 
-  // --- HTML ESTRUCTURAL (4 TABS) ---
+  // --- HTML ESTRUCTURAL ---
   const html = `
   <div id="viewFederacion" class="view-federacion-stage">
     <div class="fed-topbar">
       <div class="fed-switcher">
-        <button class="fed-tab-btn active" data-tab="comparacion" id="btnTabComp">
-          ${iconSvgHtml('mesa', 13)} 1. Federación vs. Jerarquía
+        <button class="fed-tab-btn active" data-tab="comparacion">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v18M4 7l8-4 8 4"/></svg>
+          1. Jerarquía vs. federación
         </button>
-        <button class="fed-tab-btn" data-tab="sociobiotica" id="btnTabBio">
-          ${iconSvgHtml('huerta', 13)} 2. Red Sociobiótica (Humedal & Huertas)
+        <button class="fed-tab-btn" data-tab="funciona">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          2. Cómo funciona
         </button>
-        <button class="fed-tab-btn" data-tab="fases" id="btnTabFases">
-          ${iconSvgHtml('plano', 13)} 3. Programa Arquitectónico: Biorrefinería (9.000 m²)
+        <button class="fed-tab-btn" data-tab="sociobiotica">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          3. Red sociobiótica
         </button>
-        <button class="fed-tab-btn" data-tab="canasta" id="btnTabCanasta">
-          ${iconSvgHtml('seccion', 13)} 4. Arquitectura de la Canasta & Fases
+        <button class="fed-tab-btn" data-tab="fases">
+          ${iconSvgHtml('plano', 13)} 4. Programa arquitectónico
+        </button>
+        <button class="fed-tab-btn" data-tab="canasta">
+          ${iconSvgHtml('seccion', 13)} 5. Canasta y fases
         </button>
       </div>
 
-      <!-- Filtros para la Red Sociobiótica -->
       <div class="fed-filters-pill" id="fedFilters" style="display:none">
-        <button class="ff-btn active" data-filter="all">Toda la Red (19)</button>
-        <button class="ff-btn" data-filter="lugar">${iconSvgHtml('hogar', 12)} Lugares</button>
-        <button class="ff-btn" data-filter="persona">${iconSvgHtml('comunidad', 12)} Personas</button>
-        <button class="ff-btn" data-filter="biotica">${iconSvgHtml('abeja', 12)} Especies</button>
+        <button class="ff-btn active" data-filter="all">Todo (19)</button>
+        <button class="ff-btn" data-filter="persona">${iconSvgHtml('comunidad', 13)} Quiénes (6)</button>
+        <button class="ff-btn" data-filter="lugar">${iconSvgHtml('hogar', 13)} Dónde (8)</button>
+        <button class="ff-btn" data-filter="biotica">${iconSvgHtml('abeja', 13)} Para qué (5)</button>
       </div>
     </div>
 
-    <!-- Escenario SVG interactivo -->
     <svg id="fedSvg" class="fed-svg-stage" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg>
 
-    <!-- Tooltip flotante limpio y explicativo -->
     <div id="fedTip" class="fed-floating-tip hidden">
       <span class="tip-badge" id="tipBadge">Elemento</span>
       <h3 class="tip-title" id="tipTitle">Título</h3>
@@ -523,7 +528,6 @@
   </div>
   `;
 
-  // Insertar en #stage
   const stageEl = document.getElementById('stage');
   if (stageEl) {
     const wrap = document.createElement('div');
@@ -534,12 +538,63 @@
   // --- MOTOR DE DIBUJO D3 ---
   let activeTab = 'comparacion';
   let activeFilter = 'all';
+  let funStep = 0;
+  let animTimers = [];
+  let rafId = null;
+  let autoplayId = null;
+
+  function later(fn, ms) { animTimers.push(setTimeout(fn, ms)); }
+  function clearAnims() {
+    animTimers.forEach(clearTimeout);
+    animTimers = [];
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+  function stopAutoplay() {
+    if (autoplayId) clearInterval(autoplayId);
+    autoplayId = null;
+  }
+
+  // Texto SVG con salto de línea automático. Devuelve el número de líneas.
+  function wrapText(sel, str, maxChars, lh) {
+    const words = String(str).split(/\s+/);
+    const lines = [];
+    let cur = '';
+    words.forEach(w => {
+      if ((cur + ' ' + w).trim().length > maxChars && cur) { lines.push(cur); cur = w; }
+      else cur = (cur + ' ' + w).trim();
+    });
+    if (cur) lines.push(cur);
+    const x = sel.attr('x') || 0;
+    lines.forEach((l, i) => sel.append('tspan').attr('x', x).attr('dy', i === 0 ? 0 : lh).text(l));
+    return lines.length;
+  }
+
+  // Etiqueta tipo "píldora" con texto
+  function pill(parent, x, y, text, col, opts = {}) {
+    const fs = opts.fs || 10;
+    const w = Math.max(30, text.length * fs * 0.56 + 18);
+    const g = parent.append('g').attr('transform', `translate(${x},${y})`).style('pointer-events', 'none');
+    g.append('rect').attr('x', -w / 2).attr('y', -fs - 2).attr('width', w).attr('height', fs * 2 + 2).attr('rx', fs + 1)
+      .attr('fill', opts.bg || '#0a0f19').attr('stroke', col).attr('stroke-width', 1.2);
+    g.append('text').text(text).attr('text-anchor', 'middle').attr('y', fs * 0.36)
+      .attr('fill', opts.fg || col).attr('font-size', fs + 'px').attr('font-weight', 700);
+    return g;
+  }
 
   function renderView() {
+    clearAnims();
     const svg = d3.select('#fedSvg');
     svg.selectAll('*').remove();
-
     svg.html(SVG_DEFS);
+
+    // Puntas de flecha reutilizables
+    const defs = svg.select('defs');
+    [['fedArrowBlue', '#38bdf8'], ['fedArrowGreen', '#10b981'], ['fedArrowRed', '#ef4444'], ['fedArrowGrey', '#64748b']].forEach(([id, c]) => {
+      defs.append('marker').attr('id', id).attr('viewBox', '0 0 10 10').attr('refX', 8).attr('refY', 5)
+        .attr('markerWidth', 6).attr('markerHeight', 6).attr('orient', 'auto-start-reverse')
+        .append('path').attr('d', 'M0,0 L10,5 L0,10 z').attr('fill', c);
+    });
 
     const tip = document.getElementById('fedTip');
     const filtersBar = document.getElementById('fedFilters');
@@ -558,189 +613,638 @@
       d.innerHTML = desc;
       tip.classList.remove('hidden');
     }
-    function hideTip() {
-      if (tip) tip.classList.add('hidden');
-    }
+    function hideTip() { if (tip) tip.classList.add('hidden'); }
+    hideTip();
 
-    if (activeTab === 'comparacion') {
-      renderComparacion(svg, showTip, hideTip);
-    } else if (activeTab === 'sociobiotica') {
-      renderSociobiotica(svg, showTip, hideTip);
-    } else if (activeTab === 'fases') {
-      renderProgramaArquitectonico(svg, showTip, hideTip);
-    } else if (activeTab === 'canasta') {
-      renderArquitecturaCanasta(svg, showTip, hideTip);
-    }
+    if (activeTab === 'comparacion') renderComparacion(svg, showTip, hideTip);
+    else if (activeTab === 'funciona') renderFunciona(svg, showTip, hideTip);
+    else if (activeTab === 'fases') renderProgramaArquitectonico(svg, showTip, hideTip);
+    else if (activeTab === 'canasta') renderArquitecturaCanasta(svg, showTip, hideTip);
+    else renderSociobiotica(svg, showTip, hideTip);
   }
 
+  // =====================================================================
   // 1. COMPARACIÓN: Jerarquía vs Federación
+  // =====================================================================
   function renderComparacion(svg, showTip, hideTip) {
     const gBg = svg.append('g');
-
-    gBg.append('rect').attr('x', 35).attr('y', 55).attr('width', 440).attr('height', 525).attr('rx', 18)
+    gBg.append('rect').attr('x', 35).attr('y', 55).attr('width', 440).attr('height', 535).attr('rx', 18)
       .attr('fill', '#0e1320').attr('stroke', 'rgba(239,68,68,0.35)').attr('stroke-width', 1.5);
-    gBg.append('rect').attr('x', 525).attr('y', 55).attr('width', 440).attr('height', 525).attr('rx', 18)
+    gBg.append('rect').attr('x', 525).attr('y', 55).attr('width', 440).attr('height', 535).attr('rx', 18)
       .attr('fill', '#0c1a24').attr('stroke', 'rgba(56,189,248,0.45)').attr('stroke-width', 1.5);
 
     const h1 = svg.append('g').attr('transform', 'translate(255, 85)');
     h1.append('text').text('HOY: JERARQUÍA PIRAMIDAL').attr('text-anchor', 'middle')
       .attr('fill', '#f87171').attr('font-weight', '800').attr('font-size', '15px').attr('letter-spacing', '0.06em');
-    h1.append('text').text('Mando vertical: un solo orden para todo').attr('text-anchor', 'middle')
+    h1.append('text').text('Las órdenes bajan; los costos se quedan abajo').attr('text-anchor', 'middle')
       .attr('fill', '#94a3b8').attr('font-size', '11.5px').attr('y', 18);
 
     const h2 = svg.append('g').attr('transform', 'translate(745, 85)');
     h2.append('text').text('PROPUESTA: FEDERACIÓN POLICÉNTRICA').attr('text-anchor', 'middle')
       .attr('fill', '#38bdf8').attr('font-weight', '800').attr('font-size', '15px').attr('letter-spacing', '0.06em');
-    h2.append('text').text('SIN LÍDER CENTRAL · Nodos autónomos en igualdad horizontal').attr('text-anchor', 'middle')
+    h2.append('text').text('Sin líder central: núcleos autónomos que se coordinan').attr('text-anchor', 'middle')
       .attr('fill', '#34d399').attr('font-size', '11.5px').attr('font-weight', '700').attr('y', 18);
 
-    const jN = DATA_COMP.jerarquia.nodos;
+    // --- Jerarquía ---
+    const jN = DATA_COMP.jerarquia.nodos.map((n, i) => Object.assign({}, n, { y: 140 + i * 78 }));
     const gJer = svg.append('g');
 
     for (let i = 0; i < jN.length - 1; i++) {
-      const y1 = jN[i].y + 24, y2 = jN[i+1].y - 24;
-      gJer.append('line').attr('x1', 255).attr('y1', y1).attr('x2', 255).attr('y2', y2)
-        .attr('stroke', '#ef4444').attr('stroke-width', 2).attr('stroke-dasharray', '4 4');
-      gJer.append('polygon').attr('points', `251,${y2-2} 259,${y2-2} 255,${y2+5}`).attr('fill', '#ef4444');
+      gJer.append('line').attr('x1', 255).attr('y1', jN[i].y + 21).attr('x2', 255).attr('y2', jN[i + 1].y - 24)
+        .attr('stroke', '#ef4444').attr('stroke-width', 2).attr('stroke-dasharray', '4 4')
+        .attr('marker-end', 'url(#fedArrowRed)');
     }
+
+    // Flecha lateral: las órdenes bajan
+    gJer.append('line').attr('x1', 445).attr('y1', 130).attr('x2', 445).attr('y2', 450)
+      .attr('stroke', '#ef4444').attr('stroke-width', 2.5).attr('marker-end', 'url(#fedArrowRed)');
+    gJer.append('text').text('ÓRDENES Y CONTRATOS').attr('transform', 'translate(458, 290) rotate(90)')
+      .attr('text-anchor', 'middle').attr('fill', '#f87171').attr('font-size', '9.5px').attr('font-weight', 800).attr('letter-spacing', '0.08em');
+
+    // Flecha lateral: la voz de abajo no llega
+    gJer.append('line').attr('x1', 65).attr('y1', 450).attr('x2', 65).attr('y2', 260)
+      .attr('stroke', '#64748b').attr('stroke-width', 2).attr('stroke-dasharray', '3 5').attr('marker-end', 'url(#fedArrowGrey)');
+    gJer.append('text').text('QUEJAS SIN PESO').attr('transform', 'translate(52, 355) rotate(-90)')
+      .attr('text-anchor', 'middle').attr('fill', '#64748b').attr('font-size', '9.5px').attr('font-weight', 800).attr('letter-spacing', '0.08em');
+    gJer.append('text').text('✕').attr('x', 65).attr('y', 250).attr('text-anchor', 'middle').attr('fill', '#ef4444').attr('font-size', '14px').attr('font-weight', 800);
 
     jN.forEach((n, idx) => {
       const g = gJer.append('g').attr('transform', `translate(255, ${n.y})`).style('cursor', 'pointer');
-      g.append('rect').attr('x', -160).attr('y', -20).attr('width', 320).attr('height', 40).attr('rx', 10)
+      g.append('rect').attr('x', -160).attr('y', -21).attr('width', 320).attr('height', 42).attr('rx', 10)
         .attr('fill', '#151d2e').attr('stroke', n.col).attr('stroke-width', idx === 0 ? 2.5 : 1.2);
-
       g.append('circle').attr('cx', -134).attr('cy', 0).attr('r', 13).attr('fill', '#090d16').attr('stroke', n.col).attr('stroke-width', 1.5);
       g.append('use').attr('href', '#ic-' + n.icon).attr('x', -142).attr('y', -8).attr('width', 16).attr('height', 16)
         .style('color', n.col).style('pointer-events', 'none');
-
-      g.append('text').text(n.n).attr('x', -112).attr('y', -1).attr('fill', '#fff').attr('font-weight', '700').attr('font-size', '12px');
-      g.append('text').text(n.tag).attr('x', -112).attr('y', 13).attr('fill', n.col).attr('font-size', '10px').attr('font-weight', '600');
-
+      g.append('text').text(n.n).attr('x', -112).attr('y', -2).attr('fill', '#fff').attr('font-weight', '700').attr('font-size', '12px');
+      g.append('text').text(n.tag).attr('x', -112).attr('y', 12).attr('fill', n.col).attr('font-size', '10px').attr('font-weight', '600');
       g.append('circle').attr('cx', 138).attr('cy', 0).attr('r', 10).attr('fill', n.col).attr('opacity', 0.2);
       g.append('text').text(idx + 1).attr('x', 138).attr('y', 3.5).attr('text-anchor', 'middle').attr('fill', n.col).attr('font-size', '9.5px').attr('font-weight', '800');
-
-      g.on('mouseenter', () => showTip('Jerarquía Actual', n.col, `${iconSvgHtml(n.icon, 20, n.col)} ${n.n}`, `<b>Nivel ${idx+1}:</b> ${n.tag}. En el modelo actual, la toma de decisiones está concentrada arriba, excluyendo a quienes ejecutan el trabajo cotidiano.`));
+      g.on('mouseenter', () => showTip('Jerarquía actual', n.col, `${iconSvgHtml(n.icon, 20, n.col)} ${n.n}`, `<b>Nivel ${idx + 1}:</b> ${n.tag}. En el modelo actual, la decisión se concentra arriba y excluye a quienes hacen el trabajo cotidiano.`));
       g.on('mouseleave', hideTip);
     });
 
-    const bJer = svg.append('g').attr('transform', 'translate(255, 545)');
-    bJer.append('rect').attr('x', -180).attr('y', -14).attr('width', 360).attr('height', 28).attr('rx', 14)
+    const bJer = svg.append('g').attr('transform', 'translate(255, 552)');
+    bJer.append('rect').attr('x', -180).attr('y', -15).attr('width', 360).attr('height', 30).attr('rx', 15)
       .attr('fill', 'rgba(239,68,68,0.14)').attr('stroke', '#ef4444').attr('stroke-width', 1);
-    bJer.append('text').text('✕ DECISIÓN CENTRALIZADA · ASIMETRÍA DE PODER')
+    bJer.append('text').text('✕ DECIDE QUIEN FIRMA · PAGA QUIEN VIVE AHÍ')
       .attr('text-anchor', 'middle').attr('y', 4).attr('fill', '#f87171').attr('font-weight', '800').attr('font-size', '11px');
 
+    // --- Federación ---
     const gFed = svg.append('g');
-    const fC = { x: 745, y: 310 };
-    const fN = DATA_COMP.federacion.nodos;
-    const R = 145;
+    const fC = { x: 745, y: 322 };
+    const R = 134;
+    const fN = DATA_COMP.federacion.nodos.map(n => Object.assign({}, n, {
+      x: fC.x + Math.cos(n.angle) * R,
+      y: fC.y + Math.sin(n.angle) * R
+    }));
 
-    fN.forEach(n => {
-      n.x = fC.x + Math.cos(n.angle) * R;
-      n.y = fC.y + Math.sin(n.angle) * R;
+    // Intercambio directo entre vecinos (anillo de arcos con doble flecha)
+    fN.forEach((n, i) => {
+      const m = fN[(i + 1) % fN.length];
+      const a1 = n.angle + 0.30, a2 = (i === fN.length - 1 ? m.angle + 2 * Math.PI : m.angle) - 0.30;
+      const p1 = [fC.x + Math.cos(a1) * R, fC.y + Math.sin(a1) * R];
+      const p2 = [fC.x + Math.cos(a2) * R, fC.y + Math.sin(a2) * R];
+      gFed.append('path').attr('d', `M${p1[0]},${p1[1]} A${R},${R} 0 0 1 ${p2[0]},${p2[1]}`)
+        .attr('fill', 'none').attr('stroke', '#10b981').attr('stroke-width', 2)
+        .attr('marker-start', 'url(#fedArrowGreen)').attr('marker-end', 'url(#fedArrowGreen)').attr('opacity', 0.8);
     });
 
-    gFed.append('circle').attr('cx', fC.x).attr('cy', fC.y).attr('r', R)
-      .attr('fill', 'none').attr('stroke', '#10b981').attr('stroke-width', 1.8).attr('stroke-dasharray', '5 4').attr('opacity', 0.6);
-
+    // Delegación: líneas punteadas cortas en ambos sentidos (la mesa no manda)
     fN.forEach(n => {
-      gFed.append('line').attr('x1', fC.x).attr('y1', fC.y).attr('x2', n.x).attr('y2', n.y)
-        .attr('stroke', '#38bdf8').attr('stroke-width', 2).attr('opacity', 0.65);
+      const dx = Math.cos(n.angle), dy = Math.sin(n.angle);
+      gFed.append('line')
+        .attr('x1', fC.x + dx * 46).attr('y1', fC.y + dy * 46)
+        .attr('x2', n.x - dx * 38).attr('y2', n.y - dy * 38)
+        .attr('stroke', '#38bdf8').attr('stroke-width', 1.4).attr('stroke-dasharray', '3 4').attr('opacity', 0.7)
+        .attr('marker-start', 'url(#fedArrowBlue)').attr('marker-end', 'url(#fedArrowBlue)');
     });
 
     const gC = gFed.append('g').attr('transform', `translate(${fC.x}, ${fC.y})`).style('cursor', 'pointer');
-    gC.append('circle').attr('r', 48).attr('fill', '#091c2b').attr('stroke', '#38bdf8').attr('stroke-width', 2.8);
-    
-    gC.append('use').attr('href', '#ic-mesa').attr('x', -14).attr('y', -24).attr('width', 28).attr('height', 28)
+    gC.append('circle').attr('r', 42).attr('fill', '#091c2b').attr('stroke', '#38bdf8').attr('stroke-width', 1.8).attr('stroke-dasharray', '5 4');
+    gC.append('use').attr('href', '#ic-mesa').attr('x', -12).attr('y', -24).attr('width', 24).attr('height', 24)
       .style('color', '#38bdf8').style('pointer-events', 'none');
-
-    gC.append('text').text('MESA FEDERATIVA').attr('text-anchor', 'middle').attr('y', 14)
-      .attr('fill', '#38bdf8').attr('font-size', '10.5px').attr('font-weight', '800').attr('letter-spacing', '0.04em');
-    gC.append('text').text('Vocerías rotativas · Cero jefes').attr('text-anchor', 'middle').attr('y', 27)
+    gC.append('text').text('MESA').attr('text-anchor', 'middle').attr('y', 12)
+      .attr('fill', '#38bdf8').attr('font-size', '10.5px').attr('font-weight', '800').attr('letter-spacing', '0.06em');
+    gC.append('text').text('punto de encuentro').attr('text-anchor', 'middle').attr('y', 24)
       .attr('fill', '#94a3b8').attr('font-size', '8.5px');
-
-    gC.on('mouseenter', () => showTip('Centro Coordinador', '#38bdf8', `${iconSvgHtml('mesa', 20, '#38bdf8')} Mesa Federativa de Kennedy`, '<b>SIN LÍDER CENTRAL:</b> Espacio donde convergen delegados con <b>vocerías rotativas cortas (1 a 3 meses)</b> y mandatos revocables. Se decide por consentimiento mutuo y cogestión pública, sin jerarquías.'));
+    gC.on('mouseenter', () => showTip('Punto de encuentro', '#38bdf8', `${iconSvgHtml('mesa', 20, '#38bdf8')} Mesa Federativa`, '<b>No es un jefe:</b> es el lugar donde se encuentran 2 delegados de cada núcleo, con mandato de su asamblea y revocables. Decide solo lo que afecta a todos, por consentimiento. La vocería rota cada 1 a 3 meses.'));
     gC.on('mouseleave', hideTip);
 
     fN.forEach(n => {
       const g = gFed.append('g').attr('transform', `translate(${n.x}, ${n.y})`).style('cursor', 'pointer');
-      g.append('circle').attr('r', 36).attr('fill', '#111e30').attr('stroke', n.col).attr('stroke-width', 2.5);
-      
-      g.append('use').attr('href', '#ic-' + n.icon).attr('x', -12).attr('y', -18).attr('width', 24).attr('height', 24)
+      g.append('circle').attr('r', 32).attr('fill', '#111e30').attr('stroke', n.col).attr('stroke-width', 2.5);
+      g.append('use').attr('href', '#ic-' + n.icon).attr('x', -13).attr('y', -13).attr('width', 26).attr('height', 26)
         .style('color', n.col).style('pointer-events', 'none');
-
-      g.append('text').text(n.n).attr('text-anchor', 'middle').attr('y', 15)
-        .attr('fill', '#fff').attr('font-size', '10px').attr('font-weight', '700');
-      g.append('text').text(n.tag).attr('text-anchor', 'middle').attr('y', 26)
-        .attr('fill', n.col).attr('font-size', '8px').attr('font-weight', '600');
-
-      g.on('mouseenter', () => showTip('Nodo Autónomo', n.col, `${iconSvgHtml(n.icon, 20, n.col)} ${n.n}`, `<b>Composición:</b> ${n.tag}. Autonomía total para su materia sin someterse a jefes. Se conecta en igualdad de condiciones con los demás núcleos.`));
+      const below = Math.sin(n.angle) > -0.5;
+      const ty = below ? 48 : -58;
+      const lab = g.append('g').attr('transform', `translate(0, ${ty})`).style('pointer-events', 'none');
+      lab.append('text').text(n.n).attr('text-anchor', 'middle')
+        .attr('fill', '#fff').attr('font-size', '11px').attr('font-weight', '700')
+        .style('paint-order', 'stroke').style('stroke', '#0c1a24').style('stroke-width', '4px');
+      lab.append('text').text(n.tag).attr('text-anchor', 'middle').attr('y', 13)
+        .attr('fill', n.col).attr('font-size', '9px').attr('font-weight', '600')
+        .style('paint-order', 'stroke').style('stroke', '#0c1a24').style('stroke-width', '4px');
+      g.on('mouseenter', () => showTip('Núcleo autónomo', n.col, `${iconSvgHtml(n.icon, 20, n.col)} ${n.n}`, `<b>${n.tag}.</b> Decide en su propia asamblea cómo hace su trabajo. Intercambia directamente con los núcleos vecinos y envía 2 delegados a la mesa solo para lo que afecta a todos.`));
       g.on('mouseleave', hideTip);
     });
 
-    const bBanner = svg.append('g').attr('transform', 'translate(745, 545)');
-    bBanner.append('rect').attr('x', -195).attr('y', -14).attr('width', 390).attr('height', 28).attr('rx', 14)
+    // Convenciones de la federación
+    const lg = svg.append('g').attr('transform', 'translate(556, 516)');
+    lg.append('line').attr('x1', 0).attr('y1', 0).attr('x2', 22).attr('y2', 0).attr('stroke', '#10b981').attr('stroke-width', 2);
+    lg.append('text').text('Intercambio directo entre núcleos').attr('x', 28).attr('y', 3.5).attr('fill', '#cbd5e1').attr('font-size', '9.5px');
+    lg.append('line').attr('x1', 200).attr('y1', 0).attr('x2', 222).attr('y2', 0).attr('stroke', '#38bdf8').attr('stroke-width', 1.4).attr('stroke-dasharray', '3 4');
+    lg.append('text').text('Delegación con mandato (ida y vuelta)').attr('x', 228).attr('y', 3.5).attr('fill', '#cbd5e1').attr('font-size', '9.5px');
+
+    // Botón hacia la explicación paso a paso
+    const bBanner = svg.append('g').attr('transform', 'translate(745, 552)').style('cursor', 'pointer');
+    bBanner.append('rect').attr('x', -195).attr('y', -15).attr('width', 390).attr('height', 30).attr('rx', 15)
       .attr('fill', 'rgba(16,185,129,0.18)').attr('stroke', '#10b981').attr('stroke-width', 1.2);
-    bBanner.append('text').text('✓ RED DISTRIBUIDA · NODOS AUTÓNOMOS · CONSENTIMIENTO')
-      .attr('text-anchor', 'middle').attr('y', 4).attr('fill', '#34d399').attr('font-weight', '800').attr('font-size', '11px');
+    bBanner.append('text').text('▶ VER CÓMO FUNCIONA, PASO A PASO')
+      .attr('text-anchor', 'middle').attr('y', 4).attr('fill', '#34d399').attr('font-weight', '800').attr('font-size', '11.5px').attr('letter-spacing', '0.04em');
+    bBanner.on('mouseenter', function () { d3.select(this).select('rect').attr('fill', 'rgba(16,185,129,0.32)'); });
+    bBanner.on('mouseleave', function () { d3.select(this).select('rect').attr('fill', 'rgba(16,185,129,0.18)'); });
+    bBanner.on('click', () => { funStep = 0; setTab('funciona'); });
   }
 
-  // 2. RED SOCIOBIÓTICA (4 COLUMNAS)
-  function renderSociobiotica(svg, showTip, hideTip) {
-    let nodes = NODOS_SOCIOBIOTICA;
-    if (activeFilter !== 'all') {
-      nodes = NODOS_SOCIOBIOTICA.filter(n => n.cat === activeFilter);
+  // =====================================================================
+  // 2. CÓMO FUNCIONA: explicación animada paso a paso
+  // =====================================================================
+  const FUN_CAPS = {
+    f1: 'decide qué sembrar y dónde',
+    f2: 'decide zonas de cuidado',
+    f3: 'decide rutas de compost',
+    f4: 'decide precios y ferias',
+    f5: 'aporta técnica y recursos'
+  };
+
+  const FUN_STEPS = [
+    { t: 'Núcleos autónomos',
+      body: 'La federación arranca desde abajo: cinco núcleos de hortelanas, custodios del humedal, recicladores, tenderos y el soporte distrital. Cada uno decide en su propia asamblea cómo hace su trabajo.',
+      ver: 'Los puntos alrededor de cada círculo son las personas del núcleo. Todavía no hay líneas: nadie necesita permiso de otro para decidir lo suyo.',
+      hoy: 'Hoy esas decisiones bajan desde la Alcaldía, la UAESP y la gerencia de Corabastos.' },
+    { t: 'Delegan, no obedecen',
+      body: 'Para lo que afecta a todos, cada núcleo elige 2 delegados y les da un mandato concreto: qué pueden aceptar y qué no. La Mesa Federativa es solo el lugar donde se encuentran; no tiene presidente.',
+      ver: 'Dos personas salen de cada núcleo hacia la mesa. La línea punteada es su mandato: llevan la voz del núcleo, no la propia.',
+      hoy: 'Hoy la comunidad solo puede radicar quejas; no participa en la decisión.' },
+    { t: 'Deciden por consentimiento',
+      body: 'Una propuesta avanza cuando ningún núcleo tiene una objeción de fondo. Si alguien objeta, no se vota para ganarle: se ajusta la propuesta hasta que todos puedan vivir con ella.',
+      ver: 'Ejemplo: abrir una estación de compostaje. Humedal objeta porque quedaría sobre la ronda; se cambia la ubicación y los cinco núcleos dan su consentimiento.',
+      hoy: 'Hoy decide quien firma el contrato, aunque los costos los paguen los vecinos.' },
+    { t: 'La vocería rota',
+      body: 'Alguien tiene que convocar las reuniones y hablar con el Distrito. Esa tarea, la vocería, pasa de un núcleo a otro cada 1 a 3 meses. Comunica lo acordado, pero no decide.',
+      ver: 'La insignia amarilla recorre los cinco núcleos: ningún grupo se queda con el cargo.',
+      hoy: 'Hoy los cargos de mando son fijos y concentran la información.' },
+    { t: 'Intercambian directo',
+      body: 'Lo cotidiano no pasa por la mesa. Los núcleos se abastecen entre sí en un circuito: el compost abona las huertas, las cosechas van a las tiendas y los residuos de las tiendas vuelven al compost.',
+      ver: 'Lo que circula por las líneas son materiales reales. El humedal aporta polinizadores y agua; el soporte distrital entrega asesoría y recursos, no órdenes.',
+      hoy: 'Hoy los residuos salen de Kennedy hacia el relleno sanitario y los alimentos llegan desde afuera.' },
+    { t: 'Rinden cuentas y se revocan',
+      body: 'Los delegados vuelven a su núcleo y cuentan lo acordado. Si un delegado se salió del mandato, su núcleo lo revoca y envía a otra persona, sin esperar a una nueva elección.',
+      ver: 'Un delegado de Comercio Barrial se pasa del mandato (rojo), regresa y es reemplazado por otra vecina (verde) que vuelve a la mesa.',
+      hoy: 'Hoy un cargo dura todo su periodo aunque no responda a la comunidad.' }
+  ];
+
+  function renderFunciona(svg, showTip, hideTip) {
+    const step = funStep;
+    const C = { x: 315, y: 345 };
+    const R = 178;
+    const SEAT_R = 66;
+
+    const nodos = DATA_COMP.federacion.nodos.map(n => {
+      const dx = Math.cos(n.angle), dy = Math.sin(n.angle);
+      const o = Object.assign({}, n, { dx, dy, x: C.x + dx * R, y: C.y + dy * R });
+      // 6 personas por núcleo; las 2 más cercanas a la mesa son las delegadas
+      o.members = d3.range(6).map(k => {
+        const a = n.angle + Math.PI + (k - 2.5) * (Math.PI / 3);
+        return { x: o.x + Math.cos(a) * 52, y: o.y + Math.sin(a) * 52, a };
+      });
+      o.members.sort((p, q) => Math.hypot(p.x - C.x, p.y - C.y) - Math.hypot(q.x - C.x, q.y - C.y));
+      o.seats = [-0.2, 0.2].map(off => ({ x: C.x + Math.cos(n.angle + off) * SEAT_R, y: C.y + Math.sin(n.angle + off) * SEAT_R }));
+      return o;
+    });
+    const byId = Object.fromEntries(nodos.map(n => [n.id, n]));
+
+    // Capas
+    const gFlows = svg.append('g');
+    const gMand = svg.append('g');
+    const gMesa = svg.append('g');
+    const gNodes = svg.append('g');
+    const gPeople = svg.append('g');
+    const gPart = svg.append('g');
+    const gFx = svg.append('g');
+
+    // --- Mesa ---
+    const mesaVisible = step >= 1;
+    const mesaOpacity = step === 4 ? 0.18 : (step === 3 ? 0.55 : 1);
+    const mesa = gMesa.append('g').attr('transform', `translate(${C.x},${C.y})`).attr('opacity', mesaVisible ? 0 : 0);
+    mesa.append('circle').attr('r', 54).attr('fill', '#091c2b').attr('stroke', '#38bdf8').attr('stroke-width', 1.8).attr('stroke-dasharray', '5 4');
+    mesa.append('circle').attr('r', SEAT_R).attr('fill', 'none').attr('stroke', 'rgba(56,189,248,0.18)').attr('stroke-width', 10);
+    const mesaTitle = mesa.append('text').attr('text-anchor', 'middle').attr('y', -6)
+      .attr('fill', '#38bdf8').attr('font-size', '10.5px').attr('font-weight', 800).attr('letter-spacing', '0.05em').text('MESA');
+    const mesaSub = mesa.append('text').attr('text-anchor', 'middle').attr('y', 8)
+      .attr('fill', '#94a3b8').attr('font-size', '8.5px').text('sin presidente');
+    const mesaSub2 = mesa.append('text').attr('text-anchor', 'middle').attr('y', 20)
+      .attr('fill', '#94a3b8').attr('font-size', '8.5px').text('');
+    if (mesaVisible) mesa.transition().duration(700).attr('opacity', mesaOpacity);
+
+    // --- Núcleos ---
+    nodos.forEach(n => {
+      const g = gNodes.append('g').attr('transform', `translate(${n.x},${n.y})`).style('cursor', 'pointer');
+      n.ring = g.append('circle').attr('r', 38).attr('fill', '#111e30').attr('stroke', n.col).attr('stroke-width', 2.5);
+      g.append('use').attr('href', '#ic-' + n.icon).attr('x', -14).attr('y', -14).attr('width', 28).attr('height', 28)
+        .style('color', n.col).style('pointer-events', 'none');
+      const ty = n.dy < -0.9 ? -76 : 70;
+      g.append('text').text(n.n).attr('text-anchor', 'middle').attr('y', ty)
+        .attr('fill', '#fff').attr('font-size', '12px').attr('font-weight', 700)
+        .style('paint-order', 'stroke').style('stroke', '#080b11').style('stroke-width', '4px').style('pointer-events', 'none');
+      n.cap = g.append('text').text(FUN_CAPS[n.id]).attr('text-anchor', 'middle').attr('y', ty + 14)
+        .attr('fill', n.col).attr('font-size', '10px').attr('font-weight', 600)
+        .attr('opacity', step === 0 ? 1 : 0.55)
+        .style('paint-order', 'stroke').style('stroke', '#080b11').style('stroke-width', '4px').style('pointer-events', 'none');
+      g.on('mouseenter', () => showTip('Núcleo autónomo', n.col, `${iconSvgHtml(n.icon, 20, n.col)} ${n.n}`, `<b>${n.tag}.</b> En su asamblea ${FUN_CAPS[n.id]}. Envía 2 delegados a la mesa solo para lo que afecta a todos.`));
+      g.on('mouseleave', hideTip);
+    });
+
+    // --- Personas ---
+    nodos.forEach(n => {
+      n.dots = n.members.map((m, k) => gPeople.append('circle')
+        .attr('cx', m.x).attr('cy', m.y).attr('r', k < 2 ? 6 : 4.5)
+        .attr('fill', k < 2 ? n.col : '#0b111c').attr('stroke', n.col).attr('stroke-width', 1.6));
+    });
+
+    function mandateLine(n, k, color) {
+      const s = n.seats[k];
+      const len = Math.hypot(s.x - n.x, s.y - n.y);
+      const x1 = n.x - n.dx * 40, y1 = n.y - n.dy * 40;
+      return gMand.append('line').attr('x1', x1).attr('y1', y1).attr('x2', s.x).attr('y2', s.y)
+        .attr('stroke', color || n.col).attr('stroke-width', 1.4).attr('stroke-dasharray', '3 4').attr('opacity', 0)
+        .transition().delay(300).duration(600).attr('opacity', 0.75).selection();
+      void len;
     }
-    const nodeMap = new Map(NODOS_SOCIOBIOTICA.map(n => [n.id, n]));
 
-    const gColHeaders = svg.append('g');
+    function sendDelegates(delay = 0, stagger = 140) {
+      nodos.forEach((n, i) => {
+        [0, 1].forEach(k => {
+          n.dots[k].transition().delay(delay + i * stagger + k * 60).duration(900).ease(d3.easeCubicInOut)
+            .attr('cx', n.seats[k].x).attr('cy', n.seats[k].y);
+          later(() => mandateLine(n, k), delay + i * stagger);
+        });
+      });
+    }
+    function placeDelegatesAtSeats() {
+      nodos.forEach(n => [0, 1].forEach(k => {
+        n.dots[k].attr('cx', n.seats[k].x).attr('cy', n.seats[k].y);
+        mandateLine(n, k);
+      }));
+    }
+
+    // --- Lógica por paso ---
+    if (step === 0) {
+      // Cada núcleo se enciende en secuencia
+      nodos.forEach((n, i) => {
+        later(() => {
+          n.ring.transition().duration(350).attr('stroke-width', 6).transition().duration(600).attr('stroke-width', 2.5);
+          n.dots.slice(2).forEach(d => d.transition().duration(300).attr('r', 6.5).transition().duration(500).attr('r', 4.5));
+          n.dots.slice(0, 2).forEach(d => d.transition().duration(300).attr('r', 8).transition().duration(500).attr('r', 6));
+        }, 400 + i * 700);
+      });
+    }
+
+    if (step === 1) {
+      sendDelegates(500);
+      later(() => { mesaSub2.text('2 delegados × 5 núcleos'); }, 1800);
+    }
+
+    if (step === 2) {
+      placeDelegatesAtSeats();
+      mesaTitle.text('PROPUESTA');
+      mesaSub.text('nueva estación');
+      mesaSub2.text('de compostaje');
+      const marks = {};
+      nodos.forEach((n, i) => {
+        const p = { x: C.x + n.dx * 100, y: C.y + n.dy * 100 };
+        const objeta = n.id === 'f2';
+        later(() => {
+          const g = gFx.append('g').attr('transform', `translate(${p.x},${p.y})`).attr('opacity', 0);
+          const c = g.append('circle').attr('r', 11).attr('fill', objeta ? '#f59e0b' : '#10b981');
+          const t = g.append('text').attr('text-anchor', 'middle').attr('y', 4.5).attr('fill', '#06110c')
+            .attr('font-size', '13px').attr('font-weight', 900).text(objeta ? '!' : '✓');
+          g.transition().duration(300).attr('opacity', 1);
+          marks[n.id] = { c, t };
+          if (objeta) {
+            const b = pill(gFx, n.x + 10, n.y + 102, 'Objeción: queda sobre la ronda', '#f59e0b', { fs: 10 });
+            b.attr('opacity', 0).transition().duration(300).attr('opacity', 1);
+            later(() => b.transition().duration(400).attr('opacity', 0).remove(), 3600);
+          }
+        }, 600 + i * 600);
+      });
+      later(() => {
+        mesaTitle.text('AJUSTE').attr('fill', '#f59e0b');
+        mesaSub.text('se mueve fuera');
+        mesaSub2.text('de la ronda');
+      }, 4000);
+      later(() => {
+        const m = marks.f2;
+        if (m) { m.c.transition().duration(300).attr('fill', '#10b981'); m.t.text('✓'); }
+      }, 5000);
+      later(() => {
+        mesaTitle.text('✓ ACORDADO').attr('fill', '#34d399');
+        mesaSub.text('con el consentimiento');
+        mesaSub2.text('de los 5 núcleos');
+        mesa.select('circle').transition().duration(400).attr('stroke', '#10b981').attr('stroke-width', 3);
+      }, 5800);
+    }
+
+    if (step === 3) {
+      mesaSub2.text('solo se reúne');
+      const periods = ['Mes 1–3', 'Mes 4–6', 'Mes 7–9', 'Mes 10–12', 'Mes 13–15'];
+      const badge = gFx.append('g').attr('opacity', 0);
+      badge.append('rect').attr('x', -40).attr('y', -22).attr('width', 80).attr('height', 34).attr('rx', 8)
+        .attr('fill', '#facc15').attr('stroke', '#0b0f17').attr('stroke-width', 2);
+      badge.append('text').attr('text-anchor', 'middle').attr('y', -8).attr('fill', '#111').attr('font-size', '10px').attr('font-weight', 900).attr('letter-spacing', '0.06em').text('VOCERÍA');
+      const bt = badge.append('text').attr('text-anchor', 'middle').attr('y', 5).attr('fill', '#111').attr('font-size', '9.5px').attr('font-weight', 700);
+      const halo = gFx.append('circle').attr('r', 48).attr('fill', 'none').attr('stroke', '#facc15').attr('stroke-width', 2.5).attr('stroke-dasharray', '4 3').attr('opacity', 0);
+      function pos(n) {
+        // insignia hacia fuera del pentágono
+        return { x: n.x + (n.dx >= -0.01 ? 1 : -1) * 98, y: n.y + 4 };
+      }
+      let k = 0;
+      function move() {
+        const n = nodos[k % nodos.length];
+        const p = pos(n);
+        bt.text(periods[k % periods.length]);
+        if (k === 0) {
+          badge.attr('transform', `translate(${p.x},${p.y})`).transition().duration(400).attr('opacity', 1);
+          halo.attr('cx', n.x).attr('cy', n.y).transition().duration(400).attr('opacity', 1);
+        } else {
+          badge.transition().duration(700).ease(d3.easeCubicInOut).attr('transform', `translate(${p.x},${p.y})`);
+          halo.transition().duration(700).ease(d3.easeCubicInOut).attr('cx', n.x).attr('cy', n.y);
+        }
+        k++;
+        later(move, 1500);
+      }
+      later(move, 300);
+    }
+
+    if (step === 4) {
+      const FLOWS = [
+        { s: 'f3', t: 'f1', label: 'abono', col: '#facc15', bow: 46 },
+        { s: 'f1', t: 'f4', label: 'cosechas', col: '#4ade80', bow: 46 },
+        { s: 'f4', t: 'f3', label: 'residuos orgánicos', col: '#fb923c', bow: 34 },
+        { s: 'f2', t: 'f1', label: 'polinizadores y agua', col: '#38bdf8', bow: 28 },
+        { s: 'f5', t: 'f1', label: 'asesoría', col: '#c084fc', bow: 28, dash: true },
+        { s: 'f5', t: 'f4', label: 'recursos', col: '#c084fc', bow: 28, dash: true }
+      ];
+      const parts = [];
+      FLOWS.forEach((f, i) => {
+        const a = byId[f.s], b = byId[f.t];
+        const ux = b.x - a.x, uy = b.y - a.y, L = Math.hypot(ux, uy);
+        const x1 = a.x + ux / L * 46, y1 = a.y + uy / L * 46;
+        const x2 = b.x - ux / L * 50, y2 = b.y - uy / L * 50;
+        const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+        let ox = mx - C.x, oy = my - C.y; const oL = Math.hypot(ox, oy) || 1; ox /= oL; oy /= oL;
+        const cx = mx + ox * f.bow, cy = my + oy * f.bow;
+        const path = gFlows.append('path').attr('d', `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`)
+          .attr('fill', 'none').attr('stroke', f.col).attr('stroke-width', f.dash ? 1.6 : 2.4)
+          .attr('stroke-dasharray', f.dash ? '5 4' : null).attr('opacity', 0);
+        path.transition().delay(i * 250).duration(500).attr('opacity', 0.75);
+        const node = path.node();
+        const len = node.getTotalLength();
+        const mid = node.getPointAtLength(len / 2);
+        const lp = pill(gFx, mid.x + ox * 10, mid.y + oy * 10, f.label, f.col, { fs: 10 });
+        lp.attr('opacity', 0).transition().delay(i * 250 + 300).duration(400).attr('opacity', 1);
+        const n = f.dash ? 2 : 4;
+        for (let j = 0; j < n; j++) {
+          parts.push({ node, len, off: j / n, col: f.col,
+            el: gPart.append('circle').attr('r', f.dash ? 3 : 4.2).attr('fill', f.col).attr('opacity', 0) });
+        }
+      });
+      const t0 = performance.now();
+      function tick(now) {
+        const t = (now - t0) / 1000;
+        parts.forEach(p => {
+          if (t < 1.2) return;
+          const u = ((t - 1.2) * 0.22 + p.off) % 1;
+          const pt = p.node.getPointAtLength(u * p.len);
+          p.el.attr('cx', pt.x).attr('cy', pt.y).attr('opacity', Math.sin(u * Math.PI) * 0.95 + 0.05);
+        });
+        rafId = requestAnimationFrame(tick);
+      }
+      rafId = requestAnimationFrame(tick);
+      mesaSub.text('lo cotidiano');
+      mesaSub2.text('no pasa por aquí');
+      // Ciclo central
+      const cyc = pill(gFx, C.x, C.y + 88, '↻ circuito cerrado', '#34d399', { fs: 10 });
+      cyc.attr('opacity', 0).transition().delay(1600).duration(500).attr('opacity', 1);
+    }
+
+    if (step === 5) {
+      placeDelegatesAtSeats();
+      mesaTitle.text('ACUERDO');
+      mesaSub.text('cada delegado');
+      mesaSub2.text('vuelve a informar');
+      // 1) vuelven a casa
+      later(() => {
+        gMand.selectAll('line').transition().duration(500).attr('opacity', 0);
+        nodos.forEach((n, i) => [0, 1].forEach(k => {
+          n.dots[k].transition().delay(i * 100).duration(900).ease(d3.easeCubicInOut)
+            .attr('cx', n.members[k].x).attr('cy', n.members[k].y);
+        }));
+        nodos.forEach((n, i) => later(() => {
+          const b = pill(gFx, n.x, n.y + (n.dy < -0.9 ? 52 : -52), 'informa', n.col, { fs: 9 });
+          b.attr('opacity', 0).transition().duration(300).attr('opacity', 1)
+            .transition().delay(1400).duration(400).attr('opacity', 0).remove();
+        }, 900 + i * 120));
+      }, 900);
+      const n = byId.f4;
+      const bad = n.dots[0];
+      // 2) uno se pasó del mandato
+      later(() => {
+        bad.transition().duration(400).attr('fill', '#ef4444').attr('stroke', '#ef4444').attr('r', 8);
+        const b = pill(gFx, n.x - 6, n.y - 80, 'se salió del mandato', '#ef4444', { fs: 10 });
+        b.attr('opacity', 0).transition().duration(300).attr('opacity', 1)
+          .transition().delay(1500).duration(300).attr('opacity', 0).remove();
+      }, 3000);
+      // 3) se revoca
+      later(() => {
+        bad.transition().duration(700).attr('r', 0).attr('opacity', 0);
+        const b = pill(gFx, n.x - 6, n.y - 80, 'revocado por su núcleo', '#f87171', { fs: 10 });
+        b.attr('opacity', 0).transition().duration(300).attr('opacity', 1)
+          .transition().delay(1200).duration(300).attr('opacity', 0).remove();
+      }, 5000);
+      // 4) entra otra persona y vuelve a la mesa
+      later(() => {
+        const m = n.members[5];
+        const nuevo = gPeople.append('circle').attr('cx', m.x).attr('cy', m.y).attr('r', 0)
+          .attr('fill', '#22c55e').attr('stroke', '#bbf7d0').attr('stroke-width', 2);
+        nuevo.transition().duration(400).attr('r', 8);
+        const b = pill(gFx, n.x - 6, n.y - 80, 'nueva delegada', '#22c55e', { fs: 10 });
+        b.attr('opacity', 0).transition().duration(300).attr('opacity', 1)
+          .transition().delay(1600).duration(300).attr('opacity', 0).remove();
+        later(() => {
+          nuevo.transition().duration(1000).ease(d3.easeCubicInOut).attr('cx', n.seats[0].x).attr('cy', n.seats[0].y).attr('r', 6);
+          mandateLine(n, 0, '#22c55e');
+        }, 1300);
+      }, 6700);
+    }
+
+    // --- Convenciones ---
+    const lg = svg.append('g').attr('transform', 'translate(40, 600)');
+    lg.append('circle').attr('cx', 0).attr('cy', 0).attr('r', 4.5).attr('fill', '#0b111c').attr('stroke', '#94a3b8').attr('stroke-width', 1.6);
+    lg.append('text').text('persona del núcleo').attr('x', 10).attr('y', 3.5).attr('fill', '#94a3b8').attr('font-size', '10px');
+    lg.append('circle').attr('cx', 130).attr('cy', 0).attr('r', 6).attr('fill', '#94a3b8');
+    lg.append('text').text('delegada/o (2 por núcleo)').attr('x', 141).attr('y', 3.5).attr('fill', '#94a3b8').attr('font-size', '10px');
+    lg.append('line').attr('x1', 290).attr('y1', 0).attr('x2', 312).attr('y2', 0).attr('stroke', '#94a3b8').attr('stroke-width', 1.4).attr('stroke-dasharray', '3 4');
+    lg.append('text').text('mandato').attr('x', 318).attr('y', 3.5).attr('fill', '#94a3b8').attr('font-size', '10px');
+
+    // --- Panel explicativo ---
+    const s = FUN_STEPS[step];
+    const P = { x: 640, y: 58, w: 336, h: 552 };
+    const panel = svg.append('g');
+    panel.append('rect').attr('x', P.x).attr('y', P.y).attr('width', P.w).attr('height', P.h).attr('rx', 16)
+      .attr('fill', '#0c1420').attr('stroke', 'rgba(56,189,248,0.35)').attr('stroke-width', 1.2);
+    const px = P.x + 22;
+    let y = P.y + 32;
+    panel.append('text').text('CÓMO FUNCIONA LA FEDERACIÓN').attr('x', px).attr('y', y)
+      .attr('fill', '#38bdf8').attr('font-size', '10.5px').attr('font-weight', 800).attr('letter-spacing', '0.08em');
+    y += 22;
+    panel.append('text').text(`PASO ${step + 1} DE ${FUN_STEPS.length}`).attr('x', px).attr('y', y)
+      .attr('fill', '#64748b').attr('font-size', '10px').attr('font-weight', 700).attr('letter-spacing', '0.08em');
+    y += 30;
+    const tl = wrapText(panel.append('text').attr('x', px).attr('y', y).attr('fill', '#fff').attr('font-size', '22px').attr('font-weight', 800), s.t, 24, 26);
+    y += (tl - 1) * 26 + 26;
+    const bl = wrapText(panel.append('text').attr('x', px).attr('y', y).attr('fill', '#cbd5e1').attr('font-size', '13px'), s.body, 44, 19);
+    y += bl * 19 + 12;
+
+    const verG = panel.append('g');
+    const verRect = verG.append('rect').attr('x', px - 8).attr('y', y).attr('width', P.w - 28).attr('rx', 10)
+      .attr('fill', 'rgba(56,189,248,0.08)').attr('stroke', 'rgba(56,189,248,0.35)');
+    verG.append('text').text('EN EL DIAGRAMA').attr('x', px + 4).attr('y', y + 20)
+      .attr('fill', '#38bdf8').attr('font-size', '9.5px').attr('font-weight', 800).attr('letter-spacing', '0.08em');
+    const vl = wrapText(verG.append('text').attr('x', px + 4).attr('y', y + 38).attr('fill', '#e2e8f0').attr('font-size', '12px'), s.ver, 44, 17);
+    const verH = 38 + (vl - 1) * 17 + 14;
+    verRect.attr('height', verH);
+    y += verH + 10;
+
+    const hoyG = panel.append('g');
+    const hoyRect = hoyG.append('rect').attr('x', px - 8).attr('y', y).attr('width', P.w - 28).attr('rx', 10)
+      .attr('fill', 'rgba(239,68,68,0.08)').attr('stroke', 'rgba(239,68,68,0.35)');
+    hoyG.append('text').text('EN CAMBIO, HOY').attr('x', px + 4).attr('y', y + 20)
+      .attr('fill', '#f87171').attr('font-size', '9.5px').attr('font-weight', 800).attr('letter-spacing', '0.08em');
+    const hl = wrapText(hoyG.append('text').attr('x', px + 4).attr('y', y + 38).attr('fill', '#fecaca').attr('font-size', '12px'), s.hoy, 44, 17);
+    hoyRect.attr('height', 38 + (hl - 1) * 17 + 14);
+
+    // Barra de progreso (clicable)
+    const segW = (P.w - 44 - (FUN_STEPS.length - 1) * 6) / FUN_STEPS.length;
+    const prog = panel.append('g').attr('transform', `translate(${px}, ${P.y + P.h - 74})`);
+    FUN_STEPS.forEach((st, i) => {
+      const g = prog.append('g').attr('transform', `translate(${i * (segW + 6)},0)`).style('cursor', 'pointer');
+      g.append('rect').attr('width', segW).attr('height', 6).attr('rx', 3)
+        .attr('fill', i < step ? '#0284c7' : i === step ? '#38bdf8' : 'rgba(255,255,255,0.12)');
+      g.append('rect').attr('y', -8).attr('width', segW).attr('height', 22).attr('fill', 'transparent');
+      g.append('title').text(`${i + 1}. ${st.t}`);
+      g.on('click', () => { stopAutoplay(); goStep(i); });
+    });
+
+    // Botones
+    function button(x, w, label, primary, onClick, enabled = true) {
+      const g = panel.append('g').attr('transform', `translate(${x}, ${P.y + P.h - 52})`)
+        .style('cursor', enabled ? 'pointer' : 'default').attr('opacity', enabled ? 1 : 0.35);
+      g.append('rect').attr('width', w).attr('height', 32).attr('rx', 16)
+        .attr('fill', primary ? '#0284c7' : 'rgba(255,255,255,0.06)')
+        .attr('stroke', primary ? '#38bdf8' : 'rgba(255,255,255,0.18)');
+      g.append('text').text(label).attr('x', w / 2).attr('y', 20.5).attr('text-anchor', 'middle')
+        .attr('fill', '#fff').attr('font-size', '12px').attr('font-weight', 700);
+      if (enabled) g.on('click', onClick);
+    }
+    const last = FUN_STEPS.length - 1;
+    button(px, 92, '← Anterior', false, () => { stopAutoplay(); goStep(step - 1); }, step > 0);
+    button(px + 100, 96, autoplayId ? '❚❚ Pausa' : '▶ Reproducir', false, () => {
+      if (autoplayId) { stopAutoplay(); renderView(); return; }
+      if (funStep === last) funStep = 0;
+      autoplayId = setInterval(() => {
+        if (funStep >= last) { stopAutoplay(); renderView(); return; }
+        goStep(funStep + 1);
+      }, 9000);
+      renderView();
+    });
+    button(px + 204, 92, step === last ? 'Reiniciar ↺' : 'Siguiente →', true, () => { stopAutoplay(); goStep(step === last ? 0 : step + 1); });
+  }
+
+  function goStep(i) {
+    funStep = Math.max(0, Math.min(FUN_STEPS.length - 1, i));
+    renderView();
+  }
+
+  // =====================================================================
+  // 3. RED SOCIOBIÓTICA (4 columnas)
+  // =====================================================================
+  function renderSociobiotica(svg, showTip, hideTip) {
+    const Y = y => 150 + (y - 120) * 0.9; // deja espacio a la barra superior
+    const all = NODOS_SOCIOBIOTICA.map(n => Object.assign({}, n, { y: Y(n.y) }));
+    const nodes = activeFilter === 'all' ? all : all.filter(n => n.cat === activeFilter);
+    const nodeMap = new Map(all.map(n => [n.id, n]));
+
     const colsInfo = [
-      { x:140, label:'QUIÉNES', sub:'Actores y Organizaciones', col:'#38bdf8' },
-      { x:380, label:'DÓNDE: HUERTAS', sub:'Producción & Humedal', col:'#4ade80' },
-      { x:620, label:'DÓNDE: CIRCUITO', sub:'Compost & Comedores', col:'#fb923c' },
-      { x:860, label:'RELACIONES BIÓTICAS', sub:'Especies y ¿Para qué?', col:'#fde047' }
+      { x: 140, label: 'QUIÉNES', sub: 'Personas y organizaciones', col: '#38bdf8' },
+      { x: 380, label: 'DÓNDE · HUERTAS', sub: 'Producción y humedal', col: '#4ade80' },
+      { x: 620, label: 'DÓNDE · CIRCUITO', sub: 'Compost, tiendas y comedores', col: '#fb923c' },
+      { x: 860, label: 'PARA QUÉ · ESPECIES', sub: 'Lo que atrae el humedal', col: '#fde047' }
     ];
-
-    colsInfo.forEach(ci => {
-      const gH = gColHeaders.append('g').attr('transform', `translate(${ci.x}, 52)`);
+    colsInfo.forEach((ci, i) => {
+      svg.append('rect').attr('x', ci.x - 105).attr('y', 78).attr('width', 210).attr('height', 482).attr('rx', 14)
+        .attr('fill', i % 2 ? 'rgba(255,255,255,0.015)' : 'rgba(255,255,255,0.03)');
+      const gH = svg.append('g').attr('transform', `translate(${ci.x}, 100)`);
       gH.append('text').text(ci.label).attr('text-anchor', 'middle')
         .attr('fill', ci.col).attr('font-size', '12px').attr('font-weight', '800').attr('letter-spacing', '0.06em');
       gH.append('text').text(ci.sub).attr('text-anchor', 'middle')
         .attr('fill', '#64748b').attr('font-size', '10px').attr('y', 14);
-
-      svg.append('line').attr('x1', ci.x).attr('y1', 75).attr('x2', ci.x).attr('y2', 560)
-        .attr('stroke', 'rgba(255,255,255,0.04)').attr('stroke-width', 1).attr('stroke-dasharray', '2 4');
+      if (i < 3) {
+        svg.append('text').text('→').attr('x', ci.x + 120).attr('y', 104).attr('text-anchor', 'middle')
+          .attr('fill', '#334155').attr('font-size', '16px').attr('font-weight', 800);
+      }
     });
 
-    const gLinks = svg.append('g').attr('class', 'links');
-    const gNodes = svg.append('g').attr('class', 'nodes');
+    const gLinks = svg.append('g');
+    const gNodes = svg.append('g');
 
     const visibleIds = new Set(nodes.map(n => n.id));
     const links = ENLACES_SOCIOBIOTICA.filter(l => visibleIds.has(l.s) && visibleIds.has(l.t));
 
-    links.forEach(l => {
+    function baseStyle(sel) {
+      sel.style('opacity', d => d.isBio ? 0.5 : 0.45).style('stroke-width', d => d.isBio ? 1.8 : 1.5).style('stroke', null);
+    }
+
+    const linkData = links.map(l => {
       const s = nodeMap.get(l.s), t = nodeMap.get(l.t);
-      if (!s || !t) return;
       const isBio = s.cat === 'biotica' || t.cat === 'biotica';
-      const col = isBio ? '#10b981' : '#38bdf8';
-
-      const dx = (t.x - s.x) * 0.5;
-      const pathD = `M ${s.x} ${s.y} C ${s.x + dx} ${s.y}, ${t.x - dx} ${t.y}, ${t.x} ${t.y}`;
-
-      gLinks.append('path')
-        .attr('d', pathD)
-        .attr('class', 'fed-curve-link')
-        .attr('data-s', l.s)
-        .attr('data-t', l.t)
-        .attr('stroke', col)
-        .attr('stroke-width', isBio ? 2 : 1.4)
-        .attr('stroke-dasharray', isBio ? '4 3' : null)
-        .attr('opacity', 0.42);
+      let d;
+      if (s.x === t.x) {
+        // misma columna: arco lateral para no atravesar otros nodos
+        const bow = 70 + Math.abs(t.y - s.y) * 0.15;
+        d = `M ${s.x + 26} ${s.y} C ${s.x + bow} ${s.y}, ${t.x + bow} ${t.y}, ${t.x + 28} ${t.y}`;
+      } else {
+        const sg = Math.sign(t.x - s.x);
+        const sx = s.x + sg * 27, tx = t.x - sg * 31;
+        const dx = (tx - sx) * 0.5;
+        d = `M ${sx} ${s.y} C ${sx + dx} ${s.y}, ${tx - dx} ${t.y}, ${tx} ${t.y}`;
+      }
+      return Object.assign({}, l, { d, isBio });
     });
+
+    const paths = gLinks.selectAll('path').data(linkData).enter().append('path')
+      .attr('class', 'fed-curve-link').attr('d', d => d.d)
+      .attr('stroke', d => d.isBio ? '#10b981' : '#38bdf8')
+      .attr('stroke-dasharray', d => d.isBio ? '4 3' : null)
+      .attr('marker-end', d => d.isBio ? 'url(#fedArrowGreen)' : 'url(#fedArrowBlue)');
+    baseStyle(paths);
+
+    // Etiqueta de relación visible al pasar el cursor
+    const gLabels = svg.append('g').style('pointer-events', 'none');
 
     nodes.forEach(n => {
       const g = gNodes.append('g').attr('transform', `translate(${n.x}, ${n.y})`).style('cursor', 'pointer');
       const isLugar = n.cat === 'lugar', isBio = n.cat === 'biotica';
-
       if (isLugar) {
         g.append('rect').attr('x', -22).attr('y', -22).attr('width', 44).attr('height', 44).attr('rx', 10)
           .attr('fill', '#111827').attr('stroke', n.col).attr('stroke-width', 2);
@@ -756,57 +1260,47 @@
         g.append('use').attr('href', '#ic-' + n.icon).attr('x', -9).attr('y', -9).attr('width', 18).attr('height', 18)
           .style('color', n.col).style('pointer-events', 'none');
       }
-
-      g.append('text').text(n.n).attr('text-anchor', 'middle').attr('y', isLugar ? 34 : isBio ? 36 : 33)
+      g.append('text').text(n.n).attr('text-anchor', 'middle').attr('y', isLugar ? 36 : isBio ? 38 : 35)
         .attr('fill', '#fff').attr('font-size', '10.5px').attr('font-weight', '700')
         .style('paint-order', 'stroke').style('stroke', '#080b11').style('stroke-width', '3px');
 
       g.on('mouseenter', () => {
-        gLinks.selectAll('.fed-curve-link').style('opacity', 0.1).style('stroke-width', 1);
-        gLinks.selectAll('.fed-curve-link')
-          .filter(function() {
-            const s = d3.select(this).attr('data-s');
-            const t = d3.select(this).attr('data-t');
-            return s === n.id || t === n.id;
-          })
-          .style('opacity', 1).style('stroke-width', 3).style('stroke', '#facc15');
-
-        const catName = isLugar ? 'Lugar Territorial (Dónde)' : isBio ? 'Especie del Humedal El Burro (Para qué)' : 'Actor Social (Quiénes)';
-        showTip(catName, n.col, `${iconSvgHtml(n.icon, 20, n.col)} ${n.n}`, `<b>Participantes:</b> ${n.quienes}<br><b>¿Para qué se articula / atrae?:</b> ${n.paraque}`);
+        paths.style('opacity', 0.07);
+        const on = paths.filter(d => d.s === n.id || d.t === n.id)
+          .style('opacity', 1).style('stroke-width', 2.8).style('stroke', '#facc15');
+        on.each(function (d) {
+          const p = this.getPointAtLength(this.getTotalLength() / 2);
+          pill(gLabels, p.x, p.y, d.label, '#facc15', { fs: 9 });
+        });
+        const catName = isLugar ? 'Lugar (dónde)' : isBio ? 'Especie del humedal (para qué)' : 'Actor social (quiénes)';
+        showTip(catName, n.col, `${iconSvgHtml(n.icon, 20, n.col)} ${n.n}`, `<b>Participantes:</b> ${n.quienes}<br><b>¿Para qué?</b> ${n.paraque}`);
       });
-
       g.on('mouseleave', () => {
-        gLinks.selectAll('.fed-curve-link')
-          .style('opacity', function() {
-            const s = d3.select(this).attr('data-s');
-            const t = d3.select(this).attr('data-t');
-            return (s.startsWith('B_') || t.startsWith('B_')) ? 0.42 : 0.38;
-          })
-          .style('stroke-width', function() {
-            const s = d3.select(this).attr('data-s');
-            const t = d3.select(this).attr('data-t');
-            return (s.startsWith('B_') || t.startsWith('B_')) ? 2 : 1.4;
-          })
-          .style('stroke', null);
+        baseStyle(paths);
+        gLabels.selectAll('*').remove();
         hideTip();
       });
     });
 
-    const leg = svg.append('g').attr('transform', 'translate(30, 580)');
-    leg.append('rect').attr('width', 460).attr('height', 30).attr('rx', 6).attr('fill', 'rgba(14,18,28,0.85)').attr('stroke', 'rgba(255,255,255,0.08)');
+    const leg = svg.append('g').attr('transform', 'translate(30, 578)');
+    leg.append('rect').attr('width', 740).attr('height', 30).attr('rx', 6).attr('fill', 'rgba(14,18,28,0.85)').attr('stroke', 'rgba(255,255,255,0.08)');
     leg.append('text').text('Convenciones:').attr('x', 14).attr('y', 19).attr('fill', '#94a3b8').attr('font-size', '10.5px').attr('font-weight', '700');
-    
-    leg.append('rect').attr('x', 105).attr('y', 9).attr('width', 12).attr('height', 12).attr('rx', 3).attr('fill', '#111827').attr('stroke', '#4ade80').attr('stroke-width', 1.5);
-    leg.append('text').text('Lugares (Dónde)').attr('x', 123).attr('y', 19).attr('fill', '#cbd5e1').attr('font-size', '10px');
-    
-    leg.append('circle').attr('cx', 236).attr('cy', 15).attr('r', 6).attr('fill', '#161e2e').attr('stroke', '#38bdf8').attr('stroke-width', 1.5);
-    leg.append('text').text('Personas (Quiénes)').attr('x', 248).attr('y', 19).attr('fill', '#cbd5e1').attr('font-size', '10px');
-    
-    leg.append('polygon').attr('points', '375,9 381,15 375,21 369,15').attr('fill', '#09231f').attr('stroke', '#fde047').attr('stroke-width', 1.5);
-    leg.append('text').text('Especies del Humedal (Para qué)').attr('x', 388).attr('y', 19).attr('fill', '#cbd5e1').attr('font-size', '10px');
+    leg.append('circle').attr('cx', 110).attr('cy', 15).attr('r', 6).attr('fill', '#161e2e').attr('stroke', '#38bdf8').attr('stroke-width', 1.5);
+    leg.append('text').text('Personas').attr('x', 121).attr('y', 19).attr('fill', '#cbd5e1').attr('font-size', '10px');
+    leg.append('rect').attr('x', 175).attr('y', 9).attr('width', 12).attr('height', 12).attr('rx', 3).attr('fill', '#111827').attr('stroke', '#4ade80').attr('stroke-width', 1.5);
+    leg.append('text').text('Lugares').attr('x', 193).attr('y', 19).attr('fill', '#cbd5e1').attr('font-size', '10px');
+    leg.append('polygon').attr('points', '252,9 258,15 252,21 246,15').attr('fill', '#09231f').attr('stroke', '#fde047').attr('stroke-width', 1.5);
+    leg.append('text').text('Especies').attr('x', 264).attr('y', 19).attr('fill', '#cbd5e1').attr('font-size', '10px');
+    leg.append('line').attr('x1', 322).attr('y1', 15).attr('x2', 344).attr('y2', 15).attr('stroke', '#38bdf8').attr('stroke-width', 1.5).attr('marker-end', 'url(#fedArrowBlue)');
+    leg.append('text').text('Trabajo y flujos').attr('x', 350).attr('y', 19).attr('fill', '#cbd5e1').attr('font-size', '10px');
+    leg.append('line').attr('x1', 438).attr('y1', 15).attr('x2', 460).attr('y2', 15).attr('stroke', '#10b981').attr('stroke-width', 1.5).attr('stroke-dasharray', '4 3').attr('marker-end', 'url(#fedArrowGreen)');
+    leg.append('text').text('Relación biótica').attr('x', 466).attr('y', 19).attr('fill', '#cbd5e1').attr('font-size', '10px');
+    leg.append('text').text('Pasa el cursor por un nodo').attr('x', 728).attr('y', 19).attr('text-anchor', 'end').attr('fill', '#64748b').attr('font-size', '10px').attr('font-style', 'italic');
   }
 
-  // 3. TAB 3: PROGRAMA ARQUITECTÓNICO & CORTE BIOCLIMÁTICO (9.000 m²)
+  // =====================================================================
+  // 4 y 5. PROGRAMA ARQUITECTÓNICO Y CANASTA (versión del equipo, sin cambios)
+  // =====================================================================
   function renderProgramaArquitectonico(svg, showTip, hideTip) {
     const header = svg.append('g').attr('transform', 'translate(500, 48)');
     header.append('text').text('PROGRAMA ARQUITECTÓNICO: COMPLEJO BIOTECNOLÓGICO URBANO (9.000 m²)')
@@ -1115,8 +1609,10 @@
     });
   }
 
+
   // --- LÓGICA DE CONTROL ---
   function setTab(tab) {
+    if (tab !== 'funciona') stopAutoplay();
     activeTab = tab;
     document.querySelectorAll('.fed-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
     renderView();
@@ -1138,13 +1634,23 @@
     });
   }
 
+  // Detener animaciones cuando la vista se oculta
+  const fedStage = document.getElementById('viewFederacion');
+  if (fedStage && window.MutationObserver) {
+    new MutationObserver(() => {
+      if (fedStage.style.display === 'none') { stopAutoplay(); clearAnims(); }
+    }).observe(fedStage, { attributes: true, attributeFilter: ['style'] });
+  }
+
   // API Global
   window.FEDERACION_BIOTICA = {
-    init: function(tab = 'comparacion') {
+    init: function (tab) {
       const stage = document.getElementById('viewFederacion');
       if (stage) stage.style.display = 'block';
-      setTab(tab || 'comparacion');
-    }
+      const valid = ['comparacion', 'funciona', 'sociobiotica', 'fases', 'canasta'];
+      setTab(valid.includes(tab) ? tab : activeTab);
+    },
+    paso: function (i) { activeTab = 'funciona'; setTab('funciona'); goStep(i); }
   };
 
   setTimeout(renderView, 200);

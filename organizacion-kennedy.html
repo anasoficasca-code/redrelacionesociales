@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cómo podría organizarse Kennedy · Corte III</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef0ea; --card:#f7f8f4; --ink:#17201b; --muted:#56625b; --line:#cdd5cb;
+  --agua:#0e6e68; --agua-soft:#d6e9e5; --juncal:#8a6d1d; --juncal-soft:#efe5c8;
+  --alerta:#a3361f; --alerta-soft:#f3dcd5;
+  --serif:'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --sans:'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111714; --card:#18201c; --ink:#e7ece7; --muted:#a3b0a8; --line:#2c3832;
+    --agua:#5cc2b7; --agua-soft:#163631; --juncal:#d9b75a; --juncal-soft:#352c14;
+    --alerta:#ef8a72; --alerta-soft:#3a1e17; color-scheme: dark;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:calc(16px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--sans);
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+a{color:var(--agua);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--agua);outline-offset:3px;border-radius:4px}
+img{max-width:100%;display:block}
+
+/* Portada */
+.hero{position:relative;min-height:min(78vh,720px);display:flex;align-items:flex-end;color:#fff;
+  background:#20302a url('assets/modelos/burro.jpg') center/cover no-repeat;padding-top:env(safe-area-inset-top,0px)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,20,16,.15) 0%,rgba(10,20,16,.25) 45%,rgba(10,20,16,.85) 100%)}
+.hero-in{position:relative;z-index:1;width:min(1180px,100%);margin:0 auto;padding:40px 24px 48px}
+.back{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:24px;z-index:2;color:#fff;text-decoration:none;
+  font-size:14px;font-weight:600;background:rgba(0,0,0,.35);padding:7px 14px;border-radius:20px;backdrop-filter:blur(6px)}
+.hero h1{font:400 clamp(40px,6.4vw,84px)/1.0 var(--serif);margin:0 0 18px;max-width:15ch;letter-spacing:-.01em}
+.hero p{font-size:clamp(17px,1.6vw,20px);max-width:58ch;margin:0;color:#e8efe9}
+.credit{position:absolute;right:16px;bottom:10px;z-index:1;font-size:11.5px;color:#cfd8d2}
+.credit a{color:#cfd8d2}
+
+/* Estructura */
+.wrap{width:min(1180px,100%);margin:0 auto;padding:0 24px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:56px}
+nav.toc{position:sticky;top:24px;align-self:start;padding-top:56px;font-size:14.5px}
+nav.toc ol{list-style:none;margin:0;padding:0;counter-reset:t}
+nav.toc li{counter-increment:t;margin:0 0 10px}
+nav.toc a{color:var(--muted);text-decoration:none;display:grid;grid-template-columns:22px 1fr}
+nav.toc a::before{content:counter(t);font-variant-numeric:tabular-nums;color:var(--agua);font-weight:600}
+nav.toc a:hover{color:var(--ink)}
+main{padding:56px 0 96px;min-width:0}
+section{margin:0 0 88px}
+h2{font:400 clamp(32px,3.6vw,46px)/1.08 var(--serif);margin:0 0 18px;letter-spacing:-.005em}
+h3{font:600 20px/1.3 var(--sans);margin:36px 0 10px}
+.lead{font-size:19px;color:var(--muted);max-width:66ch;margin:0 0 28px}
+p,li{max-width:70ch}
+.small{font-size:14.5px;color:var(--muted)}
+
+/* Tablas */
+.tw{overflow-x:auto;margin:20px 0 8px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.45}
+th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--muted);background:color-mix(in srgb,var(--card) 70%,var(--line));position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td b{font-weight:600}
+.org{font-size:14px}
+.org td{min-width:116px}
+.org td:first-child{min-width:150px}
+
+/* Estado del checklist */
+.st{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:13px;padding:2px 10px 2px 8px;border-radius:20px;white-space:nowrap}
+.st::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.st.ok{color:var(--agua);background:var(--agua-soft)}
+.st.mid{color:var(--juncal);background:var(--juncal-soft)}
+.st.mid::before{border-radius:2px}
+.st.no{color:var(--alerta);background:var(--alerta-soft)}
+.st.no::before{border-radius:0;transform:rotate(45deg);width:8px;height:8px}
+
+/* Marcos teóricos */
+.modelo{border-top:2px solid var(--ink);padding-top:22px;margin-top:52px}
+.modelo:first-of-type{margin-top:28px}
+.modelo h3{font:400 italic clamp(28px,3vw,36px)/1.1 var(--serif);margin:0 0 6px}
+.ref{font-size:14px;color:var(--muted);margin:0 0 18px;max-width:none}
+.duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+figure{margin:0}
+figure img,figure svg{width:100%;height:auto;border-radius:10px;background:#fff}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.45}
+.kennedy{background:var(--agua-soft);border-radius:12px;padding:18px 20px;margin:18px 0 0}
+.kennedy h4{margin:0 0 6px;font:600 15px/1.3 var(--sans);color:var(--agua)}
+.kennedy p,.kennedy ul{margin:6px 0 0}
+.kennedy ul{padding-left:20px}
+.kennedy li{margin:4px 0}
+.aporte{font-size:15px;margin-top:12px}
+.aporte b{color:var(--agua)}
+
+.aviso{border-left:4px solid var(--juncal);padding:4px 0 4px 16px;margin:20px 0}
+.riesgo{border-left:4px solid var(--alerta);padding:4px 0 4px 16px;margin:20px 0}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;padding:2px 9px;border-radius:6px;border:1px solid var(--line);background:var(--card);white-space:nowrap}
+
+.refs li{margin:0 0 10px;font-size:15px}
+footer{border-top:1px solid var(--line);padding:24px;text-align:center;font-size:13px;color:var(--muted)}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  nav.toc{position:static;padding-top:32px}
+  nav.toc ol{display:flex;flex-wrap:wrap;gap:4px 16px}
+  .duo{grid-template-columns:1fr}
+  main{padding-top:24px}
+}
+@media (max-width:600px){
+  .hero{flex-direction:column;justify-content:flex-end}
+  .hero-in{padding-bottom:12px}
+  .credit{position:relative;right:auto;bottom:auto;padding:0 24px 14px;display:block}
+}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <a class="back" href="corte-3.html">‹ Volver a la red de actores</a>
+  <div class="hero-in">
+    <h1>Cómo podría organizarse Kennedy</h1>
+    <p>Siete marcos de investigación sobre ciudades sostenibles, traducidos a la propuesta del Corte III: dejar de depender de un solo nodo de abastecimiento sin crear otro centro de poder.</p>
+  </div>
+  <span class="credit">Humedal El Burro, Kennedy · Foto: Juan Carlos Sáenz Rodríguez, <a href="https://commons.wikimedia.org/wiki/File:Humedal_El_Burro,_espejo_de_agua.jpg">CC BY-SA 4.0</a></span>
+</header>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contenido">
+  <ol>
+    <li><a href="#guia">Lo que pide la guía</a></li>
+    <li><a href="#marcos">Siete marcos</a></li>
+    <li><a href="#quien">Quién se hace cargo de qué</a></li>
+    <li><a href="#captura">Reglas contra la captura</a></li>
+    <li><a href="#bio">Rigor biótico</a></li>
+    <li><a href="#tec">Tecnologías</a></li>
+    <li><a href="#matriz">Matriz con identificadores</a></li>
+    <li><a href="#pendientes">Incertidumbres</a></li>
+    <li><a href="#refs">Referencias</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ============================================================ -->
+<section id="guia">
+  <h2>Lo que pide la guía y dónde estamos</h2>
+  <p class="lead">Revisión de los productos del viernes 30 de octubre frente a lo que ya tiene el sitio y la matriz. Áreas, cantidades y diagramas de espacios quedan para el 2 de noviembre, como dice la guía.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Producto o criterio</th><th>Estado</th><th>Qué hay y qué falta</th></tr></thead>
+    <tbody>
+      <tr><td><b>Red integrada</b> (biótica + conectografías + organización política)</td><td><span class="st mid">Parcial</span></td>
+        <td>Hay red de actores, red sociobiótica y federación, pero en vistas separadas. Falta declarar qué nodos las unen (por ejemplo: <i>custodios del humedal</i> está en la red social y en la biótica) y marcar en cada enlace si es documentado, del entorno o hipotético.</td></tr>
+      <tr><td><b>Modelo dinámico-causal</b> con bucles, retardos y umbrales</td><td><span class="st ok">Hecho</span></td>
+        <td>El guion del corte ya explica bucles de refuerzo y equilibrio y menciona retardos. Conviene sumar dos escenarios con supuestos explícitos (ver <a href="#pendientes">incertidumbres</a>).</td></tr>
+      <tr><td><b>Organización para cada problema</b>: quién es afectado, sabe, asesora, decide, ejecuta</td><td><span class="st mid">Parcial</span></td>
+        <td>La federación explica el principio. Faltaba la tabla por asunto con duración de cada encargo, seguimiento y revocación. Está en la sección <a href="#quien">3</a>.</td></tr>
+      <tr><td><b>Detección de captura y corrupción</b>: quién cuestiona, revoca y revisa</td><td><span class="st no">Faltaba</span></td>
+        <td>Desarrollado en la sección <a href="#captura">4</a> con los principios de Ostrom traducidos a reglas de Kennedy.</td></tr>
+      <tr><td><b>Rigor biótico</b>: registrado, entorno, potencial; tipo de interacción y fuente</td><td><span class="st no">Faltaba</span></td>
+        <td>La red sociobiótica presenta especies e interacciones sin distinguir evidencia. Primera clasificación en la sección <a href="#bio">5</a>.</td></tr>
+      <tr><td><b>Tecnologías</b> (NBIC, blockchain, DAO) si se usan</td><td><span class="st no">Faltaba</span></td>
+        <td>La guía pide explicarlas solo si se proponen. Postura del grupo en la sección <a href="#tec">6</a>.</td></tr>
+      <tr><td><b>Matriz de programa</b> con adyacencia y acceso, humanos y no humanos</td><td><span class="st mid">Parcial</span></td>
+        <td>La matriz de P1 está muy completa en contenido. Le faltan identificadores estables (P, D, E) que la guía exige; propuesta en la sección <a href="#matriz">7</a>.</td></tr>
+      <tr><td><b>Síntesis</b> problema → dinámicas → actores → espacios-tiempos, con incertidumbres</td><td><span class="st mid">Parcial</span></td>
+        <td>La síntesis existe en el guion. Faltaba la lista de decisiones pendientes; está en la sección <a href="#pendientes">8</a>.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">El estado se basa en lo publicado en este sitio y en la hoja «Matriz». Si el grupo tiene material fuera de ellos, ajusten la tabla.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="marcos">
+  <h2>Siete marcos para una ciudad que se sostenga en el tiempo</h2>
+  <p class="lead">Todos son trabajos revisados por pares o informes técnicos con autoría y DOI. Cada uno responde a una parte distinta de la guía; ninguno se aplica entero ni se presenta como resultado comprobado en Kennedy.</p>
+
+  <!-- 1 Ostrom policentrismo -->
+  <article class="modelo">
+    <h3>Gobernanza policéntrica</h3>
+    <p class="ref">Ostrom, E. (2010). Beyond markets and states: Polycentric governance of complex economic systems. <i>American Economic Review</i>, 100(3), 641–672. <a href="https://doi.org/10.1257/aer.100.3.641">doi:10.1257/aer.100.3.641</a> · Ostrom, E. (1990). <i>Governing the Commons</i>. Cambridge University Press.</p>
+    <div class="duo">
+      <div>
+        <p>Ostrom mostró, con décadas de casos de agua, bosques y pesca, que los recursos compartidos no se gobiernan bien solo con mercado ni solo con Estado. Funcionan mejor muchos centros de decisión con autonomía real, cada uno a la escala del asunto, que se coordinan entre sí y se vigilan mutuamente.</p>
+        <p>Su conferencia del Nobel resume que la escala importa más que el tamaño: servicios directos en unidades pequeñas y servicios técnicos consolidados donde haga falta.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 420 330" role="img" aria-label="Centros de decisión anidados en Kennedy">
+          <rect width="420" height="330" fill="#fff"/>
+          <circle cx="210" cy="168" r="150" fill="#eef4f2" stroke="#0e6e68" stroke-width="1.5"/>
+          <circle cx="210" cy="178" r="104" fill="#dcebe7" stroke="#0e6e68" stroke-width="1.5"/>
+          <circle cx="152" cy="196" r="42" fill="#fff" stroke="#0e6e68" stroke-width="1.5"/>
+          <circle cx="252" cy="160" r="38" fill="#fff" stroke="#0e6e68" stroke-width="1.5"/>
+          <circle cx="262" cy="236" r="32" fill="#fff" stroke="#0e6e68" stroke-width="1.5"/>
+          <text x="210" y="36" text-anchor="middle" font-size="13" font-weight="600" fill="#17201b">Distrito: SDDE, SDA, UAESP, JBB, EAAB</text>
+          <text x="210" y="92" text-anchor="middle" font-size="13" font-weight="600" fill="#17201b">Localidad: Alcaldía, JAL, CPL, CAL</text>
+          <text x="152" y="192" text-anchor="middle" font-size="12" fill="#17201b">Huerta</text>
+          <text x="152" y="207" text-anchor="middle" font-size="12" fill="#17201b">de barrio</text>
+          <text x="252" y="156" text-anchor="middle" font-size="12" fill="#17201b">Punto de</text>
+          <text x="252" y="171" text-anchor="middle" font-size="12" fill="#17201b">acopio</text>
+          <text x="262" y="232" text-anchor="middle" font-size="12" fill="#17201b">Compost</text>
+          <text x="262" y="247" text-anchor="middle" font-size="12" fill="#17201b">barrial</text>
+          <path d="M190 180 L218 168 M196 214 L232 232 M262 198 L262 204" stroke="#8a6d1d" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="210" y="312" text-anchor="middle" font-size="11.5" fill="#56625b">Cada círculo decide lo suyo; las líneas punteadas son acuerdos entre pares</text>
+        </svg>
+        <figcaption>Diagrama propio basado en Ostrom (2010): centros de decisión anidados aplicados a Kennedy.</figcaption>
+      </figure>
+    </div>
+    <div class="kennedy">
+      <h4>En Kennedy</h4>
+      <p>Cada huerta, el punto de acopio y la estación de compost son centros con reglas propias. La localidad y el Distrito no desaparecen: aportan lo que una huerta sola no puede (análisis de suelo, permisos en la ronda, recolección), sin decidir qué se siembra.</p>
+    </div>
+    <p class="aporte"><b>Le aporta a la entrega:</b> la justificación teórica de la federación sin centro y del criterio «decide quien tiene la experticia del asunto, a la escala del asunto».</p>
+  </article>
+
+  <!-- 2 SES -->
+  <article class="modelo">
+    <h3>Marco de sistemas socioecológicos</h3>
+    <p class="ref">Ostrom, E. (2009). A general framework for analyzing sustainability of social-ecological systems. <i>Science</i>, 325(5939), 419–422. <a href="https://doi.org/10.1126/science.1172133">doi:10.1126/science.1172133</a></p>
+    <div class="duo">
+      <div>
+        <p>El marco divide cualquier territorio en cuatro subsistemas: el sistema de recursos, las unidades de recurso, el sistema de gobernanza y los usuarios. Sus interacciones producen resultados, y todo ocurre dentro de un contexto social y ecológico más amplio.</p>
+        <p>Sirve como lista de control: si la red integrada no tiene nodos en los cuatro subsistemas, o no hay enlaces entre ellos, la red está incompleta.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 420 330" role="img" aria-label="Subsistemas del marco socioecológico con ejemplos de Kennedy">
+          <rect width="420" height="330" fill="#fff"/>
+          <rect x="14" y="14" width="392" height="300" rx="10" fill="none" stroke="#56625b" stroke-dasharray="5 4"/>
+          <text x="26" y="34" font-size="11.5" fill="#56625b">Contexto: POT 2021, mercado mayorista, clima de la sabana</text>
+          <g font-size="12">
+            <rect x="30" y="52" width="160" height="78" rx="8" fill="#d6e9e5"/>
+            <text x="42" y="72" font-weight="600" fill="#0e6e68">Sistema de recursos</text>
+            <text x="42" y="92" fill="#17201b">Humedal El Burro,</text>
+            <text x="42" y="108" fill="#17201b">suelo de lotes, cubiertas</text>
+            <rect x="230" y="52" width="160" height="78" rx="8" fill="#efe5c8"/>
+            <text x="242" y="72" font-weight="600" fill="#8a6d1d">Sistema de gobernanza</text>
+            <text x="242" y="92" fill="#17201b">Mesa, JAC, Alcaldía,</text>
+            <text x="242" y="108" fill="#17201b">SDA, UAESP</text>
+            <rect x="30" y="214" width="160" height="78" rx="8" fill="#d6e9e5"/>
+            <text x="42" y="234" font-weight="600" fill="#0e6e68">Unidades de recurso</text>
+            <text x="42" y="254" fill="#17201b">Cosecha, orgánicos,</text>
+            <text x="42" y="270" fill="#17201b">agua, semillas</text>
+            <rect x="230" y="214" width="160" height="78" rx="8" fill="#efe5c8"/>
+            <text x="242" y="234" font-weight="600" fill="#8a6d1d">Usuarios</text>
+            <text x="242" y="254" fill="#17201b">Hogares, tenderos,</text>
+            <text x="242" y="270" fill="#17201b">recicladores, cocineras</text>
+            <ellipse cx="210" cy="172" rx="70" ry="26" fill="#fff" stroke="#17201b"/>
+            <text x="210" y="168" text-anchor="middle" font-weight="600" fill="#17201b">Interacciones</text>
+            <text x="210" y="184" text-anchor="middle" fill="#17201b">→ resultados</text>
+          </g>
+          <path d="M110 130 V214 M310 130 V214 M190 100 L230 100 M190 252 L230 252 M150 140 L170 155 M270 140 L250 155 M150 204 L170 189 M270 204 L250 189" stroke="#17201b" stroke-width="1.3" fill="none"/>
+        </svg>
+        <figcaption>Diagrama propio basado en la estructura de Ostrom (2009), con nodos de la red de Kennedy.</figcaption>
+      </figure>
+    </div>
+    <div class="kennedy">
+      <h4>En Kennedy</h4>
+      <ul>
+        <li>Clasificar los 95 actores y los 19 nodos sociobióticos en estos cuatro subsistemas da la leyenda de «tipos de nodo» que pide el punto 3.1 de la guía.</li>
+        <li>El hueco más visible hoy está en <i>unidades de recurso</i>: la red casi no tiene nodos de flujo material (toneladas de orgánicos, cosechas), y el modelo dinámico los necesita como variables.</li>
+      </ul>
+    </div>
+    <p class="aporte"><b>Le aporta a la entrega:</b> el criterio para integrar las tres redes en una sola y la correspondencia red ↔ modelo que pide el punto 4.1.</p>
+  </article>
+
+  <!-- 3 Loorbach -->
+  <article class="modelo">
+    <h3>Gestión de transiciones</h3>
+    <p class="ref">Loorbach, D. (2010). Transition management for sustainable development: A prescriptive, complexity-based governance framework. <i>Governance</i>, 23(1), 161–183. <a href="https://doi.org/10.1111/j.1468-0491.2009.01471.x">doi:10.1111/j.1468-0491.2009.01471.x</a></p>
+    <div class="duo">
+      <div>
+        <p>Para problemas persistentes que solo cambian en décadas, Loorbach propone distinguir cuatro tipos de actividad de gobernanza: estratégica (visión de largo plazo), táctica (agendas y coaliciones), operativa (experimentos concretos) y reflexiva (seguimiento y ajuste). El marco se construyó desde 2000 en programas reales de los Países Bajos.</p>
+        <p>La idea central: no se planifica la transición entera, se abren experimentos pequeños, se aprende de ellos y se escala lo que funciona.</p>
+      </div>
+      <figure>
+        <svg viewBox="0 0 420 330" role="img" aria-label="Ciclo de gestión de transiciones aplicado a Kennedy">
+          <rect width="420" height="330" fill="#fff"/>
+          <g font-size="12">
+            <circle cx="210" cy="160" r="108" fill="none" stroke="#cdd5cb" stroke-width="14"/>
+            <path d="M210 52 A108 108 0 0 1 318 160" fill="none" stroke="#0e6e68" stroke-width="14"/>
+            <path d="M318 160 A108 108 0 0 1 210 268" fill="none" stroke="#5aa69c" stroke-width="14"/>
+            <path d="M210 268 A108 108 0 0 1 102 160" fill="none" stroke="#c9a542" stroke-width="14"/>
+            <path d="M102 160 A108 108 0 0 1 210 52" fill="none" stroke="#8a6d1d" stroke-width="14"/>
+            <text x="300" y="58" font-weight="600" fill="#0e6e68">Estratégico</text>
+            <text x="300" y="74" fill="#17201b">Arena: visión 2040</text>
+            <text x="300" y="90" fill="#17201b">de abastecimiento</text>
+            <text x="328" y="234" font-weight="600" fill="#0e6e68">Táctico</text>
+            <text x="300" y="250" fill="#17201b">Agenda con PDL</text>
+            <text x="300" y="266" fill="#17201b">y presupuestos</text>
+            <text x="20" y="250" font-weight="600" fill="#8a6d1d">Operativo</text>
+            <text x="20" y="266" fill="#17201b">Huertas, compost,</text>
+            <text x="20" y="282" fill="#17201b">acopio piloto</text>
+            <text x="20" y="58" font-weight="600" fill="#8a6d1d">Reflexivo</text>
+            <text x="20" y="74" fill="#17201b">Tablero público,</text>
+            <text x="20" y="90" fill="#17201b">ajuste cada ciclo</text>
+            <text x="210" y="156" text-anchor="middle" font-weight="600" fill="#17201b">Aprender</text>
+            <text x="210" y="172" text-anchor="middle" fill="#17201b">y escalar</text>
+          </g>
+          <text x="210" y="318" text-anchor="middle" font-size="11.5" fill="#56625b">Las cuatro actividades ocurren a la vez, no en orden estricto</text>
+        </svg>
+        <figcaption>Diagrama propio basado en las cuatro actividades de Loorbach (2010).</figcaption>
+      </figure>
+    </div>
+    <div class="kennedy">
+      <h4>En Kennedy</h4>
+      <ul>
+        <li><b>Estratégico:</b> una «arena» pequeña y diversa (hortelanas, recicladores, tenderos, custodios, alguien de Corabastos) que escriba qué abastecimiento quiere la localidad en 15 años.</li>
+        <li><b>Táctico:</b> llevar esa agenda al Plan de Desarrollo Local 2025–2028 y a las convocatorias de presupuestos participativos.</li>
+        <li><b>Operativo:</b> las fases que ya tiene el sitio (huertas → acopio → biotecnología) son exactamente los experimentos de este nivel.</li>
+        <li><b>Reflexivo:</b> el tablero público de la matriz (D7) es el instrumento de seguimiento.</li>
+      </ul>
+    </div>
+    <p class="aporte"><b>Le aporta a la entrega:</b> el componente temporal del modelo dinámico y la razón para presentar la propuesta por fases, con supuestos que se revisan.</p>
+  </article>
+
+  <!-- 4 Folke -->
+  <article class="modelo">
+    <h3>Gobernanza adaptativa</h3>
+    <p class="ref">Folke, C., Hahn, T., Olsson, P. y Norberg, J. (2005). Adaptive governance of social-ecological systems. <i>Annual Review of Environment and Resources</i>, 30, 441–473. <a href="https://doi.org/10.1146/annurev.energy.30.050504.144511">doi:10.1146/annurev.energy.30.050504.144511</a></p>
+    <p>La revisión sostiene que los sistemas socioecológicos se mantienen ante cambios cuando combinan tres cosas: conocimiento ecológico local que se acumula, redes que conectan a actores de distintas escalas y organizaciones «puente» que traducen entre comunidad y Estado. Las crisis abren ventanas de cambio que solo aprovecha quien se preparó antes.</p>
+    <div class="kennedy">
+      <h4>En Kennedy</h4>
+      <ul>
+        <li>El puente ya existe: la <b>Red de agricultoras y agricultores urbanos de Kennedy</b>, creada en 2021 con apoyo del Jardín Botánico de Bogotá, y su ruta agroecológica en la localidad.</li>
+        <li>La memoria social es lo que hace viable la rotación: una bitácora por huerta y una formación entre pares para que cada vocería entregue el cargo con lo aprendido.</li>
+        <li>Ventana de cambio: un cierre o alza fuerte en Corabastos. La red debe tener listo el plan de contingencia antes de que pase.</li>
+      </ul>
+    </div>
+    <p class="aporte"><b>Le aporta a la entrega:</b> el argumento para que la rotación corta no destruya el conocimiento, que la guía pide explicar en el punto 2.1.</p>
+  </article>
+
+  <!-- 5 Consejos alimentarios -->
+  <article class="modelo">
+    <h3>Consejos de política alimentaria y sistemas ciudad-región</h3>
+    <p class="ref">Schiff, R., Levkoe, C. Z. y Wilkinson, A. (2022). Food policy councils: A 20-year scoping review (1999–2019). <i>Frontiers in Sustainable Food Systems</i>, 6, 868995. <a href="https://doi.org/10.3389/fsufs.2022.868995">doi:10.3389/fsufs.2022.868995</a> · Roosendaal, L. et al. (2020). <i>City region food system governance: guiding principles and lessons learned</i>. Wageningen, informe WCDI-20-118. <a href="https://doi.org/10.18174/526060">doi:10.18174/526060</a></p>
+    <p>Un consejo de política alimentaria es un comité intersectorial (productores, comercio, salud, comunidad, gobierno) que examina el sistema alimentario de un territorio y propone estrategias integradas. La revisión de Schiff y colegas cubre veinte años de estos consejos. El informe de Wageningen agrega que la gobernanza alimentaria urbana debe conectar escalas horizontalmente (barrio con barrio, ciudad con su región rural) y verticalmente (local con distrital y nacional), e invertir en capacidad de adaptación.</p>
+    <div class="kennedy">
+      <h4>En Kennedy</h4>
+      <ul>
+        <li>Bogotá firmó el Pacto de Milán de Política Alimentaria Urbana y tiene una Política Pública de Seguridad Alimentaria y Nutricional 2019–2031 y un Plan Maestro de Abastecimiento desde 2006. El marco distrital existe; lo que falta es su escala local.</li>
+        <li>Propuesta: un <b>consejo alimentario local de Kennedy</b> que sea la Mesa Federativa del núcleo de alimentos, con asiento técnico (sin voto sobre asuntos de barrio) para la Secretaría de Desarrollo Económico, que coordina el abastecimiento en el Distrito.</li>
+        <li>Conexión con la región: Corabastos no se interviene, pero el consejo puede negociar con productores campesinos que ya llegan a la central para venta directa a los puntos de acopio.</li>
+      </ul>
+    </div>
+    <p class="aporte"><b>Le aporta a la entrega:</b> un modelo documentado para el «gobierno de la red» de la matriz (D6), específico del problema alimentario.</p>
+  </article>
+
+  <!-- 6 Dona -->
+  <article class="modelo">
+    <h3>Economía de la dona</h3>
+    <p class="ref">Raworth, K. (2017). A Doughnut for the Anthropocene: humanity's compass in the 21st century. <i>The Lancet Planetary Health</i>, 1(2), e48–e49. <a href="https://doi.org/10.1016/S2542-5196(17)30028-1">doi:10.1016/S2542-5196(17)30028-1</a> (acceso abierto, CC BY 4.0)</p>
+    <div class="duo">
+      <div>
+        <p>El bienestar humano necesita dos límites a la vez: un piso social (alimento, agua, vivienda, voz política) por debajo del cual hay carencia, y un techo ecológico (biodiversidad, contaminación, uso de agua dulce) por encima del cual hay sobregiro. El espacio seguro y justo es el anillo entre ambos.</p>
+        <p>Varias ciudades europeas han adaptado la dona a escala urbana para evaluar políticas; aquí sirve como criterio de evaluación, no como plan.</p>
+      </div>
+      <figure>
+        <img src="assets/modelos/dona.jpg" alt="Diagrama de la dona: piso social en el anillo interior y techo ecológico en el exterior" loading="lazy" width="1000" height="982">
+        <figcaption>Figura de la dona. DoughnutEconomics, <a href="https://commons.wikimedia.org/wiki/File:Doughnut_(economic_model).jpg">Wikimedia Commons</a>, CC BY-SA 4.0. Basada en Raworth (2017).</figcaption>
+      </figure>
+    </div>
+    <div class="kennedy">
+      <h4>En Kennedy</h4>
+      <ul>
+        <li><b>Piso social de P1:</b> hogares que comen suficiente y variado; precio de la proteína; ingreso de hortelanos y recicladores.</li>
+        <li><b>Techo ecológico de P1:</b> presión sobre la ronda de El Burro; orgánicos que terminan en relleno; agua usada en riego.</li>
+        <li>Regla de diseño: ninguna dinámica de la matriz puede mejorar el piso empujando el techo. Por eso la huerta de ronda (E04) va separada del compost (E09).</li>
+      </ul>
+    </div>
+    <p class="aporte"><b>Le aporta a la entrega:</b> los indicadores de resultado del modelo dinámico, divididos en sociales y ecológicos.</p>
+  </article>
+
+  <!-- 7 Arnstein -->
+  <article class="modelo">
+    <h3>Escalera de la participación</h3>
+    <p class="ref">Arnstein, S. R. (1969). A ladder of citizen participation. <i>Journal of the American Institute of Planners</i>, 35(4), 216–224. <a href="https://doi.org/10.1080/01944366908977225">doi:10.1080/01944366908977225</a></p>
+    <div class="duo">
+      <div>
+        <p>Arnstein ordenó la participación en ocho peldaños, desde la manipulación hasta el control ciudadano. Su punto es que informar o consultar no es redistribuir poder: solo los tres peldaños de arriba (colaboración, delegación y control) cambian quién decide.</p>
+        <p>Es la herramienta más simple para el punto 3.1 de la guía: «identificar las verdaderas relaciones entre pares y proponer cómo superar las asimetrías de poder».</p>
+      </div>
+      <figure>
+        <img src="assets/modelos/arnstein.jpg" alt="Escalera de ocho peldaños: de manipulación a control ciudadano" loading="lazy" width="820" height="1060" style="max-height:420px;object-fit:contain">
+        <figcaption>Luisalvaz, <a href="https://commons.wikimedia.org/wiki/File:Escalera_de_la_participacion_de_Sherry_R_Arnstein.png">Wikimedia Commons</a>, CC BY-SA 4.0. Basada en Arnstein (1969).</figcaption>
+      </figure>
+    </div>
+    <div class="kennedy">
+      <h4>En Kennedy</h4>
+      <ul>
+        <li>Hoy los vecinos del entorno de Corabastos están entre <i>información</i> y <i>consulta</i>: radican quejas, pero no deciden horarios de cargue ni manejo de residuos.</li>
+        <li>Los presupuestos participativos llegan a <i>colaboración</i> en la priorización, pero la contratación sigue en la Alcaldía.</li>
+        <li>La federación apunta a <i>delegación</i> en lo que es de los núcleos (huertas, acopio, compost) y a <i>colaboración</i> con el Distrito en lo que no (ronda del humedal, inocuidad).</li>
+      </ul>
+    </div>
+    <p class="aporte"><b>Le aporta a la entrega:</b> un enlace de la red puede etiquetarse con su peldaño, y así se ve la asimetría directamente en el dibujo.</p>
+  </article>
+</section>
+
+<!-- ============================================================ -->
+<section id="quien">
+  <h2>Quién se hace cargo de qué</h2>
+  <p class="lead">Organización para P1 (dependencia alimentaria de Corabastos), asunto por asunto, como pide el punto 2.1. Las entidades nombradas existen y tienen esas funciones en Bogotá; los encargos y plazos son propuesta del grupo, por validar con la comunidad.</p>
+
+  <div class="tw"><table class="org">
+    <thead><tr><th>Asunto</th><th>Afectados</th><th>Saben y asesoran</th><th>Deciden</th><th>Ejecutan</th><th>Encargo temporal</th><th>Seguimiento y revocación</th></tr></thead>
+    <tbody>
+      <tr><td><b>Qué se siembra y dónde</b><br><span class="small">D1 · E01 E02 E03</span></td>
+        <td>Hogares hortelanos, vecinos</td>
+        <td>Jardín Botánico (asistencia técnica), Red de agricultores urbanos de Kennedy, hortelanas con experiencia</td>
+        <td>Asamblea de cada huerta</td>
+        <td>Hogares y grupo hortelano</td>
+        <td>Coordinación de huerta: 3 meses, rota entre quienes cultivan</td>
+        <td>Bitácora de siembra abierta; la asamblea cambia al coordinador con mayoría simple</td></tr>
+      <tr><td><b>Huerta en la ronda del humedal</b><br><span class="small">D1 · E04</span></td>
+        <td>Fauna del humedal, custodios, vecinos de la ribera</td>
+        <td>Secretaría Distrital de Ambiente (plan de manejo), Acueducto de Bogotá (administra el humedal), custodios</td>
+        <td>La SDA autoriza o no; dentro de lo autorizado, custodios y hortelanos por consentimiento</td>
+        <td>Custodios y hortelanos</td>
+        <td>Vocería ante la SDA: 2 meses</td>
+        <td>Monitoreo de aves y agua; si un indicador cae, se suspende la siembra hasta revisar (veto ecológico)</td></tr>
+      <tr><td><b>Ubicación y operación del compost</b><br><span class="small">D4 · E09 E10</span></td>
+        <td>Vecinos cercanos (olores), recicladores, hortelanos</td>
+        <td>UAESP y operador de aseo (normas de orgánicos), recicladores de oficio</td>
+        <td>Núcleo de circularidad con consentimiento de los vecinos inmediatos</td>
+        <td>Recicladores de oficio con pago, voluntarios por turnos</td>
+        <td>Responsable de estación: 1 mes; técnico de compost: 6 meses con aprendiz</td>
+        <td>Registro semanal de kilos recibidos y quejas; queja sin atender en 15 días abre revisión en la Mesa</td></tr>
+      <tr><td><b>Acopio, precios y venta</b><br><span class="small">D3 · E06 E07 E08</span></td>
+        <td>Hortelanos, tenderos, hogares compradores</td>
+        <td>Secretaría de Desarrollo Económico (abastecimiento), IPES (ferias y vendedores), tenderos</td>
+        <td>Núcleo de comercio, con precios publicados antes de cada jornada</td>
+        <td>Equipo rotativo del punto</td>
+        <td>Equipo del punto: 1 mes. Tesorería: 3 meses, dos firmas</td>
+        <td>Tablero público de precios y kilos (E15); cualquier persona puede pedir auditoría; tesorería revocable por la Mesa</td></tr>
+      <tr><td><b>Menú y comedores</b><br><span class="small">D2 · E05</span></td>
+        <td>Hogares, niñez, personas mayores</td>
+        <td>Secretaría de Integración Social (comedores comunitarios), Secretaría de Salud (manipulación de alimentos)</td>
+        <td>Cocineras del comedor</td>
+        <td>Cocineras y voluntariado</td>
+        <td>Turnos de cocina semanales</td>
+        <td>Reuniones de comensales cada mes; requisitos sanitarios no negociables</td></tr>
+      <tr><td><b>Unidad de hongos</b><br><span class="small">D5 · E11 E12</span></td>
+        <td>Hogares (precio de proteína), vecinos (esporas), trabajadores</td>
+        <td>Técnicos en micología, Secretaría de Salud e INVIMA si se procesa y empaca</td>
+        <td>Cooperativa gestora; lo técnico de inocuidad, el responsable técnico</td>
+        <td>Socios de la cooperativa, con prioridad a coteros y recicladores</td>
+        <td>Responsable técnico: 6 meses, renovable una vez, con relevo formado</td>
+        <td>Estatutos que prohíben exclusividad de venta; si supera una cuota del abastecimiento local que el grupo fije, la Mesa revisa (bucle de captura)</td></tr>
+      <tr><td><b>Recursos públicos para la red</b><br><span class="small">D6</span></td>
+        <td>Toda la localidad</td>
+        <td>Consejo de Planeación Local, IDPAC</td>
+        <td>Ciudadanía, en la votación de presupuestos participativos</td>
+        <td>Alcaldía Local con recursos del Fondo de Desarrollo Local</td>
+        <td>Delegada de la red ante el CPL: 3 meses</td>
+        <td>Control político de la JAL; la red publica qué propuso y qué se contrató</td></tr>
+      <tr><td><b>Coordinación de toda la red</b><br><span class="small">D6 · E13</span></td>
+        <td>Todos los núcleos</td>
+        <td>Cada núcleo, en su materia</td>
+        <td>Mesa Federativa por consentimiento, solo en lo que afecta a varios núcleos</td>
+        <td>Cada núcleo</td>
+        <td>Vocería: 1 a 3 meses, rota entre núcleos; nadie repite seguido</td>
+        <td>Delegados con mandato revocable por su núcleo en cualquier momento</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Cuando un encargo se concentra en una persona (técnico de compost, responsable de inocuidad), la tabla fija alcance, duración, seguimiento, relevo y devolución, como pide la guía.</p>
+
+  <h3>Cómo se transmite el conocimiento para que la rotación funcione</h3>
+  <p>Quien deja un cargo entrega la bitácora y acompaña un ciclo a quien entra. Las huertas escolares y la formación entre pares (matriz, fila de aprendizaje) forman relevos antes de que se necesiten. La experticia se reconoce con voz en su asunto: la técnica de compost decide cómo se voltea una pila, no a quién se venden las cosechas.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="captura">
+  <h2>Reglas contra la captura</h2>
+  <p class="lead">Ostrom identificó ocho principios presentes en los comunes que duraron siglos. Aquí cada uno se traduce a una regla concreta para que la red de Kennedy no termine siendo un nuevo Corabastos con otros dueños.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Principio (Ostrom, 1990)</th><th>Regla para Kennedy</th></tr></thead>
+    <tbody>
+      <tr><td>Límites claros de quién participa y de qué recurso</td><td>Registro abierto de huertas y miembros de cada núcleo; cada espacio con su identificador (E01–E15).</td></tr>
+      <tr><td>Reglas adaptadas al lugar</td><td>La huerta de ronda tiene reglas distintas a la de terraza; la matriz ya lo prevé en «condiciones».</td></tr>
+      <tr><td>Quienes viven las reglas las pueden cambiar</td><td>Cada asamblea de núcleo modifica sus reglas; la Mesa no puede imponerlas.</td></tr>
+      <tr><td>Monitoreo por los propios usuarios</td><td>Tablero público semanal de kilos, precios y orgánicos (D7).</td></tr>
+      <tr><td>Sanciones graduales</td><td>Aviso, luego suspensión del encargo, luego revocación. Nunca exclusión de la comida.</td></tr>
+      <tr><td>Resolución de conflictos barata y cercana</td><td>Mediación entre núcleos en la Mesa; si no se resuelve, la Casa de Justicia o la Inspección de Policía.</td></tr>
+      <tr><td>Reconocimiento externo del derecho a organizarse</td><td>Personería jurídica de la cooperativa y registro de las huertas ante el Jardín Botánico.</td></tr>
+      <tr><td>Organización anidada</td><td>Huerta → núcleo → Mesa → interlocución con Alcaldía y Distrito, cada nivel con su competencia.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="riesgo">
+    <p><b>Señales de captura que cualquiera puede levantar:</b> la misma persona en dos cargos a la vez; un comprador que se queda con más de la mitad de los excedentes; precios que no se publican; un núcleo que no rota su vocería. Cualquier integrante puede llevarlo a la Mesa y el punto se trata en la siguiente sesión.</p>
+  </div>
+  <p class="small">Esto no supone que todo cargo corrompe: el riesgo depende de relaciones concretas (quién controla el dinero, quién tiene información que otros no), como pide analizar la guía.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="bio">
+  <h2>Rigor biótico: qué está registrado y qué no</h2>
+  <p class="lead">La guía distingue presencia registrada en el área, registros del entorno y presencia potencial, y advierte que coexistir no es interactuar. Primera clasificación para los nodos de la red sociobiótica.</p>
+
+  <div class="duo">
+    <div class="tw" style="margin-top:0"><table>
+      <thead><tr><th>Especie o grupo</th><th>Estado</th><th>Fuente</th></tr></thead>
+      <tbody>
+        <tr><td>Tingua de pico amarillo (<i>Fulica americana</i>)</td><td><span class="st ok">Registrada</span></td><td>Fotografía en El Burro, Wikimedia Commons</td></tr>
+        <tr><td>Tingua azul (<i>Porphyrio martinica</i>)</td><td><span class="st ok">Registrada</span></td><td>Liberación de 19 individuos en El Burro por la SDA, marzo de 2025</td></tr>
+        <tr><td>Tingua bogotana (<i>Rallus semiplumbeus</i>)</td><td><span class="st mid">Entorno</span></td><td>Endémica citada para los humedales de Bogotá; falta registro en El Burro</td></tr>
+        <tr><td>Rana sabanera (<i>Dendropsophus labialis</i>)</td><td><span class="st mid">Entorno</span></td><td>Por verificar en el plan de manejo del humedal</td></tr>
+        <tr><td>Abejas nativas y mariposas</td><td><span class="st no">Potencial</span></td><td>Sin registro; depende de flora melífera en huertas</td></tr>
+        <tr><td>Lombriz roja (<i>Eisenia fetida</i>)</td><td><span class="st ok">Introducida</span></td><td>Se cría en el compost; no es fauna del humedal</td></tr>
+      </tbody>
+    </table></div>
+    <figure>
+      <img src="assets/modelos/fulica.jpg" alt="Tingua de pico amarillo nadando en el humedal El Burro" loading="lazy" width="900" height="506">
+      <figcaption><i>Fulica americana</i> en el humedal El Burro. Juan Carlos Sáenz Rodríguez, <a href="https://commons.wikimedia.org/wiki/File:Tingua_de_pico_amarillo,_(Fulica_americana)_en_el_Humedal_El_Burro.jpg">Wikimedia Commons</a>, CC BY-SA 4.0.</figcaption>
+    </figure>
+  </div>
+
+  <div class="aviso">
+    <p><b>Corrección pendiente en la red sociobiótica:</b> el nodo de abejas afirma «aumenta la cosecha un 40 %» y el de rana habla de «depredación voraz de larvas de zancudos». Ninguno tiene fuente para Kennedy. Recomendación: citarlos con una referencia o reescribirlos como hipótesis («podría aumentar…, por verificar»).</p>
+  </div>
+  <p>También conviene separar en el dibujo dos cosas que la guía pide no confundir: la <b>conectividad de hábitats</b> (la huerta de ronda como franja junto al humedal) y la <b>interacción entre especies</b> (polinizador visita flor). La primera es una relación espacial; la segunda, ecológica, y necesita observación.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="tec">
+  <h2>Tecnologías: qué usar y qué no</h2>
+  <p class="lead">La guía pide explicarlas solo si se proponen. Postura sugerida para el grupo, por discutir.</p>
+  <h3>Para la voz de los no humanos</h3>
+  <p>Sensores de bajo costo de nivel y calidad de agua en la ronda, grabadoras acústicas para aves y registros de ciencia ciudadana con fotografía y fecha. No «hablan por» las especies: producen datos que activan reglas, como el veto ecológico de la tabla anterior.</p>
+  <h3>Para la transparencia de las decisiones</h3>
+  <p>Un registro público y fechado de acuerdos, precios y kilos basta, y puede ser una hoja abierta más el tablero físico del punto de acopio. Una blockchain solo agregaría que el registro no se pueda borrar.</p>
+  <div class="riesgo">
+    <p><b>No recomendamos una DAO con voto por tokens.</b> Donde el voto se compra o se acumula, decide quien más tiene, que es justo la concentración que la propuesta quiere evitar. Además, exigir billetera digital excluye a buena parte de quienes cultivan, reciclan o cocinan. Si el grupo quiere usarla, que sea solo como registro inmutable, con una persona un voto y siempre con alternativa en papel.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="matriz">
+  <h2>La matriz con identificadores estables</h2>
+  <p class="lead">La guía pide identificadores para problemas, dinámicas y espacios. Esta propuesta usa exactamente las filas de la hoja «Matriz»; solo les pone nombre corto para que la adyacencia y el acceso se puedan escribir como relaciones.</p>
+
+  <h3>Dinámicas</h3>
+  <div class="chips">
+    <span class="chip"><b>D0</b> Compra concentrada en Corabastos (actual)</span>
+    <span class="chip"><b>D1</b> Producción en huertas comunales</span>
+    <span class="chip"><b>D2</b> Autoconsumo y comensalidad</span>
+    <span class="chip"><b>D3</b> Comercio de excedentes</span>
+    <span class="chip"><b>D4</b> Insumos circulares</span>
+    <span class="chip"><b>D5</b> Distrito biotecnológico</span>
+    <span class="chip"><b>D6</b> Gobierno con rotación corta</span>
+    <span class="chip"><b>D7</b> Información abierta</span>
+  </div>
+
+  <h3>Espacios</h3>
+  <div class="tw"><table>
+    <thead><tr><th>ID</th><th>Espacio</th><th>Dinámicas que sostiene</th></tr></thead>
+    <tbody>
+      <tr><td>E00</td><td>Corabastos (contexto, no se interviene)</td><td>D0</td></tr>
+      <tr><td>E01</td><td>Huerta de vivienda en asentamiento informal</td><td>D1</td></tr>
+      <tr><td>E02</td><td>Huerta en vivienda de altura</td><td>D1</td></tr>
+      <tr><td>E03</td><td>Huerta en lote baldío</td><td>D1</td></tr>
+      <tr><td>E04</td><td>Huerta en la ronda del humedal</td><td>D1</td></tr>
+      <tr><td>E05</td><td>Comedor o cocina comunitaria</td><td>D2, D5</td></tr>
+      <tr><td>E06</td><td>Punto de acopio y distribución</td><td>D3, D5, D7</td></tr>
+      <tr><td>E07</td><td>Punto de venta de excedentes</td><td>D3</td></tr>
+      <tr><td>E08</td><td>Tienda de barrio</td><td>D3, D4</td></tr>
+      <tr><td>E09</td><td>Estación de compostaje y semillero</td><td>D4</td></tr>
+      <tr><td>E10</td><td>Puntos de separación en origen</td><td>D4</td></tr>
+      <tr><td>E11</td><td>Distrito biotecnológico: cultivo</td><td>D5</td></tr>
+      <tr><td>E12</td><td>Distrito biotecnológico: procesamiento</td><td>D5</td></tr>
+      <tr><td>E13</td><td>Espacio de aprendizaje y deliberación</td><td>D6, D7</td></tr>
+      <tr><td>E14</td><td>Huerta escolar</td><td>D6</td></tr>
+      <tr><td>E15</td><td>Tablero público (elemento dentro de E06 o E13)</td><td>D7</td></tr>
+      <tr><td>H1</td><td>Humedal El Burro (hábitat, no es espacio del programa)</td><td>Condiciona E04</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Adyacencia y acceso, registrados por separado</h3>
+  <p>Leído directamente de la matriz. «Adyacente» es vecindad física; «acceso» es posibilidad de paso. Fíjense en E04 y E09: no son vecinos y tampoco tienen paso directo, por los líquidos del compost.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Relación</th><th>Adyacencia</th><th>Acceso</th><th>Depende de</th></tr></thead>
+    <tbody>
+      <tr><td>E01 ↔ E09</td><td>Cerca</td><td>Directo o indirecto</td><td>Distancia en cada barrio</td></tr>
+      <tr><td>E01 → E06</td><td>No</td><td>Indirecto, por rutas del barrio</td><td>Carreta o bicicleta</td></tr>
+      <tr><td>E02 ↔ E09</td><td>Condicionada</td><td>Indirecto</td><td>Permiso de la copropiedad</td></tr>
+      <tr><td>E02 → E06</td><td>No</td><td>Indirecto; dentro del edificio por ascensor</td><td>Reglamento de propiedad horizontal</td></tr>
+      <tr><td>E03 ↔ E09</td><td>Sí</td><td>Directo</td><td>Regla de uso del lote</td></tr>
+      <tr><td>E04 ↔ H1</td><td>Sí</td><td>Humano restringido; fauna libre</td><td>Horarios, senderos y épocas de cría</td></tr>
+      <tr><td>E04 ↔ E09</td><td>Separados</td><td>Sin acceso directo</td><td>Escorrentía hacia el agua</td></tr>
+      <tr><td>E06 ↔ E07</td><td>Sí</td><td>Directo; E07 abierto al público</td><td>Días de venta</td></tr>
+      <tr><td>E06 → E05</td><td>Deseable</td><td>Directo o indirecto</td><td>Producto fresco del día</td></tr>
+      <tr><td>E06 → E08</td><td>No necesaria</td><td>Indirecto, ruta corta de reparto</td><td>Cargas pequeñas</td></tr>
+      <tr><td>E10 ↔ E08, E06</td><td>Sí</td><td>E10 → E09 indirecto</td><td>Recolección diaria</td></tr>
+      <tr><td>E11 ↔ E06</td><td>Sí</td><td>Directo</td><td>Entrada de sustratos</td></tr>
+      <tr><td>E11 ↔ E05 y viviendas</td><td>Separados</td><td>Sin acceso directo; E11 → E05 pasando por E06</td><td>Control de esporas</td></tr>
+      <tr><td>E11 ↔ E12</td><td>Sí</td><td>Directo; visitantes restringidos</td><td>Inocuidad</td></tr>
+      <tr><td>E12 → E06</td><td>Cerca</td><td>Directo</td><td>Cadena de frío corta</td></tr>
+      <tr><td>E13 ↔ E14 o E06</td><td>Sí</td><td>A pie desde los barrios</td><td>Horarios compatibles con el trabajo</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Sugerencia para la hoja: agregar dos columnas, «ID espacio» y «Estado de la evidencia» (documentado, entorno, hipótesis), y copiar estos identificadores. El diagrama de espacios con profundidad desde un origen queda para el 2 de noviembre.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="pendientes">
+  <h2>Incertidumbres y decisiones pendientes</h2>
+  <ul>
+    <li><b>Escenarios del modelo.</b> Faltan al menos dos, con supuestos escritos: (a) Corabastos baja precios cuando cae la compra (bucle de equilibrio de D0), y (b) un choque de abastecimiento en la central. ¿Qué parte de la canasta cubre la red en cada uno?</li>
+    <li><b>Superficie cultivable real.</b> Sin un inventario de lotes, cubiertas y patios, el bucle «más huertas» no tiene techo conocido. Fuente posible: capa de huertas del geoportal del Jardín Botánico.</li>
+    <li><b>Permiso en la ronda.</b> Hay que confirmar con la SDA qué usos admite el plan de manejo de El Burro antes de dibujar E04 como huerta.</li>
+    <li><b>Especie de hongo y norma sanitaria</b> para E11 y E12.</li>
+    <li><b>Plazos de rotación.</b> Los de la tabla son propuesta; validar con quienes harán el trabajo si 1 a 3 meses es sostenible frente al desgaste.</li>
+    <li><b>Registros bióticos.</b> Completar la tabla de la sección 5 con el plan de manejo del humedal y bases de ciencia ciudadana antes de atribuir interacciones a Kennedy.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="refs">
+  <h2>Referencias</h2>
+  <ol class="refs">
+    <li>Arnstein, S. R. (1969). A ladder of citizen participation. <i>Journal of the American Institute of Planners</i>, 35(4), 216–224. <a href="https://doi.org/10.1080/01944366908977225">doi:10.1080/01944366908977225</a></li>
+    <li>Folke, C., Hahn, T., Olsson, P. y Norberg, J. (2005). Adaptive governance of social-ecological systems. <i>Annual Review of Environment and Resources</i>, 30, 441–473. <a href="https://doi.org/10.1146/annurev.energy.30.050504.144511">doi:10.1146/annurev.energy.30.050504.144511</a></li>
+    <li>Loorbach, D. (2010). Transition management for sustainable development. <i>Governance</i>, 23(1), 161–183. <a href="https://doi.org/10.1111/j.1468-0491.2009.01471.x">doi:10.1111/j.1468-0491.2009.01471.x</a></li>
+    <li>Ostrom, E. (1990). <i>Governing the Commons: The Evolution of Institutions for Collective Action</i>. Cambridge University Press.</li>
+    <li>Ostrom, E. (2009). A general framework for analyzing sustainability of social-ecological systems. <i>Science</i>, 325(5939), 419–422. <a href="https://doi.org/10.1126/science.1172133">doi:10.1126/science.1172133</a></li>
+    <li>Ostrom, E. (2010). Beyond markets and states: Polycentric governance of complex economic systems. <i>American Economic Review</i>, 100(3), 641–672. <a href="https://doi.org/10.1257/aer.100.3.641">doi:10.1257/aer.100.3.641</a></li>
+    <li>Raworth, K. (2017). A Doughnut for the Anthropocene. <i>The Lancet Planetary Health</i>, 1(2), e48–e49. <a href="https://doi.org/10.1016/S2542-5196(17)30028-1">doi:10.1016/S2542-5196(17)30028-1</a></li>
+    <li>Roosendaal, L., Herens, M., de Roo, N., Stuiver, M., Pittore, K., Soma, K. y Hetterscheid, B. (2020). <i>City region food system governance</i>. Wageningen Centre for Development Innovation, WCDI-20-118. <a href="https://doi.org/10.18174/526060">doi:10.18174/526060</a></li>
+    <li>Schiff, R., Levkoe, C. Z. y Wilkinson, A. (2022). Food policy councils: A 20-year scoping review (1999–2019). <i>Frontiers in Sustainable Food Systems</i>, 6, 868995. <a href="https://doi.org/10.3389/fsufs.2022.868995">doi:10.3389/fsufs.2022.868995</a></li>
+  </ol>
+  <h3>Fuentes sobre Kennedy y Bogotá</h3>
+  <ol class="refs">
+    <li>Alcaldía de Bogotá (2021). <a href="https://bogota.gov.co/mi-ciudad/ambiente/en-kennedy-se-creo-la-quinta-red-de-agricultores-y-agricultoras">En Kennedy, Distrito creó la quinta red de agricultoras y agricultores urbanos</a>.</li>
+    <li>Alcaldía de Bogotá (2025). <a href="https://bogota.gov.co/mi-ciudad/ambiente/liberacion-aves-en-bogota-durante-dia-mundial-de-vida-silvestre-2025">Secretaría de Ambiente celebra la vida silvestre con la liberación de 39 aves</a> (humedal El Burro).</li>
+    <li>CONPES D.C. 09 (2019). <a href="https://sistemas002.sdp.gov.co/sites/default/files/conpes_09_sdde_pp_san_aprobado.pdf">Política Pública de Seguridad Alimentaria y Nutricional para Bogotá 2019–2031</a>.</li>
+    <li>Decreto Distrital 315 de 2006. Plan Maestro de Abastecimiento de Alimentos y Seguridad Alimentaria de Bogotá.</li>
+    <li>Secretaría Distrital de Ambiente. <a href="https://www.ambientebogota.gov.co/documents/10184/804589/PMA+EL+BURRO.pdf/807c4e0b-1839-450b-a7a6-2777a8b0fdbf">Plan de manejo del humedal El Burro</a>.</li>
+  </ol>
+  <h3>Imágenes</h3>
+  <p class="small">Humedal El Burro y <i>Fulica americana</i>: Juan Carlos Sáenz Rodríguez, CC BY-SA 4.0. Dona: DoughnutEconomics, CC BY-SA 4.0. Escalera de Arnstein: Luisalvaz, CC BY-SA 4.0. Todas en Wikimedia Commons. Los diagramas de Ostrom y Loorbach son elaboración propia a partir de los artículos citados; no reproducen sus figuras originales.</p>
+</section>
+
+</main>
+</div>
+<footer>Modelamiento dinámico y simulación computacional · Corte III · Kennedy, Bogotá</footer>
+</body>
+</html>
