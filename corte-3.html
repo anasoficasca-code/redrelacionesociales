@@ -1273,6 +1273,7 @@ h2 .sec-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spa
        <button class="strip-tab active" data-view="free">Red libre</button>
        <button class="strip-tab" data-view="clusters">Clústeres</button>
        <button class="strip-tab" data-view="concentric">Anillos de poder</button>
+       <button class="strip-tab" data-view="federacion" id="tabFederacion">Federación y Red Biótica</button>
        <button class="strip-tab" data-view="map3d">Territorio 3D</button>
        <button class="strip-tab" data-view="free" id="guiaBtn">Corte III · Guion</button>
      </div>
@@ -3359,6 +3360,24 @@ function switchView(viewName){
 
   const map3dEl = document.getElementById('map3d');
   const netSvg = document.getElementById('net');
+  const fedEl = document.getElementById('viewFederacion');
+
+  if (viewName === 'federacion') {
+    if (map3dEl) map3dEl.classList.remove('active');
+    if (netSvg) {
+      netSvg.style.opacity = '0';
+      netSvg.style.pointerEvents = 'none';
+    }
+    if (fedEl) {
+      fedEl.style.display = 'block';
+      if (window.FEDERACION_BIOTICA && window.FEDERACION_BIOTICA.init) {
+        window.FEDERACION_BIOTICA.init();
+      }
+    }
+    return;
+  } else {
+    if (fedEl) fedEl.style.display = 'none';
+  }
 
   if (viewName === 'map3d' || viewName.startsWith('c3-')) {
     if (map3dEl) map3dEl.classList.add('active');
@@ -4556,6 +4575,7 @@ window.addEventListener('resize', () => {
 });
 window.__net = {nodes, links};
 </script>
+<script src="federacion-biotica.js"></script>
 <script src="guia-corte3.js"></script>
 
 <script>

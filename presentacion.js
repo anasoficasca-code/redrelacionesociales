@@ -244,13 +244,12 @@ function statement(ctx,parts){const el=d3.select(ctx.el).append('div').attr('cla
 
 /* ---------- macromodelo político al estilo del sitio de macromodelos ---------- */
 const MACRO_CARDS=[
- {k:'het',n:'Heterarquía',num:'01',c:'#7FC4EC',ic:'i-org',d:'La influencia varía según el asunto, la función, los recursos y el conocimiento de cada actor.'},
+ {k:'het',n:'Federación (Sin Líder)',num:'01',c:'#7FC4EC',ic:'i-org',d:'Coordinación policéntrica de núcleos autónomos sin líder central: vocerías rotativas cada 1 a 3 meses y deliberación por consentimiento.'},
  {k:'pol',n:'Gobernanza policéntrica',num:'02',c:'#B3A6EE',ic:'i-grupo',d:'Varios centros de decisión autónomos que se coordinan cuando sus actividades se cruzan.'},
- {k:'pro',n:'Propósito',num:'03',c:'#F2C76A',ic:'i-check',d:'Que quienes ejecutan y quienes reciben las consecuencias tengan capacidad real de incidir.'},
+ {k:'pro',n:'Propósito: P1 Corabastos',num:'03',c:'#F2C76A',ic:'i-check',d:'Descentralizar el abasto hacia huertas comunales y dar capacidad de incidir a quienes ejecutan el trabajo.'},
  {k:'niv',n:'Niveles de coordinación',num:'04',c:'#EE9A7E',ic:'i-ins',d:'Cotidiano, núcleo por asunto, local y distrital. No son escalones de mando.'},
  {k:'cog',n:'Cogestión',num:'05',c:'#A9D47A',ic:'i-doc',d:'Organizaciones e instituciones comparten la decisión y la ejecución con un acuerdo escrito.'},
  {k:'coa',n:'Coaprendizaje',num:'06',c:'#E89BD2',ic:'i-ciclo',d:'Saber técnico y saber práctico revisan juntos y ajustan las reglas.'}];
-// paso del guion -> [tarjeta activa, chips de la tarjeta, estado del mapa]
 const MACRO_STEPS=[
  ['het',['Hoy: un solo centro'],'hub'],
  ['het',['Residuos: recicladores','Agua: colectivos'],'multi'],
