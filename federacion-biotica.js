@@ -1334,6 +1334,7 @@
     if (svgEl) svgEl.style.display = 'none';
     mapDiv.style.display = 'block';
 
+    setTimeout(() => { if (window._fedRealMapInstance) window._fedRealMapInstance.resize(); }, 120);
     if (window._fedRealMapInstance) {
       window._fedRealMapInstance.resize();
       return;

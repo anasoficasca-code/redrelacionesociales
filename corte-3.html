@@ -3353,31 +3353,23 @@ function clearActorInThree() {
   });
 }
 
-function switchView(viewName){
-  if (currentView === viewName) return;
-  currentView = viewName;
-
-  // Soporte para abrir vista desde URL (?view=federacion o #federacion o #programa)
-const urlParams = new URLSearchParams(window.location.search);
-const initView = urlParams.get('view') || (window.location.hash ? window.location.hash.slice(1) : null);
-if (initView === 'federacion' || initView === 'programa') {
-  setTimeout(() => {
-    switchView('federacion');
-    const fedBtn = document.getElementById('tabFederacion');
-    if (fedBtn) {
-      document.querySelectorAll('.strip-tab').forEach(b => b.classList.remove('active'));
-      fedBtn.classList.add('active');
-    }
-  }, 100);
-}
-
-document.querySelectorAll('.strip-tab').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.view === viewName);
-  });
-
+function switchView(viewName, force = false){
   const map3dEl = document.getElementById('map3d');
   const netSvg = document.getElementById('net');
   const fedEl = document.getElementById('viewFederacion');
+
+  if (!force && currentView === viewName) {
+    if (viewName === 'federacion' && fedEl) {
+      fedEl.style.display = 'block';
+      if (netSvg) { netSvg.style.opacity = '0'; netSvg.style.pointerEvents = 'none'; }
+    }
+    return;
+  }
+  currentView = viewName;
+
+  document.querySelectorAll('.strip-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === viewName);
+  });
 
   if (viewName === 'federacion') {
     if (map3dEl) map3dEl.classList.remove('active');
@@ -3394,6 +3386,10 @@ document.querySelectorAll('.strip-tab').forEach(btn => {
     return;
   } else {
     if (fedEl) fedEl.style.display = 'none';
+    if (netSvg && viewName !== 'map3d' && !viewName.startsWith('c3-')) {
+      netSvg.style.opacity = '1';
+      netSvg.style.pointerEvents = 'auto';
+    }
   }
 
   if (viewName === 'map3d' || viewName.startsWith('c3-')) {

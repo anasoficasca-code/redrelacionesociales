@@ -133,7 +133,16 @@ function go(i){i=Math.max(0,Math.min(S.length-1,i));G.i=i;const st=S[i];
  document.getElementById('gNext').textContent=i===S.length-1?'Fin':'Siguiente';
  if(st.ov){showOverlay(st.ov)}else{hideOverlay();
   if(st.v==='map3d'){switchView('map3d')}
-  else if(st.v==='federacion'){switchView('federacion');if(window.FEDERACION_BIOTICA)window.FEDERACION_BIOTICA.init(st.fedTab||'comparacion')}
+  else if(st.v==='federacion'){
+    switchView('federacion', true);
+    const netSvg = document.getElementById('net');
+    if (netSvg) { netSvg.style.opacity = '0'; netSvg.style.pointerEvents = 'none'; }
+    const fedEl = document.getElementById('viewFederacion');
+    if (fedEl) fedEl.style.display = 'block';
+    if(window.FEDERACION_BIOTICA && window.FEDERACION_BIOTICA.init) {
+      window.FEDERACION_BIOTICA.init(st.fedTab || 'comparacion');
+    }
+  }
   else{switchView(st.v);setTimeout(()=>{if(G.on&&S[G.i]===st)highlight(st)},currentView===st.v?0:60)}}
  renderPanel();
 }
