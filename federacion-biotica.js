@@ -625,6 +625,7 @@
     else if (activeTab === 'funciona') renderFunciona(svg, showTip, hideTip);
     else if (activeTab === 'fases') renderProgramaArquitectonico(svg, showTip, hideTip);
     else if (activeTab === 'canasta') renderArquitecturaCanasta(svg, showTip, hideTip);
+    else if (activeTab === 'sintesis') renderSintesisEditorialBoard(svg, 1000, 620, false);
     else renderSociobiotica(svg, showTip, hideTip);
   }
 
@@ -2129,7 +2130,7 @@
     init: function (tab) {
       const stage = document.getElementById('viewFederacion');
       if (stage) stage.style.display = 'block';
-      const valid = ['comparacion', 'funciona', 'sociobiotica', 'metropolitano', 'fases', 'canasta'];
+      const valid = ['comparacion', 'funciona', 'sociobiotica', 'metropolitano', 'fases', 'canasta', 'sintesis'];
       setTab(valid.includes(tab) ? tab : activeTab);
     },
     paso: function (i) { activeTab = 'funciona'; setTab('funciona'); goStep(i); }
@@ -2137,3 +2138,432 @@
 
   setTimeout(renderView, 200);
 })();
+
+
+
+/* =========================================================================
+   TABLERO EDITORIAL DE SÍNTESIS (SPREAD MONOGRAFÍA / ALTA DENSIDAD)
+   Inspirado en diseño editorial de dos páginas, alto contraste y KPIs clave.
+   ========================================================================= */
+function renderSintesisEditorialBoard(svg, W, H, P) {
+  // Configuración de lienzo escalable a 1000x620
+  const gRoot = svg.append('g').attr('class', 'sintesis-editorial-board');
+  const baseW = 1000, baseH = 620;
+  if (W && H && (W !== baseW || H !== baseH)) {
+    const s = Math.min(W / baseW, H / baseH);
+    const dx = (W - baseW * s) / 2;
+    const dy = (H - baseH * s) / 2;
+    gRoot.attr('transform', `translate(${dx},${dy}) scale(${s})`);
+  }
+
+  // Defs: Patrones y sombras
+  const defs = svg.select('defs').empty() ? svg.append('defs') : svg.select('defs');
+  if (defs.select('#patHatchDonut').empty()) {
+    defs.append('pattern')
+      .attr('id', 'patHatchDonut').attr('width', 6).attr('height', 6)
+      .attr('patternTransform', 'rotate(45 0 0)').attr('patternUnits', 'userSpaceOnUse')
+      .append('line').attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', 6)
+      .attr('stroke', '#94a3b8').attr('stroke-width', 1.4);
+  }
+  if (defs.select('#spineGrad').empty()) {
+    const sg = defs.append('linearGradient').attr('id', 'spineGrad').attr('x1', '0').attr('y1', '0').attr('x2', '1').attr('y2', '0');
+    sg.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(0,0,0,0.18)');
+    sg.append('stop').attr('offset', '50%').attr('stop-color', 'rgba(0,0,0,0.02)');
+    sg.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(0,0,0,0.18)');
+  }
+  if (defs.select('#bookDropShadow').empty()) {
+    const fil = defs.append('filter').attr('id', 'bookDropShadow').attr('x', '-5%').attr('y', '-5%').attr('width', '110%').attr('height', '110%');
+    fil.append('feDropShadow').attr('dx', 0).attr('dy', 8).attr('stdDeviation', 12).attr('flood-color', '#000').attr('flood-opacity', '0.45');
+  }
+
+  // Fondo general del presenter (oscuro sofisticado)
+  gRoot.append('rect').attr('width', baseW).attr('height', baseH).attr('fill', '#0b0e14');
+
+  // --- MONOGRAFÍA DE DOBLE PÁGINA (SPREAD) ---
+  const bX = 24, bY = 16, bW = 952, bH = 588;
+  const pW = (bW - 8) / 2; // ~472px cada página
+
+  // Sombra exterior del libro
+  gRoot.append('rect').attr('x', bX).attr('y', bY).attr('width', bW).attr('height', bH).attr('rx', 4)
+    .attr('fill', '#000').attr('filter', 'url(#bookDropShadow)');
+
+  // Página Izquierda (Paper warm ivory)
+  gRoot.append('rect').attr('x', bX).attr('y', bY).attr('width', pW).attr('height', bH).attr('rx', 3)
+    .attr('fill', '#f7f6f0').attr('stroke', '#e4e0d5').attr('stroke-width', 1);
+
+  // Página Derecha (Paper warm ivory)
+  gRoot.append('rect').attr('x', bX + pW + 8).attr('y', bY).attr('width', pW).attr('height', bH).attr('rx', 3)
+    .attr('fill', '#f7f6f0').attr('stroke', '#e4e0d5').attr('stroke-width', 1);
+
+  // Pliegue central del libro (spine crease shadow)
+  gRoot.append('rect').attr('x', bX + pW - 14).attr('y', bY).attr('width', 36).attr('height', bH)
+    .attr('fill', 'url(#spineGrad)').style('pointer-events', 'none');
+  gRoot.append('line').attr('x1', bX + pW + 4).attr('y1', bY + 4).attr('x2', bX + pW + 4).attr('y2', bY + bH - 4)
+    .attr('stroke', 'rgba(0,0,0,0.12)').attr('stroke-width', 1);
+
+  // =========================================================================
+  // PÁGINA IZQUIERDA (FOLIO 04)
+  // =========================================================================
+  const lX = bX + 22; // Margen izquierdo = 46
+
+  // Folio superior izquierdo
+  gRoot.append('text').text('COMPLEJO BIOTECNOLÓGICO URBANO · BOGOTÁ D.C.')
+    .attr('x', lX).attr('y', bY + 24)
+    .attr('fill', '#78716c').attr('font-size', '8px').attr('font-family', 'JetBrains Mono, monospace')
+    .attr('font-weight', '700').attr('letter-spacing', '0.12em');
+
+  // DONUT 1: Canasta Familiar - Proteína (26% carmine red / 74% hatched)
+  const d1X = lX + 44, d1Y = bY + 76;
+  const gDonut1 = gRoot.append('g').attr('transform', `translate(${d1X},${d1Y})`);
+  const arcG1 = d3.arc().innerRadius(22).outerRadius(36);
+
+  // Rebanada roja (26%)
+  gDonut1.append('path')
+    .attr('d', arcG1({ startAngle: 0, endAngle: 0.26 * 2 * Math.PI }))
+    .attr('fill', '#dc2626');
+  // Rebanada achurada (74%)
+  gDonut1.append('path')
+    .attr('d', arcG1({ startAngle: 0.26 * 2 * Math.PI, endAngle: 2 * Math.PI }))
+    .attr('fill', 'url(#patHatchDonut)').attr('stroke', '#94a3b8').attr('stroke-width', 0.8);
+  // Texto central
+  gDonut1.append('text').text('26%').attr('y', 4).attr('text-anchor', 'middle')
+    .attr('fill', '#111827').attr('font-size', '11.5px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+
+  // Textos Donut 1
+  const t1X = d1X + 48;
+  gRoot.append('text').text('[ DANE / ENSIN ]').attr('x', t1X).attr('y', d1Y - 18)
+    .attr('fill', '#dc2626').attr('font-size', '7.5px').attr('font-family', 'JetBrains Mono, monospace').attr('font-weight', '700');
+  gRoot.append('text').text('CANASTA FAMILIAR · PROTEÍNA').attr('x', t1X).attr('y', d1Y - 5)
+    .attr('fill', '#111827').attr('font-size', '10.5px').attr('font-weight', '800').attr('letter-spacing', '0.04em');
+  gRoot.append('text').text('40 t/mes de micoproteína Pleurotus cultivada').attr('x', t1X).attr('y', d1Y + 9)
+    .attr('fill', '#4b5563').attr('font-size', '8px');
+  gRoot.append('text').text('sobre rastrojos orgánicos. Sustituye carne a').attr('x', t1X).attr('y', d1Y + 20)
+    .attr('fill', '#4b5563').attr('font-size', '8px');
+  gRoot.append('text').text('un costo 40% menor con 22% proteína bioasimilable.').attr('x', t1X).attr('y', d1Y + 31)
+    .attr('fill', '#4b5563').attr('font-size', '8px').attr('font-weight', '600');
+
+  // DONUT 2: Reducción Directa del Gasto (36% carmine red / 64% hatched)
+  const d2X = lX + 44, d2Y = bY + 168;
+  const gDonut2 = gRoot.append('g').attr('transform', `translate(${d2X},${d2Y})`);
+  const arcG2 = d3.arc().innerRadius(22).outerRadius(36);
+
+  gDonut2.append('path')
+    .attr('d', arcG2({ startAngle: 0, endAngle: 0.36 * 2 * Math.PI }))
+    .attr('fill', '#dc2626');
+  gDonut2.append('path')
+    .attr('d', arcG2({ startAngle: 0.36 * 2 * Math.PI, endAngle: 2 * Math.PI }))
+    .attr('fill', 'url(#patHatchDonut)').attr('stroke', '#94a3b8').attr('stroke-width', 0.8);
+  gDonut2.append('text').text('36%').attr('y', 4).attr('text-anchor', 'middle')
+    .attr('fill', '#111827').attr('font-size', '11.5px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+
+  // Textos Donut 2
+  const t2X = d2X + 48;
+  gRoot.append('text').text('[ CIRCUITO DIRECTO ]').attr('x', t2X).attr('y', d2Y - 18)
+    .attr('fill', '#dc2626').attr('font-size', '7.5px').attr('font-family', 'JetBrains Mono, monospace').attr('font-weight', '700');
+  gRoot.append('text').text('REDUCCIÓN DIRECTA DEL GASTO').attr('x', t2X).attr('y', d2Y - 5)
+    .attr('fill', '#111827').attr('font-size', '10.5px').attr('font-weight', '800').attr('letter-spacing', '0.04em');
+  gRoot.append('text').text('Ahorro directo en 150 tiendas y comedores al').attr('x', t2X).attr('y', d2Y + 9)
+    .attr('fill', '#4b5563').attr('font-size', '8px');
+  gRoot.append('text').text('eliminar intermediación mayorista especulativa.').attr('x', t2X).attr('y', d2Y + 20)
+    .attr('fill', '#4b5563').attr('font-size', '8px');
+  gRoot.append('text').text('Silos pasivos reducen merma de papa de 30% a <3%.').attr('x', t2X).attr('y', d2Y + 31)
+    .attr('fill', '#4b5563').attr('font-size', '8px').attr('font-weight', '600');
+
+  // Línea divisoria izquierda
+  gRoot.append('line').attr('x1', lX).attr('y1', bY + 224).attr('x2', bX + pW - 20).attr('y2', bY + 224)
+    .attr('stroke', '#e5e2d9').attr('stroke-width', 1);
+
+  // COLUMNA DE MÉTRICAS GIGANTES (con cuadrados rojos al estilo de la referencia)
+  const kpiX = lX;
+  const KPIS_LEFT = [
+    { num: '9.000', unit: 'm²', lab: 'Área cubierta construida del complejo' },
+    { num: '320*', unit: 'pers', lab: 'Coteros y recicladores en nómina mecatrónica' },
+    { num: '150', unit: 'nodos', lab: 'Tiendas de barrio y comedores en red' },
+    { num: '0 L', unit: 'vert', lab: 'Cero vertimientos contaminantes al humedal' }
+  ];
+
+  let curKpiY = bY + 248;
+  KPIS_LEFT.forEach((kp, i) => {
+    // Cuadradito rojo
+    gRoot.append('rect').attr('x', kpiX).attr('y', curKpiY - 14).attr('width', 6).attr('height', 6).attr('fill', '#dc2626');
+    // Etiqueta superior
+    gRoot.append('text').text(kp.lab).attr('x', kpiX + 14).attr('y', curKpiY - 9)
+      .attr('fill', '#6b7280').attr('font-size', '7.5px').attr('font-weight', '600');
+    // Número gigante
+    gRoot.append('text').text(kp.num).attr('x', kpiX + 14).attr('y', curKpiY + 12)
+      .attr('fill', '#111827').attr('font-size', '20px').attr('font-weight', '900')
+      .attr('font-family', 'JetBrains Mono, monospace').attr('letter-spacing', '-0.02em');
+    // Unidad
+    gRoot.append('text').text(kp.unit).attr('x', kpiX + 90).attr('y', curKpiY + 12)
+      .attr('fill', '#dc2626').attr('font-size', '9px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+
+    curKpiY += 42;
+  });
+
+  // VIÑETA INFERIOR: SILUETA DE MONTAÑA / CORTE ARQUITECTÓNICO CON ANILLOS DIANA
+  // (Replica la ilustración de la montaña con target rings del libro)
+  const vX = lX, vY = bY + 420, vW = 185, vH = 135;
+  const gVignette = gRoot.append('g').attr('transform', `translate(${vX},${vY})`);
+
+  // Marco de la viñeta
+  gVignette.append('rect').attr('width', vW).attr('height', vH).attr('rx', 4)
+    .attr('fill', '#f0eee6').attr('stroke', '#dfdbce').attr('stroke-width', 1);
+
+  // Silueta arquitectónica en gris oscuro / negro
+  gVignette.append('path')
+    .attr('d', 'M 10,75 L 35,45 L 75,45 L 115,25 L 145,55 L 175,75 L 175,80 L 10,80 Z')
+    .attr('fill', '#18181b');
+  gVignette.append('path')
+    .attr('d', 'M 40,75 L 60,35 L 85,35 L 105,75 Z')
+    .attr('fill', '#27272a');
+
+  // Diana concéntrica (Target rings) en el punto de contacto biótico
+  const tgX = 65, tgY = 58;
+  gVignette.append('circle').attr('cx', tgX).attr('cy', tgY).attr('r', 18).attr('fill', 'none').attr('stroke', '#dc2626').attr('stroke-width', 3);
+  gVignette.append('circle').attr('cx', tgX).attr('cy', tgY).attr('r', 11).attr('fill', 'none').attr('stroke', '#fff').attr('stroke-width', 2);
+  gVignette.append('circle').attr('cx', tgX).attr('cy', tgY).attr('r', 5).attr('fill', '#dc2626');
+
+  // Pin con banderín
+  gVignette.append('line').attr('x1', tgX).attr('y1', tgY - 18).attr('x2', tgX).attr('y2', tgY - 36).attr('stroke', '#dc2626').attr('stroke-width', 1.8);
+  gVignette.append('circle').attr('cx', tgX).attr('cy', tgY - 38).attr('r', 4.5).attr('fill', '#dc2626');
+
+  // Tarjeta de la viñeta
+  gVignette.append('rect').attr('x', 8).attr('y', 86).attr('width', vW - 16).attr('height', 42).attr('rx', 3)
+    .attr('fill', '#fff').attr('stroke', '#e5e2d9').attr('stroke-width', 0.8);
+  gVignette.append('text').text('● CORTE BIOCLIMÁTICO — 12:00 PM').attr('x', 14).attr('y', 99)
+    .attr('fill', '#dc2626').attr('font-size', '7.5px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+  gVignette.append('text').text('Bóvedas con inercia térmica pasiva y talud').attr('x', 14).attr('y', 111)
+    .attr('fill', '#4b5563').attr('font-size', '7px');
+  gVignette.append('text').text('de fitodepuración hacia Humedal El Burro.').attr('x', 14).attr('y', 121)
+    .attr('fill', '#4b5563').attr('font-size', '7px').attr('font-weight', '600');
+
+  // Folio número de página abajo a la izquierda
+  gRoot.append('text').text('04 · SÍNTESIS DE LA PROPUESTA').attr('x', lX).attr('y', bY + bH - 12)
+    .attr('fill', '#a8a29e').attr('font-size', '8px').attr('font-family', 'JetBrains Mono, monospace');
+
+  // =========================================================================
+  // BLOQUE CENTRAL: MAPA CARTOGRÁFICO DE ALTO CONTRASTE (SPREAD OVERLAP)
+  // Ubicado a caballo entre la página izquierda y derecha, igual que en el libro
+  // =========================================================================
+  const mapX = bX + 215, mapY = bY + 36, mapW = 390, mapH = 515;
+  const gMap = gRoot.append('g').attr('transform', `translate(${mapX},${mapY})`);
+
+  // Caja oscura del mapa (charcoal negro)
+  gMap.append('rect').attr('width', mapW).attr('height', mapH).attr('rx', 4)
+    .attr('fill', '#111827').attr('stroke', '#374151').attr('stroke-width', 1.2);
+
+  // Cuadrícula técnica cartográfica
+  const gMGrid = gMap.append('g').style('opacity', 0.22);
+  for (let x = 30; x < mapW; x += 60) {
+    gMGrid.append('line').attr('x1', x).attr('y1', 10).attr('x2', x).attr('y2', mapH - 10).attr('stroke', '#64748b').attr('stroke-dasharray', '2 3');
+  }
+  for (let y = 30; y < mapH; y += 50) {
+    gMGrid.append('line').attr('x1', 10).attr('y1', y).attr('x2', mapW - 10).attr('y2', y).attr('stroke', '#64748b').attr('stroke-dasharray', '2 3');
+  }
+
+  // Río Bogotá (límite occidental)
+  gMap.append('path')
+    .attr('d', 'M 40,20 Q 25,110 35,210 Q 15,310 30,420 Q 15,470 25,500')
+    .attr('fill', 'none').attr('stroke', '#0284c7').attr('stroke-width', 2.5).attr('stroke-dasharray', '5 3');
+  gMap.append('text').text('RÍO BOGOTÁ (OESTE)').attr('transform', 'translate(18, 260) rotate(-90)')
+    .attr('fill', '#38bdf8').attr('font-size', '6.5px').attr('font-family', 'JetBrains Mono, monospace').attr('letter-spacing', '0.1em');
+
+  // Cerros orientales (límite oriental)
+  gMap.append('path')
+    .attr('d', 'M 350,20 Q 365,140 355,260 Q 370,380 350,500')
+    .attr('fill', 'none').attr('stroke', '#059669').attr('stroke-width', 1.5).attr('stroke-dasharray', '4 4');
+
+  // POLÍGONO DE FONTIBÓN (Norte - delineado cian)
+  gMap.append('path')
+    .attr('d', 'M 70,160 L 160,150 L 230,165 L 220,225 L 140,230 L 65,210 Z')
+    .attr('fill', 'rgba(56,189,248,0.12)').attr('stroke', '#38bdf8').attr('stroke-width', 1.5);
+  gMap.append('text').text('FONTIBÓN').attr('x', 145).attr('y', 190).attr('text-anchor', 'middle')
+    .attr('fill', '#38bdf8').attr('font-size', '9.5px').attr('font-weight', '800').attr('letter-spacing', '0.08em');
+  gMap.append('text').text('Corredor Carga Calle 13').attr('x', 145).attr('y', 202).attr('text-anchor', 'middle')
+    .attr('fill', '#94a3b8').attr('font-size', '6.5px');
+
+  // POLÍGONO DE KENNEDY (Sur - RESALTADO EN ROJO CARMÍN SÓLIDO, COMO LA INDIA EN EL LIBRO)
+  gMap.append('path')
+    .attr('d', 'M 65,210 L 140,230 L 220,225 L 250,320 L 160,345 L 55,295 Z')
+    .attr('fill', 'rgba(220,38,38,0.85)').attr('stroke', '#ef4444').attr('stroke-width', 2);
+  gMap.append('text').text('LOCALIDAD DE KENNEDY').attr('x', 155).attr('y', 285).attr('text-anchor', 'middle')
+    .attr('fill', '#fff').attr('font-size', '11px').attr('font-weight', '900').attr('letter-spacing', '0.06em');
+  gMap.append('text').text('Corabastos · Huertas · 150 Tiendas Barriales').attr('x', 155).attr('y', 298).attr('text-anchor', 'middle')
+    .attr('fill', '#fecaca').attr('font-size', '7px').attr('font-weight', '600');
+
+  // Río Fucha (límite y conector natural entre Fontibón y Kennedy)
+  gMap.append('path')
+    .attr('d', 'M 250,210 Q 180,225 140,230 Q 100,225 65,210')
+    .attr('fill', 'none').attr('stroke', '#67e8f9').attr('stroke-width', 2.8).attr('stroke-dasharray', '4 2');
+  gMap.append('text').text('Río Fucha (Eje conector)').attr('x', 195).attr('y', 222)
+    .attr('fill', '#bae6fd').attr('font-size', '6.5px').attr('font-weight', '700');
+
+  // Ejes Viales Metropolitanos
+  // Calle 13 / Av. Centenario
+  gMap.append('path').attr('d', 'M 50,175 L 145,180 L 270,195')
+    .attr('fill', 'none').attr('stroke', '#facc15').attr('stroke-width', 1.8).attr('stroke-dasharray', '4 3');
+  gMap.append('text').text('Calle 13').attr('x', 60).attr('y', 170).attr('fill', '#facc15').attr('font-size', '6.5px').attr('font-weight', '700');
+
+  // Av. Ciudad de Cali
+  gMap.append('path').attr('d', 'M 160,80 L 140,230 L 120,380')
+    .attr('fill', 'none').attr('stroke', '#fb923c').attr('stroke-width', 1.8);
+  gMap.append('text').text('Av. Ciudad de Cali').attr('transform', 'translate(133, 115) rotate(80)')
+    .attr('fill', '#fb923c').attr('font-size', '6.5px').attr('font-weight', '700');
+
+  // Humedal El Burro y Corabastos
+  gMap.append('ellipse').attr('cx', 140).attr('cy', 242).attr('rx', 18).attr('ry', 8)
+    .attr('fill', 'rgba(74,222,128,0.4)').attr('stroke', '#4ade80').attr('stroke-width', 1.5);
+  gMap.append('text').text('H. El Burro').attr('x', 140).attr('y', 245).attr('text-anchor', 'middle')
+    .attr('fill', '#4ade80').attr('font-size', '6px').attr('font-weight', '800');
+
+  // DIANA PULSANTE / RADAR RINGS EN EL EPICENTRO (LOTE 9.000 m²)
+  const pEpicX = 140, pEpicY = 232;
+  const gRadar = gMap.append('g').attr('transform', `translate(${pEpicX},${pEpicY})`);
+  const rCir1 = gRadar.append('circle').attr('r', 16).attr('fill', 'none').attr('stroke', '#fff').attr('stroke-width', 2.8);
+  rCir1.append('animate').attr('attributeName', 'r').attr('values', '12;32').attr('dur', '2s').attr('repeatCount', 'indefinite');
+  rCir1.append('animate').attr('attributeName', 'stroke-opacity').attr('values', '1;0').attr('dur', '2s').attr('repeatCount', 'indefinite');
+
+  const rCir2 = gRadar.append('circle').attr('r', 10).attr('fill', 'none').attr('stroke', '#fde047').attr('stroke-width', 2);
+  rCir2.append('animate').attr('attributeName', 'r').attr('values', '8;22').attr('dur', '2s').attr('begin', '0.5s').attr('repeatCount', 'indefinite');
+  rCir2.append('animate').attr('attributeName', 'stroke-opacity').attr('values', '1;0').attr('dur', '2s').attr('begin', '0.5s').attr('repeatCount', 'indefinite');
+
+  gRadar.append('circle').attr('r', 7).attr('fill', '#fff').attr('stroke', '#dc2626').attr('stroke-width', 2.5);
+  gRadar.append('circle').attr('r', 2.5).attr('fill', '#dc2626');
+
+  // Callout superior en el mapa (Escala Metropolitana)
+  const gCallTop = gMap.append('g').attr('transform', 'translate(18, 16)');
+  gCallTop.append('rect').attr('width', 240).attr('height', 52).attr('rx', 4)
+    .attr('fill', 'rgba(15,23,42,0.92)').attr('stroke', '#475569').attr('stroke-width', 0.8);
+  gCallTop.append('text').text('● ESCALA METROPOLITANA: FONTIBÓN - KENNEDY').attr('x', 10).attr('y', 16)
+    .attr('fill', '#fde047').attr('font-size', '8px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+  gCallTop.append('text').text('Implantación en la bisagra de carga pesada (Calle 13)').attr('x', 10).attr('y', 29)
+    .attr('fill', '#e2e8f0').attr('font-size', '7.5px');
+  gCallTop.append('text').text('y Corabastos / Humedal El Burro, articuladas por Río Fucha.').attr('x', 10).attr('y', 41)
+    .attr('fill', '#94a3b8').attr('font-size', '7px');
+
+  // Callout inferior en el mapa (Área de Influencia)
+  const gCallBot = gMap.append('g').attr('transform', `translate(18, ${mapH - 95})`);
+  gCallBot.append('rect').attr('width', 230).attr('height', 36).attr('rx', 4)
+    .attr('fill', 'rgba(15,23,42,0.92)').attr('stroke', '#dc2626').attr('stroke-width', 0.8);
+  gCallBot.append('text').text('● ÁREA DE INFLUENCIA DIRECTA').attr('x', 10).attr('y', 14)
+    .attr('fill', '#dc2626').attr('font-size', '8px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+  gCallBot.append('text').text('8 Huertas Barriales · 150 Tiendas · Ronda Hídrica').attr('x', 10).attr('y', 26)
+    .attr('fill', '#cbd5e1').attr('font-size', '7.5px');
+
+  // Escala métrica horizontal y fases al pie del mapa
+  const gScale = gMap.append('g').attr('transform', `translate(20, ${mapH - 42})`);
+  gScale.append('line').attr('x1', 0).attr('y1', 12).attr('x2', mapW - 40).attr('y2', 12).attr('stroke', '#64748b').attr('stroke-width', 1.2);
+  const TICKS = [
+    { x: 0, t: 'M0' }, { x: (mapW - 40) * 0.25, t: 'Fase 1 (M12)' },
+    { x: (mapW - 40) * 0.5, t: 'Fase 2 (M24)' }, { x: mapW - 40, t: 'Fase 3 (M48)' }
+  ];
+  TICKS.forEach(tk => {
+    gScale.append('line').attr('x1', tk.x).attr('y1', 6).attr('x2', tk.x).attr('y2', 18).attr('stroke', '#64748b').attr('stroke-width', 1.2);
+    gScale.append('text').text(tk.t).attr('x', tk.x).attr('y', 28).attr('text-anchor', tk.x === 0 ? 'start' : tk.x === mapW - 40 ? 'end' : 'middle')
+      .attr('fill', '#94a3b8').attr('font-size', '7px').attr('font-family', 'JetBrains Mono, monospace');
+  });
+
+  // =========================================================================
+  // PÁGINA DERECHA (FOLIO 05)
+  // =========================================================================
+  const rX = bX + pW + 28; // Margen izquierdo página derecha = 532 + 28 = 560
+
+  // Folio superior derecho
+  gRoot.append('text').text('LOCALIDADES DE FONTIBÓN Y KENNEDY · CORREDOR RÍO FUCHA')
+    .attr('x', rX + 70).attr('y', bY + 24)
+    .attr('fill', '#78716c').attr('font-size', '8px').attr('font-family', 'JetBrains Mono, monospace')
+    .attr('font-weight', '700').attr('letter-spacing', '0.12em');
+
+  // Título y texto de Gobernanza Policéntrica
+  const secX = rX + 70;
+  gRoot.append('text').text('GOBERNANZA POLICÉNTRICA').attr('x', secX).attr('y', bY + 68)
+    .attr('fill', '#111827').attr('font-size', '12px').attr('font-weight', '900').attr('letter-spacing', '0.08em');
+  gRoot.append('text').text('Federación horizontal sin líder central estructurada en 5 núcleos').attr('x', secX).attr('y', bY + 84)
+    .attr('fill', '#4b5563').attr('font-size', '8px');
+  gRoot.append('text').text('autónomos (alimentos, agua, circularidad, comercio, soporte)').attr('x', secX).attr('y', bY + 95)
+    .attr('fill', '#4b5563').attr('font-size', '8px');
+  gRoot.append('text').text('articulados por vocerías rotativas (1-3 meses) y pactos de cogestión.').attr('x', secX).attr('y', bY + 106)
+    .attr('fill', '#4b5563').attr('font-size', '8px').attr('font-weight', '600');
+
+  // Subheader: Reconversión laboral
+  gRoot.append('text').text('RECONVERSIÓN LABORAL & MECATRÓNICA').attr('x', secX).attr('y', bY + 138)
+    .attr('fill', '#dc2626').attr('font-size', '8.5px').attr('font-weight', '800').attr('letter-spacing', '0.06em');
+
+  // NÚMERO HERO GIGANTE: 320
+  gRoot.append('text').text('320').attr('x', secX).attr('y', bY + 194)
+    .attr('fill', '#111827').attr('font-size', '48px').attr('font-weight', '900')
+    .attr('font-family', 'JetBrains Mono, monospace').attr('letter-spacing', '-0.04em');
+
+  gRoot.append('text').text('Coteros y recicladores formalizados').attr('x', secX + 115).attr('y', bY + 172)
+    .attr('fill', '#111827').attr('font-size', '9.5px').attr('font-weight', '800');
+  gRoot.append('text').text('como operadores mecatrónicos').attr('x', secX + 115).attr('y', bY + 185)
+    .attr('fill', '#dc2626').attr('font-size', '9px').attr('font-weight', '700');
+  gRoot.append('text').text('y laboratoristas fúngicos en nómina formal.').attr('x', secX + 115).attr('y', bY + 196)
+    .attr('fill', '#6b7280').attr('font-size', '7.5px');
+
+  // FILA DE PICTOGRAMAS HUMANOS (ISOTIPOS, IGUAL QUE EN EL LIBRO DE REFERENCIA)
+  const gIso = gRoot.append('g').attr('transform', `translate(${secX}, ${bY + 218})`);
+
+  // Función dibujadora de figurita humana (isotype limpio)
+  function drawHuman(g, x, y, col) {
+    const h = g.append('g').attr('transform', `translate(${x},${y})`);
+    h.append('circle').attr('cx', 0).attr('cy', -6).attr('r', 2.8).attr('fill', col);
+    h.append('path').attr('d', 'M -3.2,-2 C -1.5,-2.6 1.5,-2.6 3.2,-2 C 3.8,-0.5 3.6,3 2.8,4 L 2,4 L 2,9 L -2,9 L -2,4 L -2.8,4 C -3.6,3 -3.8,-0.5 -3.2,-2 Z')
+      .attr('fill', col);
+  }
+
+  // 10 figuras: 5 en rojo carmín (operadores mecatrónicos) + 5 en gris oscuro (actores comunitarios)
+  for (let i = 0; i < 10; i++) {
+    const col = i < 5 ? '#dc2626' : '#18181b';
+    drawHuman(gIso, i * 16 + 8, 0, col);
+  }
+  gIso.append('text').text('52% Operadores de tolvas y silos · 48% Cogestión barrial').attr('x', 0).attr('y', 20)
+    .attr('fill', '#6b7280').attr('font-size', '7px').attr('font-family', 'JetBrains Mono, monospace');
+
+  // LÍNEA VERTICAL CON INDICADORES CIRCULARES (GAUGES 100%, 65%, 30%)
+  const gGauges = gRoot.append('g').attr('transform', `translate(${secX}, ${bY + 265})`);
+
+  // Línea guía vertical
+  gGauges.append('line').attr('x1', 16).attr('y1', 10).attr('x2', 16).attr('y2', 150).attr('stroke', '#e5e2d9').attr('stroke-width', 1.5);
+
+  const GAUGES_DATA = [
+    { y: 20, pct: '100%', col: '#dc2626', tit: 'MECANIZACIÓN TOTAL DE DESCARGA', sub: 'Tolvas mecatrónicas y cintas: fin radical del trabajo a lomo.' },
+    { y: 80, pct: '65%', col: '#dc2626', tit: 'RESIDUOS ORGÁNICOS REVALORIZADOS', sub: 'Sustrato de Pleurotus y compost vivo para 8 huertas barriales.' },
+    { y: 140, pct: '30%', col: '#18181b', tit: 'REDUCCIÓN PRECIO CANASTA FAMILIAR', sub: 'Circuito corto directo a 150 tiendas y comedores de Kennedy.' }
+  ];
+
+  GAUGES_DATA.forEach(g => {
+    // Círculo gauge
+    gGauges.append('circle').attr('cx', 16).attr('cy', g.y).attr('r', 16).attr('fill', g.col);
+    gGauges.append('text').text(g.pct).attr('x', 16).attr('y', g.y + 3.5).attr('text-anchor', 'middle')
+      .attr('fill', '#fff').attr('font-size', '8.5px').attr('font-weight', '800').attr('font-family', 'JetBrains Mono, monospace');
+
+    // Textos explicativos al lado
+    gGauges.append('text').text(g.tit).attr('x', 40).attr('y', g.y - 3)
+      .attr('fill', '#111827').attr('font-size', '8.5px').attr('font-weight', '800').attr('letter-spacing', '0.04em');
+    gGauges.append('text').text(g.sub).attr('x', 40).attr('y', g.y + 9)
+      .attr('fill', '#6b7280').attr('font-size', '7.5px');
+  });
+
+  // TARJETA DE SÍNTESIS EDITORIAL INFERIOR DERECHA
+  const gQuote = gRoot.append('g').attr('transform', `translate(${secX}, ${bY + 445})`);
+  gQuote.append('rect').attr('width', 275).attr('height', 88).attr('rx', 4)
+    .attr('fill', '#f0eee6').attr('stroke', '#dfdbce').attr('stroke-width', 1);
+
+  gQuote.append('line').attr('x1', 0).attr('y1', 0).attr('x2', 4).attr('y2', 0).attr('stroke', '#dc2626').attr('stroke-width', 3);
+  gQuote.append('text').text('“La propuesta no es una utopía cosmética:').attr('x', 14).attr('y', 22)
+    .attr('fill', '#111827').attr('font-size', '8.5px').attr('font-weight', '700');
+  gQuote.append('text').text('es un programa arquitectónico de 9.000 m² que sustituye').attr('x', 14).attr('y', 36)
+    .attr('fill', '#374151').attr('font-size', '8px');
+  gQuote.append('text').text('la intermediación especulativa y la precarización física').attr('x', 14).attr('y', 48)
+    .attr('fill', '#374151').attr('font-size', '8px');
+  gQuote.append('text').text('por una infraestructura bioclimática de soberanía biosocial.”').attr('x', 14).attr('y', 60)
+    .attr('fill', '#dc2626').attr('font-size', '8px').attr('font-weight', '700');
+  gQuote.append('text').text('CORTE III · KENNEDY Y FONTIBÓN · 2026').attr('x', 14).attr('y', 76)
+    .attr('fill', '#9ca3af').attr('font-size', '7px').attr('font-family', 'JetBrains Mono, monospace');
+
+  // Folio número de página abajo a la derecha
+  gRoot.append('text').text('05 · INDICADORES & IMPACTO METROPOLITANO').attr('x', bX + bW - 20).attr('y', bY + bH - 12)
+    .attr('text-anchor', 'end').attr('fill', '#a8a29e').attr('font-size', '8px').attr('font-family', 'JetBrains Mono, monospace');
+}
+

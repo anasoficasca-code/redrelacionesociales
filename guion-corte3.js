@@ -28,6 +28,14 @@ programa_arq:[
     tags:[['LOG01','Mecatrónica','Cintas y tolvas','#FB923C'],['AMB04','Humedal El Burro','Fitodepuración cero vertimiento','#4ADE80']]
   }
 ],
+sintesis_infografia:[
+  {
+    t:'Tablero Editorial de Síntesis: Complejo Biotecnológico & Canasta Familiar',
+    s:'Infografía integral de alta densidad inspirada en monografía arquitectónica.',
+    n:'Sintetizamos toda la propuesta en un formato editorial de doble página que articula: 1) Los indicadores de la canasta familiar (26% de proteína Pleurotus y 36% de reducción del gasto familiar directo); 2) Las cuatro cifras maestras de escala: 9.000 m² construidos, 320 coteros formalizados, 150 tiendas en red y cero vertimientos al humedal; 3) El mapa territorial de alta visibilidad con la localización en la interfaz Fontibón - Kennedy y el corredor del Río Fucha; 4) El esquema de gobernanza policéntrica sin líder y la transición técnica laboral hacia la mecatrónica; y 5) La silueta del corte bioclimático y la línea temporal de obra en 48 meses.',
+    tags:[['A25','Recicladores','320 trabajadores reconvertidos','#DC2626'],['A15','Tiendas Barriales','150 puntos de distribución','#D97706'],['AMB04','Humedal El Burro','0 vertimientos · 100% circular','#10B981']]
+  }
+],
 canasta_fases:[
   {
     t:'Arquitectura de la Canasta Familiar: Proteínas, Carbohidratos y Vegetales',
